@@ -1,0 +1,181 @@
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#2d2d2d',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#555555',
+    'lineColor': '#a0a0a0',
+    'secondaryColor': '#1a1a2e',
+    'tertiaryColor': '#16213e',
+    'background': '#0f0f0f',
+    'mainBkg': '#1e1e1e',
+    'nodeBorder': '#555555',
+    'clusterBkg': '#1a1a1a',
+    'titleColor': '#ffffff',
+    'edgeLabelBackground': '#2a2a2a',
+    'attributeBackgroundColorEven': '#1e1e1e',
+    'attributeBackgroundColorOdd': '#2d2d2d'
+  }
+}}%%
+
+flowchart TD
+
+    subgraph LEGEND ["Scope Legend"]
+        direction LR
+        LEG_MVP["MVP Scope\nQuestion -> RAG -> cited answer/refusal"]
+        LEG_TARGET["Target / Future Scope\nAuth limits, ticket automation, RBAC escalation"]
+    end
+
+    %% ─────────────────────────────────────────
+    %% START & AUTH
+    %% ─────────────────────────────────────────
+    START(["🟢 User Question"])
+    AUTH["🔐 Check Auth\n& Usage Limit"]
+
+    %% ─────────────────────────────────────────
+    %% ROUTING LAYER
+    %% ─────────────────────────────────────────
+    ROUTER["🧠 Intent Router\n& Planner"]
+
+    %% ─────────────────────────────────────────
+    %% BRANCH A — Direct / Greeting
+    %% ─────────────────────────────────────────
+    DIRECT["💬 Direct Response"]
+
+    %% ─────────────────────────────────────────
+    %% BRANCH B — HR Policy RAG
+    %% ─────────────────────────────────────────
+    PLANNER["📋 Multi-Doc\nQuery Planner"]
+    RAG["🔍 RAG Retrieval\n& Cohere Reranker"]
+    GRADE["⚖️ Grade Documents\n(Check Relevance)"]
+    REWRITE["✏️ Rewrite Query"]
+
+    %% ─────────────────────────────────────────
+    %% BRANCH C — Create Ticket
+    %% ─────────────────────────────────────────
+    TICKET_TOOL["🎫 Create HR\nTicket Tool"]
+
+    %% ─────────────────────────────────────────
+    %% GENERATION
+    %% ─────────────────────────────────────────
+    GENERATE["✨ Generate Answer\n(with Citations)"]
+    SIMPLE_GENERATE["✨ Generate Answer"]
+
+    %% ─────────────────────────────────────────
+    %% EVALUATION LOOP
+    %% ─────────────────────────────────────────
+    HALLUC["🔬 Hallucination\n& Citation Check"]
+    EVAL["📊 Evaluate Confidence\n& RBAC"]
+
+    %% ─────────────────────────────────────────
+    %% ESCALATION
+    %% ─────────────────────────────────────────
+    ESCALATE["🚨 Auto Escalation\n→ Create HR Ticket"]
+
+    %% ─────────────────────────────────────────
+    %% END NODES
+    %% ─────────────────────────────────────────
+    END_OK(["✅ Final Answer"])
+    END_ESC(["⚠️ Final Answer\n(Kèm mã Ticket & Cảnh báo)"])
+
+    %% ═════════════════════════════════════════
+    %% EDGES — START & AUTH
+    %% ═════════════════════════════════════════
+    START --> AUTH
+    AUTH -->|"✅ Authorized"| ROUTER
+    AUTH -->|"❌ Unauthorized\n/ Limit Exceeded"| END_ESC
+
+    %% ═════════════════════════════════════════
+    %% EDGES — ROUTING
+    %% ═════════════════════════════════════════
+    ROUTER -->|"Greeting / General"| DIRECT
+    ROUTER -->|"HR Policy Q&A"| PLANNER
+    ROUTER -->|"Create Ticket"| TICKET_TOOL
+
+    %% ═════════════════════════════════════════
+    %% EDGES — BRANCH A: Direct
+    %% ═════════════════════════════════════════
+    DIRECT --> SIMPLE_GENERATE
+    SIMPLE_GENERATE --> END_OK
+
+    %% ═════════════════════════════════════════
+    %% EDGES — BRANCH C: Ticket Tool
+    %% ═════════════════════════════════════════
+    TICKET_TOOL --> SIMPLE_GENERATE
+
+    %% ═════════════════════════════════════════
+    %% EDGES — BRANCH B: RAG RETRIEVAL LOOP
+    %% ═════════════════════════════════════════
+    PLANNER --> RAG
+    RAG --> GRADE
+    GRADE -->|"✅ Relevant"| GENERATE
+    GRADE -->|"❌ Not Relevant\n(Rewrite & Retry)"| REWRITE
+    REWRITE -->|"🔄 Retry Retrieval"| RAG
+
+    %% ═════════════════════════════════════════
+    %% EDGES — EVALUATION LOOP
+    %% ═════════════════════════════════════════
+    GENERATE --> HALLUC
+    HALLUC -->|"❌ Fail / Ungrounded\n(Max 2 retries)"| GENERATE
+    HALLUC -->|"✅ Pass"| EVAL
+
+    %% ═════════════════════════════════════════
+    %% EDGES — FINAL BRANCHING
+    %% ═════════════════════════════════════════
+    EVAL -->|"🟢 High Confidence"| END_OK
+    EVAL -->|"🔴 Low Confidence /\nMax Retries Exceeded"| ESCALATE
+    ESCALATE --> END_ESC
+
+    %% ═════════════════════════════════════════
+    %% STYLES — DARK MODE
+    %% ═════════════════════════════════════════
+
+    %% Start / End — Oval, accent colors
+    style START fill:#1a472a,stroke:#2ecc71,stroke-width:2px,color:#ffffff
+    style END_OK fill:#1a472a,stroke:#2ecc71,stroke-width:2px,color:#ffffff
+    style END_ESC fill:#4a1a1a,stroke:#e74c3c,stroke-width:2px,color:#ffffff
+
+    %% Auth & Router — Blue-gray
+    style AUTH fill:#1c2b3a,stroke:#3498db,stroke-width:1.5px,color:#cce7ff
+    style ROUTER fill:#1c2b3a,stroke:#3498db,stroke-width:1.5px,color:#cce7ff
+
+    %% Branch A & C — Neutral dark gray
+    style DIRECT fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
+    style TICKET_TOOL fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
+    style SIMPLE_GENERATE fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
+
+    %% Branch B — RAG nodes, teal accent
+    style PLANNER fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
+    style RAG fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
+    style GRADE fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
+    style REWRITE fill:#3a2a1a,stroke:#e67e22,stroke-width:2px,color:#ffd9a0
+
+    %% Generation & Evaluation — Purple accent
+    style GENERATE fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
+    style HALLUC fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
+    style EVAL fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
+
+    %% Escalation — Red warning
+    style ESCALATE fill:#4a1a1a,stroke:#e74c3c,stroke-width:2px,color:#ffcccc
+
+    %% Scope overlay: keep all nodes, but separate MVP from target/future scope.
+    style LEG_MVP fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style LEG_TARGET fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+
+    style START fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style ROUTER fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style DIRECT fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style PLANNER fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style RAG fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style GRADE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style REWRITE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style GENERATE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style SIMPLE_GENERATE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style HALLUC fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style END_OK fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+
+    style AUTH fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style TICKET_TOOL fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style EVAL fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style ESCALATE fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style END_ESC fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
