@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mermaid Diagram Viewer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: #0f1117;
+      color: #e6edf3;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #151923;
+      border-bottom: 1px solid #303846;
+      padding: 14px 18px;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      font-weight: 650;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    button {
+      border: 1px solid #3b4354;
+      background: #202637;
+      color: #e6edf3;
+      border-radius: 6px;
+      padding: 8px 11px;
+      cursor: pointer;
+    }
+    button.active {
+      background: #123d3a;
+      border-color: #2dd4bf;
+    }
+    main {
+      overflow: auto;
+      padding: 18px;
+    }
+    #status {
+      color: #facc15;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+    #diagram {
+      min-width: 980px;
+      padding: 18px;
+      background: #0f1117;
+      border: 1px solid #303846;
+      border-radius: 8px;
+    }
+    .hint {
+      margin-top: 10px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HR Document Intelligence Agent - Mermaid Viewer</h1>
+    <div class="tabs" id="tabs"></div>
+    <div class="hint">MVP nodes are teal. Target/future nodes are amber dashed.</div>
+  </header>
+  <main>
+    <div id="status">Loading...</div>
+    <div id="diagram"></div>
+  </main>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+
+    const diagrams = [
+      ["System Overview", "system_overview_diagram.mermaid"],
+      ["Agent Flow", "agent_flow_diagram.mermaid"],
+      ["Deployment", "deployment_diagram.mermaid"],
+      ["Workflow", "workflow.mmd"],
+    ];
+
+    const tabs = document.querySelector("#tabs");
+    const status = document.querySelector("#status");
+    const diagram = document.querySelector("#diagram");
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "loose",
+      flowchart: { htmlLabels: true, useMaxWidth: false },
+    });
+
+    diagrams.forEach(([label, file], index) => {
+      const button = document.createElement("button");
+      button.textContent = label;
+      button.addEventListener("click", () => render(file, button));
+      tabs.appendChild(button);
+      if (index === 0) button.click();
+    });
+
+    async function render(file, button) {
+      document.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      status.textContent = `Loading ${file}...`;
+      diagram.innerHTML = "";
+
+      try {
+        const source = await fetch(file).then((res) => {
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          return res.text();
+        });
+        const id = `diagram-${Date.now()}`;
+        const { svg } = await mermaid.render(id, source);
+        diagram.innerHTML = svg;
+        status.textContent = "";
+      } catch (error) {
+        status.textContent =
+          `Could not render ${file}.\n\n` +
+          `Make sure this page is opened through http://localhost:8765/docs/project/diagrams/viewer.html, ` +
+          `not by double-clicking the file.\n\n${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

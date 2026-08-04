@@ -1,0 +1,154 @@
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#1e1e1e',
+    'primaryTextColor': '#e0e0e0',
+    'primaryBorderColor': '#444444',
+    'lineColor': '#888888',
+    'secondaryColor': '#252525',
+    'tertiaryColor': '#1a1a2e',
+    'background': '#0d0d0d',
+    'mainBkg': '#1e1e1e',
+    'nodeBorder': '#555555',
+    'clusterBkg': '#1a1a1a',
+    'clusterBorder': '#444444',
+    'titleColor': '#e0e0e0',
+    'edgeLabelBackground': '#2a2a2a',
+    'fontFamily': 'Segoe UI, Arial, sans-serif'
+  }
+}}%%
+
+graph TB
+
+    subgraph LEGEND["Scope Legend"]
+        direction LR
+        LEG_MVP["MVP Deployment\nMinimal demo stack"]
+        LEG_TARGET["Target / Future Deployment\nProduction hardening and optional services"]
+    end
+
+    %% ══════════════════════════════════════════
+    %% ENTRY POINT
+    %% ══════════════════════════════════════════
+    INET(["🌐 Internet\n(Employees / HR Admins)"])
+
+    %% ══════════════════════════════════════════
+    %% EXTERNAL SERVICES
+    %% ══════════════════════════════════════════
+    subgraph EXT["☁️  EXTERNAL SERVICES"]
+        direction TB
+        CICD["⚙️ GitHub Actions\nCI/CD Pipeline\n(Build & Deploy)"]
+        LLM_API["🤖 OpenAI / Claude API\nLLM Provider\n(Answer Generation)"]
+        COHERE["🔎 Cohere API\nReranker Service\n(Precision Boost)"]
+    end
+
+    %% ══════════════════════════════════════════
+    %% MAIN INFRASTRUCTURE
+    %% ══════════════════════════════════════════
+    subgraph INFRA["🏗️  CLOUD HOST  ·  Render / Fly.io / Docker Compose"]
+        direction TB
+
+        %% ── Frontend ──────────────────────────
+        subgraph FE_CONT["📦 Frontend Container"]
+            direction TB
+            REACT["⚛️ React Web Application\n(Chat UI · Dashboard · Admin Panel)"]
+        end
+
+        %% ── App / Backend ─────────────────────
+        subgraph APP_CONT["📦 App Container  ·  Backend & AI Core"]
+            direction LR
+            FASTAPI["🚀 FastAPI Server\n(REST API · Auth · Rate-Limit Gateway)"]
+            LANGGRAPH["🧩 LangGraph Agent Engine\n(LlamaIndex / LangChain Core\nRAG · Hallucination Check · RBAC)"]
+        end
+
+        %% ── DB Services ───────────────────────
+        subgraph DB_CONT["📦 DB Services Container"]
+            direction LR
+            POSTGRES[("🐘 PostgreSQL\nChat History\nTickets · Metadata")]
+            REDIS[("⚡ Redis Cache\nSession · Rate-Limit\nQuery Cache")]
+        end
+
+        %% ── Vector DB ─────────────────────────
+        subgraph VDB_CONT["📦 Vector DB Container / Service"]
+            direction TB
+            QDRANT[("🧲 Qdrant / Pinecone\nVector Embeddings Store\n(HR Policy Documents)")]
+        end
+
+    end
+
+    %% ══════════════════════════════════════════
+    %% EDGES — DEPLOY
+    %% ══════════════════════════════════════════
+    CICD -->|"🚀 Deploy (push to main)"| FE_CONT
+    CICD -->|"🚀 Deploy (push to main)"| APP_CONT
+
+    %% ══════════════════════════════════════════
+    %% EDGES — USER ACCESS
+    %% ══════════════════════════════════════════
+    INET -->|"HTTPS / TLS"| REACT
+
+    %% ══════════════════════════════════════════
+    %% EDGES — FRONTEND → BACKEND
+    %% ══════════════════════════════════════════
+    REACT -->|"REST API Calls\n(JSON / WebSocket)"| FASTAPI
+
+    %% ══════════════════════════════════════════
+    %% EDGES — FASTAPI INTERNAL
+    %% ══════════════════════════════════════════
+    FASTAPI -->|"Invoke Agent\n(Async Task)"| LANGGRAPH
+    FASTAPI -->|"Read / Write\nChat History & Tickets"| POSTGRES
+    FASTAPI -->|"Check Session\n& Rate Limit"| REDIS
+
+    %% ══════════════════════════════════════════
+    %% EDGES — LANGGRAPH → STORAGE & EXTERNAL
+    %% ══════════════════════════════════════════
+    LANGGRAPH -->|"Vector Search\n(Similarity Lookup)"| QDRANT
+    LANGGRAPH -->|"Rerank Results\n(POST /rerank)"| COHERE
+    LANGGRAPH -->|"Generate Answer\n(chat/completions)"| LLM_API
+
+    %% ══════════════════════════════════════════
+    %% STYLES — ENTRY POINT
+    %% ══════════════════════════════════════════
+    style INET fill:#0d2137,stroke:#3498db,stroke-width:3px,color:#aad4f5,font-weight:bold
+
+    %% ── External Services ──────────────────
+    style EXT fill:#1a1a1a,stroke:#555555,stroke-width:1.5px,color:#cccccc
+    style CICD fill:#1a2a1a,stroke:#27ae60,stroke-width:1.5px,color:#a8e6b0
+    style LLM_API fill:#2a1a2a,stroke:#9b59b6,stroke-width:1.5px,color:#d8a8f0
+    style COHERE fill:#2a1a0a,stroke:#e67e22,stroke-width:1.5px,color:#f5c391
+
+    %% ── Infra wrapper ──────────────────────
+    style INFRA fill:#111118,stroke:#3d3d5c,stroke-width:2px,color:#aaaacc
+
+    %% ── Frontend ───────────────────────────
+    style FE_CONT fill:#0f1f2f,stroke:#2980b9,stroke-width:1.5px,color:#aacfea
+    style REACT fill:#0a1a2a,stroke:#2980b9,stroke-width:1px,color:#cce4f7
+
+    %% ── App Container ──────────────────────
+    style APP_CONT fill:#1a0f2a,stroke:#8e44ad,stroke-width:1.5px,color:#c8a8e0
+    style FASTAPI fill:#1a0a20,stroke:#8e44ad,stroke-width:1px,color:#d8c0f0
+    style LANGGRAPH fill:#1a0a20,stroke:#6c3483,stroke-width:1px,color:#c8a8e0
+
+    %% ── DB Services ────────────────────────
+    style DB_CONT fill:#1a1a0a,stroke:#d4ac0d,stroke-width:1.5px,color:#f0e0a0
+    style POSTGRES fill:#0f0f08,stroke:#b7950b,stroke-width:1px,color:#f9e79f
+    style REDIS fill:#0f0f08,stroke:#e74c3c,stroke-width:1px,color:#f5b7b1
+
+    %% ── Vector DB ──────────────────────────
+    style VDB_CONT fill:#0a1a1a,stroke:#1abc9c,stroke-width:1.5px,color:#a8e8dc
+    style QDRANT fill:#061212,stroke:#1abc9c,stroke-width:1px,color:#aff0e8
+
+    %% Scope overlay: keep all infrastructure nodes visible while separating MVP from target/future scope.
+    style LEG_MVP fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style LEG_TARGET fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+
+    style INET fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style REACT fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style FASTAPI fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style LANGGRAPH fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style QDRANT fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+    style LLM_API fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
+
+    style CICD fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style COHERE fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style POSTGRES fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    style REDIS fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
