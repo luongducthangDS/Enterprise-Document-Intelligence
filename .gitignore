@@ -30,8 +30,13 @@ Thumbs.db
 
 # Data (never commit large data)
 data/
+!data/metadata/document_registry.csv
 *.db
 *.sqlite3
+*.zip
+
+# Local vector store
+storage/
 
 # Logs
 logs/
@@ -58,3 +63,8 @@ out/
 # AI logs — tracked structure, ignored content
 .ai-log/*.jsonl
 .ai-log/archive/
+
+# Backup / scratch files (vd eval set backup trước khi regenerate, file debug lỡ tạo ở root)
+*.bak
+*.bak.*
+scratch_*

@@ -1,0 +1,857 @@
+[
+  {
+    "question": "Tháng này mình làm OT tối đa được bao nhiêu giờ?",
+    "expected_answer": "Tối đa 40 giờ/tháng theo Điều 107 Bộ luật Lao động 2019.",
+    "ground_truth_context": "Không quá **40 giờ/tháng**.",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_001"
+  },
+  {
+    "question": "Chủ nhật mình đi làm thêm thì tính lương bao nhiêu?",
+    "expected_answer": "Tối thiểu 200% đơn giá tiền lương ngày thường.",
+    "ground_truth_context": "Ngày nghỉ hằng tuần (Chủ nhật) | **200%**",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_002"
+  },
+  {
+    "question": "Tự ở lại làm thêm mà không đăng ký trước có được tính OT không?",
+    "expected_answer": "Không, trừ khi được quản lý trực tiếp xác nhận bổ sung.",
+    "ground_truth_context": "Trường hợp không đăng ký trước mà tự ở lại, giờ đó không được tính OT trừ khi được quản lý xác nhận bổ sung.",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_003"
+  },
+  {
+    "question": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?",
+    "expected_answer": "Tối thiểu 300% đơn giá tiền lương, chưa gồm lương ngày lễ.",
+    "ground_truth_context": "Ngày lễ, Tết, ngày nghỉ có hưởng lương | **300%** (chưa gồm lương ngày lễ)",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_004"
+  },
+  {
+    "question": "Muốn làm OT thì cần ai phê duyệt trước?",
+    "expected_answer": "Cần có sự đồng ý của NLĐ và phê duyệt trước của quản lý trực tiếp.",
+    "ground_truth_context": "Làm thêm giờ chỉ thực hiện khi có **sự đồng ý của NLĐ** và **phê duyệt trước** của quản lý trực tiếp (căn cứ Điều 107).",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_005"
+  },
+  {
+    "question": "Đi công tác nếu dùng taxi hoặc Grab di chuyển trong ngày thì được thanh toán tối đa bao nhiêu?",
+    "expected_answer": "Được thanh toán tối đa 300.000 VNĐ/ngày (nếu không sử dụng xe công tác của Công ty).",
+    "ground_truth_context": "Di chuyển trong quá trình công tác: Được thanh toán tối đa 300.000 VNĐ/ngày (nếu không sử dụng xe công tác của Công ty).",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_006"
+  },
+  {
+    "question": "Nhân viên đi công tác bằng máy bay thì được hạng vé gì?",
+    "expected_answer": "Hạng Phổ thông tiết kiệm (Economy Saver) và phải đặt trước ít nhất 03 ngày (trừ trường hợp khẩn cấp).",
+    "ground_truth_context": "Cấp Nhân viên: Hạng Phổ thông tiết kiệm (Economy Saver). Vé máy bay phải được đặt trước ít nhất 03 ngày (trừ trường hợp khẩn cấp).",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_007"
+  },
+  {
+    "question": "Nếu mình đi công tác tự lo chỗ ở không lấy hóa đơn khách sạn thì có được hỗ trợ tiền không?",
+    "expected_answer": "Có, được hỗ trợ khoán 250.000 VNĐ/đêm.",
+    "ground_truth_context": "Trường hợp CBNV tự lo chỗ ở (không lấy hóa đơn khách sạn): Được hỗ trợ khoán 250.000 VNĐ/đêm.",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_008"
+  },
+  {
+    "question": "Đi công tác về mấy ngày thì phải nộp hồ sơ quyết toán?",
+    "expected_answer": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác.",
+    "ground_truth_context": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác, CBNV phải hoàn tất Báo cáo kết quả công tác và hồ sơ quyết toán tài chính gửi Phòng Kế toán.",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_009"
+  },
+  {
+    "question": "Nộp hồ sơ quyết toán công tác phí trễ quá 10 ngày thì bị làm sao?",
+    "expected_answer": "Công ty sẽ khấu trừ số tiền đã tạm ứng vào kỳ lương gần nhất (nếu không có lý do chính đáng).",
+    "ground_truth_context": "Trường hợp nộp hồ sơ quyết toán trễ hạn quá 10 ngày làm việc mà không có lý do chính đáng, Công ty sẽ khấu trừ số tiền đã tạm ứng vào kỳ lương gần nhất.",
+    "category": "compensation_policies",
+    "type": "in_scope",
+    "id": "qa_010"
+  },
+  {
+    "question": "Nếu phòng mình cần tuyển thêm người thì trưởng bộ phận cần làm bước đầu tiên là gì?",
+    "expected_answer": "Trưởng bộ phận cần điền Phiếu yêu cầu tuyển dụng (HR-FRM-REC-01) gồm: vị trí, số lượng, JD, mức lương dự kiến, thời điểm cần. Sau đó trình duyệt theo luồng: Trưởng bộ phận → Giám đốc khối → Phòng Nhân sự xác nhận ngân sách headcount.",
+    "ground_truth_context": "Trưởng bộ phận điền **Phiếu yêu cầu tuyển dụng** (HR-FRM-REC-01): vị trí, số lượng, JD, mức lương dự kiến, thời điểm cần.\n- Phê duyệt: Trưởng bộ phận → Giám đốc khối → Phòng Nhân sự xác nhận ngân sách headcount.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_011"
+  },
+  {
+    "question": "Quy trình phỏng vấn của công ty có mấy vòng?",
+    "expected_answer": "Tối đa 3 vòng. Vòng 1 (HR) đánh giá động lực, kỳ vọng lương, phù hợp văn hóa; Vòng 2 (Chuyên môn) do quản lý trực tiếp đánh giá năng lực, có thể kèm bài test; Vòng 3 (nếu cần) do Giám đốc khối, áp dụng cho vị trí từ cấp Trưởng nhóm trở lên.",
+    "ground_truth_context": "**Vòng 1 (HR)**: đánh giá sơ bộ động lực, kỳ vọng lương, tính phù hợp văn hóa.\n- **Vòng 2 (Chuyên môn)**: quản lý trực tiếp đánh giá năng lực; có thể kèm bài test.\n- **Vòng 3 (nếu cần)**: Giám đốc khối, cho vị trí từ cấp Trưởng nhóm trở lên.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_012"
+  },
+  {
+    "question": "Mình giới thiệu bạn ứng tuyển thì bạn mình nộp hồ sơ qua kênh nào?",
+    "expected_answer": "Công ty đăng tin trên website tuyển dụng nội bộ, các trang việc làm (VietnamWorks, TopCV, LinkedIn) và kênh giới thiệu nội bộ (referral).",
+    "ground_truth_context": "Kênh đăng: website tuyển dụng nội bộ, các trang việc làm (VietnamWorks, TopCV, LinkedIn), giới thiệu nội bộ (referral).",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_013"
+  },
+  {
+    "question": "Vị trí thực tập hay cộng tác viên thì quy trình tuyển có gì khác so với full-time?",
+    "expected_answer": "Áp dụng quy trình rút gọn: bỏ Vòng 3 phỏng vấn, không áp dụng thử việc, ký thỏa thuận thực tập thay vì hợp đồng lao động.",
+    "ground_truth_context": "Bỏ Vòng 3; không áp dụng thử việc; ký thỏa thuận thực tập thay vì hợp đồng lao động.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_014"
+  },
+  {
+    "question": "Ai là người được phép trao đổi mức lương với ứng viên, và ở bước nào?",
+    "expected_answer": "Chỉ Phòng Nhân sự, và chỉ ở bước Offer.",
+    "ground_truth_context": "Mọi trao đổi lương thưởng chỉ được đưa ra ở bước Offer bởi Phòng Nhân sự.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_015"
+  },
+  {
+    "question": "Quy trình tuyển dụng trực tiếp của công ty có mấy vòng?",
+    "expected_answer": "4 vòng: nộp hồ sơ ứng tuyển, phỏng vấn trực tiếp, phỏng vấn chuyên sâu và thỏa thuận lương.",
+    "ground_truth_context": "Những ứng viên này cần tham gia 4 vòng bao gồm nộp hồ sơ ứng tuyển, phỏng vấn trực tiếp, phỏng vấn chuyên sâu và thỏa thuận lương, mỗi vòng đều có những khó khăn nhất định.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_016"
+  },
+  {
+    "question": "Công ty có những hình thức tuyển dụng nào?",
+    "expected_answer": "2 hình thức: tuyển dụng trực tiếp và tuyển dụng thực tập sinh thông qua chương trình \"Thực tập sinh tài năng\".",
+    "ground_truth_context": "Với Vingroup, những ứng viên tài năng có thể được tuyển dụng thông qua 2 hình thức là tuyển dụng trực tiếp và tuyển dụng thực tập sinh thông qua chương trình \"Thực tập sinh tài năng\".",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_017"
+  },
+  {
+    "question": "Mục tiêu của quy trình tuyển dụng là gì?",
+    "expected_answer": "Tìm kiếm, thu hút ứng viên phù hợp, tốt nhất; đáp ứng nhu cầu tuyển dụng nội bộ; xây dựng thương hiệu tuyển dụng của doanh nghiệp.",
+    "ground_truth_context": "- Tìm kiếm, thu hút ứng viên phù hợp, tốt nhất.\n- Đáp ứng được nhu cầu tuyển dụng nội bộ của công ty.\n- Xây dựng thương hiệu tuyển dụng của doanh nghiệp.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_018"
+  },
+  {
+    "question": "Nếu mình giới thiệu bạn ứng tuyển thì họ cần nộp hồ sơ qua những kênh nào?",
+    "expected_answer": "Gửi hồ sơ qua email (tiêu đề: Vị trí ứng tuyển – Họ tên), nộp hồ sơ bản cứng trực tiếp tại văn phòng công ty, hoặc đăng ký qua link có sẵn/gửi SMS theo cú pháp cho trước.",
+    "ground_truth_context": "- Gửi hồ sơ dự tuyển (bao gồm CV); thông qua email về địa chỉ email tuyển dụng của Vingroup, tiêu đề của email theo mẫu: Vị trí ứng tuyển – Họ tên. VD: Chuyên viên Tìm kiếm mặt bằng – Nguyễn Văn A.\n- Nộp hồ sơ bản cứng trực tiếp với văn phòng công ty Vingroup; hoặc văn phòng công ty thành viên (nơi trực tiếp ứng tuyển vị trí tuyển dụng).\n- Với một số vị trí tuyển dụng, Vingroup cho phép ứng viên ứng tuyển thông qua việc đăng ký theo link có sẵn; hoặc gửi SMS theo cú pháp cho trước.",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_019"
+  },
+  {
+    "question": "Hồ sơ bản cứng ứng viên nộp cần gồm những giấy tờ gì?",
+    "expected_answer": "Sơ yếu lý lịch chứng nhận trong 6 tháng, giấy khai sinh công chứng, giấy khám sức khỏe trong 6 tháng, CMND công chứng (02 bản), photocopy sổ hộ khẩu, xác nhận không có tiền án tiền sự, 4 ảnh 3x4, bằng cấp/chứng chỉ, mã số thuế (nếu có), số bảo hiểm (nếu có).",
+    "ground_truth_context": "+ Sơ yếu lý lịch có chứng nhận của phường/xã trong vòng 6 tháng gần nhất\n+ Giấy khai sinh công chứng\n+ Giấy khám sức khỏe có dấu tròn trong 06 tháng gần nhất\n+ CMND công chứng (02 bản)\n+ Photocopy Sổ Hộ khẩu\n+ Xác nhận của Công an V/v Không có tiền án, tiền sự\n+ 4 ảnh 3*4\n+ Bằng cấp, chứng chỉ\n+ Mã số thuế cá nhân (nếu có)\n+ Số bảo hiểm (nếu có)",
+    "category": "recruitment_policies",
+    "type": "in_scope",
+    "id": "qa_020"
+  },
+  {
+    "question": "Người buddy hỗ trợ mình trong bao lâu vậy?",
+    "expected_answer": "Buddy hỗ trợ trong 30 ngày đầu tiên.",
+    "ground_truth_context": "Buddy (người đồng hành): đồng nghiệp hỗ trợ hòa nhập trong 30 ngày đầu.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_021"
+  },
+  {
+    "question": "Sau thử việc xong mình bao lâu mới biết kết quả?",
+    "expected_answer": "Công ty phải thông báo kết quả thử việc khi kết thúc thời gian thử việc, theo Điều 27 Bộ luật Lao động 2019.",
+    "ground_truth_context": "Công ty phải thông báo kết quả thử việc khi kết thúc thời gian thử việc (Điều 27 Bộ luật Lao động 2019).",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_022"
+  },
+  {
+    "question": "Ngày đầu tiên đi làm mình sẽ làm những gì?",
+    "expected_answer": "Bạn sẽ nhận thiết bị, tài khoản; ký các giấy tờ còn lại; tham gia đào tạo định hướng về công ty, nội quy, quy tắc ứng xử, an toàn lao động, chính sách bảo mật; được giới thiệu với bộ phận và buddy dẫn tham quan.",
+    "ground_truth_context": "Nhận thiết bị, tài khoản; ký các giấy tờ còn lại. Đào tạo định hướng: giới thiệu công ty, cơ cấu tổ chức, nội quy lao động, quy tắc ứng xử, an toàn lao động, chính sách bảo mật. Giới thiệu với bộ phận; buddy dẫn tham quan.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_023"
+  },
+  {
+    "question": "Tuần đầu tiên có khóa học nào bắt buộc phải hoàn thành không?",
+    "expected_answer": "Có, bạn phải hoàn tất các khóa e-learning bắt buộc về bảo mật thông tin và phòng chống quấy rối.",
+    "ground_truth_context": "Hoàn tất các khóa e-learning bắt buộc (bảo mật thông tin, phòng chống quấy rối).",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_024"
+  },
+  {
+    "question": "Đến ngày thứ 60 thì có đánh giá gì không?",
+    "expected_answer": "Có đánh giá giữa kỳ thử việc, quản lý sẽ phản hồi điểm mạnh và điểm cần cải thiện.",
+    "ground_truth_context": "Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_025"
+  },
+  {
+    "question": "Mình làm hợp đồng không xác định thời hạn, nếu muốn nghỉ việc thì phải báo trước bao lâu?",
+    "expected_answer": "Bạn cần báo trước ít nhất 45 ngày.",
+    "ground_truth_context": "- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_026"
+  },
+  {
+    "question": "Khi nghỉ việc thì mình cần phải trả lại những tài sản gì cho công ty?",
+    "expected_answer": "Bạn cần trả lại laptop, thẻ nhân viên, tài liệu và tài khoản.",
+    "ground_truth_context": "- Trả lại tài sản: laptop, thẻ nhân viên, tài liệu, tài khoản.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_027"
+  },
+  {
+    "question": "Sau khi chính thức nghỉ việc, bao lâu thì công ty sẽ chốt và thanh toán hết các khoản chế độ?",
+    "expected_answer": "Trong thời hạn 14 ngày làm việc kể từ ngày chấm dứt, một số trường hợp có thể tới 30 ngày.",
+    "ground_truth_context": "- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_028"
+  },
+  {
+    "question": "Mình muốn hỏi về điều kiện nhận trợ cấp thôi việc, công ty quy định thế nào?",
+    "expected_answer": "Bạn phải làm việc thường xuyên từ đủ 12 tháng trở lên, mỗi năm làm việc được trợ cấp nửa tháng lương.",
+    "ground_truth_context": "- Thanh toán: lương những ngày làm việc còn lại, phép năm chưa nghỉ, thưởng (nếu có), **trợ cấp thôi việc** nếu đủ điều kiện theo **Điều 46** (làm việc thường xuyên từ đủ 12 tháng trở lên, mỗi năm làm việc được trợ cấp nửa tháng lương, trừ thời gian đã tham gia bảo hiểm thất nghiệp).",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_029"
+  },
+  {
+    "question": "Ai sẽ phụ trách phỏng vấn thôi việc (exit interview) với mình vậy?",
+    "expected_answer": "Phòng Nhân sự sẽ thực hiện phỏng vấn thôi việc.",
+    "ground_truth_context": "- Phòng NS thực hiện exit interview: lý do nghỉ, phản hồi về công ty.",
+    "category": "onboarding_offboarding",
+    "type": "in_scope",
+    "id": "qa_030"
+  },
+  {
+    "question": "Em làm công việc văn phòng bình thường thì mỗi năm được nghỉ phép bao nhiêu ngày?",
+    "expected_answer": "Bạn được nghỉ 12 ngày/năm.",
+    "ground_truth_context": "| Công việc bình thường | **12 ngày** | Điều 113.1 |",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_031"
+  },
+  {
+    "question": "Nếu mình làm việc được 5 năm rồi thì số ngày nghỉ phép năm có được tăng thêm không?",
+    "expected_answer": "Có, cứ mỗi 5 năm làm việc bạn được tăng thêm 1 ngày nghỉ phép năm.",
+    "ground_truth_context": "Cứ mỗi **5 năm làm việc** tại một doanh nghiệp hoặc cùng một ngành nghề, NLĐ được tăng thêm **1 ngày** nghỉ phép năm.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_032"
+  },
+  {
+    "question": "Sắp tới em lấy vợ thì được nghỉ bao nhiêu ngày và có hưởng lương không?",
+    "expected_answer": "Bạn được nghỉ 3 ngày kết hôn và hưởng nguyên lương.",
+    "ground_truth_context": "NLĐ được nghỉ việc riêng có hưởng nguyên lương trong các trường hợp sau:\n\n| Lý do nghỉ | Số ngày nghỉ | Ghi chú |\n|---|---|---|\n| Kết hôn | **3 ngày** |  |",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_033"
+  },
+  {
+    "question": "Nếu cha mẹ mất thì nhân viên được nghỉ bao nhiêu ngày?",
+    "expected_answer": "Bạn được nghỉ 3 ngày.",
+    "ground_truth_context": "| Cha/mẹ, vợ/chồng, con chết | **3 ngày** |  |",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_034"
+  },
+  {
+    "question": "Khi nghỉ phép năm thì công ty trả lương như thế nào?",
+    "expected_answer": "Bạn được hưởng 100% tiền lương theo hợp đồng lao động tại thời điểm nghỉ.",
+    "ground_truth_context": "NLĐ được hưởng **100% tiền lương** theo HĐLĐ tại thời điểm nghỉ.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_035"
+  },
+  {
+    "question": "Tôi ốm đột xuất sáng nay mới biết, báo nghỉ kiểu gì?",
+    "expected_answer": "Bạn có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp trong ngày. Sau đó phải bổ sung yêu cầu trên HRIS trong vòng 24 giờ kể từ khi có thể truy cập hệ thống.",
+    "ground_truth_context": "NLĐ có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp trong ngày nếu lý do đột xuất (ốm đột xuất, tang sự, tai nạn). Phải bổ sung yêu cầu trên HRIS trong vòng 24 giờ kể từ khi có thể truy cập hệ thống.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_036"
+  },
+  {
+    "question": "Cuối năm mình còn 8 ngày phép chưa dùng thì xử lý thế nào?",
+    "expected_answer": "Bạn được cộng dồn 5 ngày sang năm sau, 3 ngày còn lại được thanh toán bằng tiền cùng kỳ lương tháng 12 hoặc tháng 1 năm sau.",
+    "ground_truth_context": "H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế nào? Đ: Bạn được cộng dồn 5 ngày sang năm sau, 3 ngày còn lại được thanh toán bằng tiền cùng kỳ lương tháng 12 hoặc tháng 1 năm sau.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_037"
+  },
+  {
+    "question": "Tôi sắp sinh rồi, cần báo công ty trước bao lâu?",
+    "expected_answer": "Bạn nên thông báo cho quản lý trực tiếp và Phòng Nhân sự ít nhất 30 ngày trước ngày dự kiến sinh.",
+    "ground_truth_context": "H: Tôi sắp sinh con, cần báo trước công ty bao lâu? Đ: Bạn nên thông báo cho quản lý trực tiếp và Phòng Nhân sự ít nhất 30 ngày trước ngày dự kiến sinh, để công ty sắp xếp người thay thế và chuẩn bị hồ sơ BHXH.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_038"
+  },
+  {
+    "question": "Đi lấy vợ thì được nghỉ mấy ngày, có hưởng lương không?",
+    "expected_answer": "Bạn được nghỉ 3 ngày có hưởng lương theo Điều 115 BLLĐ 2019. Cần nộp giấy đăng ký kết hôn khi công ty yêu cầu.",
+    "ground_truth_context": "H: Tôi nghỉ cưới được mấy ngày và có hưởng lương không? Đ: Bạn được nghỉ 3 ngày có hưởng lương theo Điều 115 BLLĐ 2019. Cần nộp giấy đăng ký kết hôn khi công ty yêu cầu.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_039"
+  },
+  {
+    "question": "Nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?",
+    "expected_answer": "Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác.",
+    "ground_truth_context": "H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không? Đ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.",
+    "category": "leave_policies",
+    "type": "in_scope",
+    "id": "qa_040"
+  },
+  {
+    "question": "Công ty tuyển dụng em từ năm 14 tuổi có được không?",
+    "expected_answer": "Không, độ tuổi lao động tối thiểu là đủ 15 tuổi, trừ trường hợp quy định tại Mục 1 Chương XI của Bộ luật Lao động.",
+    "ground_truth_context": "Độ tuổi lao động tối thiểu của người lao động là đủ 15 tuổi, trừ trường hợp quy định tại Mục 1 Chương XI của Bộ luật này.",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_041"
+  },
+  {
+    "question": "Cá nhân tự kinh doanh có quyền thuê người làm việc không?",
+    "expected_answer": "Có. Cá nhân có thể là người sử dụng lao động nếu có năng lực hành vi dân sự đầy đủ.",
+    "ground_truth_context": "Người sử dụng lao động là doanh nghiệp, cơ quan, tổ chức, hợp tác xã, hộ gia đình, cá nhân có thuê mướn, sử dụng người lao động làm việc cho mình theo thỏa thuận; trường hợp người sử dụng lao động là cá nhân thì phải có năng lực hành vi dân sự đầy đủ.",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_042"
+  },
+  {
+    "question": "Sếp dùng lời đe dọa ép mình làm việc ngoài giờ có bị coi là cưỡng bức lao động không?",
+    "expected_answer": "Có. Cưỡng bức lao động là việc dùng vũ lực, đe dọa dùng vũ lực hoặc các thủ đoạn khác để ép buộc người lao động phải làm việc trái ý muốn của họ.",
+    "ground_truth_context": "Cưỡng bức lao động là việc dùng vũ lực, đe dọa dùng vũ lực hoặc các thủ đoạn khác để ép buộc người lao động phải làm việc trái ý muốn của họ.",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_043"
+  },
+  {
+    "question": "Công ty ưu tiên tuyển người chưa có gia đình thì có bị coi là phân biệt đối xử không?",
+    "expected_answer": "Có. Phân biệt đối xử trong lao động bao gồm hành vi phân biệt, loại trừ hoặc ưu tiên dựa trên tình trạng hôn nhân có tác động làm ảnh hưởng đến bình đẳng về cơ hội việc làm.",
+    "ground_truth_context": "Phân biệt đối xử trong lao động là hành vi phân biệt, loại trừ hoặc ưu tiên dựa trên chủng tộc, màu da, nguồn gốc quốc gia hoặc nguồn gốc xã hội, dân tộc, giới tính, độ tuổi, tình trạng thai sản, tình trạng hôn nhân, tôn giáo, tín ngưỡng, chính kiến, khuyết tật, trách nhiệm gia đình hoặc trên cơ sở tình trạng nhiễm HIV hoặc vì lý do thành lập, gia nhập và hoạt động công đoàn, tổ chức của người lao động tại doanh nghiệp có tác động làm ảnh hưởng đến bình đẳng về cơ hội việc làm hoặc nghề nghiệp.",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_044"
+  },
+  {
+    "question": "Tại công ty mình có những tổ chức nào đại diện và bảo vệ quyền lợi cho người lao động?",
+    "expected_answer": "Tổ chức đại diện người lao động tại cơ sở bao gồm công đoàn cơ sở và tổ chức của người lao động tại doanh nghiệp.",
+    "ground_truth_context": "Tổ chức đại diện người lao động tại cơ sở bao gồm công đoàn cơ sở và tổ chức của người lao động tại doanh nghiệp.",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_045"
+  },
+  {
+    "question": "Hợp đồng lao động thời hạn bao lâu thì mình phải đóng bảo hiểm xã hội bắt buộc?",
+    "expected_answer": "Hợp đồng lao động xác định thời hạn từ đủ 01 tháng trở lên thì thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc.",
+    "ground_truth_context": "Người làm việc theo hợp đồng lao động không xác định thời hạn, hợp đồng lao động xác định thời hạn có thời hạn từ đủ 01 tháng trở lên",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_046"
+  },
+  {
+    "question": "Người nước ngoài làm việc tại Việt Nam có phải tham gia bảo hiểm xã hội bắt buộc không?",
+    "expected_answer": "Có, nếu làm việc theo hợp đồng lao động xác định thời hạn từ đủ 12 tháng trở lên. Trừ trường hợp di chuyển trong nội bộ doanh nghiệp hoặc đã đủ tuổi nghỉ hưu khi giao kết hợp đồng.",
+    "ground_truth_context": "Người lao động là công dân nước ngoài làm việc tại Việt Nam thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc khi làm việc theo hợp đồng lao động xác định thời hạn có thời hạn từ đủ 12 tháng trở lên với người sử dụng lao động tại Việt Nam",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_047"
+  },
+  {
+    "question": "Làm part-time có được đóng bảo hiểm xã hội không?",
+    "expected_answer": "Có, nếu tiền lương trong tháng bằng hoặc cao hơn mức lương làm căn cứ đóng bảo hiểm xã hội bắt buộc thấp nhất.",
+    "ground_truth_context": "Đối tượng quy định tại điểm a khoản này làm việc không trọn thời gian, có tiền lương trong tháng bằng hoặc cao hơn tiền lương làm căn cứ đóng bảo hiểm xã hội bắt buộc thấp nhất",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_048"
+  },
+  {
+    "question": "Chủ hộ kinh doanh có đăng ký kinh doanh có phải tham gia bảo hiểm xã hội bắt buộc không?",
+    "expected_answer": "Có, chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo quy định của Chính phủ.",
+    "ground_truth_context": "Chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo quy định của Chính phủ",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_049"
+  },
+  {
+    "question": "Dân quân thường trực có thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc không?",
+    "expected_answer": "Có, dân quân thường trực thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc.",
+    "ground_truth_context": "Dân quân thường trực",
+    "category": "government_legal",
+    "type": "in_scope",
+    "id": "qa_050"
+  },
+  {
+    "question": "Văn hóa của người Vingroup gói gọn trong 3 từ gì vậy?",
+    "expected_answer": "Yêu nước, Kỷ luật, Văn minh.",
+    "ground_truth_context": "VĂN HÓA NGƯỜI VINGROUP Yêu nước, Kỷ luật, Văn minh",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_051"
+  },
+  {
+    "question": "Slogan của Vingroup là gì nhỉ?",
+    "expected_answer": "Mãi mãi tinh thần khởi nghiệp.",
+    "ground_truth_context": "5. SLOGAN: Mãi mãi tinh thần khởi nghiệp.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_052"
+  },
+  {
+    "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
+    "expected_answer": "Toàn bộ nhân viên Công ty VinFast.",
+    "ground_truth_context": "Bộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_053"
+  },
+  {
+    "question": "Công ty rà soát đánh giá xếp bậc cán bộ lãnh đạo bao lâu một lần?",
+    "expected_answer": "06 tháng/lần.",
+    "ground_truth_context": "Việc đánh giá xếp loại, xếp bậc CBLĐ được thực hiện, rà soát 06 tháng/lần.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_054"
+  },
+  {
+    "question": "Cán bộ lãnh đạo xếp loại 'Quyền' thì xếp bậc thế nào so với chức danh?",
+    "expected_answer": "Hạ 01 bậc so với cấp bậc của chức danh.",
+    "ground_truth_context": "Hạ 01 bậc so với cấp bậc của chức danh",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_055"
+  },
+  {
+    "question": "Mình làm mảng kinh doanh thì chu kỳ đánh giá hiệu suất thế nào?",
+    "expected_answer": "Khối Kinh doanh áp dụng đánh giá hàng tháng hoặc hàng quý để tính thưởng doanh số/năng suất.",
+    "ground_truth_context": "Đánh giá Hàng tháng / Hàng quý**: Áp dụng đối với Khối Kinh doanh, Dịch vụ và Sản xuất để tính thưởng doanh số/năng suất.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_056"
+  },
+  {
+    "question": "Mình mới làm được 2 tháng thì có phải tham gia đánh giá hàng năm không?",
+    "expected_answer": "Không. Đánh giá hàng năm chỉ áp dụng cho CBNV có thâm niên làm việc từ 03 tháng trở lên tính đến thời điểm chốt đánh giá.",
+    "ground_truth_context": "Đánh giá Hàng năm (Annual Performance Review - APR)**: Áp dụng cho toàn thể CBNV có thâm niên làm việc từ 03 tháng trở lên tính đến thời điểm chốt đánh giá.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_057"
+  },
+  {
+    "question": "Nếu mình bị xếp loại C cần cải thiện thì có được xét tăng lương không?",
+    "expected_answer": "Không, nhân viên xếp loại C sẽ không được xem xét tăng lương.",
+    "ground_truth_context": "| **Cần cải thiện (C)** | 50 - 64 điểm | Dưới 10% | 0% - 50% Mức thưởng chuẩn (Không xem xét tăng lương) |",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_058"
+  },
+  {
+    "question": "Trường hợp nào nhân viên sẽ bị đưa vào Kế hoạch Cải thiện Hiệu suất (PIP)?",
+    "expected_answer": "Nhân viên bị xếp loại D trong kỳ đánh giá năm hoặc 02 quý liên tiếp bị xếp loại C sẽ phải tham gia PIP.",
+    "ground_truth_context": "CBNV bị xếp loại **D (Không đạt)** trong kỳ đánh giá năm hoặc **02 quý liên tiếp bị xếp loại C** sẽ phải tham gia **Kế hoạch Cải thiện Hiệu suất (Performance Improvement Plan - PIP)** trong thời gian 30 - 60 ngày.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_059"
+  },
+  {
+    "question": "Nếu mình không đồng ý với kết quả đánh giá thì có quyền khiếu nại không và trong bao lâu?",
+    "expected_answer": "Có, bạn có quyền gửi đơn khiếu nại trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR.",
+    "ground_truth_context": "CBNV có quyền gửi Đơn khiếu nại kết quả đánh giá trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR.",
+    "category": "company_regulations",
+    "type": "in_scope",
+    "id": "qa_060"
+  },
+  {
+    "question": "Lương tháng này của Nguyễn Văn A là bao nhiêu?",
+    "reason": "Thông tin lương cụ thể của một cá nhân là dữ liệu bảo mật, không được ghi trong tài liệu chính sách chung. Chatbot cần từ chối và hướng dẫn người dùng tra cứu qua hệ thống payroll hoặc hỏi quản lý trực tiếp.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_061"
+  },
+  {
+    "question": "Đơn xin nghỉ phép của tôi tuần trước đã được phê duyệt chưa?",
+    "reason": "Trạng thái phê duyệt đơn phép là dữ liệu giao dịch động nằm ở hệ thống HRIS, không có trong tài liệu chính sách tĩnh. Chatbot không có quyền truy cập và phải yêu cầu người dùng kiểm tra trên hệ thống tương ứng.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_062"
+  },
+  {
+    "question": "Tôi còn bao nhiêu ngày phép năm nay?",
+    "reason": "Số dư phép cụ thể phụ thuộc vào dữ liệu chấm công và thâm niên thực tế của từng người. Tài liệu chính sách chỉ quy định cách tính phép, không lưu số dư cá nhân.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_063"
+  },
+  {
+    "question": "Sổ bảo hiểm xã hội của tôi hiện đang được lưu ở phòng nhân sự hay đã trả lại cho tôi?",
+    "reason": "Trạng thái lưu trữ hồ sơ vật lý của một nhân viên cụ thể là thông tin nội bộ chi tiết, không được định nghĩa trong các văn bản chính sách hay luật lao động.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_064"
+  },
+  {
+    "question": "Hôm qua tôi quên chấm công, hệ thống có ghi nhận giờ ra về của tôi không?",
+    "reason": "Chatbot không có quyền truy cập vào cơ sở dữ liệu chấm công thời gian thực của từng cá nhân để xác minh dữ liệu vân tay/thẻ từ.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_065"
+  },
+  {
+    "question": "Hợp đồng lao động của Trần Thị B sắp hết hạn vào ngày nào?",
+    "reason": "Thông tin trạng thái và ngày hết hạn hợp đồng của một nhân viên cụ thể là dữ liệu bảo mật, nằm ngoài phạm vi của tài liệu chính sách chung.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_066"
+  },
+  {
+    "question": "Tổng tiền thưởng KPI quý vừa rồi của tôi là bao nhiêu?",
+    "reason": "Số tiền thưởng thực nhận phụ thuộc vào kết quả đánh giá cá nhân và dữ liệu tính lương, không phải là quy định chính sách chung.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_067"
+  },
+  {
+    "question": "Hôm nay thời tiết ở thành phố Hồ Chí Minh có mưa không?",
+    "reason": "Câu hỏi hoàn toàn ngoài phạm vi HR, liên quan đến thông tin thời tiết, không liên quan đến luật lao động hay chính sách công ty.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_068"
+  },
+  {
+    "question": "Làm thế nào để fix lỗi NullReferenceException trong code C#?",
+    "reason": "Câu hỏi thuộc phạm vi kỹ thuật lập trình (IT/Engineering), hoàn toàn không liên quan đến nhân sự.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_069"
+  },
+  {
+    "question": "Công thức nấu món phở bò ngon là gì?",
+    "reason": "Câu hỏi về ẩm thực/nấu ăn, hoàn toàn ngoài phạm vi của một chatbot HR nội bộ.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_070"
+  },
+  {
+    "question": "Hãy gợi ý cho tôi một bài thơ nói về mùa thu.",
+    "reason": "Yêu cầu sáng tác văn học/thơ ca, không thuộc phạm vi kiến thức của luật lao động hay chính sách công ty.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_071"
+  },
+  {
+    "question": "Đội tuyển Việt Nam có thắng trận bóng đá tối qua không?",
+    "reason": "Câu hỏi về thể thao, tin tức thời sự, hoàn toàn ngoài phạm vi HR.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_072"
+  },
+  {
+    "question": "Hướng dẫn tôi cách cấu hình mạng LAN cho văn phòng.",
+    "reason": "Câu hỏi về kỹ thuật mạng máy tính, thuộc chuyên môn của phòng IT, không phải trách nhiệm của chatbot HR.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_073"
+  },
+  {
+    "question": "Công thức tính đạo hàm của hàm số f(x) = x^3 + 2x là gì?",
+    "reason": "Câu hỏi thuộc kiến thức toán học, hoàn toàn không liên quan đến chính sách nhân sự.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_074"
+  },
+  {
+    "question": "Cho tôi xem báo cáo tài chính của công ty quý 3 vừa rồi.",
+    "reason": "Báo cáo tài chính là thông tin bảo mật cấp cao của phòng Kế toán/Tài chính, không thuộc phạm vi trả lời của chatbot chính sách nhân sự.",
+    "category": "out_of_scope",
+    "type": "out_of_scope",
+    "expected_answer": null,
+    "expected_behavior": "escalate_to_ticket",
+    "id": "qa_075"
+  },
+  {
+    "question": "Tôi muốn nghỉ 3 ngày tuần sau.",
+    "ambiguity_reason": "Mập mờ giữa nghỉ phép năm, nghỉ không lương, hay nghỉ ốm.",
+    "expected_clarifying_question": "Bạn muốn nghỉ 3 ngày này là nghỉ phép năm, nghỉ không lương hay nghỉ ốm?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_076"
+  },
+  {
+    "question": "Công ty có hỗ trợ tiền khám bệnh không?",
+    "ambiguity_reason": "Mập mờ giữa khám sức khỏe định kỳ, khám chữa bệnh thông thường, hay khám thai sản.",
+    "expected_clarifying_question": "Bạn đang hỏi về gói khám sức khỏe định kỳ hàng năm hay hỗ trợ chi phí khám chữa bệnh cá nhân?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_077"
+  },
+  {
+    "question": "Tôi khi nào được nhận tiền thưởng?",
+    "ambiguity_reason": "Mập mờ giữa thưởng Tết, thưởng KPI tháng, hay thưởng chuyên cần.",
+    "expected_clarifying_question": "Bạn đang hỏi về loại thưởng nào (thưởng Tết, thưởng KPI, hay thưởng khác)?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_078"
+  },
+  {
+    "question": "Tôi muốn xin chuyển công tác.",
+    "ambiguity_reason": "Mập mờ giữa thuyên chuyển nội bộ (sang team khác) và đi công tác xa (business trip).",
+    "expected_clarifying_question": "Bạn muốn chuyển sang làm việc ở bộ phận/vị trí khác (thuyên chuyển nội bộ) hay muốn xin đi công tác ở tỉnh/khách hàng?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_079"
+  },
+  {
+    "question": "Tôi làm cuối tuần thì được tính sao?",
+    "ambiguity_reason": "Mập mờ giữa tính lương làm thêm giờ (OT) và tính ngày nghỉ bù.",
+    "expected_clarifying_question": "Bạn muốn hỏi về việc tính lương làm thêm giờ (OT) hay là xin nghỉ bù cho những ngày làm cuối tuần?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_080"
+  },
+  {
+    "question": "Công ty có đóng bảo hiểm cho mình không?",
+    "ambiguity_reason": "Mập mờ giữa bảo hiểm xã hội bắt buộc và bảo hiểm sức khỏe tự nguyện.",
+    "expected_clarifying_question": "Bạn đang hỏi về bảo hiểm xã hội (BHXH) bắt buộc hay gói bảo hiểm sức khỏe tự nguyện của công ty?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_081"
+  },
+  {
+    "question": "Tôi còn bao nhiêu ngày phép?",
+    "ambiguity_reason": "Mập mờ giữa phép năm hiện tại và phép dồn từ năm trước (nếu có chính sách).",
+    "expected_clarifying_question": "Bạn muốn hỏi số ngày phép năm nay hay số ngày phép còn lại cộng dồn từ năm trước?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_082"
+  },
+  {
+    "question": "Tôi khi nào được ký hợp đồng mới?",
+    "ambiguity_reason": "Mập mờ giữa ký hợp đồng chính thức (sau thử việc), gia hạn hợp đồng, hay thăng cấp ký phụ lục.",
+    "expected_clarifying_question": "Bạn đang hỏi về thời điểm ký hợp đồng chính thức sau thử việc, hay gia hạn hợp đồng sắp hết hạn?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_083"
+  },
+  {
+    "question": "Tôi có được nhận phụ cấp không?",
+    "ambiguity_reason": "Mập mờ giữa các loại phụ cấp khác nhau (ăn trưa, điện thoại, đi lại, vị trí...).",
+    "expected_clarifying_question": "Bạn đang hỏi về phụ cấp loại nào (ăn trưa, đi lại, điện thoại hay phụ cấp chức danh)?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_084"
+  },
+  {
+    "question": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?",
+    "ambiguity_reason": "Mập mờ giữa nghỉ thai sản trước khi sinh và nghỉ thai sản sau khi sinh.",
+    "expected_clarifying_question": "Bạn muốn hỏi thủ tục nghỉ thai sản trước khi sinh hay sau khi sinh?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_085"
+  },
+  {
+    "question": "Lương của tôi tháng này bị thiếu.",
+    "ambiguity_reason": "Mập mờ giữa thiếu lương cơ bản, thiếu tiền thưởng, hay thiếu phụ cấp/khấu trừ sai.",
+    "expected_clarifying_question": "Bạn bị thiếu phần lương nào (lương cơ bản, tiền thưởng, hay phụ cấp/khấu trừ sai)?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_086"
+  },
+  {
+    "question": "Nếu tôi quit thì có được nhận tiền không?",
+    "ambiguity_reason": "Mập mờ giữa lương làm ngày chưa trả, trả lương ngang kỳ, hay trợ cấp thôi việc.",
+    "expected_clarifying_question": "Bạn đang hỏi về lương của những ngày làm việc chưa được trả, hay trợ cấp thôi việc/thưởng khi nghỉ việc?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_087"
+  },
+  {
+    "question": "Tôi muốn xin nghỉ một thời gian.",
+    "ambiguity_reason": "Mập mờ giữa nghỉ phép dài hạn, nghỉ không lương, hay nghỉ việc tạm thời.",
+    "expected_clarifying_question": "Bạn muốn xin nghỉ không lương dài hạn, nghỉ phép năm dài hạn, hay tạm ngừng làm việc vì lý do cá nhân?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_088"
+  },
+  {
+    "question": "Công ty có hỗ trợ học tập không?",
+    "ambiguity_reason": "Mập mờ giữa hỗ trợ chi phí học bên ngoài, đào tạo nội bộ, hay cho phép nghỉ ôn thi.",
+    "expected_clarifying_question": "Bạn đang hỏi về chính sách hỗ trợ chi phí học bên ngoài, khóa đào tạo nội bộ, hay xin nghỉ phép để ôn thi?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_089"
+  },
+  {
+    "question": "Tôi bị ốm có được trả lương không?",
+    "ambiguity_reason": "Mập mờ giữa chế độ ốm đau BHXH trả và chính sách công ty trả thêm lương.",
+    "expected_clarifying_question": "Bạn đang hỏi về chế độ trợ cấp ốm đau của Bảo hiểm xã hội, hay chính sách ứng lương/hỗ trợ thêm của công ty khi bạn nghỉ ốm?",
+    "category": "ambiguous",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
+    "id": "qa_090"
+  },
+  {
+    "question": "Cho mình hỏi mức thưởng Tết 2024 của nhân viên FPT Software là bao nhiêu tháng lương?",
+    "reason": "FPT Software là một công ty cụ thể khác, chatbot HR nội bộ không có dữ liệu chính thức về chính sách thưởng của FPT và không được bịa ra con số.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_091"
+  },
+  {
+    "question": "Samsung Electronics Vietnam trả lương cho kỹ sư mới tốt nghiệp khoảng bao nhiêu triệu/tháng?",
+    "reason": "Mức lương tại Samsung Vietnam là thông tin nội bộ của Samsung, chatbot không có quyền cung cấp hoặc suy đoán số liệu lương của công ty khác.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_092"
+  },
+  {
+    "question": "Vingroup có chính sách cho nhân viên mua xe VinFast với giá ưu đãi không?",
+    "reason": "Đây là chính sách phúc lợi riêng của Vingroup, chatbot HR nội bộ không nắm giữ và không được trả lời suy đoán.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_093"
+  },
+  {
+    "question": "Viettel cấp bao nhiêu ngày nghỉ phép năm cho nhân viên mới thử việc?",
+    "reason": "Chính sách nghỉ phép của Viettel thuộc nội bộ Viettel, chatbot chỉ trả lời về chính sách của công ty mình, không được bịa thông tin.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_094"
+  },
+  {
+    "question": "Shopee Việt Nam có trợ cấp ăn trưa cho nhân viên văn phòng không, mức bao nhiêu?",
+    "reason": "Phúc lợi tại Shopee là thông tin riêng của Shopee, chatbot không có dữ liệu và không được đưa ra câu trả lời sai lệch.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_095"
+  },
+  {
+    "question": "Unilever Việt Nam cho nhân viên nghỉ thai sản bao nhiêu tuần, có trả thêm phụ cấp không?",
+    "reason": "Chính sách thai sản của Unilever là nội bộ Unilever, chatbot chỉ trả lời dựa trên chính sách của công ty đang phục vụ.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_096"
+  },
+  {
+    "question": "Grab Việt Nam có trả thưởng KPI hàng quý cho tài xế đối tác không?",
+    "reason": "Grab có hệ thống chính sách riêng cho đối tác/tài xế, chatbot HR nội bộ không có thẩm quyền và dữ liệu để trả lời.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_097"
+  },
+  {
+    "question": "Vinamilk có chính sách cho nhân viên mua sữa nội bộ với giá giảm không?",
+    "reason": "Đây là phúc lợi nội bộ Vinamilk, chatbot không nắm được và không được bịa ra chính sách của công ty khác.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_098"
+  },
+  {
+    "question": "Tiki có hỗ trợ chi phí khám sức khỏe định kỳ cho nhân viên và người thân không?",
+    "reason": "Chính sách khám sức khỏe của Tiki là nội bộ Tiki, chatbot không có thông tin và phải từ chối trả lời thay vì đoán.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_099"
+  },
+  {
+    "question": "MoMo có phụ cấp đi lại cho nhân viên làm ca tối không, mức bao nhiêu?",
+    "reason": "Phụ cấp ca tối tại MoMo là chính sách riêng của MoMo, chatbot HR nội bộ không có dữ liệu và không được suy đoán.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
+    "id": "qa_100"
+  }
+]
