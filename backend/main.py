@@ -1,13 +1,14 @@
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
 from app.api.v1.router import api_v1_router
 from app.core.config import get_settings
+from app.core.database import create_tables
 from app.core.exceptions import global_exception_handler
 from app.core.logging import logger, setup_logging
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 settings = get_settings()
 
@@ -16,6 +17,11 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
+    try:
+        await create_tables()
+        logger.info("Database tables initialized successfully.")
+    except Exception as exc:
+        logger.warning(f"Database table initialization skipped/failed: {exc}")
     yield
     logger.info("Shutting down application...")
 
@@ -62,3 +68,12 @@ async def health_check():
         "service": settings.app_name,
         "env": settings.app_env,
     }
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host=settings.app_host,
+        port=settings.app_port,
+        reload=settings.app_env == "development",
+    )
