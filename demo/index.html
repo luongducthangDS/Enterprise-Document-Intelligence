@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Knowledge - Enterprise Intelligence Agent</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SCREEN 1: LOGIN & 2FA OVERLAY
+       ========================================================================== -->
+  <div class="auth-overlay" id="auth-overlay">
+    <section class="auth-story" aria-label="Product introduction">
+      <div class="auth-story-top">
+        <div class="auth-story-mark"><i data-lucide="sparkles"></i></div>
+        <span>HR Knowledge</span>
+      </div>
+      <div class="auth-story-copy">
+        <span class="eyebrow eyebrow-light">Evidence-first HR intelligence</span>
+        <h1>One trusted place for every workplace question.</h1>
+        <p>Get clear answers grounded in approved company policy—then verify every detail at the source.</p>
+        <div class="auth-proof-list">
+          <div><i data-lucide="scan-search"></i><span><strong>Grounded answers</strong><small>Every response is checked against active HR documents.</small></span></div>
+          <div><i data-lucide="file-check-2"></i><span><strong>Source-level citations</strong><small>Review the exact page, section and effective date.</small></span></div>
+          <div><i data-lucide="shield-check"></i><span><strong>Safe escalation</strong><small>Uncertain questions go directly to an HR specialist.</small></span></div>
+        </div>
+      </div>
+      <div class="auth-story-footer"><span class="status-dot"></span> 42 approved policies indexed and healthy</div>
+    </section>
+
+    <!-- Step A: Login Form -->
+    <div class="auth-card" id="auth-login-card">
+      <div class="auth-logo">
+        <div class="logo-badge"><i data-lucide="book-open"></i></div>
+        <div>
+          <div class="logo-text auth-logo-name">Welcome back</div>
+          <div class="auth-logo-caption">Sign in to your secure workspace</div>
+        </div>
+      </div>
+
+      <h2>Continue to HR Knowledge</h2>
+      <p>Use your company account to access policy answers and HR support.</p>
+
+      <form onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label for="login-role-select">Demo workspace</label>
+          <select class="form-control" id="login-role-select" onchange="setDemoRole(this.value)">
+            <option value="Employee">Employee (Alex Rivera)</option>
+            <option value="HR Admin">HR Admin (Linh Tran)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="login-email">Work email</label>
+          <input type="email" class="form-control" id="login-email" value="alex.rivera@company.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div style="position: relative;">
+            <input type="password" class="form-control" id="login-password" value="••••••••••••" required>
+            <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">
+              <i data-lucide="eye" id="eye-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+          Continue securely ➔
+        </button>
+
+        <button type="button" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;" onclick="handleSSOLogin()">
+          <i data-lucide="key-round"></i> Sign in with Single Sign-On (SSO)
+        </button>
+      </form>
+
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+        <span class="status-dot"></span> Secure demo environment · No employee data is stored
+      </div>
+    </div>
+
+    <!-- Step B: 2FA Verification Form -->
+    <div class="auth-card" id="auth-2fa-card" style="display: none;">
+      <div class="auth-logo">
+        <div class="logo-badge" style="background: var(--emerald-verified);"><i data-lucide="shield-check"></i></div>
+        <div>
+          <div class="logo-text auth-logo-name">Security check</div>
+          <div class="auth-logo-caption">Two-factor authentication</div>
+        </div>
+      </div>
+
+      <h2>Enter 6-Digit Verification Code</h2>
+      <p>We sent a 6-digit security code to <strong id="masked-email">a***x@company.com</strong></p>
+
+      <div class="otp-inputs">
+        <input type="text" class="otp-field" maxlength="1" id="otp-1" value="2">
+        <input type="text" class="otp-field" maxlength="1" id="otp-2" value="4">
+        <input type="text" class="otp-field" maxlength="1" id="otp-3" value="6">
+        <input type="text" class="otp-field" maxlength="1" id="otp-4" value="8">
+        <input type="text" class="otp-field" maxlength="1" id="otp-5" value="1">
+        <input type="text" class="otp-field" maxlength="1" id="otp-6" value="0">
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--amber-warning); background: var(--amber-bg); border: 1px solid var(--amber-border); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 16px; text-align: center;">
+        💡 Demo Hint: Use code <strong>246810</strong> to verify.
+      </div>
+
+      <div id="2fa-error-msg" style="display: none; color: var(--rose-danger); font-size: 0.8rem; margin-bottom: 12px; text-align: center;">
+        Invalid verification code. Please check and try again.
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="verifyOTP()">
+        Verify and continue
+      </button>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted);">
+        <button onclick="showLoginScreen()" style="background: none; border: none; color: var(--primary-blue); cursor: pointer;">← Back to login</button>
+        <span>Resend code in <strong id="countdown-timer">45s</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       ENTERPRISE APP SHELL
+       ========================================================================== -->
+  <div class="app-shell" id="app-shell" style="display: flex;">
+
+    <!-- Left Collapsible Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-badge"><i data-lucide="book-open"></i></div>
+        <div class="logo-text">HR Knowledge</div>
+      </div>
+
+      <!-- Demo Quick Role Switcher -->
+      <div class="role-switcher-bar">
+        <span style="font-size: 0.75rem; color: #94A3B8;">Demo mode</span>
+        <select onchange="switchAppRole(this.value)" id="sidebar-role-select" style="background: #0F172A; color: #FFF; border: 1px solid #334155; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">
+          <option value="Employee">Employee View</option>
+          <option value="HR Admin">HR Admin View</option>
+        </select>
+      </div>
+
+      <!-- Employee Navigation List -->
+      <div id="nav-employee-group">
+        <div class="nav-section">Employee Workspace</div>
+        <ul class="nav-list">
+          <li class="nav-item active" id="nav-ai-assistant">
+            <button onclick="navigateView('ai-assistant')"><i data-lucide="message-square"></i> AI Assistant</button>
+          </li>
+          <li class="nav-item" id="nav-my-tickets">
+            <button onclick="navigateView('my-tickets')"><i data-lucide="ticket"></i> My tickets</button>
+          </li>
+          <li class="nav-item" id="nav-saved-answers">
+            <button onclick="navigateView('saved-answers')"><i data-lucide="bookmark"></i> Saved answers</button>
+          </li>
+          <li class="nav-item" id="nav-help-support">
+            <button onclick="navigateView('help-support')"><i data-lucide="help-circle"></i> Help & support</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- HR Admin Navigation List -->
+      <div id="nav-admin-group" style="display: none;">
+        <div class="nav-section">HR Admin Console</div>
+        <ul class="nav-list">
+          <li class="nav-item" id="nav-admin-overview">
+            <button onclick="navigateView('admin-overview')"><i data-lucide="layout-dashboard"></i> Overview</button>
+          </li>
+          <li class="nav-item" id="nav-admin-tickets">
+            <button onclick="navigateView('admin-tickets')"><i data-lucide="list-todo"></i> Ticket management</button>
+          </li>
+          <li class="nav-item" id="nav-admin-docs">
+            <button onclick="navigateView('admin-docs')"><i data-lucide="files"></i> Document library</button>
+          </li>
+          <li class="nav-item" id="nav-admin-indexing">
+            <button onclick="navigateView('admin-indexing')"><i data-lucide="cpu"></i> Knowledge indexing</button>
+          </li>
+          <li class="nav-item" id="nav-admin-activity">
+            <button onclick="navigateView('admin-activity')"><i data-lucide="activity"></i> Activity log</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- User Profile Footer -->
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="sidebar-user-avatar">AR</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebar-user-name">Alex Rivera</span>
+          <span class="user-role" id="sidebar-user-role">Employee</span>
+        </div>
+      </div>
+    </aside>
+    <button class="sidebar-scrim" type="button" onclick="toggleMobileSidebar(false)" aria-label="Close navigation"></button>
+
+    <!-- Main Workspace Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Navbar -->
+      <header class="top-navbar">
+        <div class="topbar-leading">
+          <button class="mobile-menu-btn" type="button" onclick="toggleMobileSidebar()" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+          <div>
+            <div class="page-title" id="active-view-title">AI Assistant Workspace</div>
+            <div class="page-context"><span class="status-dot"></span> Knowledge base updated 2 hours ago</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-box">
+            <i data-lucide="search" style="width: 14px;"></i>
+            <input type="text" placeholder="Search HR policies or tickets...">
+          </div>
+
+          <button class="btn btn-secondary" style="padding: 6px 10px;" title="Notifications">
+            <i data-lucide="bell" style="width: 16px;"></i>
+          </button>
+
+          <button class="btn btn-primary" id="btn-header-upload" style="display: none;" onclick="openUploadModal()">
+            <i data-lucide="upload-cloud"></i> Upload document
+          </button>
+        </div>
+      </header>
+
+      <!-- ==========================================================================
+           VIEW 1: EMPLOYEE AI ASSISTANT & CHAT
+           ========================================================================== -->
+      <section class="view-panel" id="view-ai-assistant">
+        <div class="chat-workspace">
+          
+          <!-- Chat Main Workspace -->
+          <div class="chat-main">
+            <div class="chat-body" id="chat-messages-container">
+              
+              <!-- Empty State -->
+              <div class="empty-state" id="chat-empty-state">
+                <div class="assistant-orb"><i data-lucide="sparkles"></i></div>
+                <span class="eyebrow">HR policy assistant</span>
+                <h1>What can I help you understand?</h1>
+                <p>Ask in your own words. I’ll search approved HR policies and show exactly where each answer comes from.</p>
+
+                <div class="trust-strip" aria-label="Knowledge base status">
+                  <span><i data-lucide="files"></i><strong>42</strong> active policies</span>
+                  <span><i data-lucide="shield-check"></i><strong>99.8%</strong> index health</span>
+                  <span><i data-lucide="clock-3"></i><strong>&lt; 2 min</strong> saved per query</span>
+                </div>
+
+                <div class="suggested-grid">
+                  <div class="suggest-card" onclick="askPresetQuestion('hybrid')">
+                    <div class="suggest-icon"><i data-lucide="home"></i></div>
+                    <h4>"What is our hybrid work policy?"</h4>
+                    <span>Workplace policy</span><i class="suggest-arrow" data-lucide="arrow-up-right"></i>
+                  </div>
+                  <div class="suggest-card" onclick="askPresetQuestion('leave')">
+                    <div class="suggest-icon"><i data-lucide="calendar-days"></i></div>
+                    <h4>"How many annual leave days do I have?"</h4>
+                    <span>Benefits & PTO</span><i class="suggest-arrow" data-lucide="arrow-up-right"></i>
+                  </div>
+                  <div class="suggest-card" onclick="askPresetQuestion('probation')">
+                    <div class="suggest-icon"><i data-lucide="clipboard-check"></i></div>
+                    <h4>"What is the probation review process?"</h4>
+                    <span>Onboarding SOP</span><i class="suggest-arrow" data-lucide="arrow-up-right"></i>
+                  </div>
+                  <div class="suggest-card" onclick="askPresetQuestion('solar')">
+                    <div class="suggest-icon"><i data-lucide="sun"></i></div>
+                    <h4>"Does the company reimburse home solar panel installation?"</h4>
+                    <span>Try escalation flow</span><i class="suggest-arrow" data-lucide="arrow-up-right"></i>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Chat Composer -->
+            <div class="chat-composer">
+              <div class="input-row">
+                <button class="btn btn-secondary" style="padding: 10px;" title="Attach file"><i data-lucide="paperclip"></i></button>
+                <input type="text" id="chat-composer-input" placeholder="Ask any question about company HR policies..." onkeydown="if(event.key==='Enter') submitEmployeeQuestion()">
+                <button class="btn btn-primary" onclick="submitEmployeeQuestion()"><i data-lucide="send"></i> Send</button>
+              </div>
+              <div class="composer-disclaimer">
+                ⚠️ AI can make mistakes. Always verify important information using the cited source.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Source Drawer -->
+          <aside class="source-drawer" id="source-drawer">
+            <div class="drawer-header">
+              <span><i data-lucide="file-text"></i> Source Inspection</span>
+              <button onclick="closeSourceDrawer()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);"><i data-lucide="x"></i></button>
+            </div>
+
+            <div id="source-drawer-body">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 40px;">
+                Select a citation card in the chat to view the verified original document source excerpt.
+              </p>
+            </div>
+          </aside>
+
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           VIEW 2: MY TICKETS (EMPLOYEE)
+           ========================================================================== -->
+      <section class="view-panel" id="view-my-tickets" style="display: none; padding: 24px;">
+        <div class="card-box" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">My HR Support Tickets</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Track questions escalated to HR Specialists for manual review.</p>
+        </div>
+
+        <div class="table-container">
+          <table class="enterprise-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Question Summary</th>
+                <th>Category</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Expected Response</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="my-tickets-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="view-panel content-view" id="view-saved-answers" style="display: none;">
+        <div class="section-heading">
+          <div><span class="eyebrow">Your library</span><h2>Saved answers</h2><p>Policy answers you bookmarked for quick reference.</p></div>
+          <button class="btn btn-secondary" onclick="navigateView('ai-assistant')"><i data-lucide="message-square"></i> Ask a question</button>
+        </div>
+        <div class="saved-grid">
+          <article class="saved-card">
+            <div class="saved-card-top"><div class="suggest-icon"><i data-lucide="home"></i></div><span class="badge badge-verified">Active policy</span></div>
+            <h3>Hybrid working eligibility</h3>
+            <p>Eligible employees may work remotely up to 2 days per week with manager approval.</p>
+            <div class="saved-meta"><span>Hybrid Working Policy</span><span>v3.2 · Page 4</span></div>
+          </article>
+          <article class="saved-card">
+            <div class="saved-card-top"><div class="suggest-icon"><i data-lucide="calendar-days"></i></div><span class="badge badge-verified">Active policy</span></div>
+            <h3>Annual leave entitlement</h3>
+            <p>Full-time employees receive 18 days of paid annual leave per calendar year.</p>
+            <div class="saved-meta"><span>Annual Leave Guidelines</span><span>v4.0 · Page 3</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view-panel content-view" id="view-help-support" style="display: none;">
+        <div class="section-heading">
+          <div><span class="eyebrow">Support center</span><h2>How can we help?</h2><p>Learn how answers are verified or contact the HR Operations team.</p></div>
+        </div>
+        <div class="support-grid">
+          <article class="support-card"><i data-lucide="scan-search"></i><h3>How AI answers work</h3><p>See how approved policies are searched, ranked and cited.</p><button>Read the guide <i data-lucide="arrow-right"></i></button></article>
+          <article class="support-card"><i data-lucide="shield-check"></i><h3>Privacy & security</h3><p>Understand what conversation data is—and is not—stored.</p><button>View privacy details <i data-lucide="arrow-right"></i></button></article>
+          <article class="support-card"><i data-lucide="headphones"></i><h3>Contact HR</h3><p>For sensitive or urgent questions, connect with an HR specialist.</p><button onclick="showToast('HR support request opened.', 'info')">Contact support <i data-lucide="arrow-right"></i></button></article>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           VIEW 3: HR ADMIN OVERVIEW & DASHBOARD
+           ========================================================================== -->
+      <section class="view-panel" id="view-admin-overview" style="display: none;">
+        <div class="dashboard-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <span class="eyebrow">Operations overview</span>
+              <h2 style="font-size: 1.65rem; font-weight: 700; letter-spacing: -.03em;">Good morning, Linh</h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Wednesday, 05 August 2026 · Here’s what needs your attention today.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openUploadModal()"><i data-lucide="upload-cloud"></i> Upload document</button>
+          </div>
+
+          <!-- Summary Metrics -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon blue"><i data-lucide="inbox"></i></div>
+              <div class="metric-lbl">Open Tickets</div>
+              <div class="metric-val" id="metric-open-tickets">2</div>
+              <div class="metric-note">1 new since yesterday</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon amber"><i data-lucide="timer"></i></div>
+              <div class="metric-lbl">Approaching SLA</div>
+              <div class="metric-val" style="color: var(--amber-warning);">1</div>
+              <div class="metric-note warning">Action needed in 4h</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon violet"><i data-lucide="clock-3"></i></div>
+              <div class="metric-lbl">Avg Response Time</div>
+              <div class="metric-val">1.4 hrs</div>
+              <div class="metric-note positive">18% faster this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon green"><i data-lucide="bot"></i></div>
+              <div class="metric-lbl">AI Resolution Rate</div>
+              <div class="metric-val" style="color: var(--emerald-verified);">92.4%</div>
+              <div class="metric-note positive">+3.2% this month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon green"><i data-lucide="database"></i></div>
+              <div class="metric-lbl">KB Health</div>
+              <div class="metric-val" style="color: var(--emerald-verified);">99.8%</div>
+              <div class="metric-note positive"><span class="status-dot"></span> All systems healthy</div>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="chart-grid">
+            <div class="card-box">
+              <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 14px;">Weekly Ticket Trend</h4>
+              <!-- Simple SVG Line Chart -->
+              <svg width="100%" height="160" viewBox="0 0 500 160">
+                <polyline fill="none" stroke="#2563EB" stroke-width="3" points="20,120 100,90 180,110 260,40 340,65 420,30 480,50" />
+                <circle cx="260" cy="40" r="5" fill="#2563EB" />
+                <text x="250" y="25" font-size="10" fill="#2563EB" font-weight="bold">Peak (18)</text>
+              </svg>
+            </div>
+
+            <div class="card-box">
+              <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 14px;">Category Distribution</h4>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Benefits & Perks</span><strong>42%</strong></div>
+                  <div style="background: #E2E8F0; height: 6px; border-radius: 3px;"><div style="background: #2563EB; width: 42%; height: 100%; border-radius: 3px;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Leave Policy</span><strong>30%</strong></div>
+                  <div style="background: #E2E8F0; height: 6px; border-radius: 3px;"><div style="background: #059669; width: 30%; height: 100%; border-radius: 3px;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Workplace SOP</span><strong>28%</strong></div>
+                  <div style="background: #E2E8F0; height: 6px; border-radius: 3px;"><div style="background: #D97706; width: 28%; height: 100%; border-radius: 3px;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           VIEW 4: HR ADMIN TICKET MANAGEMENT
+           ========================================================================== -->
+      <section class="view-panel" id="view-admin-tickets" style="display: none; padding: 24px;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <strong style="font-size: 0.95rem;">Escalation Ticket Queue</strong>
+            <div style="display: flex; gap: 8px;">
+              <select class="form-control" style="width: 140px; padding: 4px 8px; font-size: 0.8rem;" onchange="filterAdminTickets(this.value)">
+                <option value="All">All Statuses</option>
+                <option value="New">New</option>
+                <option value="In review">In review</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="enterprise-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Employee</th>
+                <th>Question</th>
+                <th>Category</th>
+                <th>Confidence</th>
+                <th>Priority</th>
+                <th>Assignee</th>
+                <th>SLA Countdown</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-tickets-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           VIEW 5: DOCUMENT LIBRARY & KNOWLEDGE INDEXING
+           ========================================================================== -->
+      <section class="view-panel" id="view-admin-docs" style="display: none; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">HR Approved Document Library</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Manage policy files used for RAG vector embeddings.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openUploadModal()"><i data-lucide="upload-cloud"></i> Upload new document</button>
+        </div>
+
+        <div class="table-container">
+          <table class="enterprise-table">
+            <thead>
+              <tr>
+                <th>Document Name</th>
+                <th>Category</th>
+                <th>Version</th>
+                <th>Effective Date</th>
+                <th>Owner</th>
+                <th>File Type</th>
+                <th>Index Status</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="admin-docs-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="view-panel" id="view-admin-indexing" style="display: none; padding: 24px;">
+        <div class="card-box" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">RAG Knowledge Base & Index Health</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Active Index Version: <code style="color: var(--primary-blue);">v4.8.2-prod</code> • 42 Documents (3,120 Chunks)</p>
+          </div>
+          <button class="btn btn-primary" onclick="triggerReindexModal()"><i data-lucide="refresh-cw"></i> Re-index Knowledge Base</button>
+        </div>
+
+        <div class="card-box">
+          <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;">Indexing Activity Log</h4>
+          <div style="font-family: monospace; font-size: 0.8rem; background: #0F172A; color: #38BDF8; padding: 16px; border-radius: 6px; height: 240px; overflow-y: auto;" id="indexing-activity-log">
+            [09:20:14] INDEX_HEALTH_CHECK: 99.8% Healthy. 42 Active Vector Namespaces.<br>
+            [09:22:01] VECTOR_STORE: Pinecone cluster healthy (latency 12ms).
+          </div>
+        </div>
+      </section>
+
+      <section class="view-panel content-view" id="view-admin-activity" style="display: none;">
+        <div class="section-heading">
+          <div><span class="eyebrow">Audit trail</span><h2>System activity</h2><p>Review recent document, ticket and knowledge-base events.</p></div>
+          <button class="btn btn-secondary"><i data-lucide="download"></i> Export log</button>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item"><div class="activity-icon green"><i data-lucide="check"></i></div><div><strong>Knowledge index health check completed</strong><p>42 active documents · 3,120 vector chunks · 99.8% healthy</p></div><time>2 min ago</time></div>
+          <div class="activity-item"><div class="activity-icon amber"><i data-lucide="ticket"></i></div><div><strong>Ticket HR-2048 automatically escalated</strong><p>Low-confidence answer assigned to Linh Tran</p></div><time>10 min ago</time></div>
+          <div class="activity-item"><div class="activity-icon blue"><i data-lucide="file-check-2"></i></div><div><strong>Hybrid Working Policy v3.2 indexed</strong><p>142 chunks passed quality validation</p></div><time>2 hrs ago</time></div>
+          <div class="activity-item"><div class="activity-icon violet"><i data-lucide="user-check"></i></div><div><strong>Admin authentication successful</strong><p>Linh Tran · Two-factor authentication</p></div><time>Today, 08:56</time></div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           ACCESS DENIED (403 FORBIDDEN STATE)
+           ========================================================================== -->
+      <section class="view-panel" id="view-access-denied" style="display: none; padding: 60px; text-align: center;">
+        <div style="max-width: 480px; margin: 40px auto; background: var(--bg-surface); border: 1px solid var(--rose-border); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--rose-bg); color: var(--rose-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.5rem;">
+            <i data-lucide="shield-alert"></i>
+          </div>
+          <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">403 Access Denied</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+            You don't have permission to view this workspace. This page is strictly restricted to authorized HR Admins.
+          </p>
+          <button class="btn btn-primary" style="width: 100%;" onclick="switchAppRole('Employee'); navigateView('ai-assistant');">
+            Return to AI Assistant
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODALS & DRAWERS
+       ========================================================================== -->
+
+  <!-- Escalation Success Modal -->
+  <div class="modal-backdrop" id="escalation-modal">
+    <div class="modal-dialog">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--emerald-bg); color: var(--emerald-verified); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 1.4rem;">
+          <i data-lucide="check-circle-2"></i>
+        </div>
+        <h3 style="font-size: 1.2rem; font-weight: 700;">Your question has been sent to HR</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Ticket #HR-2048 has been created and assigned to an HR Specialist.</p>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--border-subtle); padding: 14px; border-radius: 8px; margin-bottom: 20px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between;"><span>Ticket ID:</span><strong>HR-2048</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Category:</span><span>Benefits & reimbursement</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>Priority:</span><span style="color: var(--primary-blue); font-weight: 600;">Normal</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>Expected Response:</span><span>Within 1 business day</span></div>
+      </div>
+
+      <!-- Compact Ticket Timeline -->
+      <div style="display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 24px; position: relative; padding: 0 10px;">
+        <span style="color: var(--emerald-verified); font-weight: 700;">● Created</span>
+        <span style="color: var(--primary-blue); font-weight: 600;">● Assigned</span>
+        <span style="color: var(--text-muted);">○ HR Reviewing</span>
+        <span style="color: var(--text-muted);">○ Resolved</span>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal('escalation-modal')">Continue chatting</button>
+        <button class="btn btn-primary" style="flex: 1;" onclick="closeModal('escalation-modal'); navigateView('my-tickets');">View ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HR Ticket Detail Resolution Drawer -->
+  <div class="modal-backdrop" id="ticket-detail-modal">
+    <div class="modal-dialog" style="width: 580px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Ticket Detail & Resolution (HR-2048)</h3>
+        <button onclick="closeModal('ticket-detail-modal')" style="background: none; border: none; cursor: pointer;"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <div><strong>Employee:</strong> Alex Rivera (Engineering)</div>
+        <div><strong>Original Question:</strong> "Does the company reimburse home solar panel installation?"</div>
+        <div><strong>Escalation Reason:</strong> Low confidence AI score (31%). No matching policy found.</div>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label>HR Verified Response</label>
+          <textarea class="form-control" rows="3" id="hr-reply-text">Theo chính sách phúc lợi xanh mới năm 2026, công ty hỗ trợ 50% chi phí lắp đặt tấm pin năng lượng mặt trời tại nhà cho nhân viên làm việc từ xa, tối đa $1,500/năm.</textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" onclick="closeModal('ticket-detail-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmResolveTicket()">Resolve & Notify Employee</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Document Modal -->
+  <div class="modal-backdrop" id="upload-modal">
+    <div class="modal-dialog">
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 14px;">Upload HR Policy Document</h3>
+
+      <div style="border: 2px dashed var(--border-strong); padding: 24px; text-align: center; border-radius: 8px; background: #F8FAFC; margin-bottom: 16px;">
+        <i data-lucide="file-up" style="width: 32px; height: 32px; color: var(--primary-blue); margin-bottom: 8px;"></i>
+        <div style="font-weight: 600; font-size: 0.9rem;">Drag and drop policy file here</div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">Supported formats: PDF, DOCX, XLSX (Max 15MB)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Document Title</label>
+        <input type="text" class="form-control" id="upload-doc-title" value="Home_Workplace_Solar_Reimbursement_Policy_2026.pdf">
+      </div>
+
+      <!-- Indexing Pipeline Progress Bar -->
+      <div id="indexing-pipeline-box" style="display: none; margin-bottom: 16px;">
+        <div style="font-size: 0.78rem; font-weight: 600; color: var(--primary-blue); margin-bottom: 6px;" id="pipeline-status-text">
+          Pipeline: Uploaded ➔ Extracting text ➔ Splitting chunks (65%)...
+        </div>
+        <div style="background: #E2E8F0; height: 6px; border-radius: 3px;">
+          <div id="pipeline-progress-bar" style="background: var(--primary-blue); width: 65%; height: 100%; border-radius: 3px; transition: width 0.4s ease;"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" onclick="closeModal('upload-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="startUploadPipeline()">Start Upload & Indexing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="mock_data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    refreshIcons();
+  </script>
+</body>
+</html>
