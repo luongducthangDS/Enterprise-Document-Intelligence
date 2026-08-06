@@ -1,0 +1,942 @@
+{
+  "run_at": "2026-08-05T15:46:14.249608+00:00",
+  "accuracy": 0.91,
+  "total": 100,
+  "total_correct": 91,
+  "per_class": {
+    "greeting": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "hr_question": {
+      "precision": 0.982,
+      "recall": 0.917,
+      "f1": 0.948,
+      "support": 60
+    },
+    "ambiguous": {
+      "precision": 1.0,
+      "recall": 0.733,
+      "f1": 0.846,
+      "support": 15
+    },
+    "out_of_scope_or_personal": {
+      "precision": 0.758,
+      "recall": 1.0,
+      "f1": 0.862,
+      "support": 25
+    }
+  },
+  "confusion": {
+    "hr_question->hr_question": 55,
+    "hr_question->out_of_scope_or_personal": 5,
+    "out_of_scope_or_personal->out_of_scope_or_personal": 25,
+    "ambiguous->ambiguous": 11,
+    "ambiguous->out_of_scope_or_personal": 3,
+    "ambiguous->hr_question": 1
+  },
+  "results": [
+    {
+      "id": "qa_001",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Tháng này mình làm OT tối đa được bao nhiêu giờ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_002",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Chủ nhật mình đi làm thêm thì tính lương bao nhiêu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_003",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Tự ở lại làm thêm mà không đăng ký trước có được tính OT không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_004",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_005",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Muốn làm OT thì cần ai phê duyệt trước?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_006",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Đi công tác nếu dùng taxi hoặc Grab di chuyển trong ngày thì được thanh toán tối đa bao nhiêu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_007",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Nhân viên đi công tác bằng máy bay thì được hạng vé gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_008",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Nếu mình đi công tác tự lo chỗ ở không lấy hóa đơn khách sạn thì có được hỗ trợ tiền không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_009",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Đi công tác về mấy ngày thì phải nộp hồ sơ quyết toán?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_010",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Nộp hồ sơ quyết toán công tác phí trễ quá 10 ngày thì bị làm sao?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_011",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Nếu phòng mình cần tuyển thêm người thì trưởng bộ phận cần làm bước đầu tiên là gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_012",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình phỏng vấn của công ty có mấy vòng?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_013",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Mình giới thiệu bạn ứng tuyển thì bạn mình nộp hồ sơ qua kênh nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_014",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Vị trí thực tập hay cộng tác viên thì quy trình tuyển có gì khác so với full-time?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_015",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Ai là người được phép trao đổi mức lương với ứng viên, và ở bước nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_016",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình tuyển dụng trực tiếp của công ty có mấy vòng?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_017",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Công ty có những hình thức tuyển dụng nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_018",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Mục tiêu của quy trình tuyển dụng là gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_019",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Nếu mình giới thiệu bạn ứng tuyển thì họ cần nộp hồ sơ qua những kênh nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_020",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Hồ sơ bản cứng ứng viên nộp cần gồm những giấy tờ gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_021",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Người buddy hỗ trợ mình trong bao lâu vậy?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_022",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Sau thử việc xong mình bao lâu mới biết kết quả?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_023",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Ngày đầu tiên đi làm mình sẽ làm những gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_024",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Tuần đầu tiên có khóa học nào bắt buộc phải hoàn thành không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_025",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Đến ngày thứ 60 thì có đánh giá gì không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_026",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Mình làm hợp đồng không xác định thời hạn, nếu muốn nghỉ việc thì phải báo trước bao lâu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_027",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Khi nghỉ việc thì mình cần phải trả lại những tài sản gì cho công ty?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_028",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Sau khi chính thức nghỉ việc, bao lâu thì công ty sẽ chốt và thanh toán hết các khoản chế độ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_029",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Mình muốn hỏi về điều kiện nhận trợ cấp thôi việc, công ty quy định thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_030",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Ai sẽ phụ trách phỏng vấn thôi việc (exit interview) với mình vậy?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_031",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Em làm công việc văn phòng bình thường thì mỗi năm được nghỉ phép bao nhiêu ngày?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_032",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Nếu mình làm việc được 5 năm rồi thì số ngày nghỉ phép năm có được tăng thêm không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_033",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Sắp tới em lấy vợ thì được nghỉ bao nhiêu ngày và có hưởng lương không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_034",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Nếu cha mẹ mất thì nhân viên được nghỉ bao nhiêu ngày?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_035",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Khi nghỉ phép năm thì công ty trả lương như thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_036",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Tôi ốm đột xuất sáng nay mới biết, báo nghỉ kiểu gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_037",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Cuối năm mình còn 8 ngày phép chưa dùng thì xử lý thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_038",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Tôi sắp sinh rồi, cần báo công ty trước bao lâu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_039",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Đi lấy vợ thì được nghỉ mấy ngày, có hưởng lương không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_040",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_041",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty tuyển dụng em từ năm 14 tuổi có được không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_042",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Cá nhân tự kinh doanh có quyền thuê người làm việc không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_043",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Sếp dùng lời đe dọa ép mình làm việc ngoài giờ có bị coi là cưỡng bức lao động không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_044",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty ưu tiên tuyển người chưa có gia đình thì có bị coi là phân biệt đối xử không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_045",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Tại công ty mình có những tổ chức nào đại diện và bảo vệ quyền lợi cho người lao động?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_046",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Hợp đồng lao động thời hạn bao lâu thì mình phải đóng bảo hiểm xã hội bắt buộc?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_047",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Người nước ngoài làm việc tại Việt Nam có phải tham gia bảo hiểm xã hội bắt buộc không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_048",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Làm part-time có được đóng bảo hiểm xã hội không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_049",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Chủ hộ kinh doanh có đăng ký kinh doanh có phải tham gia bảo hiểm xã hội bắt buộc không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_050",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Dân quân thường trực có thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_051",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Văn hóa của người Vingroup gói gọn trong 3 từ gì vậy?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_052",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Slogan của Vingroup là gì nhỉ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_053",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_054",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Công ty rà soát đánh giá xếp bậc cán bộ lãnh đạo bao lâu một lần?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_055",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cán bộ lãnh đạo xếp loại 'Quyền' thì xếp bậc thế nào so với chức danh?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_056",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Mình làm mảng kinh doanh thì chu kỳ đánh giá hiệu suất thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_057",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Mình mới làm được 2 tháng thì có phải tham gia đánh giá hàng năm không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_058",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Nếu mình bị xếp loại C cần cải thiện thì có được xét tăng lương không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_059",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Trường hợp nào nhân viên sẽ bị đưa vào Kế hoạch Cải thiện Hiệu suất (PIP)?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_060",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Nếu mình không đồng ý với kết quả đánh giá thì có quyền khiếu nại không và trong bao lâu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_061",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Lương tháng này của Nguyễn Văn A là bao nhiêu?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_062",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Đơn xin nghỉ phép của tôi tuần trước đã được phê duyệt chưa?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_063",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Tôi còn bao nhiêu ngày phép năm nay?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_064",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Sổ bảo hiểm xã hội của tôi hiện đang được lưu ở phòng nhân sự hay đã trả lại cho tôi?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_065",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Hôm qua tôi quên chấm công, hệ thống có ghi nhận giờ ra về của tôi không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_066",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Hợp đồng lao động của Trần Thị B sắp hết hạn vào ngày nào?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_067",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Tổng tiền thưởng KPI quý vừa rồi của tôi là bao nhiêu?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_068",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Hôm nay thời tiết ở thành phố Hồ Chí Minh có mưa không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_069",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Làm thế nào để fix lỗi NullReferenceException trong code C#?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_070",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Công thức nấu món phở bò ngon là gì?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_071",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Hãy gợi ý cho tôi một bài thơ nói về mùa thu.",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_072",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Đội tuyển Việt Nam có thắng trận bóng đá tối qua không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_073",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Hướng dẫn tôi cách cấu hình mạng LAN cho văn phòng.",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_074",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Công thức tính đạo hàm của hàm số f(x) = x^3 + 2x là gì?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_075",
+      "type": "out_of_scope",
+      "category": "out_of_scope",
+      "question": "Cho tôi xem báo cáo tài chính của công ty quý 3 vừa rồi.",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_076",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi muốn nghỉ 3 ngày tuần sau.",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_077",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Công ty có hỗ trợ tiền khám bệnh không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_078",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi khi nào được nhận tiền thưởng?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_079",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi muốn xin chuyển công tác.",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_080",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi làm cuối tuần thì được tính sao?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_081",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Công ty có đóng bảo hiểm cho mình không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_082",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi còn bao nhiêu ngày phép?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_083",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi khi nào được ký hợp đồng mới?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_084",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi có được nhận phụ cấp không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_085",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "hr_question",
+      "correct": false
+    },
+    {
+      "id": "qa_086",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Lương của tôi tháng này bị thiếu.",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false
+    },
+    {
+      "id": "qa_087",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Nếu tôi quit thì có được nhận tiền không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_088",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi muốn xin nghỉ một thời gian.",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_089",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Công ty có hỗ trợ học tập không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_090",
+      "type": "ambiguous",
+      "category": "ambiguous",
+      "question": "Tôi bị ốm có được trả lương không?",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true
+    },
+    {
+      "id": "qa_091",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Cho mình hỏi mức thưởng Tết 2024 của nhân viên FPT Software là bao nhiêu tháng lương?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_092",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Samsung Electronics Vietnam trả lương cho kỹ sư mới tốt nghiệp khoảng bao nhiêu triệu/tháng?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_093",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Vingroup có chính sách cho nhân viên mua xe VinFast với giá ưu đãi không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_094",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Viettel cấp bao nhiêu ngày nghỉ phép năm cho nhân viên mới thử việc?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_095",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Shopee Việt Nam có trợ cấp ăn trưa cho nhân viên văn phòng không, mức bao nhiêu?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_096",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Unilever Việt Nam cho nhân viên nghỉ thai sản bao nhiêu tuần, có trả thêm phụ cấp không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_097",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Grab Việt Nam có trả thưởng KPI hàng quý cho tài xế đối tác không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_098",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Vinamilk có chính sách cho nhân viên mua sữa nội bộ với giá giảm không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_099",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "Tiki có hỗ trợ chi phí khám sức khỏe định kỳ cho nhân viên và người thân không?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_100",
+      "type": "competitor_comparison",
+      "category": "out_of_scope",
+      "question": "MoMo có phụ cấp đi lại cho nhân viên làm ca tối không, mức bao nhiêu?",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+import json
+import unicodedata
+from functools import lru_cache
+
+from src.agents.state import AgentState
+from src.config import get_settings
+
+TICKET_ROUTING_PATH = "data/metadata/ticket_routing_rules.json"
+
+# priority "High" theo đúng priority_rules trong ticket_routing_rules.json chỉ
+# liệt kê rõ nhóm "lien quan phap ly/tranh chap lao dong (ER)" — các nhóm còn
+# lại (kể cả personal_data_request) rơi vào điều kiện Medium
+# ("cau hoi ca nhan can tra cuu du lieu he thong"). Heuristic đơn giản cho MVP:
+# chỉ employee_relations mới High, mặc định Medium.
+_HIGH_PRIORITY_CATEGORIES = {"employee_relations"}
+
+# Câu hỏi nhắc tên 1 công ty khác cụ thể (router đã gom chung vào
+# out_of_scope_or_personal cùng với câu hỏi dữ liệu cá nhân — xem
+# _ROUTER_SYSTEM) cần hành vi khác hẳn: TỪ CHỐI LỊCH SỰ, không tạo ticket, vì
+# không có gì để HR thật sự xử lý (khác với câu hỏi cần tra dữ liệu cá nhân,
+# nơi tạo ticket là hợp lý). Danh sách không dấu, khớp qua _strip_diacritics().
+_COMPETITOR_COMPANY_KEYWORDS = {
+    "viettel", "fpt", "vingroup", "vinfast", "samsung", "tiki", "momo",
+    "grab", "shopee", "unilever", "vinamilk", "vinamik",
+}
+
+
+def _mentions_competitor_company(query: str) -> bool:
+    normalized_query = _strip_diacritics(query).lower()
+    return any(name in normalized_query for name in _COMPETITOR_COMPANY_KEYWORDS)
+
+_DIACRITIC_MAP = str.maketrans({"đ": "d", "Đ": "D"})
+
+
+def _strip_diacritics(text: str) -> str:
+    """Bỏ dấu tiếng Việt để khớp với trigger_keywords trong ticket_routing_rules.json
+    (vốn lưu không dấu, vd "luong", "thue tncn")."""
+    text = text.translate(_DIACRITIC_MAP)
+    normalized = unicodedata.normalize("NFD", text)
+    return "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
+
+
+@lru_cache
+def _load_routing_rules() -> dict:
+    with open(TICKET_ROUTING_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _match_routing_rule(query: str) -> dict:
+    normalized_query = _strip_diacritics(query).lower()
+    rules = _load_routing_rules()["routing_rules"]
+    for rule in rules:
+        keywords = rule.get("trigger_keywords", [])
+        if any(_strip_diacritics(kw).lower() in normalized_query for kw in keywords):
+            return rule
+    # Rule cuối cùng trong file luôn là "unmatched" -> HRBP (fallback theo thiết kế).
+    return rules[-1]
+
+
+def confidence_node(state: AgentState) -> dict:
+    """Confidence heuristic đơn giản cho MVP: kết hợp độ liên quan retrieval
+    (khoảng cách embedding nhỏ nhất) với kết quả hallucination check."""
+    settings = get_settings()
+    chunks = state.get("retrieved_chunks", [])
+    hallucination_passed = state.get("hallucination_passed", True)
+
+    if not chunks:
+        score = 0.0
+    else:
+        best_distance = min(c["distance"] for c in chunks)
+        score = max(0.0, 1.0 - best_distance)
+    if not hallucination_passed:
+        score = min(score, 0.3)
+
+    result: dict = {"confidence_score": round(score, 3)}
+    if score < settings.low_confidence_threshold:
+        result["escalate"] = True
+        result["escalate_reason"] = "low_confidence"
+    return result
+
+
+def escalate_node(state: AgentState) -> dict:
+    """Escalate ở dạng NHẸ cho MVP: trả về response có cấu trúc gợi ý ticket,
+    KHÔNG ghi thật vào Supabase (việc ghi ticket thật phụ thuộc backend/auth,
+    ngoài phạm vi phần agent này).
+
+    Câu hỏi nhắc công ty khác (competitor) là 1 nhánh RIÊNG, không tạo ticket:
+    không có gì để HR công ty mình xử lý khi được hỏi chính sách công ty khác —
+    tạo ticket ở trường hợp này là sai, chỉ nên từ chối lịch sự (khác hẳn câu
+    hỏi cần tra dữ liệu cá nhân, nơi tạo ticket mới hợp lý)."""
+    query = state.get("query", "")
+    intent = state.get("intent", "hr_question")
+
+    if intent == "out_of_scope_or_personal" and _mentions_competitor_company(query):
+        response = (
+            "Mình chỉ hỗ trợ thông tin chính sách nhân sự của công ty mình, "
+            "không có dữ liệu về chính sách của công ty khác nên không thể so sánh hay trả lời câu này."
+        )
+        return {
+            "escalate": False,
+            "escalate_reason": "competitor_question",
+            "response": response,
+        }
+
+    reason = state.get("escalate_reason") or (
+        "out_of_scope" if intent == "out_of_scope_or_personal" else "low_confidence"
+    )
+
+    rule = _match_routing_rule(query)
+    department = rule["target_department"]
+    category = rule["category"]
+    priority = "High" if category in _HIGH_PRIORITY_CATEGORIES else "Medium"
+
+    response = (
+        "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. "
+        f"Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận {department} để có người xử lý trực tiếp cho bạn."
+    )
+    return {
+        "escalate": True,
+        "escalate_reason": reason,
+        "ticket_category": category,
+        "ticket_department": department,
+        "ticket_priority": priority,
+        "response": response,
+    }

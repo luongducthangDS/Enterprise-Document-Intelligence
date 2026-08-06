@@ -5,7 +5,11 @@
     "ground_truth_context": "Không quá **40 giờ/tháng**.",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_001"
+    "id": "qa_001",
+    "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+    "relevant_chunk_ids": [
+      "01_chinh-sach-lam-them-gio-OT::0005"
+    ]
   },
   {
     "question": "Chủ nhật mình đi làm thêm thì tính lương bao nhiêu?",
@@ -13,7 +17,11 @@
     "ground_truth_context": "Ngày nghỉ hằng tuần (Chủ nhật) | **200%**",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_002"
+    "id": "qa_002",
+    "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+    "relevant_chunk_ids": [
+      "01_chinh-sach-lam-them-gio-OT::0006"
+    ]
   },
   {
     "question": "Tự ở lại làm thêm mà không đăng ký trước có được tính OT không?",
@@ -21,7 +29,11 @@
     "ground_truth_context": "Trường hợp không đăng ký trước mà tự ở lại, giờ đó không được tính OT trừ khi được quản lý xác nhận bổ sung.",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_003"
+    "id": "qa_003",
+    "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+    "relevant_chunk_ids": [
+      "01_chinh-sach-lam-them-gio-OT::0008"
+    ]
   },
   {
     "question": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?",
@@ -29,7 +41,11 @@
     "ground_truth_context": "Ngày lễ, Tết, ngày nghỉ có hưởng lương | **300%** (chưa gồm lương ngày lễ)",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_004"
+    "id": "qa_004",
+    "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+    "relevant_chunk_ids": [
+      "01_chinh-sach-lam-them-gio-OT::0006"
+    ]
   },
   {
     "question": "Muốn làm OT thì cần ai phê duyệt trước?",
@@ -37,7 +53,11 @@
     "ground_truth_context": "Làm thêm giờ chỉ thực hiện khi có **sự đồng ý của NLĐ** và **phê duyệt trước** của quản lý trực tiếp (căn cứ Điều 107).",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_005"
+    "id": "qa_005",
+    "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+    "relevant_chunk_ids": [
+      "01_chinh-sach-lam-them-gio-OT::0004"
+    ]
   },
   {
     "question": "Đi công tác nếu dùng taxi hoặc Grab di chuyển trong ngày thì được thanh toán tối đa bao nhiêu?",
@@ -45,7 +65,11 @@
     "ground_truth_context": "Di chuyển trong quá trình công tác: Được thanh toán tối đa 300.000 VNĐ/ngày (nếu không sử dụng xe công tác của Công ty).",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_006"
+    "id": "qa_006",
+    "source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "relevant_chunk_ids": [
+      "base_quy-che-cong-tac-phi-va-phu-cap::0002"
+    ]
   },
   {
     "question": "Nhân viên đi công tác bằng máy bay thì được hạng vé gì?",
@@ -53,7 +77,11 @@
     "ground_truth_context": "Cấp Nhân viên: Hạng Phổ thông tiết kiệm (Economy Saver). Vé máy bay phải được đặt trước ít nhất 03 ngày (trừ trường hợp khẩn cấp).",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_007"
+    "id": "qa_007",
+    "source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "relevant_chunk_ids": [
+      "base_quy-che-cong-tac-phi-va-phu-cap::0002"
+    ]
   },
   {
     "question": "Nếu mình đi công tác tự lo chỗ ở không lấy hóa đơn khách sạn thì có được hỗ trợ tiền không?",
@@ -61,15 +89,23 @@
     "ground_truth_context": "Trường hợp CBNV tự lo chỗ ở (không lấy hóa đơn khách sạn): Được hỗ trợ khoán 250.000 VNĐ/đêm.",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_008"
+    "id": "qa_008",
+    "source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "relevant_chunk_ids": [
+      "base_quy-che-cong-tac-phi-va-phu-cap::0004"
+    ]
   },
   {
     "question": "Đi công tác về mấy ngày thì phải nộp hồ sơ quyết toán?",
     "expected_answer": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác.",
-    "ground_truth_context": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác, CBNV phải hoàn tất Báo cáo kết quả công tác và hồ sơ quyết toán tài chính gửi Phòng Kế toán.",
+    "ground_truth_context": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác, CBNV phải hoàn tất **Báo cáo kết quả công tác** và hồ sơ quyết toán tài chính gửi Phòng Kế toán.",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_009"
+    "id": "qa_009",
+    "source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "relevant_chunk_ids": [
+      "base_quy-che-cong-tac-phi-va-phu-cap::0006"
+    ]
   },
   {
     "question": "Nộp hồ sơ quyết toán công tác phí trễ quá 10 ngày thì bị làm sao?",
@@ -77,7 +113,11 @@
     "ground_truth_context": "Trường hợp nộp hồ sơ quyết toán trễ hạn quá 10 ngày làm việc mà không có lý do chính đáng, Công ty sẽ khấu trừ số tiền đã tạm ứng vào kỳ lương gần nhất.",
     "category": "compensation_policies",
     "type": "in_scope",
-    "id": "qa_010"
+    "id": "qa_010",
+    "source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "relevant_chunk_ids": [
+      "base_quy-che-cong-tac-phi-va-phu-cap::0006"
+    ]
   },
   {
     "question": "Nếu phòng mình cần tuyển thêm người thì trưởng bộ phận cần làm bước đầu tiên là gì?",
@@ -85,7 +125,11 @@
     "ground_truth_context": "Trưởng bộ phận điền **Phiếu yêu cầu tuyển dụng** (HR-FRM-REC-01): vị trí, số lượng, JD, mức lương dự kiến, thời điểm cần.\n- Phê duyệt: Trưởng bộ phận → Giám đốc khối → Phòng Nhân sự xác nhận ngân sách headcount.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_011"
+    "id": "qa_011",
+    "source_file": "02_quy-trinh-tuyen-dung.md",
+    "relevant_chunk_ids": [
+      "02_quy-trinh-tuyen-dung::0004"
+    ]
   },
   {
     "question": "Quy trình phỏng vấn của công ty có mấy vòng?",
@@ -93,7 +137,11 @@
     "ground_truth_context": "**Vòng 1 (HR)**: đánh giá sơ bộ động lực, kỳ vọng lương, tính phù hợp văn hóa.\n- **Vòng 2 (Chuyên môn)**: quản lý trực tiếp đánh giá năng lực; có thể kèm bài test.\n- **Vòng 3 (nếu cần)**: Giám đốc khối, cho vị trí từ cấp Trưởng nhóm trở lên.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_012"
+    "id": "qa_012",
+    "source_file": "02_quy-trinh-tuyen-dung.md",
+    "relevant_chunk_ids": [
+      "02_quy-trinh-tuyen-dung::0006"
+    ]
   },
   {
     "question": "Mình giới thiệu bạn ứng tuyển thì bạn mình nộp hồ sơ qua kênh nào?",
@@ -101,7 +149,11 @@
     "ground_truth_context": "Kênh đăng: website tuyển dụng nội bộ, các trang việc làm (VietnamWorks, TopCV, LinkedIn), giới thiệu nội bộ (referral).",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_013"
+    "id": "qa_013",
+    "source_file": "02_quy-trinh-tuyen-dung.md",
+    "relevant_chunk_ids": [
+      "02_quy-trinh-tuyen-dung::0005"
+    ]
   },
   {
     "question": "Vị trí thực tập hay cộng tác viên thì quy trình tuyển có gì khác so với full-time?",
@@ -109,7 +161,11 @@
     "ground_truth_context": "Bỏ Vòng 3; không áp dụng thử việc; ký thỏa thuận thực tập thay vì hợp đồng lao động.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_014"
+    "id": "qa_014",
+    "source_file": "02_quy-trinh-tuyen-dung.md",
+    "relevant_chunk_ids": [
+      "02_quy-trinh-tuyen-dung::0012"
+    ]
   },
   {
     "question": "Ai là người được phép trao đổi mức lương với ứng viên, và ở bước nào?",
@@ -117,7 +173,11 @@
     "ground_truth_context": "Mọi trao đổi lương thưởng chỉ được đưa ra ở bước Offer bởi Phòng Nhân sự.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_015"
+    "id": "qa_015",
+    "source_file": "02_quy-trinh-tuyen-dung.md",
+    "relevant_chunk_ids": [
+      "02_quy-trinh-tuyen-dung::0003"
+    ]
   },
   {
     "question": "Quy trình tuyển dụng trực tiếp của công ty có mấy vòng?",
@@ -125,15 +185,23 @@
     "ground_truth_context": "Những ứng viên này cần tham gia 4 vòng bao gồm nộp hồ sơ ứng tuyển, phỏng vấn trực tiếp, phỏng vấn chuyên sâu và thỏa thuận lương, mỗi vòng đều có những khó khăn nhất định.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_016"
+    "id": "qa_016",
+    "source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "relevant_chunk_ids": [
+      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001"
+    ]
   },
   {
     "question": "Công ty có những hình thức tuyển dụng nào?",
     "expected_answer": "2 hình thức: tuyển dụng trực tiếp và tuyển dụng thực tập sinh thông qua chương trình \"Thực tập sinh tài năng\".",
-    "ground_truth_context": "Với Vingroup, những ứng viên tài năng có thể được tuyển dụng thông qua 2 hình thức là tuyển dụng trực tiếp và tuyển dụng thực tập sinh thông qua chương trình \"Thực tập sinh tài năng\".",
+    "ground_truth_context": "Với Vingroup, những ứng viên tài năng có thể được tuyển dụng thông qua 2 hình thức là tuyển dụng trực tiếp và tuyển dụng thực tập sinh thông qua chương trình “Thực tập sinh tài năng”.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_017"
+    "id": "qa_017",
+    "source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "relevant_chunk_ids": [
+      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001"
+    ]
   },
   {
     "question": "Mục tiêu của quy trình tuyển dụng là gì?",
@@ -141,7 +209,11 @@
     "ground_truth_context": "- Tìm kiếm, thu hút ứng viên phù hợp, tốt nhất.\n- Đáp ứng được nhu cầu tuyển dụng nội bộ của công ty.\n- Xây dựng thương hiệu tuyển dụng của doanh nghiệp.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_018"
+    "id": "qa_018",
+    "source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "relevant_chunk_ids": [
+      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001"
+    ]
   },
   {
     "question": "Nếu mình giới thiệu bạn ứng tuyển thì họ cần nộp hồ sơ qua những kênh nào?",
@@ -149,7 +221,11 @@
     "ground_truth_context": "- Gửi hồ sơ dự tuyển (bao gồm CV); thông qua email về địa chỉ email tuyển dụng của Vingroup, tiêu đề của email theo mẫu: Vị trí ứng tuyển – Họ tên. VD: Chuyên viên Tìm kiếm mặt bằng – Nguyễn Văn A.\n- Nộp hồ sơ bản cứng trực tiếp với văn phòng công ty Vingroup; hoặc văn phòng công ty thành viên (nơi trực tiếp ứng tuyển vị trí tuyển dụng).\n- Với một số vị trí tuyển dụng, Vingroup cho phép ứng viên ứng tuyển thông qua việc đăng ký theo link có sẵn; hoặc gửi SMS theo cú pháp cho trước.",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_019"
+    "id": "qa_019",
+    "source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "relevant_chunk_ids": [
+      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002"
+    ]
   },
   {
     "question": "Hồ sơ bản cứng ứng viên nộp cần gồm những giấy tờ gì?",
@@ -157,15 +233,23 @@
     "ground_truth_context": "+ Sơ yếu lý lịch có chứng nhận của phường/xã trong vòng 6 tháng gần nhất\n+ Giấy khai sinh công chứng\n+ Giấy khám sức khỏe có dấu tròn trong 06 tháng gần nhất\n+ CMND công chứng (02 bản)\n+ Photocopy Sổ Hộ khẩu\n+ Xác nhận của Công an V/v Không có tiền án, tiền sự\n+ 4 ảnh 3*4\n+ Bằng cấp, chứng chỉ\n+ Mã số thuế cá nhân (nếu có)\n+ Số bảo hiểm (nếu có)",
     "category": "recruitment_policies",
     "type": "in_scope",
-    "id": "qa_020"
+    "id": "qa_020",
+    "source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "relevant_chunk_ids": [
+      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002"
+    ]
   },
   {
     "question": "Người buddy hỗ trợ mình trong bao lâu vậy?",
     "expected_answer": "Buddy hỗ trợ trong 30 ngày đầu tiên.",
-    "ground_truth_context": "Buddy (người đồng hành): đồng nghiệp hỗ trợ hòa nhập trong 30 ngày đầu.",
+    "ground_truth_context": "Buddy (người đồng hành)**: đồng nghiệp hỗ trợ hòa nhập trong 30 ngày đầu.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_021"
+    "id": "qa_021",
+    "source_file": "03_quy-trinh-onboarding.md",
+    "relevant_chunk_ids": [
+      "03_quy-trinh-onboarding::0003"
+    ]
   },
   {
     "question": "Sau thử việc xong mình bao lâu mới biết kết quả?",
@@ -173,15 +257,23 @@
     "ground_truth_context": "Công ty phải thông báo kết quả thử việc khi kết thúc thời gian thử việc (Điều 27 Bộ luật Lao động 2019).",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_022"
+    "id": "qa_022",
+    "source_file": "03_quy-trinh-onboarding.md",
+    "relevant_chunk_ids": [
+      "03_quy-trinh-onboarding::0012"
+    ]
   },
   {
     "question": "Ngày đầu tiên đi làm mình sẽ làm những gì?",
     "expected_answer": "Bạn sẽ nhận thiết bị, tài khoản; ký các giấy tờ còn lại; tham gia đào tạo định hướng về công ty, nội quy, quy tắc ứng xử, an toàn lao động, chính sách bảo mật; được giới thiệu với bộ phận và buddy dẫn tham quan.",
-    "ground_truth_context": "Nhận thiết bị, tài khoản; ký các giấy tờ còn lại. Đào tạo định hướng: giới thiệu công ty, cơ cấu tổ chức, nội quy lao động, quy tắc ứng xử, an toàn lao động, chính sách bảo mật. Giới thiệu với bộ phận; buddy dẫn tham quan.",
+    "ground_truth_context": "## 5. Ngày đầu tiên (Day 1)\n- Nhận thiết bị, tài khoản; ký các giấy tờ còn lại.\n- Đào tạo định hướng: giới thiệu công ty, cơ cấu tổ chức, nội quy lao động, quy tắc ứng xử, an toàn lao động, chính sách bảo mật.\n- Giới thiệu với bộ phận; buddy dẫn tham quan.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_023"
+    "id": "qa_023",
+    "source_file": "03_quy-trinh-onboarding.md",
+    "relevant_chunk_ids": [
+      "03_quy-trinh-onboarding::0005"
+    ]
   },
   {
     "question": "Tuần đầu tiên có khóa học nào bắt buộc phải hoàn thành không?",
@@ -189,7 +281,11 @@
     "ground_truth_context": "Hoàn tất các khóa e-learning bắt buộc (bảo mật thông tin, phòng chống quấy rối).",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_024"
+    "id": "qa_024",
+    "source_file": "03_quy-trinh-onboarding.md",
+    "relevant_chunk_ids": [
+      "03_quy-trinh-onboarding::0006"
+    ]
   },
   {
     "question": "Đến ngày thứ 60 thì có đánh giá gì không?",
@@ -197,7 +293,11 @@
     "ground_truth_context": "Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_025"
+    "id": "qa_025",
+    "source_file": "03_quy-trinh-onboarding.md",
+    "relevant_chunk_ids": [
+      "03_quy-trinh-onboarding::0008"
+    ]
   },
   {
     "question": "Mình làm hợp đồng không xác định thời hạn, nếu muốn nghỉ việc thì phải báo trước bao lâu?",
@@ -205,7 +305,11 @@
     "ground_truth_context": "- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_026"
+    "id": "qa_026",
+    "source_file": "04_quy-trinh-offboarding.md",
+    "relevant_chunk_ids": [
+      "04_quy-trinh-offboarding::0004"
+    ]
   },
   {
     "question": "Khi nghỉ việc thì mình cần phải trả lại những tài sản gì cho công ty?",
@@ -213,7 +317,11 @@
     "ground_truth_context": "- Trả lại tài sản: laptop, thẻ nhân viên, tài liệu, tài khoản.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_027"
+    "id": "qa_027",
+    "source_file": "04_quy-trinh-offboarding.md",
+    "relevant_chunk_ids": [
+      "04_quy-trinh-offboarding::0006"
+    ]
   },
   {
     "question": "Sau khi chính thức nghỉ việc, bao lâu thì công ty sẽ chốt và thanh toán hết các khoản chế độ?",
@@ -221,7 +329,11 @@
     "ground_truth_context": "- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_028"
+    "id": "qa_028",
+    "source_file": "04_quy-trinh-offboarding.md",
+    "relevant_chunk_ids": [
+      "04_quy-trinh-offboarding::0007"
+    ]
   },
   {
     "question": "Mình muốn hỏi về điều kiện nhận trợ cấp thôi việc, công ty quy định thế nào?",
@@ -229,7 +341,11 @@
     "ground_truth_context": "- Thanh toán: lương những ngày làm việc còn lại, phép năm chưa nghỉ, thưởng (nếu có), **trợ cấp thôi việc** nếu đủ điều kiện theo **Điều 46** (làm việc thường xuyên từ đủ 12 tháng trở lên, mỗi năm làm việc được trợ cấp nửa tháng lương, trừ thời gian đã tham gia bảo hiểm thất nghiệp).",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_029"
+    "id": "qa_029",
+    "source_file": "04_quy-trinh-offboarding.md",
+    "relevant_chunk_ids": [
+      "04_quy-trinh-offboarding::0007"
+    ]
   },
   {
     "question": "Ai sẽ phụ trách phỏng vấn thôi việc (exit interview) với mình vậy?",
@@ -237,7 +353,11 @@
     "ground_truth_context": "- Phòng NS thực hiện exit interview: lý do nghỉ, phản hồi về công ty.",
     "category": "onboarding_offboarding",
     "type": "in_scope",
-    "id": "qa_030"
+    "id": "qa_030",
+    "source_file": "04_quy-trinh-offboarding.md",
+    "relevant_chunk_ids": [
+      "04_quy-trinh-offboarding::0006"
+    ]
   },
   {
     "question": "Em làm công việc văn phòng bình thường thì mỗi năm được nghỉ phép bao nhiêu ngày?",
@@ -245,7 +365,11 @@
     "ground_truth_context": "| Công việc bình thường | **12 ngày** | Điều 113.1 |",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_031"
+    "id": "qa_031",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0004"
+    ]
   },
   {
     "question": "Nếu mình làm việc được 5 năm rồi thì số ngày nghỉ phép năm có được tăng thêm không?",
@@ -253,7 +377,11 @@
     "ground_truth_context": "Cứ mỗi **5 năm làm việc** tại một doanh nghiệp hoặc cùng một ngành nghề, NLĐ được tăng thêm **1 ngày** nghỉ phép năm.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_032"
+    "id": "qa_032",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0005"
+    ]
   },
   {
     "question": "Sắp tới em lấy vợ thì được nghỉ bao nhiêu ngày và có hưởng lương không?",
@@ -261,7 +389,11 @@
     "ground_truth_context": "NLĐ được nghỉ việc riêng có hưởng nguyên lương trong các trường hợp sau:\n\n| Lý do nghỉ | Số ngày nghỉ | Ghi chú |\n|---|---|---|\n| Kết hôn | **3 ngày** |  |",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_033"
+    "id": "qa_033",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0007"
+    ]
   },
   {
     "question": "Nếu cha mẹ mất thì nhân viên được nghỉ bao nhiêu ngày?",
@@ -269,7 +401,11 @@
     "ground_truth_context": "| Cha/mẹ, vợ/chồng, con chết | **3 ngày** |  |",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_034"
+    "id": "qa_034",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0007"
+    ]
   },
   {
     "question": "Khi nghỉ phép năm thì công ty trả lương như thế nào?",
@@ -277,47 +413,71 @@
     "ground_truth_context": "NLĐ được hưởng **100% tiền lương** theo HĐLĐ tại thời điểm nghỉ.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_035"
+    "id": "qa_035",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0006"
+    ]
   },
   {
     "question": "Tôi ốm đột xuất sáng nay mới biết, báo nghỉ kiểu gì?",
     "expected_answer": "Bạn có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp trong ngày. Sau đó phải bổ sung yêu cầu trên HRIS trong vòng 24 giờ kể từ khi có thể truy cập hệ thống.",
-    "ground_truth_context": "NLĐ có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp trong ngày nếu lý do đột xuất (ốm đột xuất, tang sự, tai nạn). Phải bổ sung yêu cầu trên HRIS trong vòng 24 giờ kể từ khi có thể truy cập hệ thống.",
+    "ground_truth_context": "### 9.2. Trường hợp nghỉ khẩn cấp\n- NLĐ có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp **trong ngày** nếu lý do đột xuất (ốm đột xuất, tang sự, tai nạn).\n- Phải bổ sung yêu cầu trên HRIS trong vòng **24 giờ** kể từ khi có thể truy cập hệ thống.\n- Giấy tờ chứng minh (giấy ốm, giấy tang, v.v.) phải nộp trong vòng **3 ngày làm việc** kể từ ngày trở lại làm việc.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_036"
+    "id": "qa_036",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0017"
+    ]
   },
   {
     "question": "Cuối năm mình còn 8 ngày phép chưa dùng thì xử lý thế nào?",
     "expected_answer": "Bạn được cộng dồn 5 ngày sang năm sau, 3 ngày còn lại được thanh toán bằng tiền cùng kỳ lương tháng 12 hoặc tháng 1 năm sau.",
-    "ground_truth_context": "H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế nào? Đ: Bạn được cộng dồn 5 ngày sang năm sau, 3 ngày còn lại được thanh toán bằng tiền cùng kỳ lương tháng 12 hoặc tháng 1 năm sau.",
+    "ground_truth_context": "**H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế nào?**\nĐ: Bạn được cộng dồn 5 ngày sang năm sau, 3 ngày còn lại được thanh toán bằng tiền cùng kỳ lương tháng 12 hoặc tháng 1 năm sau.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_037"
+    "id": "qa_037",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0023"
+    ]
   },
   {
     "question": "Tôi sắp sinh rồi, cần báo công ty trước bao lâu?",
     "expected_answer": "Bạn nên thông báo cho quản lý trực tiếp và Phòng Nhân sự ít nhất 30 ngày trước ngày dự kiến sinh.",
-    "ground_truth_context": "H: Tôi sắp sinh con, cần báo trước công ty bao lâu? Đ: Bạn nên thông báo cho quản lý trực tiếp và Phòng Nhân sự ít nhất 30 ngày trước ngày dự kiến sinh, để công ty sắp xếp người thay thế và chuẩn bị hồ sơ BHXH.",
+    "ground_truth_context": "**H: Tôi sắp sinh con, cần báo trước công ty bao lâu?**\nĐ: Bạn nên thông báo cho quản lý trực tiếp và Phòng Nhân sự **ít nhất 30 ngày** trước ngày dự kiến sinh, để công ty sắp xếp người thay thế và chuẩn bị hồ sơ BHXH.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_038"
+    "id": "qa_038",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0023"
+    ]
   },
   {
     "question": "Đi lấy vợ thì được nghỉ mấy ngày, có hưởng lương không?",
     "expected_answer": "Bạn được nghỉ 3 ngày có hưởng lương theo Điều 115 BLLĐ 2019. Cần nộp giấy đăng ký kết hôn khi công ty yêu cầu.",
-    "ground_truth_context": "H: Tôi nghỉ cưới được mấy ngày và có hưởng lương không? Đ: Bạn được nghỉ 3 ngày có hưởng lương theo Điều 115 BLLĐ 2019. Cần nộp giấy đăng ký kết hôn khi công ty yêu cầu.",
+    "ground_truth_context": "**H: Tôi nghỉ cưới được mấy ngày và có hưởng lương không?**\nĐ: Bạn được nghỉ 3 ngày có hưởng lương theo Điều 115 BLLĐ 2019. Cần nộp giấy đăng ký kết hôn khi công ty yêu cầu.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_039"
+    "id": "qa_039",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0023"
+    ]
   },
   {
     "question": "Nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?",
     "expected_answer": "Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác.",
-    "ground_truth_context": "H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không? Đ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.",
+    "ground_truth_context": "**H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?**\nĐ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.",
     "category": "leave_policies",
     "type": "in_scope",
-    "id": "qa_040"
+    "id": "qa_040",
+    "source_file": "07_chinh-sach-nghi-phep.md",
+    "relevant_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0023"
+    ]
   },
   {
     "question": "Công ty tuyển dụng em từ năm 14 tuổi có được không?",
@@ -325,7 +485,11 @@
     "ground_truth_context": "Độ tuổi lao động tối thiểu của người lao động là đủ 15 tuổi, trừ trường hợp quy định tại Mục 1 Chương XI của Bộ luật này.",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_041"
+    "id": "qa_041",
+    "source_file": "bộ luật lao động.pdf",
+    "relevant_chunk_ids": [
+      "bộ luật lao động::0003"
+    ]
   },
   {
     "question": "Cá nhân tự kinh doanh có quyền thuê người làm việc không?",
@@ -333,7 +497,11 @@
     "ground_truth_context": "Người sử dụng lao động là doanh nghiệp, cơ quan, tổ chức, hợp tác xã, hộ gia đình, cá nhân có thuê mướn, sử dụng người lao động làm việc cho mình theo thỏa thuận; trường hợp người sử dụng lao động là cá nhân thì phải có năng lực hành vi dân sự đầy đủ.",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_042"
+    "id": "qa_042",
+    "source_file": "bộ luật lao động.pdf",
+    "relevant_chunk_ids": [
+      "bộ luật lao động::0003"
+    ]
   },
   {
     "question": "Sếp dùng lời đe dọa ép mình làm việc ngoài giờ có bị coi là cưỡng bức lao động không?",
@@ -341,7 +509,11 @@
     "ground_truth_context": "Cưỡng bức lao động là việc dùng vũ lực, đe dọa dùng vũ lực hoặc các thủ đoạn khác để ép buộc người lao động phải làm việc trái ý muốn của họ.",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_043"
+    "id": "qa_043",
+    "source_file": "bộ luật lao động.pdf",
+    "relevant_chunk_ids": [
+      "bộ luật lao động::0004"
+    ]
   },
   {
     "question": "Công ty ưu tiên tuyển người chưa có gia đình thì có bị coi là phân biệt đối xử không?",
@@ -349,7 +521,11 @@
     "ground_truth_context": "Phân biệt đối xử trong lao động là hành vi phân biệt, loại trừ hoặc ưu tiên dựa trên chủng tộc, màu da, nguồn gốc quốc gia hoặc nguồn gốc xã hội, dân tộc, giới tính, độ tuổi, tình trạng thai sản, tình trạng hôn nhân, tôn giáo, tín ngưỡng, chính kiến, khuyết tật, trách nhiệm gia đình hoặc trên cơ sở tình trạng nhiễm HIV hoặc vì lý do thành lập, gia nhập và hoạt động công đoàn, tổ chức của người lao động tại doanh nghiệp có tác động làm ảnh hưởng đến bình đẳng về cơ hội việc làm hoặc nghề nghiệp.",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_044"
+    "id": "qa_044",
+    "source_file": "bộ luật lao động.pdf",
+    "relevant_chunk_ids": [
+      "bộ luật lao động::0005"
+    ]
   },
   {
     "question": "Tại công ty mình có những tổ chức nào đại diện và bảo vệ quyền lợi cho người lao động?",
@@ -357,7 +533,11 @@
     "ground_truth_context": "Tổ chức đại diện người lao động tại cơ sở bao gồm công đoàn cơ sở và tổ chức của người lao động tại doanh nghiệp.",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_045"
+    "id": "qa_045",
+    "source_file": "bộ luật lao động.pdf",
+    "relevant_chunk_ids": [
+      "bộ luật lao động::0004"
+    ]
   },
   {
     "question": "Hợp đồng lao động thời hạn bao lâu thì mình phải đóng bảo hiểm xã hội bắt buộc?",
@@ -365,7 +545,11 @@
     "ground_truth_context": "Người làm việc theo hợp đồng lao động không xác định thời hạn, hợp đồng lao động xác định thời hạn có thời hạn từ đủ 01 tháng trở lên",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_046"
+    "id": "qa_046",
+    "source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+    "relevant_chunk_ids": [
+      "luat_bao_hiem_xa_hoi_41_2024_qh15::0002"
+    ]
   },
   {
     "question": "Người nước ngoài làm việc tại Việt Nam có phải tham gia bảo hiểm xã hội bắt buộc không?",
@@ -373,7 +557,11 @@
     "ground_truth_context": "Người lao động là công dân nước ngoài làm việc tại Việt Nam thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc khi làm việc theo hợp đồng lao động xác định thời hạn có thời hạn từ đủ 12 tháng trở lên với người sử dụng lao động tại Việt Nam",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_047"
+    "id": "qa_047",
+    "source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+    "relevant_chunk_ids": [
+      "luat_bao_hiem_xa_hoi_41_2024_qh15::0004"
+    ]
   },
   {
     "question": "Làm part-time có được đóng bảo hiểm xã hội không?",
@@ -381,7 +569,11 @@
     "ground_truth_context": "Đối tượng quy định tại điểm a khoản này làm việc không trọn thời gian, có tiền lương trong tháng bằng hoặc cao hơn tiền lương làm căn cứ đóng bảo hiểm xã hội bắt buộc thấp nhất",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_048"
+    "id": "qa_048",
+    "source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+    "relevant_chunk_ids": [
+      "luat_bao_hiem_xa_hoi_41_2024_qh15::0004"
+    ]
   },
   {
     "question": "Chủ hộ kinh doanh có đăng ký kinh doanh có phải tham gia bảo hiểm xã hội bắt buộc không?",
@@ -389,7 +581,11 @@
     "ground_truth_context": "Chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo quy định của Chính phủ",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_049"
+    "id": "qa_049",
+    "source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+    "relevant_chunk_ids": [
+      "luat_bao_hiem_xa_hoi_41_2024_qh15::0004"
+    ]
   },
   {
     "question": "Dân quân thường trực có thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc không?",
@@ -397,7 +593,11 @@
     "ground_truth_context": "Dân quân thường trực",
     "category": "government_legal",
     "type": "in_scope",
-    "id": "qa_050"
+    "id": "qa_050",
+    "source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+    "relevant_chunk_ids": [
+      "luat_bao_hiem_xa_hoi_41_2024_qh15::0003"
+    ]
   },
   {
     "question": "Văn hóa của người Vingroup gói gọn trong 3 từ gì vậy?",
@@ -405,7 +605,11 @@
     "ground_truth_context": "VĂN HÓA NGƯỜI VINGROUP Yêu nước, Kỷ luật, Văn minh",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_051"
+    "id": "qa_051",
+    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "relevant_chunk_ids": [
+      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
+    ]
   },
   {
     "question": "Slogan của Vingroup là gì nhỉ?",
@@ -413,7 +617,11 @@
     "ground_truth_context": "5. SLOGAN: Mãi mãi tinh thần khởi nghiệp.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_052"
+    "id": "qa_052",
+    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "relevant_chunk_ids": [
+      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
+    ]
   },
   {
     "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
@@ -421,7 +629,11 @@
     "ground_truth_context": "Bộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_053"
+    "id": "qa_053",
+    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "relevant_chunk_ids": [
+      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000"
+    ]
   },
   {
     "question": "Công ty rà soát đánh giá xếp bậc cán bộ lãnh đạo bao lâu một lần?",
@@ -429,15 +641,23 @@
     "ground_truth_context": "Việc đánh giá xếp loại, xếp bậc CBLĐ được thực hiện, rà soát 06 tháng/lần.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_054"
+    "id": "qa_054",
+    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "relevant_chunk_ids": [
+      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0004"
+    ]
   },
   {
     "question": "Cán bộ lãnh đạo xếp loại 'Quyền' thì xếp bậc thế nào so với chức danh?",
     "expected_answer": "Hạ 01 bậc so với cấp bậc của chức danh.",
-    "ground_truth_context": "Hạ 01 bậc so với cấp bậc của chức danh",
+    "ground_truth_context": "Quyền - CBLĐ chưa có khả năng độc lập đảm trách",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_055"
+    "id": "qa_055",
+    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "relevant_chunk_ids": [
+      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0005"
+    ]
   },
   {
     "question": "Mình làm mảng kinh doanh thì chu kỳ đánh giá hiệu suất thế nào?",
@@ -445,7 +665,11 @@
     "ground_truth_context": "Đánh giá Hàng tháng / Hàng quý**: Áp dụng đối với Khối Kinh doanh, Dịch vụ và Sản xuất để tính thưởng doanh số/năng suất.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_056"
+    "id": "qa_056",
+    "source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "relevant_chunk_ids": [
+      "mau_quy-che-danh-gia-hieu-suat-kpi::0001"
+    ]
   },
   {
     "question": "Mình mới làm được 2 tháng thì có phải tham gia đánh giá hàng năm không?",
@@ -453,7 +677,11 @@
     "ground_truth_context": "Đánh giá Hàng năm (Annual Performance Review - APR)**: Áp dụng cho toàn thể CBNV có thâm niên làm việc từ 03 tháng trở lên tính đến thời điểm chốt đánh giá.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_057"
+    "id": "qa_057",
+    "source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "relevant_chunk_ids": [
+      "mau_quy-che-danh-gia-hieu-suat-kpi::0001"
+    ]
   },
   {
     "question": "Nếu mình bị xếp loại C cần cải thiện thì có được xét tăng lương không?",
@@ -461,7 +689,11 @@
     "ground_truth_context": "| **Cần cải thiện (C)** | 50 - 64 điểm | Dưới 10% | 0% - 50% Mức thưởng chuẩn (Không xem xét tăng lương) |",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_058"
+    "id": "qa_058",
+    "source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "relevant_chunk_ids": [
+      "mau_quy-che-danh-gia-hieu-suat-kpi::0003"
+    ]
   },
   {
     "question": "Trường hợp nào nhân viên sẽ bị đưa vào Kế hoạch Cải thiện Hiệu suất (PIP)?",
@@ -469,7 +701,11 @@
     "ground_truth_context": "CBNV bị xếp loại **D (Không đạt)** trong kỳ đánh giá năm hoặc **02 quý liên tiếp bị xếp loại C** sẽ phải tham gia **Kế hoạch Cải thiện Hiệu suất (Performance Improvement Plan - PIP)** trong thời gian 30 - 60 ngày.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_059"
+    "id": "qa_059",
+    "source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "relevant_chunk_ids": [
+      "mau_quy-che-danh-gia-hieu-suat-kpi::0005"
+    ]
   },
   {
     "question": "Nếu mình không đồng ý với kết quả đánh giá thì có quyền khiếu nại không và trong bao lâu?",
@@ -477,7 +713,11 @@
     "ground_truth_context": "CBNV có quyền gửi Đơn khiếu nại kết quả đánh giá trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR.",
     "category": "company_regulations",
     "type": "in_scope",
-    "id": "qa_060"
+    "id": "qa_060",
+    "source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "relevant_chunk_ids": [
+      "mau_quy-che-danh-gia-hieu-suat-kpi::0006"
+    ]
   },
   {
     "question": "Lương tháng này của Nguyễn Văn A là bao nhiêu?",

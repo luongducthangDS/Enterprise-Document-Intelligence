@@ -80,7 +80,7 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
             legal_basis=cleaned.frontmatter.get("legal_basis"),
         )
         breadcrumb = " — ".join(p for p in (title, tc.heading_path) if p)
-        embedding_text = f"{breadcrumb}\n\n{tc.text}" if breadcrumb else tc.text
+        embedding_text = f"passage: {breadcrumb}\n\n{tc.text}" if breadcrumb else f"passage: {tc.text}"
         chunks.append(Chunk(text=tc.text, embedding_text=embedding_text, metadata=meta))
 
     return chunks

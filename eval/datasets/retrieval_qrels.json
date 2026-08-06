@@ -1,0 +1,182 @@
+{
+  "qa_001": {
+    "01_chinh-sach-lam-them-gio-OT::0005": 2
+  },
+  "qa_002": {
+    "01_chinh-sach-lam-them-gio-OT::0006": 2
+  },
+  "qa_003": {
+    "01_chinh-sach-lam-them-gio-OT::0008": 2
+  },
+  "qa_004": {
+    "01_chinh-sach-lam-them-gio-OT::0006": 2
+  },
+  "qa_005": {
+    "01_chinh-sach-lam-them-gio-OT::0004": 2
+  },
+  "qa_006": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0002": 2
+  },
+  "qa_007": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0002": 2
+  },
+  "qa_008": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0004": 2
+  },
+  "qa_009": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0006": 2
+  },
+  "qa_010": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0006": 2
+  },
+  "qa_011": {
+    "02_quy-trinh-tuyen-dung::0004": 2
+  },
+  "qa_012": {
+    "02_quy-trinh-tuyen-dung::0006": 2
+  },
+  "qa_013": {
+    "02_quy-trinh-tuyen-dung::0005": 2
+  },
+  "qa_014": {
+    "02_quy-trinh-tuyen-dung::0012": 2
+  },
+  "qa_015": {
+    "02_quy-trinh-tuyen-dung::0003": 2
+  },
+  "qa_016": {
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
+  },
+  "qa_017": {
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
+  },
+  "qa_018": {
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
+  },
+  "qa_019": {
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002": 2
+  },
+  "qa_020": {
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002": 2
+  },
+  "qa_021": {
+    "03_quy-trinh-onboarding::0003": 2
+  },
+  "qa_022": {
+    "03_quy-trinh-onboarding::0012": 2
+  },
+  "qa_023": {
+    "03_quy-trinh-onboarding::0005": 2
+  },
+  "qa_024": {
+    "03_quy-trinh-onboarding::0006": 2
+  },
+  "qa_025": {
+    "03_quy-trinh-onboarding::0008": 2
+  },
+  "qa_026": {
+    "04_quy-trinh-offboarding::0004": 2
+  },
+  "qa_027": {
+    "04_quy-trinh-offboarding::0006": 2
+  },
+  "qa_028": {
+    "04_quy-trinh-offboarding::0007": 2
+  },
+  "qa_029": {
+    "04_quy-trinh-offboarding::0007": 2
+  },
+  "qa_030": {
+    "04_quy-trinh-offboarding::0006": 2
+  },
+  "qa_031": {
+    "07_chinh-sach-nghi-phep::0004": 2
+  },
+  "qa_032": {
+    "07_chinh-sach-nghi-phep::0005": 2
+  },
+  "qa_033": {
+    "07_chinh-sach-nghi-phep::0007": 2
+  },
+  "qa_034": {
+    "07_chinh-sach-nghi-phep::0007": 2
+  },
+  "qa_035": {
+    "07_chinh-sach-nghi-phep::0006": 2
+  },
+  "qa_036": {
+    "07_chinh-sach-nghi-phep::0017": 2
+  },
+  "qa_037": {
+    "07_chinh-sach-nghi-phep::0023": 2
+  },
+  "qa_038": {
+    "07_chinh-sach-nghi-phep::0023": 2
+  },
+  "qa_039": {
+    "07_chinh-sach-nghi-phep::0023": 2
+  },
+  "qa_040": {
+    "07_chinh-sach-nghi-phep::0023": 2
+  },
+  "qa_041": {
+    "bộ luật lao động::0003": 2
+  },
+  "qa_042": {
+    "bộ luật lao động::0003": 2
+  },
+  "qa_043": {
+    "bộ luật lao động::0004": 2
+  },
+  "qa_044": {
+    "bộ luật lao động::0005": 2
+  },
+  "qa_045": {
+    "bộ luật lao động::0004": 2
+  },
+  "qa_046": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0002": 2
+  },
+  "qa_047": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+  },
+  "qa_048": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+  },
+  "qa_049": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+  },
+  "qa_050": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0003": 2
+  },
+  "qa_051": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": 2
+  },
+  "qa_052": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": 2
+  },
+  "qa_053": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000": 2
+  },
+  "qa_054": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0004": 2
+  },
+  "qa_055": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0005": 2
+  },
+  "qa_056": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": 2
+  },
+  "qa_057": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": 2
+  },
+  "qa_058": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0003": 2
+  },
+  "qa_059": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0005": 2
+  },
+  "qa_060": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0006": 2
+  }
+}

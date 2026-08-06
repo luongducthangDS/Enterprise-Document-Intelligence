@@ -22,7 +22,7 @@ def get_collection(client: chromadb.ClientAPI, name: str) -> Collection:
     # Không truyền embedding_function — embedding luôn tính thủ công qua
     # src/ingestion/embeddings.py rồi truyền trực tiếp vào add/upsert/query, để
     # Chroma không phụ thuộc phải hiểu đúng response shape của FPT.AI Marketplace.
-    return client.get_or_create_collection(name=name)
+    return client.get_or_create_collection(name=name, metadata={"hnsw:space": "cosine"})
 
 
 def delete_by_source_stem(collection: Collection, source_stem: str) -> None:

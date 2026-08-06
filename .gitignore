@@ -68,3 +68,4 @@ out/
 *.bak
 *.bak.*
 scratch_*
+.aider*
