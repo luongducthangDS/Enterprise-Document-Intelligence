@@ -43,8 +43,12 @@ _CLARIFY_SYSTEM = """Câu hỏi của nhân viên về chủ đề HR nhưng cò
 
 
 async def router_node(state: AgentState) -> dict:
+    from src.config import get_settings
+
     query = state.get("query", "")
-    raw = await acall_llm(_get_router_system(), query, temperature=0.0)
+    # router_model rỗng -> None -> acall_llm dùng llm_model như cũ.
+    model = get_settings().router_model or None
+    raw = await acall_llm(_get_router_system(), query, temperature=0.0, model=model)
     match = _INTENT_PATTERN.search(raw.strip().lower())
     # Không parse được thì coi là hr_question — thử RAG còn hơn im lặng/escalate nhầm.
     intent: Intent = match.group(0) if match else "hr_question"  # type: ignore[assignment]

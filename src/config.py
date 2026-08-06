@@ -49,6 +49,22 @@ class Settings(BaseSettings):
     embedding_model: str = "multilingual-e5-large"
     embedding_batch_size: int = 32
     llm_model: str = "GLM-5.2"
+    # Model riêng cho 2 tác vụ PHÂN LOẠI (router: 1 từ trong 4; hallucination
+    # check: PASS/FAIL) — không cần model reasoning to như generate. Rỗng =
+    # dùng llm_model.
+    #
+    # router_model: A/B trên 140 câu (eval/results/router_ab_*.json) —
+    # DeepSeek-V4-Flash đạt 95.7% (134/140, ngưỡng >=94%) và nhanh hơn GLM-5.2
+    # 3.3x (p50 1.8s vs 6.0s). Đạt ngưỡng, đã đổi default.
+    #
+    # hallucination_model: A/B bằng replay offline 60 câu
+    # (eval/results/hallucination_model_ab.json) — DeepSeek-V4-Flash chỉ đồng
+    # thuận 76.7% với GLM-5.2 (ngưỡng >=95%), dù nhanh hơn (p50 4.2s vs 8.1s).
+    # KHÔNG đạt ngưỡng — sai lệch verdict PASS/FAIL trên tác vụ an toàn
+    # (chống hallucination) rủi ro hơn nhiều so với latency tiết kiệm được.
+    # Giữ rỗng (dùng GLM-5.2) cho tới khi có model khác đạt ngưỡng.
+    router_model: str = "DeepSeek-V4-Flash"
+    hallucination_model: str = ""
     # Model chấm điểm trong eval — PHẢI khác họ với `llm_model`. Nếu để cùng
     # model vừa sinh dữ liệu, vừa trả lời, vừa chấm thì phần lớn thứ đo được là
     # độ nhất quán của model với chính nó, không phải chất lượng hệ thống

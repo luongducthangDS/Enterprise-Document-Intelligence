@@ -83,6 +83,45 @@ async def test_hr_question_flow_returns_grounded_answer_with_citations():
 
 
 @pytest.mark.asyncio
+async def test_unanswerable_generation_skips_hallucination_check_and_escalates():
+    """answerable=False (model phát INSUFFICIENT_MARKER) -> đi thẳng confidence,
+    KHÔNG gọi hallucination check (câu "không đủ thông tin" không có claim nào
+    để kiểm chứng — tiết kiệm 1 LLM call trên toàn nhánh escalate).
+
+    Mock generation.acall_llm với side_effect CHỈ 1 phần tử: nếu graph vẫn gọi
+    hallucination check (lần gọi thứ 2), mock cạn side_effect và test tự fail —
+    xác nhận đúng node bị bỏ qua chứ không chỉ tin kết quả cuối."""
+    from src.agents.nodes.generation import INSUFFICIENT_MARKER
+
+    chroma_result = {
+        "ids": [["x::0001"]],
+        "documents": [["Nội dung về chủ đề khác."]],
+        "metadatas": [
+            [{"source_file": "x.md", "title": "Tài liệu X", "category": "leave_policies", "is_official_policy": True}]
+        ],
+        "distances": [[0.05]],
+    }
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = chroma_result
+
+    with (
+        patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")),
+        patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
+        patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+        patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(side_effect=[f"{INSUFFICIENT_MARKER} Đoạn trích không nói về phụ cấp."]),
+        ),
+    ):
+        result = await agent.ainvoke({"query": "Phụ cấp ăn trưa là bao nhiêu?"})
+
+    assert result["answerable"] is False
+    assert "hallucination_retry_count" not in result  # node check chưa từng chạy
+    assert result["escalate"] is True
+    assert result["escalate_reason"] == "low_confidence"
+
+
+@pytest.mark.asyncio
 async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry():
     empty_chroma_result = {"ids": [[]], "documents": [[]], "metadatas": [[]], "distances": [[]]}
     mock_collection = MagicMock()

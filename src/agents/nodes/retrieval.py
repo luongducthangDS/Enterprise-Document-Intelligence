@@ -6,6 +6,7 @@ from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import get_chroma_client, get_collection
 from src.retrieval.bm25 import BM25
+from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
@@ -40,6 +41,12 @@ def _bm25_index() -> BM25 | None:
 
 
 async def _aembed_query(text: str) -> list[float]:
+    # Exact-match cache: câu hỏi lặp lại (demo, chạy lại eval) không tốn lại
+    # ~0.3-0.5s gọi API embed. Chỉ cache embedding — KHÔNG cache câu trả lời.
+    cached = get_cached_embedding(text)
+    if cached is not None:
+        return cached
+
     settings = get_settings()
     vectors = await asyncio.to_thread(
         embed_batch,
@@ -48,6 +55,7 @@ async def _aembed_query(text: str) -> list[float]:
         base_url=settings.fpt_base_url,
         api_key=settings.fpt_api_key,
     )
+    set_cached_embedding(text, vectors[0])
     return vectors[0]
 
 

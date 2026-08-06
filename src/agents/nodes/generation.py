@@ -82,12 +82,16 @@ async def generate_node(state: AgentState) -> dict:
 
 
 async def hallucination_check_node(state: AgentState) -> dict:
+    from src.config import get_settings
+
     chunks = state.get("retrieved_chunks", [])
     answer = state.get("generated_answer", "")
     context = _build_context_block(chunks)
     user_prompt = f"Đoạn trích:\n{context}\n\nCâu trả lời cần kiểm tra:\n{answer}"
 
-    verdict = await acall_llm(_HALLUCINATION_SYSTEM, user_prompt, temperature=0.0)
+    # hallucination_model rỗng -> None -> acall_llm dùng llm_model như cũ.
+    model = get_settings().hallucination_model or None
+    verdict = await acall_llm(_HALLUCINATION_SYSTEM, user_prompt, temperature=0.0, model=model)
     passed = "PASS" in verdict.upper()
 
     retry_count = state.get("hallucination_retry_count", 0)

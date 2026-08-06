@@ -1,7 +1,38 @@
 import base64
+import random
 import time
+from collections.abc import Callable
+from typing import TypeVar
 
 import requests
+
+# Session dùng chung cả module — giữ TCP connection + TLS session giữa các lần
+# gọi (connection pooling của urllib3), bỏ được ~100-300ms handshake mỗi call.
+# Một request của agent gọi gateway 3-6 lần (embed/rerank/router/generate/
+# hallucination) nên phần tiết kiệm cộng dồn đáng kể.
+_session = requests.Session()
+
+T = TypeVar("T")
+
+
+def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
+    """Retry với exponential backoff + jitter, chỉ cho lỗi mạng/HTTP.
+
+    Thay cho sleep 2s cố định từng ở cả 3 hàm gọi gateway — sleep cố định đã
+    gây mất 9-12 câu mỗi lần chạy eval khi FPT.AI trả 5xx/DNS lỗi thoáng qua
+    (2s không đủ cho gateway hồi, và mọi retry đập vào cùng thời điểm).
+    Jitter tách các coroutine đang chạy song song ra để không retry đồng loạt.
+    """
+    last_exc: requests.exceptions.RequestException | None = None
+    for attempt in range(retries + 1):
+        try:
+            return func()
+        except requests.exceptions.RequestException as e:
+            last_exc = e
+            if attempt < retries:
+                delay = min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0)
+                time.sleep(delay)
+    raise last_exc
 
 
 def _post_chat_completion(
@@ -21,16 +52,12 @@ def _post_chat_completion(
     if temperature is not None:
         payload["temperature"] = temperature
 
-    last_exc: requests.exceptions.RequestException | None = None
-    for _ in range(retries + 1):
-        try:
-            r = requests.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=timeout)
-            r.raise_for_status()
-            return r.json()["choices"][0]["message"]
-        except requests.exceptions.RequestException as e:
-            last_exc = e
-            time.sleep(2)
-    raise last_exc
+    def _call() -> dict:
+        r = _session.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=timeout)
+        r.raise_for_status()
+        return r.json()["choices"][0]["message"]
+
+    return _retry_with_backoff(_call, retries)
 
 
 def extract_page_markdown(
@@ -105,17 +132,13 @@ def rerank(
     if top_n is not None:
         payload["top_n"] = top_n
 
-    last_exc: requests.exceptions.RequestException | None = None
-    for _ in range(retries + 1):
-        try:
-            r = requests.post(f"{base_url}/rerank", headers=headers, json=payload, timeout=timeout)
-            r.raise_for_status()
-            results = r.json()["results"]
-            return [(int(item["index"]), float(item["relevance_score"])) for item in results]
-        except requests.exceptions.RequestException as e:
-            last_exc = e
-            time.sleep(2)
-    raise last_exc
+    def _call() -> list[tuple[int, float]]:
+        r = _session.post(f"{base_url}/rerank", headers=headers, json=payload, timeout=timeout)
+        r.raise_for_status()
+        results = r.json()["results"]
+        return [(int(item["index"]), float(item["relevance_score"])) for item in results]
+
+    return _retry_with_backoff(_call, retries)
 
 
 def embed_batch(
@@ -130,20 +153,17 @@ def embed_batch(
     lại kết quả theo `index` trả về để đảm bảo khớp thứ tự với `texts` đầu vào
     (API có thể không trả đúng thứ tự khi xử lý batch)."""
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    last_exc: requests.exceptions.RequestException | None = None
-    for _ in range(retries + 1):
-        try:
-            r = requests.post(
-                f"{base_url}/embeddings",
-                headers=headers,
-                json={"model": model, "input": texts},
-                timeout=timeout,
-            )
-            r.raise_for_status()
-            data = r.json()["data"]
-            data.sort(key=lambda d: d["index"])
-            return [d["embedding"] for d in data]
-        except requests.exceptions.RequestException as e:
-            last_exc = e
-            time.sleep(2)
-    raise last_exc
+
+    def _call() -> list[list[float]]:
+        r = _session.post(
+            f"{base_url}/embeddings",
+            headers=headers,
+            json={"model": model, "input": texts},
+            timeout=timeout,
+        )
+        r.raise_for_status()
+        data = r.json()["data"]
+        data.sort(key=lambda d: d["index"])
+        return [d["embedding"] for d in data]
+
+    return _retry_with_backoff(_call, retries)

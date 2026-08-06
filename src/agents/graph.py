@@ -31,6 +31,23 @@ def route_after_grade(state: AgentState) -> str:
     return "rewrite"
 
 
+def route_after_generate(state: AgentState) -> str:
+    """Bỏ qua hallucination check khi model đã tự nhận không đủ thông tin
+    (answerable=False): câu trả lời khi đó chỉ là lời giải thích "thiếu gì",
+    không có claim nào để kiểm chứng — prompt check còn tự quy định PASS cho
+    trường hợp này. confidence_node sẽ cap điểm xuống fail_cap và escalate y
+    như cũ, chỉ bớt được 1 LLM call (~1-3s) trên toàn nhánh escalate.
+
+    LƯU Ý: đây là tập con AN TOÀN của đề xuất "conditional hallucination check"
+    trong report_rag_review.md — phần skip theo rerank score >= 0.8 đã bị bác
+    bỏ vì đo được 7 câu reranker tự tin 0.78-1.00 nhưng đoạn SAI (xem CLAUDE.md
+    [2026-08-06]); check groundedness là lớp bảo vệ đúng chỗ đó, không được bỏ.
+    """
+    if not state.get("answerable", True):
+        return "confidence"
+    return "hallucination_check"
+
+
 def route_after_hallucination(state: AgentState) -> str:
     settings = get_settings()
     if state.get("hallucination_passed", True):
@@ -72,7 +89,11 @@ def build_graph() -> StateGraph:
     graph.add_conditional_edges("grade", route_after_grade, {"generate": "generate", "rewrite": "rewrite"})
     graph.add_edge("rewrite", "retrieve")
 
-    graph.add_edge("generate", "hallucination_check")
+    graph.add_conditional_edges(
+        "generate",
+        route_after_generate,
+        {"confidence": "confidence", "hallucination_check": "hallucination_check"},
+    )
     graph.add_conditional_edges(
         "hallucination_check",
         route_after_hallucination,

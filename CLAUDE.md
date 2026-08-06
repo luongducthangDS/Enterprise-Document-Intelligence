@@ -620,3 +620,61 @@ Lưu ý quan trọng: con số "83.6%" này (baseline dev multi-chunk recall đo
 **Đã điền `eval/results/report.md`** (deliverable bắt buộc #10, trước đó là template rỗng) — đầy đủ metrics dev/held-out, giới hạn phương pháp (circular evaluation, latency, multi-chunk gap), và action items xếp ưu tiên. Coverage `pytest --cov=src` = 86% (>60% target), business logic core (`src/agents/*`, `src/retrieval/*`, `src/models/schemas.py`) đạt 95-100%, phần 0% có chủ đích (`supabase_client.py` — chưa có backend thật gọi tới, ngoài phạm vi).
 
 **Test suite cuối Phase 2: 154 pass** (từ 132 đầu phase), lint sạch.
+
+## [2026-08-06] Phase 3 — Latency + Robustness, sau khi verify 3 report audit ngoài
+
+User đưa 3 file report audit (`report_data_prep_pipeline.md`, `report_eval_review.md`, `report_rag_review.md`, ~3300 dòng, không rõ nguồn gốc/tác giả) yêu cầu đọc và đề xuất phương án. Bài học từ vụ `glm_review.md`/`antigravity_review.md` trước đây: **verify từng claim against code thật trước khi tin**, không implement mù theo report ngoài.
+
+### Kết quả verify
+
+**Đúng, đáng làm** (chọn vào scope, theo lựa chọn của user "Latency + robustness"):
+- `fpt_client.py` retry `time.sleep(2)` cố định, không backoff, không `requests.Session` — xác nhận đúng, và đây chính là nguyên nhân mất 9-12 câu/lần trong 3 lần chạy eval ở Phase 2 (429/DNS lỗi thoáng qua, sleep 2s không đủ).
+- Không cache embedding câu hỏi lặp lại — đúng.
+- Hallucination check chạy cả khi `answerable=False` (câu "chưa đủ thông tin" không có claim nào để kiểm chứng) — đúng, lãng phí 1 LLM call.
+
+**Sai/lỗi thời (bác bỏ)**:
+- "Không có chunk overlap" (report data-prep, gắn 🔴 nghiêm trọng) — SAI, `_fallback_chunk` có overlap 12% + `_word_boundary_tail` (`chunkers.py:283-319`, chính cơ chế đã fix bug "cắt vỡ từ tiếng Việt" ở phiên trước).
+- "Metadata category filter là fix quan trọng nhất" — nguy hiểm nếu làm mù: 40/100 câu in_scope là category `mixed` (cần chunk từ NHIỀU category cùng lúc), filter cứng theo 1 category sẽ phá đúng nhóm khó nhất.
+- Số liệu retrieval trong report (Recall@10 69.1%...) — số cũ trước Phase 2, số thật hiện tại Recall@10 92.8% dev / 81.9% held-out.
+
+**Rủi ro — bác bỏ có căn cứ đo được, KHÔNG implement dù report đề xuất hợp lý trên giấy**:
+| Đề xuất (report RAG review) | Mâu thuẫn với gì đã đo |
+|---|---|
+| Reorder context "chống Lost-in-the-Middle" (đặt chunk relevance cao nhất+thấp nhất ở 2 đầu) | Đúng bài học đau nhất của Phase 2: sort vật lý context theo tiêu chí khác relevance (source priority) đã gây regression thật (qa_113/117) — mọi reorder phải qua A/B đo thật trước, không được suy luận lý thuyết rồi làm mặc định |
+| Skip hallucination check khi rerank score ≥ 0.8 | Đo được ngược lại ở Phase 2: 7 câu reranker tự tin 0.78-1.00 nhưng đoạn hoàn toàn SAI — skip đúng ngay chỗ hallucination check từng cứu được |
+| Dedup chunk theo (source_file, title) trong grade | Multi-chunk Recall (điểm yếu nhất hiện tại, held-out chỉ 55%) cần NHIỀU chunk cùng nguồn — dedup sẽ làm tệ thêm đúng chỗ đang yếu |
+| Semantic cache (threshold cosine 0.95) cho câu trả lời | Hai câu HR khác nghĩa hoàn toàn có thể similarity > 0.95 ("nghỉ phép năm" vs "nghỉ không lương") — trả nhầm câu trả lời về quyền lợi nguy hiểm hơn nhiều so với chậm vài giây. Chỉ làm embedding cache (exact-match theo text câu hỏi), không làm semantic cache. |
+| Position-bias swap cho LLM judge (report eval review) | Không áp dụng được — judge hiện tại chấm 1 câu trả lời CORRECT/INCORRECT so với `expected_answer`, không phải so cặp A/B; code đề xuất trong report còn tham chiếu field config không tồn tại (`fpt_chat_model`, `eval_judge_model`) — dấu hiệu report viết chung chung không đọc code thật |
+
+### Đã implement
+
+1. **`fpt_client.py`**: `requests.Session()` dùng chung module (bỏ TCP+TLS handshake mỗi call) + `_retry_with_backoff()` gộp 3 vòng retry trùng lặp thành 1 helper, delay `min(1.0 * 2**attempt + jitter, 8.0)`. Test mới xác nhận backoff tăng dần, có cap, không retry lỗi phi-mạng (KeyError...).
+2. **`src/retrieval/cache.py`** (mới): `LRUCacheWithTTL` thuần stdlib, cache embedding theo hash câu hỏi đã chuẩn hoá whitespace/lowercase — plumb vào `_aembed_query`. KHÔNG có semantic cache (lý do ở bảng trên).
+3. **`graph.py`**: `route_after_generate` — `answerable=False` đi thẳng `confidence`, bỏ qua `hallucination_check`. Test: mock `acall_llm` chỉ 1 side_effect, nếu graph lỡ gọi node bị skip thì mock cạn và test tự fail (xác nhận đúng node bị bỏ qua, không chỉ tin state cuối).
+4. **Model nhỏ cho router/hallucination — có A/B trước khi đổi, không suy luận suông**:
+   - Thêm `router_model`/`hallucination_model` vào `Settings` (rỗng = dùng `llm_model`, không đổi hành vi mặc định).
+   - **A/B router** (140 câu, đo cả accuracy lẫn latency qua `eval_router.py --out`): GLM-5.2 baseline 96.4% p50=6.0s; **DeepSeek-V4-Flash 95.7% (134/140), p50=1.8s — nhanh hơn 3.3x, đạt ngưỡng ≥94%** → đổi default `router_model="DeepSeek-V4-Flash"`. gemma-4-26B-A4B-it và Llama-3.3-70B-Instruct không đo đủ được (liên tục 429 — tài khoản FPT.AI có rate limit chặt khi dồn nhiều call khác model trong thời gian ngắn) nhưng DeepSeek đã đủ thắng nên dừng, không cố đo thêm.
+   - **A/B hallucination — replay offline từ `agent_eval_report.json` đã có sẵn `response`+`retrieved_chunk_ids`, KHÔNG chạy lại agent** (`eval/scripts/compare_hallucination_models.py`, mới): lấy lại chunk text từ Chroma, gọi đúng `_HALLUCINATION_SYSTEM` với GLM-5.2 vs DeepSeek-V4-Flash trên 60 câu. Kết quả: **agreement chỉ 76.7%** (ngưỡng cần ≥95%) dù DeepSeek nhanh hơn (p50 4.2s vs 8.1s) — KHÔNG đổi, giữ GLM-5.2 cho hallucination check vì sai lệch verdict trên lớp bảo vệ chống hallucination rủi ro hơn latency tiết kiệm được.
+
+### Kết quả đo cuối (140 câu dev, sau toàn bộ Phase 3)
+
+| Metric | Trước Phase 3 | Sau Phase 3 |
+|---|---|---|
+| Tổng | 110/140 (78.6%) | 111/140 (79.3%) |
+| in_scope | 75/100 | 75/100 (không đổi) |
+| p50 tổng thể | 21.3s | **16.6s** (−22%) |
+| p50 in_scope | 24.9s | **19.1s** (−23%) |
+| p50 out_of_scope | 4.4s | 2.1s (−52%) |
+| p50 competitor_comparison | 5.6s | 2.0s (−64%) |
+
+Chất lượng giữ nguyên trong biên nhiễu (accuracy không đụng tới ở Phase 3), latency giảm thật và đáng kể — `out_of_scope`/`competitor_comparison` giảm mạnh nhất vì router (đổi model) chiếm gần hết latency của 2 nhánh này (bỏ qua toàn bộ RAG). Vẫn CHƯA đạt target <3s cho câu cần RAG đầy đủ — cần streaming hoặc redesign kiến trúc (song song hoá node), ngoài phạm vi đợt này.
+
+**Test suite: 167 pass** (từ 154), coverage 87% (từ 86%).
+
+### Còn lại chưa làm (follow-up, đã ghi vào report.md mục 6)
+
+1. Chống prompt injection — claim đúng duy nhất của report RAG review chưa xử lý (delimiter + system prompt hardening cho user query).
+2. `eval_generation.py` RAG Triad (Context Relevance/Faithfulness/Answer Relevance) — có thể chấm trên `response` đã lưu sẵn trong `agent_eval_report.json`, không cần chạy lại agent.
+3. CI threshold gate đọc report JSON đã commit (không cần API trong CI).
+4. NFC normalize (query-side + cleaners) — chỉ đáng làm khi re-ingest corpus.
+5. Greeting samples cho router (có lớp `greeting` nhưng 0 câu test trong eval set).
