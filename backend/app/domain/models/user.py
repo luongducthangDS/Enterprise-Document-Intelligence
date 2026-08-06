@@ -1,9 +1,14 @@
 import uuid
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, String, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
-from sqlalchemy import DateTime, String, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+
+if TYPE_CHECKING:
+    from app.domain.models.profile import ProfileDB
 
 
 class UserDB(Base):
@@ -14,13 +19,33 @@ class UserDB(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
-    full_name: Mapped[str] = mapped_column(String, default="", nullable=False)
-    role: Mapped[str] = mapped_column(String, default="EMPLOYEE", nullable=False)  # EMPLOYEE, HR_ADMIN
-    department: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(
+        String,
+        unique=True,
+        nullable=False,
+        index=True,
+    )
+    hashed_password: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    profile: Mapped["ProfileDB"] = relationship(
+        "ProfileDB",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )

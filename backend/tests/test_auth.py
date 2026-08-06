@@ -2,65 +2,48 @@ import uuid
 
 import pytest
 import pytest_asyncio
-from app.api.dependencies.db_deps import get_db
-from app.core.config import get_settings
-from app.core.database import Base
 from app.core.exceptions import AuthenticationError
 from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password
+from app.domain.models.profile import ProfileDB
 from app.domain.models.user import UserDB
 from app.schemas.auth import LoginRequest
 from app.services.auth_service import AuthService
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from main import app
-
-settings = get_settings()
-
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-TestingSessionLocal = async_sessionmaker(bind=test_engine, class_=AsyncSession, expire_on_commit=False)
+from tests.conftest import TestingSessionLocal, client
 
 
 @pytest_asyncio.fixture(scope="module", autouse=True)
-async def setup_test_db():
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
+async def setup_auth_test_data():
     async with TestingSessionLocal() as session:
+        user_id = uuid.uuid4()
+        admin_id = uuid.uuid4()
+
         user = UserDB(
-            id=uuid.uuid4(),
+            id=user_id,
             email="employee@company.com",
             hashed_password=hash_password("password123"),
-            full_name="Nguyen Van A",
+        )
+        user.profile = ProfileDB(
+            id=user_id,
+            display_name="Nguyen Van A",
             role="EMPLOYEE",
             department="Engineering",
         )
+
         admin = UserDB(
-            id=uuid.uuid4(),
+            id=admin_id,
             email="admin@company.com",
             hashed_password=hash_password("admin123"),
-            full_name="Tran Thi B (HR)",
+        )
+        admin.profile = ProfileDB(
+            id=admin_id,
+            display_name="Tran Thi B (HR)",
             role="HR_ADMIN",
             department="HR",
         )
+
         session.add_all([user, admin])
         await session.commit()
-
-    yield
-
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-async def override_get_db():
-    async with TestingSessionLocal() as session:
-        yield session
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
 
 
 def test_token_creation_and_decoding():
@@ -133,10 +116,11 @@ def test_api_login_endpoint():
         json={"email": "employee@company.com", "password": "password123"},
     )
     assert response.status_code == 200
-    data = response.json()
-    assert "access_token" in data
-    assert "refresh_token" in data
-    assert data["token_type"] == "bearer"
+    res_data = response.json()
+    assert res_data["success"] is True
+    assert "access_token" in res_data["data"]
+    assert "refresh_token" in res_data["data"]
+    assert res_data["data"]["token_type"] == "bearer"
 
 
 def test_api_refresh_endpoint():
@@ -144,16 +128,17 @@ def test_api_refresh_endpoint():
         "/api/v1/auth/login",
         json={"email": "employee@company.com", "password": "password123"},
     )
-    refresh_token = login_resp.json()["refresh_token"]
+    refresh_token = login_resp.json()["data"]["refresh_token"]
 
     response = client.post(
         "/api/v1/auth/refresh",
         json={"refresh_token": refresh_token},
     )
     assert response.status_code == 200
-    data = response.json()
-    assert "access_token" in data
-    assert "refresh_token" in data
+    res_data = response.json()
+    assert res_data["success"] is True
+    assert "access_token" in res_data["data"]
+    assert "refresh_token" in res_data["data"]
 
 
 def test_api_me_endpoint_success():
@@ -161,17 +146,18 @@ def test_api_me_endpoint_success():
         "/api/v1/auth/login",
         json={"email": "admin@company.com", "password": "admin123"},
     )
-    access_token = login_resp.json()["access_token"]
+    access_token = login_resp.json()["data"]["access_token"]
 
     response = client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 200
-    data = response.json()
-    assert data["email"] == "admin@company.com"
-    assert data["role"] == "HR_ADMIN"
-    assert data["department"] == "HR"
+    res_data = response.json()
+    assert res_data["success"] is True
+    assert res_data["data"]["email"] == "admin@company.com"
+    assert res_data["data"]["role"] == "HR_ADMIN"
+    assert res_data["data"]["department"] == "HR"
 
 
 def test_api_me_endpoint_unauthorized():
@@ -190,10 +176,11 @@ def test_api_register_endpoint_success():
         },
     )
     assert response.status_code == 201
-    data = response.json()
-    assert data["email"] == "newuser@company.com"
-    assert data["role"] == "EMPLOYEE"
-    assert data["department"] == "Marketing"
+    res_data = response.json()
+    assert res_data["success"] is True
+    assert res_data["data"]["email"] == "newuser@company.com"
+    assert res_data["data"]["role"].upper() == "EMPLOYEE"
+    assert res_data["data"]["department"] == "Marketing"
 
 
 def test_api_register_endpoint_duplicate_email():
