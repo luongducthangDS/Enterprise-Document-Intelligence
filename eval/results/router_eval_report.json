@@ -1,8 +1,8 @@
 {
-  "run_at": "2026-08-05T15:46:14.249608+00:00",
-  "accuracy": 0.91,
-  "total": 100,
-  "total_correct": 91,
+  "run_at": "2026-08-06T05:46:41.353417+00:00",
+  "accuracy": 0.957,
+  "total": 140,
+  "total_correct": 134,
   "per_class": {
     "greeting": {
       "precision": 0.0,
@@ -11,10 +11,10 @@
       "support": 0
     },
     "hr_question": {
-      "precision": 0.982,
-      "recall": 0.917,
-      "f1": 0.948,
-      "support": 60
+      "precision": 0.98,
+      "recall": 0.99,
+      "f1": 0.985,
+      "support": 100
     },
     "ambiguous": {
       "precision": 1.0,
@@ -23,19 +23,20 @@
       "support": 15
     },
     "out_of_scope_or_personal": {
-      "precision": 0.758,
-      "recall": 1.0,
-      "f1": 0.862,
+      "precision": 0.857,
+      "recall": 0.96,
+      "f1": 0.906,
       "support": 25
     }
   },
   "confusion": {
-    "hr_question->hr_question": 55,
-    "hr_question->out_of_scope_or_personal": 5,
-    "out_of_scope_or_personal->out_of_scope_or_personal": 25,
+    "hr_question->hr_question": 99,
+    "hr_question->out_of_scope_or_personal": 1,
+    "out_of_scope_or_personal->out_of_scope_or_personal": 24,
     "ambiguous->ambiguous": 11,
     "ambiguous->out_of_scope_or_personal": 3,
-    "ambiguous->hr_question": 1
+    "ambiguous->hr_question": 1,
+    "out_of_scope_or_personal->hr_question": 1
   },
   "results": [
     {
@@ -413,8 +414,8 @@
       "category": "government_legal",
       "question": "Cá nhân tự kinh doanh có quyền thuê người làm việc không?",
       "expected_intent": "hr_question",
-      "predicted_intent": "out_of_scope_or_personal",
-      "correct": false
+      "predicted_intent": "hr_question",
+      "correct": true
     },
     {
       "id": "qa_043",
@@ -476,8 +477,8 @@
       "category": "government_legal",
       "question": "Chủ hộ kinh doanh có đăng ký kinh doanh có phải tham gia bảo hiểm xã hội bắt buộc không?",
       "expected_intent": "hr_question",
-      "predicted_intent": "out_of_scope_or_personal",
-      "correct": false
+      "predicted_intent": "hr_question",
+      "correct": true
     },
     {
       "id": "qa_050",
@@ -494,8 +495,8 @@
       "category": "company_regulations",
       "question": "Văn hóa của người Vingroup gói gọn trong 3 từ gì vậy?",
       "expected_intent": "hr_question",
-      "predicted_intent": "out_of_scope_or_personal",
-      "correct": false
+      "predicted_intent": "hr_question",
+      "correct": true
     },
     {
       "id": "qa_052",
@@ -512,8 +513,8 @@
       "category": "company_regulations",
       "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
       "expected_intent": "hr_question",
-      "predicted_intent": "out_of_scope_or_personal",
-      "correct": false
+      "predicted_intent": "hr_question",
+      "correct": true
     },
     {
       "id": "qa_054",
@@ -872,8 +873,8 @@
       "category": "out_of_scope",
       "question": "Vingroup có chính sách cho nhân viên mua xe VinFast với giá ưu đãi không?",
       "expected_intent": "out_of_scope_or_personal",
-      "predicted_intent": "out_of_scope_or_personal",
-      "correct": true
+      "predicted_intent": "hr_question",
+      "correct": false
     },
     {
       "id": "qa_094",
@@ -936,6 +937,366 @@
       "question": "MoMo có phụ cấp đi lại cho nhân viên làm ca tối không, mức bao nhiêu?",
       "expected_intent": "out_of_scope_or_personal",
       "predicted_intent": "out_of_scope_or_personal",
+      "correct": true
+    },
+    {
+      "id": "qa_101",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Anh/chị cho em hỏi, theo Chính sách Hybrid Working của V-NOVA, mỗi tuần nhân viên được phép làm việc từ xa (WFH) tối đa bao nhiêu ngày và phải có mặt tại văn phòng tối thiểu bao nhiêu ngày ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_102",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em muốn đăng ký làm việc tại nhà (WFH) thường xuyên thì mỗi tháng và mỗi năm được phép WFH tối đa bao nhiêu ngày? Nếu có lý do sức khỏe cần WFH vượt quá giới hạn thì có được không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_103",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em làm WFH nhưng hôm nay lỡ quên check-in trên hệ thống HRIS thì phải làm sao? Và nếu trong tháng quên chấm công nhiều lần thì có bị kỷ luật không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_104",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Nếu hiệu suất làm việc của mình giảm sút thì có bị mất quyền làm việc tại nhà (WFH) ngay lập tức không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_105",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em mới nhận việc tại V-NOVA và được sắp xếp tham gia đào tạo hội nhập. Vậy đào tạo hội nhập gồm những nội dung gì và diễn ra trong thời gian bao lâu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_106",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi, nếu được công ty cử đi các khóa đào tạo dài hạn hoặc chi phí cao thì mình có cần ký hợp đồng hay cam kết gì trước khi đi học không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_107",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Nếu công ty cử em đi tham gia một khóa đào tạo dài hạn với chi phí là 60 triệu đồng, thì em cần cam kết làm việc cho công ty tối thiểu là bao lâu sau khi kết thúc khóa học?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_108",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi nếu em tham gia một khóa đào tạo chi phí cao và đã ký cam kết làm việc, nhưng sau đó em xin nghỉ việc trước thời hạn cam kết thì có phải trả lại toàn bộ chi phí đào tạo cho công ty không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_109",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em sắp qua thời gian thử việc và chính thức ký hợp đồng lao động toàn thời gian với V-NOVA. Vậy em có được tham gia gói Bảo hiểm Sức khỏe Tự nguyện của công ty không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_110",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi nếu mình nghỉ việc thì gói bảo hiểm sức khỏe của công ty sẽ chấm dứt vào thời điểm nào? Có cách nào để tiếp tục duy trì gói này không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_111",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em muốn đăng ký bảo hiểm sức khỏe cho vợ và 2 con thì chi phí thế nào và gói bảo hiểm sẽ ở hạng nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_112",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em đang trong thời gian thử việc, vậy em có được tham gia gói bảo hiểm sức khỏe tự nguyện (BHSTN) của công ty ngay không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_113",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Nghị định 161/2026/NĐ-CP quy định về mức lương cơ sở và chế độ tiền thưởng thì những đối tượng nào được áp dụng vậy anh/chị?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_114",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em là viên chức thuộc đơn vị đang bảo lưu phần chênh lệch tiền lương và thu nhập tăng thêm từ tháng 6 năm 2024. Vậy từ ngày 01/07/2026, khi lương cơ sở tăng thì phần chênh lệch bảo lưu này có bị giảm không ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_115",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em làm việc tại một cơ sở y tế công lập, em muốn hỏi cơ sở của em được phép sử dụng bao nhiêu phần trăm từ số thu cung cấp dịch vụ khám chữa bệnh, y tế dự phòng để cải cách tiền lương sau khi đã trừ các chi phí liên quan?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_116",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Anh/chị cho em hỏi, theo quy định mới về lương cơ sở và tiền thưởng, Bộ Tài chính có trách nhiệm hướng dẫn những nội dung gì liên quan đến việc chi trả cho các cơ quan, đơn vị?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_117",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi, nếu mình không tuân thủ đúng quy định nghỉ phép của công ty đã được ban hành và niêm yết, thì mình sẽ bị xử lý bằng những hình thức nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_118",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Anh/chị cho em hỏi, theo thông báo quy định nghỉ phép của công ty, nếu nhân viên vi phạm các quy định về nghỉ phép thì sẽ bị xử lý như thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_119",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi sau khi ban hành, thông báo quy định nghỉ phép của công ty sẽ được gửi đến những đâu để thực hiện?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_120",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em sắp sinh em bé đầu lòng, xin hỏi theo quy chế công ty thì em có được nhận chế độ đãi ngộ thai sản không và tiền hỗ trợ sẽ được chi trả vào lúc nào ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_121",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em sắp cưới và muốn hỏi về chế độ mừng cưới hỏi của công ty. Mức hỗ trợ là bao nhiêu và nếu nhân viên kết hôn nhiều lần trong thời gian làm việc thì có bị giới hạn không ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_122",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi nếu em tự ý nghỉ làm hoặc xin nghỉ nhưng chưa được phê duyệt mà không có lý do chính đáng thì sau bao nhiêu ngày công ty có thể sa thải em ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_123",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi lịch làm việc tiêu chuẩn trong tuần của công ty quy định là bao nhiêu ngày và làm vào những ngày nào vậy?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_124",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi, theo quy định của công ty thì những hành vi nào được xem là quấy rối tình dục tại nơi làm việc?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_125",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em đang làm quản lý ở một chi nhánh, em muốn hỏi chi nhánh có được tự xây dựng nội quy lao động riêng cho phù hợp với đặc điểm kinh doanh của chi nhánh không, hay phải áp dụng tuyệt đối nội quy chung của tổng công ty?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_126",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Chào anh/chị, nếu công ty tài trợ cho em đi học một khóa chứng chỉ quốc tế bên ngoài với chi phí 20 triệu đồng, thì sau khi học xong em cần cam kết làm việc tại công ty thêm bao lâu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_127",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em chuẩn bị được cử đi một khóa đào tạo với chi phí 20 triệu đồng. Theo quy định của công ty, em phải cam kết làm việc bao lâu sau khi học xong? Nếu em xin nghỉ việc trước thời hạn cam kết thì tiền bồi hoàn được tính như thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_128",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi, nếu em nghỉ việc trước hạn cam kết sau khi được cử đi đào tạo, thì số tiền bồi hoàn chi phí đào tạo sẽ được tính dựa trên những chi phí nào và công ty sẽ ưu tiên khấu trừ vào khoản tiền gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_129",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em không may làm hỏng dụng cụ của công ty và thiệt hại được đánh giá là không nghiêm trọng (dưới 10 tháng lương tối thiểu vùng). Xin hỏi mức bồi thường tối đa là bao nhiêu và công ty được phép trừ vào lương hàng tháng của em như thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_130",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi, nếu em làm hư hỏng dụng cụ của công ty và mức độ thiệt hại được đánh giá là không nghiêm trọng, thì mức bồi thường tối đa là bao nhiêu và công ty sẽ trừ vào lương của em như thế nào?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_131",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em làm hỏng một thiết bị của công ty nhưng thiệt hại không nghiêm trọng, dưới 10 tháng lương tối thiểu vùng. Vậy mức bồi thường tối đa là bao nhiêu và công ty có thể khấu trừ thẳng vào lương của em không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_132",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em tham gia bảo hiểm xã hội bắt buộc trước ngày 01/07/2025 và đã đóng đủ 20 năm trở lên. Nếu khi tính ra mức lương hưu hàng tháng của em thấp hơn mức tham chiếu thì có được điều chỉnh lên mức tham chiếu không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_133",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Anh chị ơi, em có thời gian làm việc trước ngày 01/01/1995 ở vùng có phụ cấp khu vực và thời gian đó được tính là thời gian đóng bảo hiểm xã hội. Vậy khi em nghỉ việc để hưởng lương hưu thì em có được hưởng thêm khoản trợ cấp nào liên quan đến phụ cấp khu vực không ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_134",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Tôi được cơ quan cử đi làm việc có thời hạn ở nước ngoài trước ngày 01/01/1995, khi về nước đúng hạn nhưng đơn vị không bố trí được việc làm và tôi cũng chưa nhận trợ cấp thôi việc. Vậy thời gian làm việc ở trong nước trước khi đi và thời gian ở nước ngoài có được tính để hưởng chế độ hưu trí không?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_135",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi theo Nghị định 293/2025/NĐ-CP mới ban hành, mức lương tối thiểu tháng và mức lương tối thiểu giờ áp dụng cho người lao động ở vùng I là bao nhiêu?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_136",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi tại tỉnh Ninh Bình, Vùng II gồm những phường nào vậy ạ?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_137",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho em hỏi tại Thành phố Cần Thơ, các phường Ninh Kiều, Cái Khế, Bình Thủy và Cái Răng được phân loại thuộc Vùng nào vậy?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_138",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Em muốn nghỉ việc ngay không cần báo trước thì có được không? Trường hợp nào người lao động được quyền đơn phương chấm dứt hợp đồng mà không cần thông báo trước cho công ty?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_139",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Anh/chị cho em hỏi, nếu công ty muốn đơn phương chấm dứt hợp đồng lao động vì nhân viên thường xuyên không hoàn thành công việc thì phải thông báo trước bao lâu và cần điều kiện gì?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true
+    },
+    {
+      "id": "qa_140",
+      "type": "in_scope",
+      "category": "mixed",
+      "question": "Cho mình hỏi, sau khi chấm dứt hợp đồng lao động thì công ty có bao nhiêu ngày để thanh toán đầy đủ các khoản quyền lợi cho người lao động, và công ty cần làm những thủ tục gì tiếp theo?",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
       "correct": true
     }
   ]

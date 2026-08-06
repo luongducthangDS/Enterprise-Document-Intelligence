@@ -1,6 +1,6 @@
 import csv
 import os
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -43,18 +43,18 @@ class ChunkMetadata(BaseModel):
     is_official_policy: bool
     caveat: str = ""
     heading_path: str = ""
-    chapter: Optional[str] = None
-    article: Optional[str] = None
-    page_start: Optional[int] = None
-    page_end: Optional[int] = None
+    chapter: str | None = None
+    article: str | None = None
+    page_start: int | None = None
+    page_end: int | None = None
     chunk_index: int
     char_count: int
-    document_code: Optional[str] = None
-    version: Optional[str] = None
-    effective_date: Optional[str] = None
-    owner: Optional[str] = None
-    legal_basis: Optional[str] = None
-    embedding_model: Optional[str] = None
+    document_code: str | None = None
+    version: str | None = None
+    effective_date: str | None = None
+    owner: str | None = None
+    legal_basis: str | None = None
+    embedding_model: str | None = None
 
     def to_chroma_metadata(self) -> dict:
         """Chroma chỉ chấp nhận giá trị metadata dạng str/int/float/bool — bỏ key None."""

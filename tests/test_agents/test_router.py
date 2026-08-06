@@ -2,10 +2,17 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.agents.nodes.router import clarify_node, direct_node, router_node
+from src.agents.nodes.router import _get_router_system, clarify_node, direct_node, router_node
+from src.config import get_settings
 
 
 class TestRouterNode:
+    def test_get_router_system_includes_internal_names(self):
+        settings = get_settings()
+        settings.internal_company_names = ["vingroup", "vinfast"]
+        prompt = _get_router_system()
+        assert "vingroup, vinfast" in prompt
+        assert "VinFast" not in prompt # just to ensure we check what is rendered
     @pytest.mark.asyncio
     async def test_parses_valid_intent_from_llm_output(self):
         with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")):

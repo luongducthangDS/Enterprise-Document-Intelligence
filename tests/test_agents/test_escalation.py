@@ -1,4 +1,5 @@
 from src.agents.nodes.escalation import _match_routing_rule, _strip_diacritics, confidence_node, escalate_node
+from src.config import get_settings
 
 
 class TestStripDiacritics:
@@ -40,18 +41,65 @@ class TestConfidenceNode:
 
     def test_close_chunk_and_passed_check_gives_high_confidence(self):
         state = {
-            "retrieved_chunks": [{"distance": 0.1}, {"distance": 0.3}],
+            "retrieved_chunks": [{"distance": 0.1, "score": None}, {"distance": 0.3, "score": None}],
             "hallucination_passed": True,
         }
         result = confidence_node(state)
-        assert result["confidence_score"] == 0.9
+        assert result["confidence_score"] == 1.0
         assert "escalate" not in result
 
+    def test_uses_rerank_score_when_available(self):
+        """Reranker cho điểm 0-1 trải rộng (đo thực tế: 0.96 cho đoạn trả lời
+        đúng, 0.009 cho đoạn lạc đề) nên dùng trực tiếp làm confidence."""
+        state = {
+            "retrieved_chunks": [{"distance": 0.11, "score": 0.92}, {"distance": 0.10, "score": 0.20}],
+            "hallucination_passed": True,
+        }
+        result = confidence_node(state)
+        assert result["confidence_score"] == 0.92
+        assert "escalate" not in result
+
+    def test_low_rerank_score_escalates_even_when_distance_is_small(self):
+        """Regression: distance cosine thực tế chỉ dao động 0.10-0.23 nên công
+        thức cũ `1 - distance` luôn cho ra >= 0.77 và KHÔNG BAO GIỜ chạm ngưỡng
+        escalate — nhánh escalate vì confidence thấp coi như đã chết."""
+        state = {
+            "retrieved_chunks": [{"distance": 0.12, "score": 0.06}],
+            "hallucination_passed": True,
+        }
+        result = confidence_node(state)
+        assert result["confidence_score"] == 0.06
+        assert result["escalate"] is True
+        assert result["escalate_reason"] == "low_confidence"
+
     def test_failed_hallucination_check_caps_confidence_low(self):
+        """Regression: cap phải luôn nằm DƯỚI low_confidence_threshold. Cap cũ
+        là hằng số 0.3 hợp lệ với ngưỡng 0.5, nhưng khi hạ ngưỡng xuống 0.2 thì
+        0.3 > 0.2 nên hallucination fail hết escalate mà không ai thấy."""
         state = {"retrieved_chunks": [{"distance": 0.05}], "hallucination_passed": False}
         result = confidence_node(state)
-        assert result["confidence_score"] <= 0.3
+        assert result["confidence_score"] < get_settings().low_confidence_threshold
         assert result["escalate"] is True
+
+    def test_unanswerable_context_escalates_despite_high_rerank_score(self):
+        """Nhóm lỗi nguy hiểm nhất đo được: reranker cho 0.78-1.00 cho đoạn KHÔNG
+        chứa câu trả lời, nên không ngưỡng nào trên score bắt được. Tín hiệu duy
+        nhất dùng được là chính model đọc context và báo không đủ thông tin."""
+        state = {
+            "retrieved_chunks": [{"distance": 0.11, "score": 0.98}],
+            "hallucination_passed": True,
+            "answerable": False,
+        }
+        result = confidence_node(state)
+        assert result["confidence_score"] < get_settings().low_confidence_threshold
+        assert result["escalate"] is True
+        assert result["escalate_reason"] == "low_confidence"
+
+    def test_answerable_defaults_true_so_old_states_are_unaffected(self):
+        state = {"retrieved_chunks": [{"distance": 0.11, "score": 0.98}], "hallucination_passed": True}
+        result = confidence_node(state)
+        assert result["confidence_score"] == 0.98
+        assert "escalate" not in result
 
 
 class TestEscalateNode:

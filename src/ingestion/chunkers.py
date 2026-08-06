@@ -1,6 +1,5 @@
 import re
 from dataclasses import dataclass
-from typing import Optional
 
 # Corpus rất không đồng nhất về cách đánh dấu ranh giới cấu trúc — có file dùng
 # markdown heading (## N. Tên mục), có file (2 văn bản luật lớn nhất, bộ luật lao
@@ -35,8 +34,8 @@ _LEVEL = {"chapter": 0, "section": 1, "article": 2, "policy_section": 2, "headin
 class TextChunk:
     text: str
     heading_path: str
-    chapter: Optional[str]
-    article: Optional[str]
+    chapter: str | None
+    article: str | None
     start: int
     end: int
     part_index: int = 0
@@ -49,7 +48,7 @@ class _Boundary:
     title: str
 
 
-def classify_line(line: str) -> Optional[tuple[str, str]]:
+def classify_line(line: str) -> tuple[str, str] | None:
     """Trả về (kind, title) nếu dòng là ranh giới cấu trúc, None nếu không."""
     stripped = line.strip()
     if not stripped:
@@ -101,7 +100,7 @@ def _segment_by_structure(text: str) -> list[TextChunk]:
         return []
 
     stack: list[tuple[int, str]] = []
-    chapter: Optional[str] = None
+    chapter: str | None = None
     segments: list[TextChunk] = []
 
     for i, b in enumerate(boundaries):
@@ -153,7 +152,7 @@ def _merge_undersized(segments: list[TextChunk], min_chars: int) -> list[TextChu
         ] + segments[2:]
 
     merged: list[TextChunk] = []
-    pending: Optional[TextChunk] = None
+    pending: TextChunk | None = None
     for seg in segments:
         if pending is not None:
             if top_chapter(pending) == top_chapter(seg):
@@ -229,8 +228,8 @@ def _split_by_paragraph_with_offsets(
         return [(text, base_offset, base_offset + len(text))] if text.strip() else []
 
     pieces: list[tuple[str, int, int]] = []
-    group_start: Optional[int] = None
-    group_end: Optional[int] = None
+    group_start: int | None = None
+    group_end: int | None = None
 
     def flush() -> None:
         nonlocal group_start, group_end

@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from src.services.fpt_client import embed_batch
 
@@ -9,7 +9,7 @@ def embed_texts(
     base_url: str,
     api_key: str,
     batch_size: int = 32,
-    log: Optional[Callable[[str], None]] = None,
+    log: Callable[[str], None] | None = None,
 ) -> list[list[float]]:
     """Orchestrate embedding theo batch — chỉ chia batch, gọi fpt_client, log tiến
     độ; không tự làm việc với HTTP (xem src/services/fpt_client.py)."""

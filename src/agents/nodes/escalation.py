@@ -26,8 +26,10 @@ _COMPETITOR_COMPANY_KEYWORDS = {
 
 
 def _mentions_competitor_company(query: str) -> bool:
+    settings = get_settings()
     normalized_query = _strip_diacritics(query).lower()
-    return any(name in normalized_query for name in _COMPETITOR_COMPANY_KEYWORDS)
+    competitors = _COMPETITOR_COMPANY_KEYWORDS - set(settings.internal_company_names)
+    return any(name in normalized_query for name in competitors)
 
 _DIACRITIC_MAP = str.maketrans({"đ": "d", "Đ": "D"})
 
@@ -58,19 +60,49 @@ def _match_routing_rule(query: str) -> dict:
 
 
 def confidence_node(state: AgentState) -> dict:
-    """Confidence heuristic đơn giản cho MVP: kết hợp độ liên quan retrieval
-    (khoảng cách embedding nhỏ nhất) với kết quả hallucination check."""
+    """Confidence = độ liên quan của đoạn tốt nhất, kết hợp kết quả hallucination check.
+
+    Ưu tiên `score` của reranker: nó nằm trong khoảng 0-1 và trải rộng gần hết
+    khoảng đó (đo thực tế: 0.80 cho đoạn trả lời đúng, 0.57 cho đoạn liên quan,
+    0.00002 cho đoạn lạc đề), nên so với ngưỡng mới có ý nghĩa.
+
+    Chỉ khi không có reranker mới lùi về khoảng cách cosine — nhưng khi đó
+    dùng thang co giãn theo `retrieval_max_distance` thay vì `1 - distance`:
+    khoảng cách cosine thực đo chỉ dao động 0.10-0.23, nên `1 - distance` luôn
+    cho ra 0.77-0.90 và không bao giờ chạm được ngưỡng escalate — tức là vô
+    hiệu hoá toàn bộ nhánh escalate mà không có triệu chứng nào nhìn thấy được.
+    """
     settings = get_settings()
     chunks = state.get("retrieved_chunks", [])
     hallucination_passed = state.get("hallucination_passed", True)
+    answerable = state.get("answerable", True)
 
+    scored = [c["score"] for c in chunks if c.get("score") is not None]
     if not chunks:
         score = 0.0
+    elif scored:
+        score = max(scored)
     else:
         best_distance = min(c["distance"] for c in chunks)
-        score = max(0.0, 1.0 - best_distance)
+        near, far = settings.distance_confidence_near, settings.distance_confidence_far
+        # Neo theo phân phối distance đo thực tế trên 100 câu eval (in-scope
+        # median 0.137, out-of-scope median 0.181): <= near coi như chắc chắn,
+        # >= far coi như không liên quan, ở giữa nội suy tuyến tính.
+        score = (far - best_distance) / (far - near) if far > near else 0.0
+        score = max(0.0, min(1.0, score))
+    # Cả hai tín hiệu dưới đây đều có nghĩa "câu trả lời không đáng tin, phải
+    # escalate", nên cap được NEO THEO ngưỡng thay vì là hằng số rời. Cap cũ
+    # (0.3) từng được chọn cho ngưỡng 0.5; khi hạ ngưỡng xuống 0.2 nó lập tức
+    # nằm TRÊN ngưỡng và vô hiệu hoá escalate mà không có triệu chứng nào.
+    fail_cap = settings.low_confidence_threshold / 2
     if not hallucination_passed:
-        score = min(score, 0.3)
+        score = min(score, fail_cap)
+    # Reranker có thể rất tự tin về một đoạn SAI (đo được: 10/29 câu in_scope
+    # fail có score 0.78-1.00 nhưng không hề chứa câu trả lời) — không ngưỡng
+    # nào trên score bắt được nhóm này. Chỉ chính model đọc context mới biết
+    # đoạn trích có trả lời được câu hỏi không, nên tín hiệu đó được ưu tiên.
+    if not answerable:
+        score = min(score, fail_cap)
 
     result: dict = {"confidence_score": round(score, 3)}
     if score < settings.low_confidence_threshold:

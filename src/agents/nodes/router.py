@@ -5,7 +5,10 @@ from src.agents.state import AgentState, Intent
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal")
 
-_ROUTER_SYSTEM = """Bạn là bộ phân loại ý định cho chatbot HR nội bộ — chỉ phục vụ NHÂN VIÊN ĐANG LÀM VIỆC và HR Admin của công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 4 nhóm:
+def _get_router_system() -> str:
+    from src.config import get_settings
+    internal_names = ", ".join(get_settings().internal_company_names)
+    return f"""Bạn là bộ phân loại ý định cho chatbot HR nội bộ — chỉ phục vụ NHÂN VIÊN ĐANG LÀM VIỆC và HR Admin của công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 4 nhóm:
 
 - greeting: chào hỏi, xã giao, không phải câu hỏi HR thật (vd "chào bạn", "bạn là ai", "cảm ơn nhé").
 
@@ -23,8 +26,14 @@ _ROUTER_SYSTEM = """Bạn là bộ phân loại ý định cho chatbot HR nội 
 
 - out_of_scope_or_personal: chủ đề đã RÕ (không cần hỏi lại để biết đang hỏi về cái gì), nhưng KHÔNG THỂ trả lời bằng tài liệu chính sách chung vì:
   (a) cần tra cứu DỮ LIỆU RIÊNG của người hỏi (lương cụ thể của tôi, số dư phép còn lại của tôi, đơn tôi đã duyệt chưa, hợp đồng của tôi khi nào hết hạn);
-  (b) hỏi chính sách của MỘT CÔNG TY KHÁC CÓ TÊN CỤ THỂ (vd Viettel, FPT, Vingroup, Samsung, Tiki, MoMo, Grab, Shopee, Unilever...) — hễ câu hỏi nhắc tên riêng 1 công ty không phải công ty hiện tại thì LUÔN thuộc nhóm này, kể cả khi câu hỏi nghe giống hr_question bình thường;
+  (b) hỏi chính sách của MỘT CÔNG TY KHÁC CÓ TÊN CỤ THỂ (vd Viettel, FPT, Samsung, Tiki, MoMo, Grab, Shopee, Unilever...) — hễ câu hỏi nhắc tên riêng 1 công ty không phải công ty hiện tại ({internal_names}) thì LUÔN thuộc nhóm này, kể cả khi câu hỏi nghe giống hr_question bình thường; LƯU Ý: Nếu nhắc tới {internal_names} thì đó là công ty hiện tại, thuộc nhóm hr_question, KHÔNG thuộc nhóm này.
   (c) hoàn toàn ngoài phạm vi HR (thời tiết, lập trình, nấu ăn...).
+
+QUY TẮC CHỐNG NHẦM (rất quan trọng — đây là các lỗi đã đo được, đừng lặp lại):
+1. Hỏi về NỘI DUNG VĂN BẢN PHÁP LUẬT luôn là hr_question, kể cả khi nhắc tới chủ thể không phải người hỏi: "chủ hộ kinh doanh có phải đóng BHXH bắt buộc không?", "cá nhân tự kinh doanh có được thuê lao động không?", "cơ sở y tế công lập được dùng bao nhiêu % quỹ?", "Bộ Tài chính có trách nhiệm hướng dẫn gì?". Chữ "cá nhân", "cơ sở", "hộ" ở đây là ĐỐI TƯỢNG ĐIỀU CHỈNH của luật, KHÔNG phải dữ liệu riêng của người hỏi.
+2. Hỏi tra cứu PHỤ LỤC/DANH MỤC của văn bản (vùng lương tối thiểu của tỉnh/phường nào, danh mục bệnh nghề nghiệp, mức lương cơ sở áp dụng cho nhóm nào) là hr_question — đây là nội dung có sẵn trong tài liệu.
+3. Nhắc số hiệu văn bản (Nghị định 161/2026/NĐ-CP, Thông tư 60/2025/TT-BYT, Điều 107 Bộ luật Lao động...) là dấu hiệu MẠNH của hr_question.
+4. Chỉ xếp vào nhóm (a) khi câu hỏi cần đúng HỒ SƠ CÁ NHÂN của người hỏi — tức phải mở dữ liệu của riêng họ mới trả lời được ("còn bao nhiêu ngày phép", "lương tháng này của tôi", "đơn của tôi duyệt chưa"). Câu hỏi về QUYỀN LỢI CHUNG mà nhân viên nào cũng áp dụng thì là hr_question.
 
 Chỉ trả về ĐÚNG 1 từ trong 4 từ trên (greeting / hr_question / ambiguous / out_of_scope_or_personal). Không giải thích gì thêm."""
 
@@ -35,7 +44,7 @@ _CLARIFY_SYSTEM = """Câu hỏi của nhân viên về chủ đề HR nhưng cò
 
 async def router_node(state: AgentState) -> dict:
     query = state.get("query", "")
-    raw = await acall_llm(_ROUTER_SYSTEM, query, temperature=0.0)
+    raw = await acall_llm(_get_router_system(), query, temperature=0.0)
     match = _INTENT_PATTERN.search(raw.strip().lower())
     # Không parse được thì coi là hr_question — thử RAG còn hơn im lặng/escalate nhầm.
     intent: Intent = match.group(0) if match else "hr_question"  # type: ignore[assignment]

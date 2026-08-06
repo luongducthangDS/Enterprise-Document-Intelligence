@@ -76,10 +76,10 @@ def is_separator_row(cells) -> bool:
 
 def only_boundary_lines(gap_lines) -> bool:
     has_marker = False
-    for l in gap_lines:
-        if not l.strip():
+    for line in gap_lines:
+        if not line.strip():
             continue
-        if not PAGE_BOUNDARY_RE.match(l):
+        if not PAGE_BOUNDARY_RE.match(line):
             return False
         has_marker = True
     return has_marker
@@ -139,7 +139,7 @@ def repair_tables(markdown_text: str) -> str:
     for start, end in valid_table_blocks(lines):
         header_cells = split_row(lines[start])
         ncols = len(header_cells)
-        data_rows = [split_row(l) for l in lines[start + 2 : end]]
+        data_rows = [split_row(line) for line in lines[start + 2 : end]]
         if (
             cur is not None
             and only_boundary_lines(lines[cur["span_end"] : start])

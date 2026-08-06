@@ -1,7 +1,6 @@
 import bisect
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 import yaml
 
@@ -133,7 +132,7 @@ def clean_document(raw_text: str) -> CleanedDocument:
     return CleanedDocument(frontmatter=frontmatter, text=text, page_offsets=page_offsets)
 
 
-def page_for_offset(page_offsets: list[tuple[int, int]], offset: int) -> Optional[int]:
+def page_for_offset(page_offsets: list[tuple[int, int]], offset: int) -> int | None:
     """Trang chứa vị trí `offset` trong text đã dọn, dựa vào page_offsets đã tính
     ở clean_document(). None nếu tài liệu không có page marker (không phải extract
     qua VLM/scan, ví dụ file docx/synthetic)."""

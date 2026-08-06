@@ -37,15 +37,17 @@ _source_file_cache: dict[str, list[dict]] = {}
 
 
 def _chunks_for_source_file(source_file: str) -> list[dict]:
-    if source_file not in _source_file_cache:
+    # source_file might have .md or .pdf. We use stem to query Chroma.
+    stem = os.path.splitext(os.path.basename(source_file))[0]
+    if stem not in _source_file_cache:
         collection = _collection()
-        result = collection.get(where={"source_file": source_file}, include=["documents", "metadatas"])
+        result = collection.get(where={"source_stem": stem}, include=["documents", "metadatas"])
         chunks = [
             {"chunk_id": cid, "text": doc, "metadata": meta}
             for cid, doc, meta in zip(result["ids"], result["documents"], result["metadatas"])
         ]
-        _source_file_cache[source_file] = chunks
-    return _source_file_cache[source_file]
+        _source_file_cache[stem] = chunks
+    return _source_file_cache[stem]
 
 
 def main() -> None:
@@ -57,20 +59,48 @@ def main() -> None:
 
     with open(EVAL_SET_PATH, encoding="utf-8") as f:
         items = json.load(f)
+        
+    heldout_items = []
+    if os.path.exists("eval/datasets/qa_heldout_set.json"):
+        with open("eval/datasets/qa_heldout_set.json", encoding="utf-8") as f:
+            heldout_items = json.load(f)
 
+    # Build lại từ đầu, KHÔNG merge với file qrels cũ: trộn nhãn sinh bởi 2 quy
+    # tắc khác nhau (bản cũ có cả score=1 từ lần build trước) khiến không còn
+    # biết một nhãn "relevant" nghĩa là gì.
     qrels: dict[str, dict[str, int]] = {}
+
     matched, no_source_file, no_chunk_match, multi_chunk = 0, [], [], []
 
-    for item in items:
+    for item in items + heldout_items:
         if item["type"] != "in_scope":
             continue
-        source_file = item.get("source_file", "")
+        source_file = item.get("source_file") or item.get("metadata", {}).get("source_file", "")
+        # Remove data/processed/ prefix if present
+        if source_file.startswith("data/processed/"):
+            source_file = source_file[len("data/processed/"):]
         if not source_file:
+            # Câu sinh sau này có thể chưa chạy backfill_eval_source_file.py.
+            # `evidence_chunk_id` do shorten_eval_ground_truth.py ghi ra đã được
+            # verify là chunk chứa nguyên văn đoạn bằng chứng, nên dùng thẳng.
+            evidence_chunk_id = item.get("evidence_chunk_id")
+            if evidence_chunk_id:
+                qrels[item["id"]] = {evidence_chunk_id: 2}
+                item["relevant_chunk_ids"] = [evidence_chunk_id]
+                matched += 1
+                continue
             no_source_file.append(item["id"])
             continue
 
         needle = normalize_for_match(item["ground_truth_context"])
         chunks = _chunks_for_source_file(source_file)
+        # CHỈ khớp theo hướng "chunk chứa trọn đoạn bằng chứng". Bản trước từng
+        # nới thêm hướng ngược lại (`chunk in needle`) để chữa triệu chứng
+        # ground_truth_context dài hơn cả chunk — nhưng làm vậy thì mọi chunk
+        # lọt trong cửa sổ trích 2.000 ký tự đều bị gán relevant, tức nhãn đổi
+        # nghĩa thành "nằm trong đoạn trích" chứ không còn là "trả lời được câu
+        # hỏi", làm Recall bị thổi và Precision mất ý nghĩa. Gốc rễ đã xử lý ở
+        # scripts/shorten_eval_ground_truth.py (rút bằng chứng xuống <= 400 ký tự).
         matches = [c["chunk_id"] for c in chunks if needle in normalize_for_match(c["text"])]
 
         if not matches:
@@ -83,7 +113,8 @@ def main() -> None:
             multi_chunk.append((item["id"], matches))
         item["relevant_chunk_ids"] = matches
 
-    print(f"Đã map qrel: {matched}/60")
+    total_in_scope = sum(1 for i in items + heldout_items if i["type"] == "in_scope")
+    print(f"Đã map qrel: {matched}/{total_in_scope}")
     if multi_chunk:
         print(f"Câu khớp NHIỀU chunk (đáng chú ý, kiểm tra tay): {len(multi_chunk)}")
         for qid, ids in multi_chunk:
@@ -96,18 +127,24 @@ def main() -> None:
     if args.dry_run:
         return
 
-    with open(QRELS_PATH, "w", encoding="utf-8") as f:
+    tmp_qrels = f"{QRELS_PATH}.tmp"
+    with open(tmp_qrels, "w", encoding="utf-8") as f:
         json.dump(qrels, f, ensure_ascii=False, indent=2)
-    print(f"\nĐã ghi {QRELS_PATH}")
+    os.replace(tmp_qrels, QRELS_PATH)
+    print(f"\nĐã ghi {QRELS_PATH} ({len(qrels)} query)")
 
     tmp_path = f"{EVAL_SET_PATH}.tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(items, f, ensure_ascii=False, indent=2)
-    with open(tmp_path, encoding="utf-8") as f:
-        if len(json.load(f)) != len(items):
-            raise RuntimeError("verify ghi file thất bại, huỷ replace")
     os.replace(tmp_path, EVAL_SET_PATH)
     print(f"Đã ghi {EVAL_SET_PATH} (thêm relevant_chunk_ids)")
+    
+    if heldout_items:
+        tmp_heldout = "eval/datasets/qa_heldout_set.json.tmp"
+        with open(tmp_heldout, "w", encoding="utf-8") as f:
+            json.dump(heldout_items, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_heldout, "eval/datasets/qa_heldout_set.json")
+        print(f"Đã ghi eval/datasets/qa_heldout_set.json (thêm relevant_chunk_ids)")
 
 
 if __name__ == "__main__":

@@ -29,28 +29,44 @@ STYLE_REFERENCE_PATH = "data/raw/compensation_policies/01_chinh-sach-lam-them-gi
 # file thay vì gửi trùng 1 đoạn trích cho GLM.
 EVAL_EXCERPT_SOURCES = {
     "compensation_policies": [
-        "data/raw/compensation_policies/01_chinh-sach-lam-them-gio-OT.md",
-        "data/raw/compensation_policies/base_quy-che-cong-tac-phi-va-phu-cap.md",
+        "data/processed/01_chinh-sach-lam-them-gio-OT.md",
+        "data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "data/processed/base_quy-che-cong-tac-phi-va-phu-cap.md",
+        "data/processed/base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md",
+        "data/processed/nghi_dinh_293_2025_nd_cp_luong_toi_thieu.md",
     ],
     "recruitment_policies": [
-        "data/raw/recruitment_policies/02_quy-trinh-tuyen-dung.md",
+        "data/processed/02_quy-trinh-tuyen-dung.md",
         "data/processed/842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.md",
     ],
     "onboarding_offboarding": [
-        "data/raw/onboarding_offboarding/03_quy-trinh-onboarding.md",
-        "data/raw/onboarding_offboarding/04_quy-trinh-offboarding.md",
+        "data/processed/03_quy-trinh-onboarding.md",
+        "data/processed/04_quy-trinh-offboarding.md",
+        "data/processed/talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md",
     ],
     "leave_policies": [
-        "data/raw/leave_policies/07_chinh-sach-nghi-phep.md",
-        "data/raw/leave_policies/07_chinh-sach-nghi-phep.md",
+        "data/processed/07_chinh-sach-nghi-phep.md",
+        "data/processed/amis_mau-thong-bao-quy-dinh-nghi-phep.md",
     ],
     "government_legal": [
         "data/processed/bộ luật lao động.md",
         "data/processed/luat_bao_hiem_xa_hoi_41_2024_qh15.md",
+        "data/processed/nghi_dinh_145_2020_nd_cp.md",
+        "data/processed/luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.md",
+        "data/processed/nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.md",
+        "data/processed/luat51.md",
+        "data/processed/112-vbhn-vpqh_luat_thue_tncn.md",
+        "data/processed/thong-tu-60-2025-TT-BHYT-2026.md",
+        "data/processed/161-ndcp.signed.md",
     ],
     "company_regulations": [
         "data/processed/1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.md",
-        "data/raw/company_regulations/mau_quy-che-danh-gia-hieu-suat-kpi.md",
+        "data/processed/mau_quy-che-danh-gia-hieu-suat-kpi.md",
+        "data/processed/leanh_mau-noi-quy-lao-dong.md",
+        "data/processed/05_chinh-sach-lam-viec-tu-xa.md",
+        "data/processed/06_chinh-sach-dao-tao-phat-trien.md",
+        "data/processed/mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md",
+        "data/processed/mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
     ],
 }
 
@@ -118,15 +134,29 @@ Trả về ĐÚNG format: frontmatter YAML (document_type, title, company, docum
 
 
 def read_excerpt_window(path: str, window_index: int, total_windows: int, window_chars: int = 4000) -> str:
-    """Đọc 1 cửa sổ window_chars ký tự của file, trải đều theo total_windows để
-    câu hỏi sinh ra bao phủ nhiều phần khác nhau của tài liệu (đầu/giữa/cuối)
-    thay vì luôn lấy y hệt window_chars ký tự đầu tiên mỗi lần gọi cùng 1 file."""
+    """Đọc 1 cửa sổ window_chars ký tự của file, trải đều theo số lượng 'Điều' (hoặc offset nếu không có).
+    Đối với văn bản luật/nghị định/thông tư, tự động nhảy qua Chương I để bỏ qua định nghĩa."""
     with open(path, encoding="utf-8") as f:
         content = f.read()
-    if len(content) <= window_chars or total_windows <= 1:
-        return content[:window_chars]
-    step = max(1, (len(content) - window_chars) // (total_windows - 1))
-    start = min(window_index * step, max(0, len(content) - window_chars))
+
+    is_legal_doc = any(k in path.lower() for k in ["luật", "luat", "nghi_dinh", "thong-tu"])
+    if is_legal_doc:
+        match = re.search(r"\n#+ (?:CHƯƠNG|Chương)\s+I{1,3}\b", content)
+        match_ii = re.search(r"\n#+ (?:CHƯƠNG|Chương)\s+II\b", content)
+        if match_ii:
+            content = content[match_ii.start():]
+
+    matches = list(re.finditer(r"\n#+\s*(?:Điều|ĐIỀU)\s*\d+", content))
+    if len(matches) > total_windows:
+        step = max(1, len(matches) // total_windows)
+        idx = min(window_index * step, len(matches) - 1)
+        start = matches[idx].start()
+    else:
+        if len(content) <= window_chars or total_windows <= 1:
+            return content[:window_chars]
+        step = max(1, (len(content) - window_chars) // (total_windows - 1))
+        start = min(window_index * step, max(0, len(content) - window_chars))
+        
     return content[start:start + window_chars]
 
 

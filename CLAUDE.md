@@ -554,3 +554,69 @@ Cũng đồng ý với mục 2.4 (eval set bị tune dựa trên chính nó — 
 1. Latency 14.9s p50 cho `in_scope` là rủi ro UX thật cho demo — cân nhắc theo đúng khuyến nghị `antigravity_review.md`: tạm tắt `rewrite`/`hallucination_check` để đo baseline `router→retrieve→generate` thuần, xem latency giảm bao nhiêu, quyết định có đáng đánh đổi chất lượng lấy tốc độ không.
 2. 3 câu generation-sai-thật (qa_012/013/047) đáng xem tay — có thể là vấn đề prompt `generate_node` (không ưu tiên đúng nguồn khi có xung đột giữa nhiều tài liệu) chứ không phải retrieval.
 3. Chưa fix: overfitting risk (mục 2.4 glm_review), circular evaluation (LLM sinh câu hỏi + LLM trả lời), human-verify ground truth, negative retrieval test cho out_of_scope, CI/golden baseline — đều là finding hợp lệ, để lại vì ngoài ROI ưu tiên đợt này.
+
+## [2026-08-06] Cập nhật Cấu hình Pipeline (Embedding & Retrieval Threshold)
+
+Quá trình rà soát và cấu hình lại luồng Embedding đã hoàn tất (bổ sung ghi chú do thiếu sót trong log cũ):
+1. **Chuẩn hóa E5**: Tiền tố `"query: "` vào câu hỏi và `"passage: "` vào dữ liệu chunks trước khi vector hóa.
+2. **Cosine Similarity**: Vector Database đã được tái cấu trúc sang chuẩn `hnsw:space = cosine` (đổi khỏi mặc định L2 distance).
+3. **Threshold**: `retrieval_max_distance` đã giảm xuống `0.16` trong `src/config.py` dựa trên phân phối data thực tế.
+- Hit-rate retrieval báo cáo mới nhất: Recall@1 = 41.7%, Recall@10 = 81.7%, Document Hit Rate@10 = 95.0%.
+- Vấn đề khoảng cách Cosine `0.16` (loại nhầm 15% câu in_scope) sẽ được fix trong Phase 1 (sweep threshold).
+
+## [2026-08-06] Phase 2 — tối ưu agent theo 29 câu in_scope fail đã bóc tách (EVAL_REVIEW.md)
+
+Bốn thay đổi ở tầng agent (không đụng embedding/chunking), theo đúng nguyên nhân đã bóc tách trong `eval/results/EVAL_REVIEW.md`:
+
+1. **A1** — hạ `low_confidence_threshold` 0.5 → 0.2 (`src/config.py`): 7 câu bị escalate oan dù chunk đúng đã qua grade, confidence chỉ 0.18-0.49.
+2. **A2** — sentinel `[KHÔNG_ĐỦ_THÔNG_TIN]` trong `_GENERATE_SYSTEM` (`src/agents/nodes/generation.py`) + field `answerable` trong state: khi model thấy context không trả lời được câu hỏi, ép confidence xuống dưới ngưỡng escalate thay vì để agent tự tin bịa. Nhắm vào 10 câu "retrieval sai nhưng agent vẫn trả lời".
+3. **A3** — `_build_context_block` sắp xếp nguồn `is_official_policy`/`source_type` cao hơn lên trước khi đánh số `[Nguồn N]`, cộng quy tắc ưu tiên trong prompt. Nhắm vào 7 câu agent trả lời sai với confidence rất cao (context có nhiều nguồn cùng chủ đề, chính sách chính thức + luật + template/synthetic).
+4. **A4** — hybrid BM25 (`src/retrieval/hybrid.py`, RRF) trộn thêm ứng viên trước reranker, tắt mặc định (`use_hybrid=False`) để A/B riêng với Multi-chunk Recall@10.
+
+### Bug tự gây ra — sentinel false-positive, phát hiện qua A/B đo thật (không chỉ tin log)
+
+Chạy `eval_agent.py --types in_scope out_of_scope` sau A1-A3: in_scope chỉ tăng 71→72/100 (kỳ vọng ~82) — quá thấp so với dự đoán. Diff từng câu so với baseline (không chỉ nhìn tổng): 7 câu fail→pass đúng như kỳ vọng (4 từ A1, 3 từ A3), nhưng có 6 câu pass→fail mới, gần như triệt tiêu hết phần thắng.
+
+Đào sâu 4/6 câu regressed (qa_038, qa_118, qa_120, qa_121): confidence bị ép xuống đúng 0.1 (dấu hiệu sentinel bắn), agent trả lời "chưa đủ căn cứ" rồi escalate. Đọc trực tiếp chunk gốc (không chỉ tin báo cáo) xác nhận **câu trả lời có sẵn trong context** — vd qa_038 "cần báo trước bao lâu khi sắp sinh" có đúng câu "ít nhất 30 ngày" nằm trong chunk rank-1 (score 0.978), nhưng agent vẫn từ chối.
+
+**Nguyên nhân gốc**: prompt A2 viết "nếu đoạn trích KHÔNG chứa thông tin cụ thể (con số, mức...) thì báo thiếu thông tin" — nhưng nhiều chính sách trả lời hợp lệ kiểu "mức do doanh nghiệp quyết định" (vd qa_121 hỏi mức thưởng cưới cụ thể, chunk trả lời đúng chủ đề nhưng nói rõ không có số cố định). Prompt cũ khiến model hiểu nhầm "không có số" = "thiếu thông tin", trong khi đó chính là câu trả lời đầy đủ.
+
+**Đã sửa**: viết lại điều kiện trigger — chỉ dùng marker khi CHỦ ĐỀ hoàn toàn không được nhắc tới trong đoạn trích, tuyệt đối không dùng chỉ vì thiếu con số cố định. Đồng thời làm rõ quy tắc ưu tiên nguồn (A3) chỉ áp dụng khi các nguồn thực sự MÂU THUẪN về cùng một điều khoản, không được để nguồn "ưu tiên cao nhưng lạc đề" lấn át nguồn "ưu tiên thấp nhưng đúng trọng tâm" — nghi vấn nguyên nhân của 3/6 câu regressed còn lại (qa_017/113/117, agent bám VinFast general thay vì tài liệu cụ thể hơn dù kém ưu tiên hơn).
+
+**Bài học**: A/B so từng câu (không chỉ tổng điểm) là bắt buộc — nếu chỉ nhìn tổng 71→72 sẽ kết luận nhầm "cải thiện không đáng kể" thay vì phát hiện đúng vấn đề "hai lỗi mới bù trừ đúng hai lỗi cũ sửa được". Đang chạy lại A/B với prompt đã sửa để xác nhận.
+
+### Vòng 2 — sentinel đã fix đúng, nhưng lộ ra bug thứ hai: sort theo source_type phản tác dụng
+
+Chạy lại `eval_agent.py --types in_scope out_of_scope` sau khi sửa prompt sentinel: 9/115 câu lỗi mạng (DNS resolution timeout thoáng qua, không liên quan code — loại khỏi mẫu số để so công bằng). Trên 91 câu sạch: baseline 68/91, sau fix vẫn 68/91 — **net 0**, dù sentinel đã fix đúng 3/4 câu false-positive (qa_038, qa_120, qa_121 pass; qa_118 vẫn fail nhưng KHÔNG còn do sentinel — confidence 0.997, giờ là bất đồng judge/generation thật).
+
+Đối chiếu lại đúng 3 câu regressed từ vòng 1 (qa_017, qa_113, qa_117) — CẢ 3 VẪN FAIL, xác nhận đây không phải nhiễu ngẫu nhiên mà là bug thật của A3. Đọc trực tiếp `retrieved_chunk_ids`/`retrieved_scores`: qa_117 có chunk ĐÚNG TÊN với câu hỏi ("thông báo quy định nghỉ phép") xếp hạng 1 theo reranker (score 0.953), nhưng vì nó là `source_type=public_template` (ưu tiên thấp) nên bị `_build_context_block` (sort theo `_source_rank`) đẩy xuống vị trí 2, nhường "Nguồn 1" cho VinFast (score chỉ 0.147 — lạc đề hơn nhiều nhưng `is_official_policy=True`). Model bám theo "Nguồn 1" và trả lời sai nguồn (chính sách kỷ luật chung của VinFast thay vì đúng "thông báo nghỉ phép").
+
+**Nguyên nhân gốc**: physically sort context theo priority category là quá thô — nó đánh đổi tín hiệu relevance (đã được reranker đo rất tốt, xem EVAL_REVIEW.md Doc Hit@10=100%) lấy một heuristic category thô, trong khi LLM có positional bias mạnh với "Nguồn 1" bất kể prompt dặn gì thêm bằng lời.
+
+**Đã sửa (fix thật, không phải tinh chỉnh prompt lần 2)**: bỏ hẳn `sorted(chunks, key=_source_rank)` trong `_build_context_block` — giữ nguyên thứ tự relevance (reranker/dense) khi đánh số `[Nguồn N]`. Quy tắc ưu tiên nguồn khi mâu thuẫn thật vẫn giữ ở dạng văn bản trong `_GENERATE_SYSTEM` (mỗi nguồn có nhãn origin gắn kèm), nhưng KHÔNG can thiệp vật lý vào thứ tự — đoạn trích đúng trọng tâm nhất luôn là "Nguồn 1", kể cả khi nó là template/synthetic.
+
+**Bài học thứ hai**: heuristic "ưu tiên nguồn chính thức" nghe hợp lý trên giấy nhưng phải tách bạch RÕ giữa "ưu tiên khi 2 nguồn thực sự nói về cùng 1 điều khoản" và "ưu tiên nói chung bất kể độ liên quan" — implement kiểu sau (sort toàn bộ context) âm thầm phá vỡ tín hiệu relevance đã đo tốt nhất trong toàn bộ pipeline (reranker).
+
+### Vòng 3 — xác nhận: net +4 trên in_scope, chốt Phase A1-A3
+
+Chạy lại lần 3 sau khi bỏ sort (không còn lỗi mạng, 115/115 câu chạy sạch): **in_scope 75/100** (baseline 71, +4), **out_of_scope 15/15** giữ nguyên. qa_017 fixed hẳn (source đúng đã lên "Nguồn 1" như thiết kế). qa_011/106/118/128 (nhóm high-confidence-wrong) giữ được fix từ A3. qa_113/117 vẫn fail nhưng vì lý do khác: đọc trực tiếp response của qa_117 cho thấy agent trả lời ĐÚNG ("Khiển trách, Cảnh cáo" từ đúng nguồn amis, giờ đã là Nguồn 1) nhưng còn bổ sung thêm bối cảnh từ các nguồn khác (hệ thống kỷ luật 4 mức của VinFast) kèm caveat rõ ràng — LLM-judge (Llama-3.3-70B) chấm sai vì câu trả lời dài/nhiều lớp hơn `expected_answer` ngắn gọn, không phải vì agent sai. Đây là giới hạn đã biết của LLM-judge (circular evaluation, xem glm_review), không phải bug hệ thống — quyết định KHÔNG vá tiếp riêng cho case này để tránh rơi vào đúng cái bẫy "tune theo 1 tập câu hỏi cố định" đã tự cảnh báo nhiều lần trước đó.
+
+**Kết luận Phase A1-A3**: dừng ở in_scope 71→75/100 (+4, không đạt ước tính lạc quan ban đầu ~82 vì ước tính đó cộng dồn tuyến tính 3 fix độc lập mà không tính tương tác/nhiễu giữa chúng), out_of_scope giữ 15/15 (không đánh đổi safety để lấy điểm in_scope). Đã verify bằng 3 vòng A/B đo thật, phát hiện và fix đúng 2 bug tự gây ra giữa chừng (sentinel false-positive, sort phá relevance) — không phải chỉ tin số liệu lần đo đầu.
+
+**Chốt số dev đầy đủ (140 câu, `eval/results/agent_eval_report.json`, run_at 2026-08-06)**: **110/140 (78.6%)**, tăng từ baseline 106/140 (75.7%). `ambiguous` 11/15 và `competitor_comparison` 9/10 giữ nguyên y hệt baseline — đúng như dự đoán vì router→clarify/escalate không đi qua bất kỳ node nào bị A1-A3 chạm tới (route_by_intent rẽ nhánh trước khi tới generate/confidence). Câu `competitor_comparison` fail duy nhất (qa_093, hỏi ưu đãi mua xe VinFast) là lỗi nhãn dataset đã ghi nhận trước đó (Vingroup/VinFast vừa là "công ty mình" vừa muốn test nhãn "đối thủ" — mâu thuẫn logic), không phải lỗi agent, không sửa.
+
+## [2026-08-06] A4 (hybrid BM25+dense), Phase B (contract backend), Phase C (held-out) — hoàn tất
+
+**A4 — hybrid retrieval**: `eval/scripts/eval_retrieval.py` tự viết lại logic dense query riêng (`_retrieve_raw`), KHÔNG đi qua `retrieval_node` thật — phát hiện ra khi định bật `use_hybrid=True` qua config để đo, thấy vô tác dụng. Thêm `--hybrid` flag dùng đúng `fuse_candidate_ids` (không viết lại logic fusion riêng) để số đo phản ánh đúng code path production. Kết quả trên dev (n=73): Multi-chunk Recall@10 83.6%→84.9% (+1.3pp), Recall@10 92.8%→93.7%, MRR 0.916→0.912 (~không đổi) — cải thiện nhỏ, khả năng nằm trong nhiễu. Giữ `use_hybrid=False` mặc định, code sẵn sàng bật khi cần.
+
+Lưu ý quan trọng: con số "83.6%" này (baseline dev multi-chunk recall đo lại bằng `eval_retrieval.py` hiện tại, `split=dev`, n=73) **khác hẳn** con số "69.1%" ghi trong `EVAL_REVIEW.md` trước đó — không phải regression, mà vì `EVAL_REVIEW.md` đo trên bộ 97 câu gộp cả dev+heldout (chưa tách split), còn lần đo này tách đúng dev-only theo thiết kế held-out. Không so trực tiếp 2 con số này với nhau.
+
+**Phase B — contract cho backend**: `src/agents/service.py::answer()` bọc `agent.ainvoke()`, dịch `AgentState` sang `AgentAnswer` (Pydantic, `src/models/schemas.py`) — response/intent/confidence/citations/escalate/ticket_draft. Phát hiện `Citation` (TypedDict trong `state.py`) thiếu field `category` so với `Citation` (Pydantic trong `schemas.py`) — bổ sung, đồng bộ cả 2 nơi tạo citation trong `generation.py`. `src/api/routes.py` cập nhật dùng `service.answer()` thay vì tự đọc `AgentState` thô và vứt bỏ hầu hết field (bug cũ: chỉ trả `response`+`analysis` chết). Viết `docs/AGENT_API.md` — contract 1 trang, đặc biệt làm rõ case `escalate=False` + `escalate_reason="competitor_question"` KHÔNG tạo ticket (dễ nhầm nếu chỉ đọc field `escalate_reason` mà bỏ qua `escalate`).
+
+**Phase C — held-out (chạy đúng 1 lần, không tune lại sau khi thấy số)**:
+- Agent (30 câu, `qa_heldout_set.json`): **24/30 (80.0%)** — CAO HƠN dev (75/100=75%), CI chồng lấn nhau ([66.7%,93.3%] vs [66%,83%]) → **không có dấu hiệu overfit**, tín hiệu tích cực bất ngờ vì thường kỳ vọng held-out thấp hơn dev đã tune.
+- Retrieval (20 query, `retrieval_eval_set.json --split heldout`): Recall@10 81.9% (dev 92.8%), Multi-chunk Recall@10 **55.0%** (dev 83.6%) — lệch khá lớn (~29pp), nhưng n=20 quá nhỏ để kết luận chắc (mỗi câu lệch = 5 điểm %). Ghi nhận thẳng vào `eval/results/report.md` mục Action Items, không cố "sửa" vì held-out đã niêm phong — sửa dựa trên số held-out sẽ phá chính mục đích của tập này.
+
+**Đã điền `eval/results/report.md`** (deliverable bắt buộc #10, trước đó là template rỗng) — đầy đủ metrics dev/held-out, giới hạn phương pháp (circular evaluation, latency, multi-chunk gap), và action items xếp ưu tiên. Coverage `pytest --cov=src` = 86% (>60% target), business logic core (`src/agents/*`, `src/retrieval/*`, `src/models/schemas.py`) đạt 95-100%, phần 0% có chủ đích (`supabase_client.py` — chưa có backend thật gọi tới, ngoài phạm vi).
+
+**Test suite cuối Phase 2: 154 pass** (từ 132 đầu phase), lint sạch.

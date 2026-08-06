@@ -31,3 +31,10 @@ Theo yêu cầu từ phía quản lý (`antigravity_review.md`), RAG pipeline hi
 
 1. **Rút gọn Pipeline (Cắt giảm Node)**: Tạm thời vô hiệu hóa `rewrite`, `hallucination_check` và `confidence` trong luồng LangGraph (`src/agents/graph.py`). Chúng ta sẽ chỉ chạy luồng MVP: **Router -> Retrieve -> Grade -> Generate**.
 2. **Triển khai Reranker (Cực kỳ quan trọng)**: Để giải quyết bài toán Chunk Hit Rate@1 thấp (41.7%), chúng ta BẮT BUỘC phải dùng mô hình Reranker (Cross-Encoder) đặt sau bước Retrieval thay vì phụ thuộc hoàn toàn vào Vector Search. Reranker sẽ xếp lại thứ hạng của Top-10 chunks, đẩy chunk chính xác lên vị trí Top-1.
+
+## Cập nhật Phase 1: Thí nghiệm cấu hình
+
+1. **Tinh chỉnh Router**: Bổ sung `internal_company_names` vào thiết lập (Config), giúp `router.py` không còn coi "VinFast" và "Vingroup" là công ty đối thủ cạnh tranh. Test case cho Router đã được thêm và chạy pass 100%.
+2. **Sweep Retrieval Parameters**: Chạy đánh giá để tối ưu ngưỡng và số lượng chunk trả về:
+   - **`retrieval_max_distance` = 0.18**: Đảm bảo 100% câu In-scope đi lọt qua grade_node (ngưỡng 0.16 cũ chặn mất 9 câu), đánh đổi lại việc lọt thêm 2 câu lạc đề (out_of_scope) vào luồng RAG. Tuy nhiên điều này không đáng lo vì `router_node` đã lọc rất tốt từ đầu.
+   - **`retrieval_top_k` = 10**: Đã được áp dụng làm mặc định thay cho 5 để mở rộng phổ tìm kiếm trước khi áp dụng Reranker ở Phase 3.

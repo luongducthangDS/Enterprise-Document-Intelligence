@@ -36,16 +36,33 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from _text_utils import normalize_for_match  # noqa: E402
 from src.agents.graph import agent  # noqa: E402
+from _stats import bootstrap_ci, format_ci  # noqa: E402
 from src.agents.llm import acall_llm  # noqa: E402
+from src.config import get_settings  # noqa: E402
 
 EVAL_SET_PATH = "eval/datasets/qa_eval_set.json"
 RESULTS_PATH = "eval/results/agent_eval_report.json"
+QRELS_PATH = "eval/datasets/retrieval_qrels.json"
 
 _JUDGE_SYSTEM = """Bạn là giám khảo chấm câu trả lời của chatbot HR nội bộ. So sánh CÂU TRẢ LỜI THỰC TẾ của agent với CÂU TRẢ LỜI MẪU — chỉ quan tâm nội dung/thông tin cốt lõi (số liệu, điều kiện, quy trình) có khớp không, KHÔNG cần giống hệt câu chữ (agent có thể diễn đạt khác, có thêm chi tiết phụ, hoặc trích dẫn nguồn). Trả lời ĐÚNG 1 từ: "CORRECT" nếu câu trả lời thực tế truyền tải đúng thông tin cốt lõi của câu trả lời mẫu, "INCORRECT" nếu thiếu/sai thông tin cốt lõi hoặc mâu thuẫn với câu trả lời mẫu."""
 
 
-def _context_found(ground_truth_context: str, chunks: list[dict]) -> bool:
-    needle = normalize_for_match(ground_truth_context)
+def _context_found(item: dict, chunks: list[dict], qrels: dict) -> bool:
+    """Retrieval có lấy được đoạn chứa câu trả lời không.
+
+    Ưu tiên so `chunk_id` với qrel (chính xác, không phụ thuộc ranh giới
+    chunking); chỉ khi câu đó chưa có qrel mới lùi về so chuỗi. So chuỗi đơn
+    thuần từng cho kết quả sai hệ thống khi `ground_truth_context` (median
+    2.000 ký tự) dài hơn cả `chunk_max_chars` (1.500) — khi đó không chunk nào
+    chứa nổi nó nên luôn báo False dù retrieval hoàn toàn đúng.
+    """
+    relevant_ids = set(qrels.get(item.get("id"), {}))
+    if not relevant_ids and item.get("evidence_chunk_id"):
+        relevant_ids = {item["evidence_chunk_id"]}
+    if relevant_ids:
+        return any(chunk.get("chunk_id") in relevant_ids for chunk in chunks)
+
+    needle = normalize_for_match(item.get("ground_truth_context", ""))
     if not needle:
         return False
     return any(needle in normalize_for_match(chunk.get("text", "")) for chunk in chunks)
@@ -62,7 +79,9 @@ async def _judge_answer(question: str, response: str, expected_answer: str) -> b
     if not expected_answer or not response:
         return False
     user = f"Câu hỏi: {question}\n\nCâu trả lời mẫu: {expected_answer}\n\nCâu trả lời thực tế của agent: {response}"
-    verdict = await acall_llm(_JUDGE_SYSTEM, user, temperature=0.0)
+    # Judge PHẢI khác model với agent: cùng model vừa trả lời vừa tự chấm thì
+    # điểm phản ánh độ nhất quán của model với chính nó (circular evaluation).
+    verdict = await acall_llm(_JUDGE_SYSTEM, user, temperature=0.0, model=get_settings().judge_model)
     return _parse_verdict(verdict)
 
 
@@ -74,7 +93,7 @@ def _percentile(values: list[float], p: float) -> float:
     return sorted_vals[idx]
 
 
-async def _run_one(item: dict, semaphore: asyncio.Semaphore) -> dict:
+async def _run_one(item: dict, semaphore: asyncio.Semaphore, qrels: dict) -> dict:
     """Toàn bộ thân hàm (agent.ainvoke + judge call) bọc trong 1 try/except —
     lỗi mạng thoáng qua ở BẤT KỲ bước nào (kể cả judge, gọi LLM lần 2) không
     được để crash cả batch, chỉ ghi nhận lỗi cho đúng 1 câu (đã xảy ra thật:
@@ -90,7 +109,7 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore) -> dict:
             extra: dict = {}
             if item_type == "in_scope":
                 chunks = result.get("retrieved_chunks", [])
-                context_found = _context_found(item.get("ground_truth_context", ""), chunks)
+                context_found = _context_found(item, chunks, qrels)
                 answer_correct = await _judge_answer(
                     item["question"], result.get("response", ""), item.get("expected_answer", "")
                 )
@@ -121,6 +140,12 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore) -> dict:
         "confidence_score": result.get("confidence_score"),
         "num_retrieved_chunks": len(result.get("retrieved_chunks", [])),
         "response_preview": (result.get("response") or "")[:200],
+        # Lưu câu trả lời ĐẦY ĐỦ: đổi judge hoặc đổi tiêu chí chấm sau này chỉ
+        # cần chấm lại offline, không phải chạy lại toàn bộ agent (~20 phút +
+        # API). Đã mất công chạy lại 1 lần vì chỉ lưu 200 ký tự đầu.
+        "response": result.get("response") or "",
+        "retrieved_chunk_ids": [c.get("chunk_id") for c in result.get("retrieved_chunks", [])],
+        "retrieved_scores": [c.get("score") for c in result.get("retrieved_chunks", [])],
         "latency_ms": round(latency_ms, 1),
         **extra,
     }
@@ -130,17 +155,43 @@ async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None, help="Chỉ chạy N câu đầu (debug nhanh)")
     parser.add_argument("--concurrency", type=int, default=3, help="Số câu chạy song song")
+    parser.add_argument(
+        "--types", nargs="*", default=None,
+        help="Chỉ chạy các type này (vd in_scope). Dùng khi A/B một thay đổi chỉ ảnh hưởng 1 nhánh — "
+             "chạy đúng tập bị ảnh hưởng thì so được theo cặp và rẻ hơn nhiều",
+    )
+    parser.add_argument("--out", default=RESULTS_PATH, help="Đường dẫn file báo cáo")
+    parser.add_argument(
+        "--dataset", default=EVAL_SET_PATH,
+        help="Bộ câu hỏi (mặc định qa_eval_set.json — dev set đã dùng để tune). "
+             "Dùng eval/datasets/qa_heldout_set.json để đo số held-out sạch.",
+    )
+    parser.add_argument(
+        "--qrels", default=QRELS_PATH,
+        help="Qrel chunk-level tương ứng --dataset. Không bắt buộc: qa_heldout_set.json đã "
+             "có sẵn evidence_chunk_id nên _context_found tự lùi về đó nếu file này không tồn tại.",
+    )
     args = parser.parse_args()
 
-    with open(EVAL_SET_PATH, encoding="utf-8") as f:
+    with open(args.dataset, encoding="utf-8") as f:
         items = json.load(f)
+    if args.types:
+        items = [it for it in items if it["type"] in args.types]
+        print(f"[types={','.join(args.types)}] {len(items)} câu")
     if args.limit:
         items = items[: args.limit]
+
+    qrels: dict = {}
+    if os.path.exists(args.qrels):
+        with open(args.qrels, encoding="utf-8") as f:
+            qrels = json.load(f)
+    else:
+        print(f"[CẢNH BÁO] không có {args.qrels} — context_found sẽ lùi về evidence_chunk_id/so chuỗi")
 
     semaphore = asyncio.Semaphore(args.concurrency)
     results = []
     done = 0
-    for coro in asyncio.as_completed([_run_one(item, semaphore) for item in items]):
+    for coro in asyncio.as_completed([_run_one(item, semaphore, qrels) for item in items]):
         r = await coro
         results.append(r)
         done += 1
@@ -159,11 +210,15 @@ async def main() -> None:
     for t, rs in sorted(by_type.items()):
         passed = sum(1 for r in rs if r["passed"])
         rate = passed / len(rs) if rs else 0.0
-        summary[t] = {"passed": passed, "total": len(rs), "rate": round(rate, 3)}
-        print(f"{t}: {passed}/{len(rs)} ({rate:.1%})")
+        point, lo, hi = bootstrap_ci([1.0 if r["passed"] else 0.0 for r in rs])
+        summary[t] = {"passed": passed, "total": len(rs), "rate": round(rate, 3), "ci": [round(lo, 3), round(hi, 3)]}
+        print(f"{t}: {passed}/{len(rs)} — {format_ci(point, lo, hi)}")
 
     total_passed = sum(1 for r in results if r["passed"])
-    print(f"\nTổng: {total_passed}/{len(results)} ({total_passed / len(results):.1%})")
+    tp, tlo, thi = bootstrap_ci([1.0 if r["passed"] else 0.0 for r in results])
+    summary["total_ci"] = [round(tlo, 3), round(thi, 3)]
+    print(f"\nTổng: {total_passed}/{len(results)} — {format_ci(tp, tlo, thi)}")
+    print(f"(judge: {get_settings().judge_model} | agent: {get_settings().llm_model})")
 
     latencies = [r["latency_ms"] for r in results if r.get("latency_ms") is not None]
     if latencies:
@@ -178,17 +233,18 @@ async def main() -> None:
                 summary[f"latency_p50_ms_{t}"] = round(_percentile(t_latencies, 50), 1)
                 print(f"  {t}: p50={_percentile(t_latencies, 50):.0f}ms")
 
-    os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
     report = {
         "run_at": datetime.now(timezone.utc).isoformat(),
+        "dataset": args.dataset,
         "total": len(results),
         "total_passed": total_passed,
         "summary_by_type": summary,
         "results": results,
     }
-    with open(RESULTS_PATH, "w", encoding="utf-8") as f:
+    with open(args.out, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
-    print(f"\nĐã lưu chi tiết: {RESULTS_PATH}")
+    print(f"\nĐã lưu chi tiết: {args.out}")
 
 
 if __name__ == "__main__":
