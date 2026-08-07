@@ -2,7 +2,7 @@
 """Chunk toàn bộ tài liệu processed đủ điều kiện RAG (theo document_registry.csv)
 thành data/chunks/<stem>.json, và cập nhật cột chunks_path trong registry.
 
-Chạy: python scripts/build_chunks.py [--force] [--only file1.md file2.md ...]
+Chạy: python scripts/rag_pipeline/build_chunks.py [--force] [--only file1.md file2.md ...]
 """
 import argparse
 import json
@@ -10,7 +10,7 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import get_settings

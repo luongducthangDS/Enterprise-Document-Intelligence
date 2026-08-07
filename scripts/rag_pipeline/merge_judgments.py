@@ -21,7 +21,7 @@ thành "có con số đo được về mức độ đáng tin của nhãn" — v
 vào báo cáo.
 
 Chạy:
-    python scripts/merge_judgments.py --judges GLM-5.2 Llama-3.3-70B-Instruct
+    python scripts/rag_pipeline/merge_judgments.py --judges GLM-5.2 Llama-3.3-70B-Instruct
 """
 
 import argparse
@@ -30,8 +30,8 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _stats import cohens_kappa  # noqa: E402
@@ -70,7 +70,7 @@ def main() -> None:
         path = judgments_path(model)
         if not os.path.exists(path):
             print(f"[LỖI] chưa có nhãn của {model}: {path}")
-            print(f"  chạy: python scripts/build_retrieval_eval_set.py --stage judge --judge-model {model}")
+            print(f"  chạy: python scripts/rag_pipeline/build_retrieval_eval_set.py --stage judge --judge-model {model}")
             sys.exit(1)
         with open(path, encoding="utf-8") as f:
             data[model] = json.load(f)
@@ -152,7 +152,7 @@ def main() -> None:
     write_json_atomic(ADJUDICATION_PATH, disagreements)
     write_json_atomic(AGREEMENT_PATH, report)
     print(f"\nĐã ghi {QRELS_PATH}, {ADJUDICATION_PATH}, {AGREEMENT_PATH}")
-    print("→ chạy `python scripts/remap_qrels.py --build-anchors` để cập nhật anchor theo qrel mới")
+    print("→ chạy `python scripts/rag_pipeline/remap_qrels.py --build-anchors` để cập nhật anchor theo qrel mới")
 
 
 if __name__ == "__main__":

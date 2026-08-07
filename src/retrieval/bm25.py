@@ -3,7 +3,7 @@ thư viện ngoài.
 
 Dùng cho 2 mục đích:
 
-1. **Pooling ứng viên khi xây qrel** (`scripts/build_retrieval_eval_set.py`):
+1. **Pooling ứng viên khi xây qrel** (`scripts/rag_pipeline/build_retrieval_eval_set.py`):
    gom ứng viên từ MỘT hệ thống độc lập với dense retrieval, để nhãn relevance
    không bị thiên vị theo đúng model đang được đo (pooling bias — vấn đề kinh
    điển của IR eval: nếu chỉ lấy ứng viên từ chính retriever đang đo thì mọi

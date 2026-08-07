@@ -76,7 +76,7 @@ def check_anchors_still_match(anchors: dict, chunks: dict[str, str], label: str)
     if broken:
         return [
             f"[{label}] {len(broken)} anchor không còn khớp — chunk đã đổi, "
-            f"chạy `python scripts/remap_qrels.py` để map lại: {broken[:5]}"
+            f"chạy `python scripts/rag_pipeline/remap_qrels.py` để map lại: {broken[:5]}"
         ]
     return []
 

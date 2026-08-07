@@ -41,8 +41,8 @@ hỏi vừa sinh ra từ nó) → coi là câu hỏi hỏng, tách sang file `*_
 để người review, KHÔNG đưa vào dataset chính.
 
 Chạy:
-    python scripts/build_retrieval_eval_set.py --stage sample --dry-run
-    python scripts/build_retrieval_eval_set.py --stage all
+    python scripts/rag_pipeline/build_retrieval_eval_set.py --stage sample --dry-run
+    python scripts/rag_pipeline/build_retrieval_eval_set.py --stage all
 """
 
 import argparse
@@ -55,8 +55,8 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import get_settings  # noqa: E402
@@ -70,7 +70,7 @@ CACHE_DIR = "eval/.cache"
 SEEDS_PATH = f"{CACHE_DIR}/retrieval_seeds.json"
 QUERIES_PATH = f"{CACHE_DIR}/retrieval_queries.json"
 # Cache judgment TÁCH THEO MODEL: cần giữ song song nhãn của nhiều judge để đo
-# độ đồng thuận giữa chúng (xem scripts/merge_judgments.py). Ghi đè chung 1 file
+# độ đồng thuận giữa chúng (xem scripts/rag_pipeline/merge_judgments.py). Ghi đè chung 1 file
 # thì mất luôn khả năng kiểm chứng nhãn.
 def judgments_path(model: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", model.lower()).strip("_")

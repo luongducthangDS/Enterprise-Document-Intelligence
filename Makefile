@@ -24,7 +24,7 @@ eval-check:
 
 # Map lại qrel theo chunk mới sau khi re-chunk (dùng anchor text, không LLM).
 remap-qrels:
-	python scripts/remap_qrels.py
+	python scripts/rag_pipeline/remap_qrels.py
 
 # Eval mặc định chạy trên split dev — held-out phải giữ sạch, chỉ chạy khi cần số cuối.
 eval-retrieval:

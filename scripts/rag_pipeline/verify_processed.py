@@ -15,12 +15,12 @@ hợp lý, chỉ thiếu so với số trang gốc.
 Exit code 1 nếu có file dưới ngưỡng — dùng làm gate trước khi chạy
 build_chunks.py.
 
-Chạy: python scripts/verify_processed.py
+Chạy: python scripts/rag_pipeline/verify_processed.py
 """
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 import pdfplumber

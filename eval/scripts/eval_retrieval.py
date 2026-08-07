@@ -8,12 +8,12 @@ Tính 2 loại metric song song cho 60 câu in_scope (xem CLAUDE.md [2026-08-05]
 
 - **Chunk-level (qrel-based)**: so khớp `chunk_id` trả về từ Chroma với
   `eval/datasets/retrieval_qrels.json` (qrel xây bằng
-  `scripts/build_retrieval_qrels.py` — deterministic, match `ground_truth_context`
+  `scripts/rag_pipeline/build_retrieval_qrels.py` — deterministic, match `ground_truth_context`
   đã verify verbatim với chunk thật trong Chroma Cloud, KHÔNG dùng LLM đoán).
   Chính xác hơn substring match cũ (so ID, không so text) và hỗ trợ multi-chunk
   (relevance score, Recall@K/Precision@K/nDCG@K thay vì chỉ Hit Rate nhị phân).
 - **Document-level Hit Rate**: so khớp field `source_file` (backfill qua
-  `scripts/backfill_eval_source_file.py`) với metadata `source_file` của từng
+  `scripts/rag_pipeline/backfill_eval_source_file.py`) với metadata `source_file` của từng
   chunk retrieve được. Thô hơn (chỉ biết đúng FILE, không biết đúng đoạn), nhưng
   không bị ảnh hưởng bởi lỗi ranh giới chunking — dùng làm cận trên tham khảo.
 
@@ -269,7 +269,7 @@ async def main() -> None:
             qrels = {q: {c: s for c, s in rel.items() if s >= args.min_relevance} for q, rel in qrels.items()}
             qrels = {q: rel for q, rel in qrels.items() if rel}
     else:
-        print(f"[CẢNH BÁO] Không tìm thấy {args.qrels} — chạy scripts/build_retrieval_qrels.py trước. "
+        print(f"[CẢNH BÁO] Không tìm thấy {args.qrels} — chạy scripts/rag_pipeline/build_retrieval_qrels.py trước. "
               "Metric chunk-level sẽ = 0 cho toàn bộ câu.")
 
     semaphore = asyncio.Semaphore(args.concurrency)
@@ -342,7 +342,7 @@ async def main() -> None:
             print(f"Doc Hit Rate@{k}: {hit_count}/{len(with_source_file)} ({rate:.1%})")
         missing_sf = len(in_scope) - len(with_source_file)
         if missing_sf:
-            print(f"(Bỏ qua {missing_sf} câu chưa có field source_file — chạy scripts/backfill_eval_source_file.py)")
+            print(f"(Bỏ qua {missing_sf} câu chưa có field source_file — chạy scripts/rag_pipeline/backfill_eval_source_file.py)")
 
     if other:
         avg_top1_distance = sum(r["top1_distance"] for r in other if r["top1_distance"] is not None) / len(other)

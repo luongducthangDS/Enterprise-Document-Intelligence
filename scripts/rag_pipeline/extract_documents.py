@@ -14,7 +14,7 @@
 File đã có output trong data/processed/ sẽ bị BỎ QUA trừ khi truyền --force
 hoặc liệt kê tên file trong --only.
 
-Chạy: python scripts/extract_documents.py [--force] [--only file1.pdf file2.pdf ...]
+Chạy: python scripts/rag_pipeline/extract_documents.py [--force] [--only file1.pdf file2.pdf ...]
 """
 import argparse
 import os
@@ -23,7 +23,7 @@ import sys
 import docx
 import pdfplumber
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.ingestion.extractors import extract_pdf

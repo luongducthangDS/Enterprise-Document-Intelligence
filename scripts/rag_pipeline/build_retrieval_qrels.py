@@ -15,15 +15,15 @@ quan). Chưa tự động gán multi-chunk (relevance=1, "supporting") — theo 
 khuyến nghị risk-mitigation trong plan_eval.md: bắt đầu single-chunk qrel trước,
 review tay các câu multi-chunk sau thay vì đoán bằng LLM.
 
-Chạy: python scripts/build_retrieval_qrels.py [--dry-run]
+Chạy: python scripts/rag_pipeline/build_retrieval_qrels.py [--dry-run]
 """
 import argparse
 import json
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _text_utils import normalize_for_match  # noqa: E402
@@ -100,7 +100,7 @@ def main() -> None:
         # lọt trong cửa sổ trích 2.000 ký tự đều bị gán relevant, tức nhãn đổi
         # nghĩa thành "nằm trong đoạn trích" chứ không còn là "trả lời được câu
         # hỏi", làm Recall bị thổi và Precision mất ý nghĩa. Gốc rễ đã xử lý ở
-        # scripts/shorten_eval_ground_truth.py (rút bằng chứng xuống <= 400 ký tự).
+        # scripts/rag_pipeline/shorten_eval_ground_truth.py (rút bằng chứng xuống <= 400 ký tự).
         matches = [c["chunk_id"] for c in chunks if needle in normalize_for_match(c["text"])]
 
         if not matches:

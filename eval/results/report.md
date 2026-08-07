@@ -33,7 +33,7 @@ pytest --cov=src --cov-report=term-missing
 TOTAL: 1293 statements, 166 miss, 87% coverage
 ```
 
-Coverage thấp nhất tập trung ở phần **không nên** có coverage cao ở giai đoạn này: `src/services/supabase_client.py` (0% — chưa có test tích hợp DB thật, out of scope đợt này vì backend/auth do team khác phụ trách), `src/ingestion/embeddings.py`/`extractors/pdf_extractor.py` (I/O nặng, gọi API ngoài, được test qua kịch bản chạy tay + `scripts/verify_processed.py` thay vì unit test). Toàn bộ logic nghiệp vụ cốt lõi (`src/agents/*`, `src/retrieval/*`, `src/models/schemas.py`, `src/ingestion/chunkers.py`/`cleaners.py`) đạt 95-100%.
+Coverage thấp nhất tập trung ở phần **không nên** có coverage cao ở giai đoạn này: `src/services/supabase_client.py` (0% — chưa có test tích hợp DB thật, out of scope đợt này vì backend/auth do team khác phụ trách), `src/ingestion/embeddings.py`/`extractors/pdf_extractor.py` (I/O nặng, gọi API ngoài, được test qua kịch bản chạy tay + `scripts/rag_pipeline/verify_processed.py` thay vì unit test). Toàn bộ logic nghiệp vụ cốt lõi (`src/agents/*`, `src/retrieval/*`, `src/models/schemas.py`, `src/ingestion/chunkers.py`/`cleaners.py`) đạt 95-100%.
 
 ### Integration / Eval Tests (đặc thù hệ thống RAG — thay cho "integration test" cổ điển)
 

@@ -11,7 +11,7 @@ là text cắt nguyên từ nguồn thật -> đảm bảo verbatim 100%.
 Chỉ ghi đè khi similarity ratio >= --min-ratio (mặc định 0.3); câu nào không đạt
 được để nguyên + liệt kê "cần xem tay" cuối báo cáo, không đoán bừa.
 
-Chạy: python scripts/fix_eval_ground_truth.py [--min-ratio 0.3] [--dry-run]
+Chạy: python scripts/rag_pipeline/fix_eval_ground_truth.py [--min-ratio 0.3] [--dry-run]
 """
 import argparse
 import difflib
@@ -20,9 +20,10 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_scripts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts")
-_eval_scripts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts")
+_repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, _repo_root)
+_scripts_dir = os.path.join(_repo_root, "scripts", "rag_pipeline")
+_eval_scripts_dir = os.path.join(_repo_root, "eval", "scripts")
 sys.path.insert(0, _scripts_dir)
 sys.path.insert(0, _eval_scripts_dir)
 sys.stdout.reconfigure(encoding="utf-8")

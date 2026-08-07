@@ -22,8 +22,8 @@ Anchor nào không còn tìm thấy sẽ được báo ra để xem tay, thay v�
 mất khỏi qrel.
 
 Chạy:
-    python scripts/remap_qrels.py --build-anchors   # tạo anchors từ qrel + chunk hiện tại
-    python scripts/remap_qrels.py                   # map lại qrel theo chunk mới
+    python scripts/rag_pipeline/remap_qrels.py --build-anchors   # tạo anchors từ qrel + chunk hiện tại
+    python scripts/rag_pipeline/remap_qrels.py                   # map lại qrel theo chunk mới
 """
 
 import argparse
@@ -32,8 +32,8 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _text_utils import normalize_for_match  # noqa: E402

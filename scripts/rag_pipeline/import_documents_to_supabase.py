@@ -7,12 +7,12 @@ rejected để HR Admin dashboard nhìn thấy lịch sử tài liệu bị lo�
 Chạy sau khi đã apply migration (supabase/migrations/0001_initial_schema.sql)
 và .env đã có SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY.
 
-Chạy: python scripts/import_documents_to_supabase.py
+Chạy: python scripts/rag_pipeline/import_documents_to_supabase.py
 """
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.ingestion.metadata import load_registry

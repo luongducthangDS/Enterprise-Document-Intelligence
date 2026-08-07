@@ -3,8 +3,8 @@
 nguồn công khai đạt chất lượng: chính sách WFH/hybrid, chính sách đào tạo & phát
 triển, và bộ câu hỏi-đáp eval.
 
-Chạy: python scripts/collect_data.py             # sinh cả 4 policy doc + eval set
-      python scripts/collect_data.py --eval-only  # chỉ sinh lại eval set (không đụng policy doc đã có)
+Chạy: python scripts/rag_pipeline/collect_data.py             # sinh cả 4 policy doc + eval set
+      python scripts/rag_pipeline/collect_data.py --eval-only  # chỉ sinh lại eval set (không đụng policy doc đã có)
 """
 import argparse
 import json
@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import get_settings

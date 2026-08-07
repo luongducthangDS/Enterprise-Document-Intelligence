@@ -3,7 +3,7 @@
 mặc định, hoặc local storage/vector_db/ nếu VECTOR_DB_BACKEND=local), cập nhật
 cột indexed_at trong document_registry.csv.
 
-Chạy: python scripts/build_vector_db.py [--force] [--only file1.md file2.md ...]
+Chạy: python scripts/rag_pipeline/build_vector_db.py [--force] [--only file1.md file2.md ...]
 """
 import argparse
 import json
@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import get_settings

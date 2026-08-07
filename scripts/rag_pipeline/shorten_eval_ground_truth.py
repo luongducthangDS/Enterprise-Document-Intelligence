@@ -27,8 +27,8 @@ chọn xác định (chọn cửa sổ câu có độ trùng từ vựng cao nh�
 dù prompt đã yêu cầu trích nguyên văn (xem CLAUDE.md [2026-08-05]).
 
 Chạy:
-    python scripts/shorten_eval_ground_truth.py --dry-run
-    python scripts/shorten_eval_ground_truth.py
+    python scripts/rag_pipeline/shorten_eval_ground_truth.py --dry-run
+    python scripts/rag_pipeline/shorten_eval_ground_truth.py
 """
 
 import argparse
@@ -40,8 +40,8 @@ import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _text_utils import normalize_for_match  # noqa: E402

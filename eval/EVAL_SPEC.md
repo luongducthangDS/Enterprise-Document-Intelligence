@@ -87,7 +87,7 @@ Cho một query, gọi `R` = tập chunk có nhãn ≥ ngưỡng, `retrieved@k` 
 Sau **mọi** lần đổi cấu hình chunking hoặc rebuild `data/chunks/`:
 
 ```bash
-python scripts/remap_qrels.py            # map nhãn sang chunk_id mới
+python scripts/rag_pipeline/remap_qrels.py            # map nhãn sang chunk_id mới
 python eval/scripts/check_dataset_integrity.py   # xác nhận không có nhãn nào lạc
 ```
 

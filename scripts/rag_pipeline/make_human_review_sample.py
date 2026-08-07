@@ -14,12 +14,12 @@ phần còn lại", và con số đó phải xuất hiện trong báo cáo.
 ## Cách dùng
 
     # 1. Sinh phiếu (ưu tiên các cặp 2 judge bất đồng — chỗ nhãn yếu nhất)
-    python scripts/make_human_review_sample.py --n 50
+    python scripts/rag_pipeline/make_human_review_sample.py --n 50
 
     # 2. Mở eval/datasets/human_review_sample.json, điền "human_score": 0/1/2
 
     # 3. Đo đồng thuận người ↔ nhãn tự động
-    python scripts/make_human_review_sample.py --score
+    python scripts/rag_pipeline/make_human_review_sample.py --score
 """
 
 import argparse
@@ -29,8 +29,8 @@ import os
 import random
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _stats import cohens_kappa  # noqa: E402
@@ -101,7 +101,7 @@ def build_sample(n: int, seed: int) -> None:
     print(f"Đã tạo {SAMPLE_PATH}: {len(sample)} cặp query-chunk cần chấm")
     print(f"  trong đó {n_disputed} cặp mà 2 judge bất đồng (ưu tiên chấm trước)")
     print('\nHướng dẫn chấm: 2 = đoạn CHỨA câu trả lời, 1 = liên quan/bổ trợ, 0 = không liên quan')
-    print("Điền vào field `human_score`, rồi chạy: python scripts/make_human_review_sample.py --score")
+    print("Điền vào field `human_score`, rồi chạy: python scripts/rag_pipeline/make_human_review_sample.py --score")
 
 
 def score_sample() -> None:

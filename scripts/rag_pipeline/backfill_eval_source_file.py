@@ -2,7 +2,7 @@
 """Backfill field `source_file` cho các câu in_scope trong
 eval/datasets/qa_eval_set.json — xác định chính xác `ground_truth_context` của
 mỗi câu nằm ở file processed nào (trong 1-2 file nguồn của category đó, xem
-EVAL_EXCERPT_SOURCES ở scripts/collect_data.py), rồi map sang đúng giá trị
+EVAL_EXCERPT_SOURCES ở scripts/rag_pipeline/collect_data.py), rồi map sang đúng giá trị
 `source_file` như lưu trong metadata Chroma (basename gốc theo
 data/metadata/document_registry.csv — có thể là .pdf/.docx, không nhất thiết
 .md, vì đó là tên file RAW gốc trước khi extract).
@@ -11,7 +11,7 @@ Mục đích: có 1 nhãn "đúng document" tường minh cho retrieval eval, th
 suy luận gián tiếp qua so khớp chuỗi con ground_truth_context (dễ bị lệch khi
 chunking cắt vỡ câu giữa 2 chunk — xem CLAUDE.md [2026-08-05]).
 
-Chạy: python scripts/backfill_eval_source_file.py [--dry-run]
+Chạy: python scripts/rag_pipeline/backfill_eval_source_file.py [--dry-run]
 """
 import argparse
 import csv
@@ -19,9 +19,9 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "scripts"))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "eval", "scripts"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _text_utils import normalize_for_match  # noqa: E402
