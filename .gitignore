@@ -75,7 +75,9 @@ scratch_*
 eval/.cache/
 
 # Tài liệu review/audit nội bộ — chỉ giữ ở máy, KHÔNG đưa lên GitHub.
-# (eval/results/report.md là deliverable bắt buộc của BTC nên vẫn được track.)
+# (eval/results/report.md là deliverable bắt buộc của BTC nên vẫn được track,
+# và nằm ngoài docs/reports/ nên không bị ảnh hưởng bởi rule này.)
+docs/reports/
 *review*.md
 *REVIEW*.md
 *_review.md
