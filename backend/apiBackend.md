@@ -599,3 +599,446 @@ Nhóm **Citation API** đã được triển khai hoàn chỉnh tại `/api/v1/c
     }
   }
   ```
+
+---
+
+### 15. Nhật ký triển khai chi tiết – Document & Ingestion API (Implemented)
+
+> **Trạng thái:** ✅ Đã hoàn thiện code, tích hợp ORM (`DocumentDB`, `IngestionJobDB`), bọc Standard Response Wrapper và đạt **100% Pytest suite pass (37/37 tests pass)**.
+
+#### 15.1. Danh sách Endpoints đã triển khai (`/api/v1/documents` & `/api/v1/ingestion-jobs`)
+
+| Method | Endpoint | Mô tả | Authorization | Success HTTP | Error Codes |
+|---|---|---|---|---|---|
+| `POST` | `/api/v1/documents` | Upload tài liệu chính sách mới (PDF, DOCX, XLSX) | Bearer JWT | `201 Created` | `FILE_TOO_LARGE (413)`, `UNSUPPORTED_FILE_TYPE (415)`, `FILE_NOT_MACHINE_READABLE (422)` |
+| `GET` | `/api/v1/documents` | Danh sách tài liệu chính sách (có filter status, category, ingestion_state, indexed & phân trang) | Bearer JWT | `200 OK` | `UNAUTHORIZED (401)` |
+| `GET` | `/api/v1/documents/{document_id}` | Xem chi tiết tài liệu, thông tin ingestion & vector index | Bearer JWT | `200 OK` | `DOCUMENT_NOT_FOUND (404)`, `DOCUMENT_ACCESS_DENIED (403)` |
+| `PATCH` | `/api/v1/documents/{document_id}/metadata` | Cập nhật metadata tài liệu (chỉ dành cho HR Admin / Super Admin) | Bearer JWT | `200 OK` | `DOCUMENT_NOT_FOUND (404)`, `FORBIDDEN (403)` |
+| `POST` | `/api/v1/documents/{document_id}/archive` | Lưu trữ mềm (soft archive) tài liệu | Bearer JWT | `200 OK` | `DOCUMENT_NOT_FOUND (404)`, `FORBIDDEN (403)`, `DOCUMENT_STATUS_CONFLICT (409)` |
+| `GET` | `/api/v1/ingestion-jobs/{job_id}` | Theo dõi trạng thái & tiến độ tác vụ xử lý trích xuất / chunking / index | Bearer JWT | `200 OK` | `INGESTION_JOB_NOT_FOUND (404)` |
+
+#### 15.2. Mô tả Request / Response mẫu
+
+##### 1. Upload tài liệu chính sách (`POST /api/v1/documents`)
+- **Request Body:** `multipart/form-data`
+  - `file`: `@chinh_sach_nghi_phep.pdf`
+  - `title`: `"Chính sách nghỉ phép 2026"`
+  - `category`: `"HR_POLICY"`
+  - `version`: `"1.0"`
+  - `effective_date`: `"2026-01-01"`
+  - `confidentiality`: `"INTERNAL"`
+- **Response Success (201 Created):**
+  ```json
+  {
+    "request_id": "req_112233445566",
+    "success": true,
+    "data": {
+      "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "ingestion_job_id": "j1j2j3j4-j5j6-7890-abcd-ef1234567890",
+      "status": "ACTIVE"
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:40:00.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 2. Danh sách tài liệu (`GET /api/v1/documents`)
+- **Query Parameters:** `status=ACTIVE&limit=20`
+- **Response Success (200 OK):**
+  ```json
+  {
+    "request_id": "req_112233445567",
+    "success": true,
+    "data": [
+      {
+        "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "title": "Chính sách nghỉ phép 2026",
+        "category": "HR_POLICY",
+        "version": "1.0",
+        "effective_date": "2026-01-01",
+        "status": "ACTIVE",
+        "ingestion_state": "QUEUED",
+        "indexed": false,
+        "created_at": "2026-08-07T09:40:00.000000+00:00"
+      }
+    ],
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:40:05.000000+00:00",
+      "api_version": "v1",
+      "pagination": {
+        "limit": 20,
+        "next_cursor": null
+      }
+    }
+  }
+  ```
+
+##### 3. Chi tiết tài liệu (`GET /api/v1/documents/{document_id}`)
+- **Response Success (200 OK):**
+  ```json
+  {
+    "request_id": "req_112233445568",
+    "success": true,
+    "data": {
+      "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Chính sách nghỉ phép 2026",
+      "category": "HR_POLICY",
+      "version": "1.0",
+      "effective_date": "2026-01-01",
+      "status": "ACTIVE",
+      "language": "vi",
+      "source_file": "chinh_sach_nghi_phep.pdf",
+      "checksum": "e3b0c44298fc1c14",
+      "confidentiality": "INTERNAL",
+      "ingestion": {
+        "job_id": "j1j2j3j4-j5j6-7890-abcd-ef1234567890",
+        "state": "QUEUED",
+        "chunk_count": 0,
+        "last_ingested_at": null,
+        "error": null
+      },
+      "index": {
+        "indexed": false,
+        "index_version": null
+      }
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:40:10.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 4. Cập nhật metadata (`PATCH /api/v1/documents/{document_id}/metadata`)
+- **Request Body:**
+  ```json
+  {
+    "title": "Chính sách nghỉ phép năm 2026 (Điều chỉnh)",
+    "category": "BENEFITS",
+    "version": "1.1"
+  }
+  ```
+- **Response Success (200 OK):**
+  ```json
+  {
+    "request_id": "req_112233445569",
+    "success": true,
+    "data": {
+      "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "metadata_updated": true,
+      "requires_reindex": true,
+      "updated_at": "2026-08-07T09:41:00.000000+00:00"
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:41:00.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 5. Soft Archive tài liệu (`POST /api/v1/documents/{document_id}/archive`)
+- **Request Body:**
+  ```json
+  {
+    "reason": "Superseded by version 2.0"
+  }
+  ```
+- **Response Success (200 OK):**
+  ```json
+  {
+    "request_id": "req_112233445570",
+    "success": true,
+    "data": {
+      "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "status": "ARCHIVED",
+      "requires_reindex": true,
+      "archived_at": "2026-08-07T09:42:00.000000+00:00"
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:42:00.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 6. Theo dõi Ingestion Job (`GET /api/v1/ingestion-jobs/{job_id}`)
+- **Response Success (200 OK):**
+  ```json
+  {
+    "request_id": "req_112233445571",
+    "success": true,
+    "data": {
+      "job_id": "j1j2j3j4-j5j6-7890-abcd-ef1234567890",
+      "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "state": "QUEUED",
+      "stage": "UPLOADED",
+      "progress_percent": 0,
+      "error": null,
+      "poll_after_ms": 1000
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T09:42:05.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+---
+
+### 16. Nhật ký triển khai chi tiết – Index API (Implemented)
+
+> **Trạng thái:** ✅ Đã hoàn thiện code, tích hợp ORM (`IndexJobDB`), bọc Standard Response Wrapper và đạt **100% Pytest suite pass (42/42 tests pass)**.
+
+#### 16.1. Danh sách Endpoints đã triển khai (`/api/v1/indexes`)
+
+| Method | Endpoint | Mô tả | Authorization | Success HTTP | Error Codes |
+|---|---|---|---|---|---|
+| `POST` | `/api/v1/indexes/rebuilds` | Tạo tác vụ tái lập chỉ mục (Re-index vector store) | Bearer JWT | `202 Accepted` | `INDEX_REBUILD_IN_PROGRESS (409)`, `DOCUMENT_NOT_READY (422)` |
+| `GET` | `/api/v1/indexes/rebuilds/{job_id}` | Theo dõi trạng thái & tiến độ tái lập chỉ mục | Bearer JWT | `200 OK` | `INDEX_JOB_NOT_FOUND (404)` |
+
+#### 16.2. Mô tả Request / Response mẫu
+
+##### 1. Tạo tác vụ tái lập chỉ mục (`POST /api/v1/indexes/rebuilds`)
+- **Request Body:**
+  ```json
+  {
+    "document_ids": ["a1b2c3d4-e5f6-7890-abcd-ef1234567890"],
+    "strategy": "REPLACE"
+  }
+  ```
+  *(Nếu `document_ids` bằng `null`, hệ thống tự động rebuild cho tất cả các tài liệu đang ACTIVE trong hệ thống)*.
+- **Response Success (`202 Accepted`):**
+  ```json
+  {
+    "request_id": "req_223344556677",
+    "success": true,
+    "data": {
+      "job_id": "idxjob_77889900aabb",
+      "state": "QUEUED",
+      "poll_after_ms": 2000
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T10:05:00.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi có tác vụ re-index đang chạy (`409 Conflict`):**
+  ```json
+  {
+    "request_id": "req_223344556678",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "INDEX_REBUILD_IN_PROGRESS",
+      "message": "Đang có tác vụ tái lập chỉ mục đang thực thi. Vui lòng chờ hoàn tất.",
+      "details": null,
+      "retryable": true,
+      "retry_after_ms": 2000
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:05:05.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi tài liệu chỉ định chưa sẵn sàng / bị archive (`422 Unprocessable Entity`):**
+  ```json
+  {
+    "request_id": "req_223344556679",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "DOCUMENT_NOT_READY",
+      "message": "Tài liệu '44444444-4444-4444-4444-444444444444' không tồn tại hoặc ở trạng thái không thể index.",
+      "details": null,
+      "retryable": false,
+      "retry_after_ms": null
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:05:10.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 2. Lấy trạng thái Re-index (`GET /api/v1/indexes/rebuilds/{job_id}`)
+- **Response Success (`200 OK`):**
+  ```json
+  {
+    "request_id": "req_223344556680",
+    "success": true,
+    "data": {
+      "job_id": "idxjob_77889900aabb",
+      "state": "QUEUED",
+      "stage": "QUEUED",
+      "progress_percent": 0,
+      "active_index_version": "v1.0",
+      "error": null,
+      "poll_after_ms": 2000
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T10:05:15.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi không tìm thấy Job (`404 Not Found`):**
+  ```json
+  {
+    "request_id": "req_223344556681",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "INDEX_JOB_NOT_FOUND",
+      "message": "Không tìm thấy thông tin tác vụ tái lập chỉ mục.",
+      "details": null,
+      "retryable": false,
+      "retry_after_ms": null
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:05:20.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+---
+
+### 17. Nhật ký triển khai chi tiết – Evaluation API (Implemented)
+
+> **Trạng thái:** ✅ Đã hoàn thiện code, tích hợp ORM (`EvaluationRunDB`), bọc Standard Response Wrapper và đạt **100% Pytest suite pass (47/47 tests pass)**.
+
+#### 17.1. Danh sách Endpoints đã triển khai (`/api/v1/evaluation`)
+
+| Method | Endpoint | Mô tả | Authorization | Success HTTP | Error Codes |
+|---|---|---|---|---|---|
+| `POST` | `/api/v1/evaluation/runs` | Tạo tác vụ chạy đánh giá chất lượng bộ câu hỏi RAG (Evaluation Run) | Bearer JWT | `202 Accepted` | `EVALUATION_DATASET_NOT_FOUND (404)`, `EVALUATION_RUN_CONFLICT (409)` |
+| `GET` | `/api/v1/evaluation/runs/{run_id}` | Theo dõi tiến độ & kết quả các chỉ số đánh giá RAG | Bearer JWT | `200 OK` | `EVALUATION_RUN_NOT_FOUND (404)` |
+
+#### 17.2. Mô tả Request / Response mẫu
+
+##### 1. Tạo tác vụ đánh giá (`POST /api/v1/evaluation/runs`)
+- **Request Body:**
+  ```json
+  {
+    "dataset_id": "evalset_hr_v1",
+    "index_version": "idxver_v1.0",
+    "model_config_id": "modelcfg_gpt4o"
+  }
+  ```
+- **Response Success (`202 Accepted`):**
+  ```json
+  {
+    "request_id": "req_334455667788",
+    "success": true,
+    "data": {
+      "run_id": "evalrun_112233445566",
+      "state": "QUEUED",
+      "poll_after_ms": 3000
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T10:50:00.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi bộ dữ liệu đánh giá không tồn tại (`404 Not Found`):**
+  ```json
+  {
+    "request_id": "req_334455667789",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "EVALUATION_DATASET_NOT_FOUND",
+      "message": "Không tìm thấy bộ dữ liệu đánh giá chỉ định.",
+      "details": null,
+      "retryable": false,
+      "retry_after_ms": null
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:50:05.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi có đợt đánh giá khác đang chạy (`409 Conflict`):**
+  ```json
+  {
+    "request_id": "req_334455667790",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "EVALUATION_RUN_CONFLICT",
+      "message": "Đang có đợt đánh giá chất lượng RAG đang thực thi. Vui lòng chờ hoàn tất.",
+      "details": null,
+      "retryable": true,
+      "retry_after_ms": 3000
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:50:10.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+
+##### 2. Xem tiến độ & chỉ số đánh giá (`GET /api/v1/evaluation/runs/{run_id}`)
+- **Response Success (`200 OK`):**
+  ```json
+  {
+    "request_id": "req_334455667791",
+    "success": true,
+    "data": {
+      "run_id": "evalrun_112233445566",
+      "dataset_id": "evalset_hr_v1",
+      "state": "COMPLETED",
+      "stage": "COMPLETED",
+      "progress_percent": 100,
+      "metrics": {
+        "recall_at_5": 0.92,
+        "answer_correctness": 0.88,
+        "citation_coverage": 0.95,
+        "citation_correctness": 0.90,
+        "p95_latency_ms": 1450
+      },
+      "quality_gate": "PASSED",
+      "error": null,
+      "poll_after_ms": 3000
+    },
+    "error": null,
+    "meta": {
+      "timestamp": "2026-08-07T10:50:15.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
+- **Response Error khi không tìm thấy Run (`404 Not Found`):**
+  ```json
+  {
+    "request_id": "req_334455667792",
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "EVALUATION_RUN_NOT_FOUND",
+      "message": "Không tìm thấy thông tin lượt đánh giá.",
+      "details": null,
+      "retryable": false,
+      "retry_after_ms": null
+    },
+    "meta": {
+      "timestamp": "2026-08-07T10:50:20.000000+00:00",
+      "api_version": "v1"
+    }
+  }
+  ```
