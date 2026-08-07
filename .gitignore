@@ -30,8 +30,13 @@ Thumbs.db
 
 # Data (never commit large data)
 data/
+!data/metadata/document_registry.csv
 *.db
 *.sqlite3
+*.zip
+
+# Local vector store
+storage/
 
 # Logs
 logs/
@@ -58,3 +63,22 @@ out/
 # AI logs — tracked structure, ignored content
 .ai-log/*.jsonl
 .ai-log/archive/
+
+# Backup / scratch files (vd eval set backup trước khi regenerate, file debug lỡ tạo ở root)
+*.bak
+*.bak.*
+scratch_*
+.aider*
+
+# Cache của build_retrieval_eval_set.py (kết quả LLM judgment tốn API để sinh
+# lại) — cache để resume/debug, không phải nguồn dữ liệu cần track.
+eval/.cache/
+
+# Tài liệu review/audit nội bộ — chỉ giữ ở máy, KHÔNG đưa lên GitHub.
+# (eval/results/report.md là deliverable bắt buộc của BTC nên vẫn được track,
+# và nằm ngoài docs/reports/ nên không bị ảnh hưởng bởi rule này.)
+docs/reports/
+*review*.md
+*REVIEW*.md
+*_review.md
+ISSUES.md

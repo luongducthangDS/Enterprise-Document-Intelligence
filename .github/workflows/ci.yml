@@ -29,4 +29,10 @@ jobs:
         run: pytest tests/ -v --tb=short
         env:
           APP_ENV: test
-          OPENAI_API_KEY: test-key
+          FPT_API_KEY: test-key
+
+      # Chặn đúng loại sự cố đã xảy ra: đổi cấu hình chunker làm hỏng nhãn qrel
+      # mà không ai biết cho tới khi metric tụt. Kiểm tra này không gọi API nên
+      # chạy được trên máy CI sạch (phần cần data/chunks sẽ tự bỏ qua).
+      - name: Check eval dataset integrity
+        run: python eval/scripts/check_dataset_integrity.py
