@@ -82,3 +82,10 @@ docs/reports/
 *REVIEW*.md
 *_review.md
 ISSUES.md
+
+# Tool-specific local/private configuration
+.codex/*.local.*
+.gemini/*.local.*
+.claude/*.local.*
+.cursor/*.local.*
+.agents/*.local.*

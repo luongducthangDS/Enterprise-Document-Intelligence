@@ -1,12 +1,13 @@
 {
-  "version": "1.0",
+  "description": "AI20K AI usage logging",
   "hooks": {
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "name": "log-prompt",
-            "command": "bash scripts/_pyrun.sh scripts/log_hook.py --tool=codex",
+            "type": "command",
+            "command": "python scripts/log_hook.py --tool=codex",
             "timeout": 10
           }
         ]
@@ -17,7 +18,8 @@
         "hooks": [
           {
             "name": "log-stop",
-            "command": "bash scripts/_pyrun.sh scripts/log_hook.py --tool=codex",
+            "type": "command",
+            "command": "python scripts/log_hook.py --tool=codex",
             "timeout": 10
           }
         ]
