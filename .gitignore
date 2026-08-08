@@ -84,7 +84,7 @@ docs/reports/
 ISSUES.md
 
 # Tool-specific local/private configuration
-.codex/
+.codex/*.local.*
 .gemini/*.local.*
 .claude/*.local.*
 .cursor/*.local.*
