@@ -180,6 +180,12 @@
           <li class="nav-item" id="nav-admin-indexing">
             <button onclick="navigateView('admin-indexing')"><i data-lucide="cpu"></i> Knowledge indexing</button>
           </li>
+          <li class="nav-item" id="nav-admin-evaluation">
+            <button onclick="navigateView('admin-evaluation')"><i data-lucide="flask-conical"></i> Evaluation</button>
+          </li>
+          <li class="nav-item" id="nav-admin-monitoring">
+            <button onclick="navigateView('admin-monitoring')"><i data-lucide="activity-square"></i> Request monitoring</button>
+          </li>
           <li class="nav-item" id="nav-admin-activity">
             <button onclick="navigateView('admin-activity')"><i data-lucide="activity"></i> Activity log</button>
           </li>
@@ -216,7 +222,7 @@
             <input type="text" placeholder="Search HR policies or tickets...">
           </div>
 
-          <button class="btn btn-secondary" style="padding: 6px 10px;" title="Notifications">
+          <button class="btn btn-secondary btn-icon-only" title="Notifications">
             <i data-lucide="bell" style="width: 16px;"></i>
           </button>
 
@@ -234,6 +240,18 @@
           
           <!-- Chat Main Workspace -->
           <div class="chat-main">
+            <div class="chat-session-bar">
+              <div>
+                <span class="badge badge-verified" id="conversation-state">ACTIVE</span>
+                <strong id="conversation-title">New conversation</strong>
+                <code id="conversation-id">Creating…</code>
+              </div>
+              <div class="session-actions">
+                <button class="btn btn-secondary btn-compact" onclick="reloadConversation()"><i data-lucide="history"></i> Reload history</button>
+                <button class="btn btn-secondary btn-compact" onclick="endCurrentConversation()"><i data-lucide="square"></i> End</button>
+                <button class="btn btn-primary btn-compact" onclick="startNewConversation()"><i data-lucide="plus"></i> New chat</button>
+              </div>
+            </div>
             <div class="chat-body" id="chat-messages-container">
               
               <!-- Empty State -->
@@ -279,11 +297,12 @@
             <div class="chat-composer">
               <div class="input-row">
                 <button class="btn btn-secondary" style="padding: 10px;" title="Attach file"><i data-lucide="paperclip"></i></button>
-                <input type="text" id="chat-composer-input" placeholder="Ask any question about company HR policies..." onkeydown="if(event.key==='Enter') submitEmployeeQuestion()">
-                <button class="btn btn-primary" onclick="submitEmployeeQuestion()"><i data-lucide="send"></i> Send</button>
+                <input type="text" id="chat-composer-input" maxlength="2000" placeholder="Ask any question about company HR policies..." oninput="updateQuestionCount()" onkeydown="if(event.key==='Enter') submitEmployeeQuestion()">
+                <button class="btn btn-primary" id="chat-send-button" onclick="submitEmployeeQuestion()"><i data-lucide="send"></i> Send</button>
               </div>
               <div class="composer-disclaimer">
-                ⚠️ AI can make mistakes. Always verify important information using the cited source.
+                <span>⚠️ AI can make mistakes. Always verify important information using the cited source.</span>
+                <span id="question-count">0 / 2,000</span>
               </div>
             </div>
           </div>
@@ -500,17 +519,33 @@
         </div>
 
         <div class="table-container">
+          <div class="table-toolbar filter-toolbar">
+            <strong>Documents</strong>
+            <div>
+              <input class="form-control" id="document-category-filter" placeholder="Filter category" oninput="renderAdminDocs()">
+              <select class="form-control" id="document-status-filter" onchange="renderAdminDocs()">
+                <option value="">All statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="ARCHIVED">Archived</option>
+              </select>
+              <select class="form-control" id="document-index-filter" onchange="renderAdminDocs()">
+                <option value="">Any index state</option>
+                <option value="true">Indexed</option>
+                <option value="false">Not indexed</option>
+              </select>
+            </div>
+          </div>
           <table class="enterprise-table">
             <thead>
               <tr>
-                <th>Document Name</th>
+                <th>Document</th>
                 <th>Category</th>
                 <th>Version</th>
                 <th>Effective Date</th>
-                <th>Owner</th>
-                <th>File Type</th>
-                <th>Index Status</th>
+                <th>Ingestion</th>
+                <th>Index</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="admin-docs-table-body">
@@ -526,7 +561,18 @@
             <h3 style="font-size: 1.1rem; font-weight: 700;">RAG Knowledge Base & Index Health</h3>
             <p style="font-size: 0.85rem; color: var(--text-muted);">Active Index Version: <code style="color: var(--primary-blue);">v4.8.2-prod</code> • 42 Documents (3,120 Chunks)</p>
           </div>
-          <button class="btn btn-primary" onclick="triggerReindexModal()"><i data-lucide="refresh-cw"></i> Re-index Knowledge Base</button>
+          <div class="inline-controls">
+            <select class="form-control" id="index-strategy">
+              <option value="REPLACE">Replace</option>
+              <option value="MERGE">Merge</option>
+            </select>
+            <button class="btn btn-primary" id="reindex-button" onclick="triggerReindexModal()"><i data-lucide="refresh-cw"></i> Re-index Knowledge Base</button>
+          </div>
+        </div>
+
+        <div class="job-status-card" id="index-job-status" style="display: none;">
+          <div><strong id="index-job-label">Index rebuild queued</strong><code id="index-job-id"></code></div>
+          <div class="progress-track"><div class="progress-value" id="index-job-progress"></div></div>
         </div>
 
         <div class="card-box">
@@ -535,6 +581,38 @@
             [09:20:14] INDEX_HEALTH_CHECK: 99.8% Healthy. 42 Active Vector Namespaces.<br>
             [09:22:01] VECTOR_STORE: Pinecone cluster healthy (latency 12ms).
           </div>
+        </div>
+      </section>
+
+      <section class="view-panel content-view" id="view-admin-evaluation" style="display: none;">
+        <div class="section-heading">
+          <div><span class="eyebrow">Quality assurance</span><h2>Evaluation runs</h2><p>Validate retrieval, answer and citation quality against a controlled dataset.</p></div>
+        </div>
+        <div class="two-column-layout">
+          <div class="card-box">
+            <h3 class="card-title">Start evaluation</h3>
+            <div class="form-group"><label>Dataset ID</label><input class="form-control" id="evaluation-dataset" value="evalset_hr_v1"></div>
+            <div class="form-group"><label>Index version</label><input class="form-control" id="evaluation-index" value="idxver_20260805_01"></div>
+            <div class="form-group"><label>Model config ID</label><input class="form-control" id="evaluation-model" value="modelcfg_01"></div>
+            <button class="btn btn-primary" id="evaluation-run-button" onclick="startEvaluationRun()"><i data-lucide="play"></i> Run evaluation</button>
+          </div>
+          <div class="card-box" id="evaluation-result">
+            <div class="api-empty-state"><i data-lucide="flask-conical"></i><strong>No evaluation selected</strong><span>Start a run to view quality metrics.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view-panel content-view" id="view-admin-monitoring" style="display: none;">
+        <div class="section-heading">
+          <div><span class="eyebrow">Trace explorer</span><h2>Request monitoring</h2><p>Inspect retrieval and latency without exposing PII or internal prompts.</p></div>
+        </div>
+        <div class="card-box monitoring-search">
+          <input class="form-control" id="monitoring-request-id" placeholder="Enter request_id, for example req_123">
+          <button class="btn btn-primary" onclick="loadMonitoringRequest()"><i data-lucide="search"></i> Inspect request</button>
+          <button class="btn btn-secondary" onclick="useLatestMonitoringRequest()">Use latest chat request</button>
+        </div>
+        <div class="card-box" id="monitoring-result">
+          <div class="api-empty-state"><i data-lucide="scan-search"></i><strong>No request selected</strong><span>Enter a request ID generated by a completed chat request.</span></div>
         </div>
       </section>
 
@@ -642,13 +720,22 @@
 
       <div style="border: 2px dashed var(--border-strong); padding: 24px; text-align: center; border-radius: 8px; background: #F8FAFC; margin-bottom: 16px;">
         <i data-lucide="file-up" style="width: 32px; height: 32px; color: var(--primary-blue); margin-bottom: 8px;"></i>
-        <div style="font-weight: 600; font-size: 0.9rem;">Drag and drop policy file here</div>
-        <div style="font-size: 0.78rem; color: var(--text-muted);">Supported formats: PDF, DOCX, XLSX (Max 15MB)</div>
+        <label class="file-picker" for="upload-doc-file">Choose a policy file</label>
+        <input type="file" id="upload-doc-file" accept=".pdf,.docx,.xlsx" onchange="syncUploadTitle()">
+        <div style="font-size: 0.78rem; color: var(--text-muted);">Supported formats: PDF, DOCX, XLSX (Max 25MB)</div>
       </div>
 
-      <div class="form-group">
-        <label>Document Title</label>
-        <input type="text" class="form-control" id="upload-doc-title" value="Home_Workplace_Solar_Reimbursement_Policy_2026.pdf">
+      <div class="form-grid">
+        <div class="form-group form-span-2">
+          <label>Document Title</label>
+          <input type="text" class="form-control" id="upload-doc-title" placeholder="Policy title">
+        </div>
+        <div class="form-group"><label>Category</label><input type="text" class="form-control" id="upload-doc-category" value="Benefits & Perks"></div>
+        <div class="form-group"><label>Version</label><input type="text" class="form-control" id="upload-doc-version" value="1.0"></div>
+        <div class="form-group"><label>Effective date</label><input type="date" class="form-control" id="upload-doc-effective-date" value="2026-08-05"></div>
+        <div class="form-group"><label>Status</label><select class="form-control" id="upload-doc-status"><option value="ACTIVE">Active</option><option value="DRAFT">Draft</option></select></div>
+        <div class="form-group"><label>Language</label><select class="form-control" id="upload-doc-language"><option value="vi">Vietnamese</option><option value="en">English</option></select></div>
+        <div class="form-group"><label>Confidentiality</label><select class="form-control" id="upload-doc-confidentiality"><option value="INTERNAL">Internal</option><option value="CONFIDENTIAL">Confidential</option></select></div>
       </div>
 
       <!-- Indexing Pipeline Progress Bar -->
@@ -663,8 +750,41 @@
 
       <div style="display: flex; justify-content: flex-end; gap: 12px;">
         <button class="btn btn-secondary" onclick="closeModal('upload-modal')">Cancel</button>
-        <button class="btn btn-primary" onclick="startUploadPipeline()">Start Upload & Indexing</button>
+        <button class="btn btn-primary" id="upload-submit-button" onclick="startUploadPipeline()">Start Upload & Indexing</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="document-detail-modal">
+    <div class="modal-dialog modal-wide">
+      <div class="modal-heading"><div><span class="eyebrow">Document API</span><h3 id="document-detail-heading">Document details</h3></div><button class="icon-button" onclick="closeModal('document-detail-modal')"><i data-lucide="x"></i></button></div>
+      <input type="hidden" id="document-detail-id">
+      <div class="form-grid">
+        <div class="form-group form-span-2"><label>Title</label><input class="form-control" id="document-detail-title"></div>
+        <div class="form-group"><label>Category</label><input class="form-control" id="document-detail-category"></div>
+        <div class="form-group"><label>Version</label><input class="form-control" id="document-detail-version"></div>
+        <div class="form-group"><label>Effective date</label><input type="date" class="form-control" id="document-detail-effective-date"></div>
+        <div class="form-group"><label>Status</label><select class="form-control" id="document-detail-status"><option value="ACTIVE">Active</option><option value="DRAFT">Draft</option><option value="SUPERSEDED">Superseded</option><option value="ARCHIVED">Archived</option></select></div>
+        <div class="form-group"><label>Language</label><select class="form-control" id="document-detail-language"><option value="vi">Vietnamese</option><option value="en">English</option></select></div>
+        <div class="form-group"><label>Confidentiality</label><select class="form-control" id="document-detail-confidentiality"><option value="INTERNAL">Internal</option><option value="CONFIDENTIAL">Confidential</option></select></div>
+      </div>
+      <div class="detail-summary" id="document-processing-summary"></div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="document-archive-button" onclick="archiveCurrentDocument()"><i data-lucide="archive"></i> Archive</button>
+        <span></span>
+        <button class="btn btn-secondary" onclick="closeModal('document-detail-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDocumentMetadata()">Save metadata</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="feedback-modal">
+    <div class="modal-dialog">
+      <div class="modal-heading"><div><span class="eyebrow">Answer feedback</span><h3>What could be improved?</h3></div><button class="icon-button" onclick="closeModal('feedback-modal')"><i data-lucide="x"></i></button></div>
+      <input type="hidden" id="feedback-message-id">
+      <div class="form-group"><label>Reason</label><select class="form-control" id="feedback-reason"><option value="INCORRECT">Incorrect answer</option><option value="INCOMPLETE">Incomplete answer</option><option value="BAD_CITATION">Citation does not support answer</option><option value="UNCLEAR">Unclear response</option></select></div>
+      <div class="form-group"><label>Comment (optional)</label><textarea class="form-control" rows="4" maxlength="500" id="feedback-comment" placeholder="Share details to help improve the answer"></textarea></div>
+      <div class="modal-actions"><span></span><button class="btn btn-secondary" onclick="closeModal('feedback-modal')">Cancel</button><button class="btn btn-primary" onclick="submitNegativeFeedback()">Submit feedback</button></div>
     </div>
   </div>
 
@@ -673,6 +793,7 @@
 
   <!-- Scripts -->
   <script src="mock_data.js"></script>
+  <script src="api_mock.js"></script>
   <script src="app.js"></script>
   <script>
     refreshIcons();
