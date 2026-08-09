@@ -1,4 +1,5 @@
 from typing import Any
+
 import httpx
 
 from app.core.config import get_settings
@@ -10,7 +11,9 @@ settings = get_settings()
 class AIAgentClient:
     """REST API Client giao tiếp từ Backend Service sang AI Agent Core Service."""
 
-    def __init__(self, base_url: str = settings.ai_agent_service_url, timeout: float = settings.ai_agent_timeout_seconds):
+    def __init__(
+        self, base_url: str = settings.ai_agent_service_url, timeout: float = settings.ai_agent_timeout_seconds
+    ):
         self.base_url = base_url
         self.timeout = timeout
 
