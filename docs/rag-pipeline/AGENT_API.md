@@ -1,6 +1,6 @@
 # Agent API Contract
 
-Điểm vào duy nhất cho backend: [`src/agents/service.py::answer(query: str) -> AgentAnswer`](../src/agents/service.py). Không đọc `AgentState` (TypedDict nội bộ trong [`src/agents/state.py`](../src/agents/state.py)) trực tiếp — nó có field runtime-only (`rewrite_count`, `hallucination_retry_count`, ...) không thuộc contract và có thể đổi bất cứ lúc nào theo nhu cầu nội bộ của graph.
+Điểm vào nội bộ của Agent là [`src/agents/service.py::answer(query: str) -> AgentAnswer`](../../src/agents/service.py). Không đọc `AgentState` (TypedDict nội bộ trong [`src/agents/state.py`](../../src/agents/state.py)) trực tiếp — nó có field runtime-only (`rewrite_count`, `hallucination_retry_count`, ...) không thuộc contract và có thể đổi bất cứ lúc nào theo nhu cầu nội bộ của graph.
 
 ```python
 from src.agents.service import answer
@@ -8,7 +8,29 @@ from src.agents.service import answer
 result = await answer("Tôi được nghỉ mấy ngày phép năm?")  # -> AgentAnswer
 ```
 
-`src/api/routes.py::POST /api/v1/chat` chỉ là một lớp mỏng gọi hàm này — `ChatResponse` kế thừa thẳng `AgentAnswer` (xem [`src/models/schemas.py`](../src/models/schemas.py)).
+Khi Agent và Backend deploy riêng, Backend chỉ gọi HTTP endpoint nội bộ `POST /api/v1/agent/query`. Endpoint cũ `POST /api/v1/chat` được giữ lại để tương thích với client Agent hiện có.
+
+## HTTP contract Backend ↔ Agent
+
+```http
+POST /api/v1/agent/query
+X-Service-Token: <shared-secret>
+X-Request-ID: <chat-request-id>
+Content-Type: application/json
+```
+
+```json
+{
+  "query": "Tôi được nghỉ mấy ngày phép năm?",
+  "request_id": "a4a13978-ef91-43c0-818e-f08f15e4d00c",
+  "user_id": "2bb95df9-4544-42c2-b5f1-25a45d40e714",
+  "department": "Engineering"
+}
+```
+
+Response là `AgentAnswer` nguyên bản. `request_id`, `user_id` và `department` là trace context do Backend đã xác thực; Agent hiện không dùng chúng để truy cập dữ liệu cá nhân hoặc tự tạo ticket.
+
+Hai service dùng cùng secret qua `AI_AGENT_SERVICE_TOKEN` ở Backend và `AGENT_SERVICE_TOKEN` ở Agent. Có thể để trống trong local development; môi trường deploy phải cấu hình secret và chỉ expose Agent trong private network.
 
 ## Response shape (`AgentAnswer`)
 

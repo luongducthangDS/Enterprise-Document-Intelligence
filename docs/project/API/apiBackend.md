@@ -410,6 +410,8 @@
 
 ### 13. Nhật ký triển khai chi tiết – Chat RAG API (Implemented)
 
+> Cập nhật tích hợp Agent: `ChatService` gọi Agent service tách riêng qua `AIAgentClient` và endpoint nội bộ `POST /api/v1/agent/query`. `AgentAnswer` được map tại Backend sang state/answer/citation/message/ticket hiện có; contract polling dành cho FE không thay đổi. Chi tiết contract nội bộ xem `docs/rag-pipeline/AGENT_API.md`.
+
 Nhóm **Chat RAG API** đã được triển khai hoàn chỉnh tại `/api/v1/chat`, tuân thủ mô hình xử lý bất đồng bộ (Async Queue & Polling), tích hợp Clean Architecture DTO/Service/Endpoint, lưu trữ trạng thái phiên làm việc trong CSDL `chat_requests`, và áp dụng bọc Standard Response Wrapper.
 
 #### Danh sách Endpoints đã lập trình:
