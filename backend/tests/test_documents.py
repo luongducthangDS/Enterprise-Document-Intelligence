@@ -3,7 +3,6 @@ import uuid
 
 import pytest_asyncio
 from app.core.security import create_access_token, hash_password
-from app.domain.models.documents import DocumentDB, IngestionJobDB
 from app.domain.models.profile import ProfileDB
 from app.domain.models.user import UserDB
 
