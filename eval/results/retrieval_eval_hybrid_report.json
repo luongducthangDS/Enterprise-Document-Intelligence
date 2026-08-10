@@ -1,0 +1,3565 @@
+{
+  "run_at": "2026-08-06T12:41:52.772959+00:00",
+  "top_k": 25,
+  "reranked": true,
+  "hybrid": true,
+  "dataset": "eval/datasets/retrieval_eval_set.json",
+  "qrels": "eval/datasets/retrieval_eval_qrels.json",
+  "min_relevance": 2,
+  "summary": {
+    "in_scope_n": 73,
+    "excluded_no_qrel": 4,
+    "recall@1": 0.575,
+    "precision@1": 0.863,
+    "ndcg@1": 0.863,
+    "multi_chunk_recall@1": 0.384,
+    "hit_rate@1": 0.863,
+    "hit_rate@1_ci": [
+      0.781,
+      0.932
+    ],
+    "recall@1_ci": [
+      0.495,
+      0.661
+    ],
+    "recall@3": 0.784,
+    "precision@3": 0.461,
+    "ndcg@3": 0.816,
+    "multi_chunk_recall@3": 0.603,
+    "hit_rate@3": 0.945,
+    "hit_rate@3_ci": [
+      0.89,
+      0.986
+    ],
+    "recall@3_ci": [
+      0.716,
+      0.851
+    ],
+    "recall@5": 0.882,
+    "precision@5": 0.329,
+    "ndcg@5": 0.852,
+    "multi_chunk_recall@5": 0.753,
+    "hit_rate@5": 0.986,
+    "hit_rate@5_ci": [
+      0.959,
+      1.0
+    ],
+    "recall@5_ci": [
+      0.831,
+      0.933
+    ],
+    "recall@10": 0.937,
+    "precision@10": 0.185,
+    "ndcg@10": 0.875,
+    "multi_chunk_recall@10": 0.849,
+    "hit_rate@10": 0.986,
+    "hit_rate@10_ci": [
+      0.959,
+      1.0
+    ],
+    "recall@10_ci": [
+      0.894,
+      0.973
+    ],
+    "recall@15": 0.939,
+    "precision@15": 0.124,
+    "ndcg@15": 0.877,
+    "multi_chunk_recall@15": 0.863,
+    "hit_rate@15": 0.986,
+    "hit_rate@15_ci": [
+      0.959,
+      1.0
+    ],
+    "recall@15_ci": [
+      0.897,
+      0.976
+    ],
+    "recall@20": 0.939,
+    "precision@20": 0.093,
+    "ndcg@20": 0.877,
+    "multi_chunk_recall@20": 0.863,
+    "hit_rate@20": 0.986,
+    "hit_rate@20_ci": [
+      0.959,
+      1.0
+    ],
+    "recall@20_ci": [
+      0.897,
+      0.976
+    ],
+    "mrr": 0.912,
+    "doc_hit_rate@1": 0.74,
+    "doc_hit_rate@3": 0.795,
+    "doc_hit_rate@5": 0.795,
+    "doc_hit_rate@10": 0.795,
+    "doc_hit_rate@15": 0.795,
+    "doc_hit_rate@20": 0.795
+  },
+  "results": [
+    {
+      "id": "rq_001",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em sắp đủ điều kiện nghỉ hưu rồi, muốn hỏi công ty sẽ nộp hồ sơ cho em trước thời điểm nghỉ bao nhiêu ngày? Và cơ quan BHXH thì mất bao lâu để xử lý xong?",
+      "top1_distance": 0.11905348,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_004",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình biết trường hợp trước đây đi hợp tác lao động trước năm 1995, đóng BHXH đủ 15 năm rồi thì bao nhiêu tuổi mới được nhận lương hưu?",
+      "top1_distance": 0.10172784,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.613,
+        "ndcg@10": 0.613,
+        "ndcg@15": 0.613,
+        "ndcg@20": 0.613
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_005",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Thỏa ước lao động tập thể của công ty sắp hết hạn thì quy trình gia hạn hoặc ký mới diễn ra thế nào, và nếu hết hạn rồi mà vẫn đang thương lượng thì sao?",
+      "top1_distance": 0.104231894,
+      "top1_source_file": "bộ luật lao động.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_006",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "chế độ thai sản nhận nuôi con nuôi dưới 6 tháng",
+      "top1_distance": 0.070630014,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_007",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Em sắp hết 90 ngày thử việc, nếu mà không đạt thì công ty có phải báo trước cho em hay bồi thường gì không?",
+      "top1_distance": 0.1283412,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_008",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Hội đồng tiền lương quốc gia gồm những ai vậy, ai làm chủ tịch hội đồng này?",
+      "top1_distance": 0.0826298,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_009",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "thời gian hưởng trợ cấp hằng tháng",
+      "top1_distance": 0.12418234,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.967,
+        "ndcg@10": 0.967,
+        "ndcg@15": 0.967,
+        "ndcg@20": 0.967
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_010",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình sắp được cử đi làm ở cơ quan đại diện Việt Nam ở nước ngoài, vậy mức đóng BHXH hằng tháng là bao nhiêu phần trăm và đóng qua đâu?",
+      "top1_distance": 0.1376906,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_011",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em bị kỷ luật kéo dài thời hạn nâng lương, bao lâu thì khỏi bị ghi nhận nữa?",
+      "top1_distance": 0.13247162,
+      "top1_source_file": "leanh_mau-noi-quy-lao-dong.docx",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_012",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "bàn giao công việc tài sản nghỉ việc",
+      "top1_distance": 0.13815928,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 0,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_013",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình đang công tác tại Cần Thơ, cho hỏi Cần Thơ được xếp vùng lương tối thiểu nào vậy?",
+      "top1_distance": 0.16000944,
+      "top1_source_file": "nghi_dinh_293_2025_nd_cp_luong_toi_thieu.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 0,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_014",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình tuyển dụng đang áp dụng cho những khối nào trong công ty vậy?",
+      "top1_distance": 0.16143298,
+      "top1_source_file": "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.92,
+        "ndcg@5": 0.92,
+        "ndcg@10": 0.92,
+        "ndcg@15": 0.92,
+        "ndcg@20": 0.92
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_015",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "các hình thức kỷ luật lao động",
+      "top1_distance": 0.12770224,
+      "top1_source_file": "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 5,
+      "recall_at_k": {
+        "recall@1": 0.2,
+        "recall@3": 0.6,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 1.0,
+        "precision@10": 0.5,
+        "precision@15": 0.333,
+        "precision@20": 0.25
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_016",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Mình sắp có chuyến đi công tác, muốn hỏi nếu tạm ứng thì phải nộp đơn trước bao lâu và được ứng tối đa bao nhiêu phần trăm chi phí?",
+      "top1_distance": 0.10240835,
+      "top1_source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_017",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Tháng này mình bị tạm đình chỉ công việc gần 3 tuần rồi, vậy tháng đó có phải đóng BHXH không? Nếu sau đó công ty trả lương cho thời gian nghỉ thì BHXH tính thế nào?",
+      "top1_distance": 0.12206173,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 3,
+      "reciprocal_rank": 0.3333333333333333,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.307,
+        "ndcg@5": 0.571,
+        "ndcg@10": 0.571,
+        "ndcg@15": 0.571,
+        "ndcg@20": 0.571
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_019",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty muốn xin giấy phép cho thuê lại lao động thì người đại diện pháp luật cần bao nhiêu năm kinh nghiệm?",
+      "top1_distance": 0.1285097,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_021",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "điều kiện hưởng trợ cấp hưu trí xã hội",
+      "top1_distance": 0.07663894,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_022",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Nếu mình bị tai nạn lao động ở công ty phải nằm viện hơn 3 ngày thì được hỗ trợ bao nhiêu?",
+      "top1_distance": 0.14679694,
+      "top1_source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_023",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Cảng hàng không nào đang trực thuộc Tổng công ty Cảng hàng không Việt Nam vậy?",
+      "top1_distance": 0.16615409,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_026",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Nếu mình đi muộn hoặc không đạt KPI thì có bị phạt tiền không, mức phạt bao nhiêu?",
+      "top1_distance": 0.15878022,
+      "top1_source_file": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat.docx",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.765,
+        "ndcg@10": 0.933,
+        "ndcg@15": 0.933,
+        "ndcg@20": 0.933
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_027",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "hành vi bị nghiêm cấm nơi làm việc",
+      "top1_distance": 0.10430288,
+      "top1_source_file": "leanh_mau-noi-quy-lao-dong.docx",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.333,
+        "recall@5": 0.333,
+        "recall@10": 0.667,
+        "recall@15": 0.667,
+        "recall@20": 0.667
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.296,
+        "ndcg@5": 0.296,
+        "ndcg@10": 0.432,
+        "ndcg@15": 0.432,
+        "ndcg@20": 0.432
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_029",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Sắp tới mình xin nghỉ việc, vậy cái gói bảo hiểm sức khỏe tự nguyện công ty đang mua cho mình sẽ bị cắt khi nào? Muốn giữ lại để dùng tiếp thì mình phải làm sao?",
+      "top1_distance": 0.11461735,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.92,
+        "ndcg@5": 0.92,
+        "ndcg@10": 0.92,
+        "ndcg@15": 0.92,
+        "ndcg@20": 0.92
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_030",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "trách nhiệm quản lý BHYT Bộ Quốc phòng Bộ Công an",
+      "top1_distance": 0.14321649,
+      "top1_source_file": "luat51.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_031",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Trước đây mình có thời gian làm theo lương do Nhà nước quy định, sau đó chuyển sang làm theo lương do công ty tự quyết định. Vậy khi tính bình quân tiền lương để đóng BHXH thì tính thế nào?",
+      "top1_distance": 0.11615229,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_032",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Em nộp tờ trình lên sếp mà bị trả lại sửa đi sửa lại mấy lần, vậy có bị coi là vi phạm nội quy không ạ?",
+      "top1_distance": 0.16980326,
+      "top1_source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 0,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_033",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "mức đóng bảo hiểm xã hội bắt buộc",
+      "top1_distance": 0.09894633,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.75,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_034",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu công ty quên đóng bảo hiểm tai nạn lao động cho mình mà mình bị tai nạn rồi thì công ty có phải đền bù không, và mình có quyền chọn nhận tiền một lần hay hàng tháng không?",
+      "top1_distance": 0.14064807,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_035",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Em muốn xin nghỉ phép dài 5 ngày thì phải báo trước bao lâu?",
+      "top1_distance": 0.13710833,
+      "top1_source_file": "leanh_mau-noi-quy-lao-dong.docx",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_036",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "quy trình phê duyệt làm thêm giờ",
+      "top1_distance": 0.09653872,
+      "top1_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_037",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Cho mình hỏi an toàn vệ sinh viên có nghĩa vụ gì vậy?",
+      "top1_distance": 0.12595844,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.631,
+        "ndcg@5": 0.631,
+        "ndcg@10": 0.631,
+        "ndcg@15": 0.631,
+        "ndcg@20": 0.631
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_038",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu công ty còn nợ BHXH mà mình đã nghỉ việc thì bên BHXH xác nhận thời gian đóng thế nào?",
+      "top1_distance": 0.12497473,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.387,
+        "ndcg@5": 0.387,
+        "ndcg@10": 0.387,
+        "ndcg@15": 0.387,
+        "ndcg@20": 0.387
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_041",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Hợp đồng của mình có thời hạn 2 năm, nếu muốn nghỉ việc thì mình cần báo trước cho công ty bao lâu?",
+      "top1_distance": 0.1356532,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.92,
+        "ndcg@5": 0.92,
+        "ndcg@10": 0.92,
+        "ndcg@15": 0.92,
+        "ndcg@20": 0.92
+      },
+      "doc_hit_rank": 3,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_043",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Cho mình hỏi nếu mình có làm thêm giúp việc nhà ở ngoài công ty thì bên chủ nhà có trách nhiệm gì về phần bảo hiểm xã hội và bảo hiểm y tế không?",
+      "top1_distance": 0.12726778,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_044",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang đi hòa giải tranh chấp với công ty, em muốn biết khi nào thì hòa giải viên sẽ lập biên bản hòa giải không thành?",
+      "top1_distance": 0.1280067,
+      "top1_source_file": "bộ luật lao động.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.631,
+        "ndcg@5": 0.631,
+        "ndcg@10": 0.631,
+        "ndcg@15": 0.631,
+        "ndcg@20": 0.631
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_046",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Chính sách đào tạo và phát triển của công ty có hiệu lực từ khi nào vậy?",
+      "top1_distance": 0.1332376,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_049",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu mình báo tin về tai nạn lao động, bên tiếp nhận có trách nhiệm làm gì để bảo vệ mình không?",
+      "top1_distance": 0.13632351,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_050",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em trước làm sĩ quan quân đội rồi chuyển ngành sang cơ quan nhà nước, sắp về hưu nhưng mức lương đóng BHXH mấy năm cuối lại thấp hơn hồi trước khi chuyển. Khi tính bình quân tiền lương để hưởng lương hưu thì dùng mức lương thời điểm nào?",
+      "top1_distance": 0.11226165,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_051",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "thời hạn điều tra tai nạn lao động",
+      "top1_distance": 0.08794963,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_053",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình đăng ký BHYT theo hộ gia đình thì mức đóng cho từng thành viên trong hộ được giảm trừ ra sao?",
+      "top1_distance": 0.12738669,
+      "top1_source_file": "luat51.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_054",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "thời hạn khiếu nại kết quả đánh giá KPI",
+      "top1_distance": 0.0919435,
+      "top1_source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_055",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu doanh nghiệp cho thuê lại lao động chậm thanh toán quyền lợi cho nhân viên, thì sau bao lâu và cơ quan nào sẽ thực hiện trích tiền ký quỹ để chi trả cho người lao động?",
+      "top1_distance": 0.08708978,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_056",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Nếu công ty mình nhờ Talentnet hỗ trợ xử lý chấm dứt hợp đồng lao động thì họ đảm bảo được những gì cho mình?",
+      "top1_distance": 0.09558064,
+      "top1_source_file": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 0,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_057",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "hành vi nghiêm cấm người sử dụng lao động",
+      "top1_distance": 0.07359767,
+      "top1_source_file": "bộ luật lao động.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 7,
+      "recall_at_k": {
+        "recall@1": 0.143,
+        "recall@3": 0.429,
+        "recall@5": 0.571,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.7,
+        "precision@15": 0.467,
+        "precision@20": 0.35
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 0.869,
+        "ndcg@10": 0.973,
+        "ndcg@15": 0.973,
+        "ndcg@20": 0.973
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_058",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho mình hỏi chính sách hybrid working của công ty bắt đầu áp dụng từ ngày nào vậy?",
+      "top1_distance": 0.116526306,
+      "top1_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_059",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình đang được cử sang làm bên công ty đối tác, lương mình nhận có được đảm bảo ngang với nhân viên bên đó làm cùng vị trí không?",
+      "top1_distance": 0.15923929,
+      "top1_source_file": "bộ luật lao động.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.431,
+        "ndcg@10": 0.431,
+        "ndcg@15": 0.431,
+        "ndcg@20": 0.431
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_060",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "trách nhiệm hội đồng trọng tài lao động",
+      "top1_distance": 0.11191195,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_061",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang rà soát hồ sơ cho một nhân viên có thời gian công tác gián đoạn từ trước năm 1995, từng làm cán bộ cấp xã được cử đi học chuyên môn rồi sau đó được điều động vào cơ quan nhà nước. Em cần xác định thời gian công tác liên tục để tính BHXH thì áp dụng theo văn bản nào, và mấy văn bản quy định trước đây giờ còn hiệu lực không?",
+      "top1_distance": 0.10843098,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_062",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình muốn hỏi về quy trình đăng ký BHXH cho nhân viên mới — công ty có bao nhiêu ngày để nộp hồ sơ, cơ quan BHXH bao lâu thì cấp sổ, và trường hợp nhân viên đi làm việc ở nước ngoài thì thủ tục nộp hồ sơ thế nào?",
+      "top1_distance": 0.13263047,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_064",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình có nhân viên sắp nghỉ việc nhưng chưa đủ điều kiện hưởng lương hưu, bạn ấy đang phân vân giữa việc bảo lưu thời gian đóng BHXH hay nhận trợ cấp hàng tháng, mình nên tư vấn thế nào?",
+      "top1_distance": 0.12353736,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.704,
+        "ndcg@5": 0.906,
+        "ndcg@10": 0.906,
+        "ndcg@15": 0.906,
+        "ndcg@20": 0.906
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_065",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Em mới được giao phụ trách tuyển dụng, muốn hỏi từ lúc ứng viên nộp hồ sơ đến khi ký hợp đồng thì mình cần làm những bước gì và thu thập loại giấy tờ nào?",
+      "top1_distance": 0.1404196,
+      "top1_source_file": "02_quy-trinh-tuyen-dung.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.92,
+        "ndcg@5": 0.92,
+        "ndcg@10": 0.92,
+        "ndcg@15": 0.92,
+        "ndcg@20": 0.92
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_066",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình cần tư vấn cho nhân viên về thuế TNCN cho khoản thu nhập khác nhận được, nhưng nghe nói chỉ áp dụng cho cá nhân cư trú, vậy điều kiện nào để được xem là cá nhân cư trú và thuế suất tính cho thu nhập khác là bao nhiêu?",
+      "top1_distance": 0.12538683,
+      "top1_source_file": "112-vbhn-vpqh_luat_thue_tncn.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_067",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Em đang xử lý một case vi phạm kỷ luật, anh/chị hướng dẫn giúp em từ lúc phát hiện vi phạm đến lúc tiến hành họp xử lý thì cần làm những bước gì?",
+      "top1_distance": 0.12701046,
+      "top1_source_file": "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.765,
+        "ndcg@10": 0.933,
+        "ndcg@15": 0.933,
+        "ndcg@20": 0.933
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_068",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang làm hồ sơ công nhận bệnh nghề nghiệp cho anh em xưởng, muốn xác nhận lại yếu tố có hại được hiểu thế nào và các mốc thời gian liên quan đến phơi nhiễm yếu tố có hại được quy định ra sao để đối chiếu hồ sơ.",
+      "top1_distance": 0.119090915,
+      "top1_source_file": "thong-tu-60-2025-TT-BHYT-2026.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.613,
+        "ndcg@10": 0.613,
+        "ndcg@15": 0.613,
+        "ndcg@20": 0.613
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_069",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu nhân viên trong tháng không hưởng lương 14 ngày làm việc trở lên thì công ty và nhân viên đó có phải đóng BHXH cho tháng đó không?",
+      "top1_distance": 0.11084831,
+      "top1_source_file": "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_070",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Mình sắp đi công tác bằng máy bay, từ lúc đặt vé đến lúc quyết toán thì mình cần làm gì và lưu ý những gì?",
+      "top1_distance": 0.14267457,
+      "top1_source_file": "base_quy-che-cong-tac-phi-va-phu-cap.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_072",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Anh/chị cho hỏi quỹ bảo hiểm tai nạn lao động bệnh nghề nghiệp có thể chi những khoản gì, riêng phần phòng ngừa và chia sẻ rủi ro thì hỗ trợ những hoạt động nào cụ thể?",
+      "top1_distance": 0.082222044,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_073",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Em đang tư vấn cho một bạn ứng viên, bạn ấy hỏi nộp hồ sơ vào công ty thì cần chuẩn bị những giấy tờ gì và sau khi nộp xong bao lâu thì được liên hệ phỏng vấn?",
+      "top1_distance": 0.16154265,
+      "top1_source_file": "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_074",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Dạo gần đây Chính phủ có ban hành nghị định mới nào liên quan đến lương cơ sở, tiền thưởng và bảo hiểm xã hội bắt buộc mà mình cần cập nhật không?",
+      "top1_distance": 0.1282677,
+      "top1_source_file": "161-ndcp.signed.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.333,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.469,
+        "ndcg@5": 0.671,
+        "ndcg@10": 0.839,
+        "ndcg@15": 0.839,
+        "ndcg@20": 0.839
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_075",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty mình xảy ra tai nạn lao động nghiêm trọng thì mình phải báo cáo cho cơ quan nào, và sau khi nhận báo cáo thì cơ quan đó có nghĩa vụ chuyển tiếp lên cấp trên nào nữa không?",
+      "top1_distance": 0.13776612,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_076",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Mình đang rà soát lại quy định tăng ca cho nhân viên. Khi tính tổng số giờ làm thêm trong tháng và trong năm để đảm bảo đúng giới hạn quy định, thì có khoảng thời gian nào được phép giảm trừ không, và nếu nhân viên tăng ca vào ngày nghỉ hằng tuần hay ngày lễ thì giới hạn thời gian làm việc và làm thêm trong ngày đó là bao nhiêu?",
+      "top1_distance": 0.12647808,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_077",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang chuẩn bị tài liệu tư vấn cho team về quy định lương tối thiểu, cần làm rõ thế nào là người lao động và người sử dụng lao động theo luật định, và đối tượng nào sẽ thuộc diện áp dụng quy định này?",
+      "top1_distance": 0.10190195,
+      "top1_source_file": "nghi_dinh_293_2025_nd_cp_luong_toi_thieu.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.85,
+        "ndcg@10": 0.85,
+        "ndcg@15": 0.85,
+        "ndcg@20": 0.85
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_079",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty mình đang bị nhắc nộp BHYT chậm, HR muốn biết ranh giới giữa chậm đóng và trốn đóng BHYT là gì để đánh giá mức độ rủi ro cho doanh nghiệp.",
+      "top1_distance": 0.13300556,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.5,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.2,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.264,
+        "ndcg@10": 0.482,
+        "ndcg@15": 0.482,
+        "ndcg@20": 0.482
+      },
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_080",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho em hỏi nhân viên vi phạm quy định chấm công nhiều lần trong tháng thì bị xử lý thế nào, có ảnh hưởng đến quyền làm việc từ xa không ạ?",
+      "top1_distance": 0.13320082,
+      "top1_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_081",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang rà soát lại trách nhiệm an toàn vệ sinh lao động trong các mô hình làm việc khác nhau. Trường hợp nhiều đơn vị cùng làm chung tại một nơi thì ai phải đứng ra tổ chức, và đối với người làm giúp việc gia đình thì người sử dụng lao động phải đảm bảo những gì về an toàn vệ sinh?",
+      "top1_distance": 0.11245608,
+      "top1_source_file": "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_082",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công đoàn cơ sở vừa gửi yêu cầu thương lượng tập thể, HR cần nắm toàn bộ quy định về ai được tham gia, thời hạn các bước và trách nhiệm của công ty trong quá trình này để chuẩn bị",
+      "top1_distance": 0.13212484,
+      "top1_source_file": "bộ luật lao động.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 0.667,
+        "recall@10": 0.667,
+        "recall@15": 0.667,
+        "recall@20": 0.667
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.765,
+        "ndcg@10": 0.765,
+        "ndcg@15": 0.765,
+        "ndcg@20": 0.765
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_083",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em mới được giao phụ trách kê khai BHXH cho nhân viên công ty, sếp nhờ tổng hợp lại cho rõ: tiền lương nào được tính làm căn cứ đóng BHXH bắt buộc, tỷ lệ đóng vào từng quỹ cụ thể là bao nhiêu, và nộp qua kênh nào thì hợp lệ, hạn chót nộp là khi nào?",
+      "top1_distance": 0.13131273,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 5,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.2,
+        "recall@5": 0.6,
+        "recall@10": 0.8,
+        "recall@15": 0.8,
+        "recall@20": 0.8
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.6,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.296,
+        "ndcg@5": 0.491,
+        "ndcg@10": 0.612,
+        "ndcg@15": 0.612,
+        "ndcg@20": 0.612
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_084",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Em mới vào, chưa rành cách xài thẻ bảo hiểm sức khỏe tự nguyện lắm. Anh/chị hướng dẫn em từ lúc đi khám ngoại trú tới lúc phải nhập viện luôn, trường hợp cấp cứu gấp thì tính sao?",
+      "top1_distance": 0.1296919,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.333,
+        "recall@5": 0.333,
+        "recall@10": 0.667,
+        "recall@15": 0.667,
+        "recall@20": 0.667
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.469,
+        "ndcg@5": 0.469,
+        "ndcg@10": 0.611,
+        "ndcg@15": 0.611,
+        "ndcg@20": 0.611
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_085",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nhân viên muốn đưa tranh chấp lao động cá nhân ra Hội đồng trọng tài giải quyết thì cả quy trình từ lúc gửi yêu cầu đến khi có quyết định diễn ra trong bao lâu, Ban trọng tài phải làm những gì, và nếu quá hạn mà vẫn chưa có kết quả thì nhân viên có thể làm gì tiếp?",
+      "top1_distance": 0.119639635,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.431,
+        "ndcg@10": 0.431,
+        "ndcg@15": 0.431,
+        "ndcg@20": 0.431
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_086",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em mới về HR, sếp giao chuẩn bị tài liệu về dân chủ ở cơ sở. Em muốn nắm rõ công ty phải công khai, đối thoại những gì với nhân viên, và nội quy lao động thì cần có những nội dung gì?",
+      "top1_distance": 0.10695696,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.75,
+        "recall@15": 0.75,
+        "recall@20": 0.75
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.704,
+        "ndcg@5": 0.586,
+        "ndcg@10": 0.703,
+        "ndcg@15": 0.703,
+        "ndcg@20": 0.703
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_087",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Tiêu chuẩn để đảm nhiệm các vị trí trong quan hệ lao động như ban lãnh đạo tổ chức người lao động tại doanh nghiệp và trọng tài viên lao động là gì?",
+      "top1_distance": 0.118591905,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.704,
+        "ndcg@5": 0.906,
+        "ndcg@10": 0.906,
+        "ndcg@15": 0.906,
+        "ndcg@20": 0.906
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_089",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Em đang rà soát lại quy định về thẩm quyền đại diện công ty trong các vấn đề nhân sự. Nhờ HR tổng hợp giúp: ai có thẩm quyền ký hợp đồng lao động, ai có thẩm quyền xử lý kỷ luật, và các chức danh quản lý nào liên quan đến chế độ bảo hiểm y tế?",
+      "top1_distance": 0.14101803,
+      "top1_source_file": "leanh_mau-noi-quy-lao-dong.docx",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.765,
+        "ndcg@10": 0.913,
+        "ndcg@15": 0.913,
+        "ndcg@20": 0.913
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_091",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho mình hỏi tổng quan về chính sách đào tạo của công ty mình, nội dung quy định những gì và khi đi đào tạo thì nhân viên với quản lý và HR mỗi bên chịu trách nhiệm phần nào?",
+      "top1_distance": 0.114756465,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.613,
+        "ndcg@10": 0.613,
+        "ndcg@15": 0.613,
+        "ndcg@20": 0.613
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_092",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nhân viên hỏi về trợ cấp hàng tháng: nếu sau này có điều chỉnh lương hưu thì trợ cấp có thay đổi không, và trong công thức tính thì nếu đóng bù phần còn thiếu muộn thì mức trợ cấp hưu trí được tính lúc nào?",
+      "top1_distance": 0.104940355,
+      "top1_source_file": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.877,
+        "ndcg@10": 0.877,
+        "ndcg@15": 0.877,
+        "ndcg@20": 0.877
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_093",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Mình mới về chưa nắm rõ quy chế đánh giá hiệu suất của công ty, có ai tổng quan giúp mình từ mục đích, cách tính điểm đến quy trình thực hiện được không?",
+      "top1_distance": 0.12772489,
+      "top1_source_file": "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.5,
+        "recall@5": 0.75,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.805,
+        "ndcg@10": 0.922,
+        "ndcg@15": 0.922,
+        "ndcg@20": 0.922
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_095",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình tuyển dụng bên mình từ lúc lên kế hoạch đến khi bắt đầu tìm ứng viên thì gồm những bước nào, ai phụ trách gì ở từng bước?",
+      "top1_distance": 0.14833844,
+      "top1_source_file": "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.92,
+        "ndcg@5": 0.92,
+        "ndcg@10": 0.92,
+        "ndcg@15": 0.92,
+        "ndcg@20": 0.92
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_096",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Anh/chị ơi em mới vào công ty, muốn hỏi công ty mình ngoài lương thì còn có những khoản thưởng và chế độ đãi ngộ nào cho nhân viên không ạ?",
+      "top1_distance": 0.13157022,
+      "top1_source_file": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat.docx",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 6,
+      "recall_at_k": {
+        "recall@1": 0.167,
+        "recall@3": 0.333,
+        "recall@5": 0.5,
+        "recall@10": 0.833,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.5,
+        "precision@15": 0.4,
+        "precision@20": 0.3
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.704,
+        "ndcg@5": 0.655,
+        "ndcg@10": 0.783,
+        "ndcg@15": 0.868,
+        "ndcg@20": 0.868
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_097",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang soạn nội quy lao động cho công ty, phần thời giờ làm việc và thời giờ nghỉ ngơi thì mình cần đưa những nội dung gì vào, và riêng mấy vị trí làm việc đặc thù như phòng chống thiên tai hay vận hành đường ống khí thì thời giờ làm việc xử lý ra sao?",
+      "top1_distance": 0.11342883,
+      "top1_source_file": "nghi_dinh_145_2020_nd_cp.pdf",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.75,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 0.983,
+        "ndcg@10": 0.983,
+        "ndcg@15": 0.983,
+        "ndcg@20": 0.983
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    }
+  ]
+}

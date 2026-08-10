@@ -26,21 +26,27 @@ class Settings(BaseSettings):
     postgres_db: str = "hr_ai_db"
     postgres_host: str = "localhost"
     postgres_port: int = 5432
-    database_url: str = (
-        "postgresql+asyncpg://postgres:postgres_password@localhost:5432/hr_ai_db"
-    )
+    database_url: str = "postgresql+asyncpg://postgres:postgres_password@localhost:5432/hr_ai_db"
 
     # ---- JWT Authentication ----
-    jwt_secret_key: str = (
-        "super_secret_jwt_key_change_in_production_123456789"
-    )
+    jwt_secret_key: str = "12345678900aaa"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
 
     # ---- External AI Agent REST Service ----
     ai_agent_service_url: str = "http://localhost:8001/api/v1/agent"
-    ai_agent_timeout_seconds: float = 30.0
+    ai_agent_timeout_seconds: float = 60.0
+    ai_agent_service_token: str = ""
+
+    @property
+    def async_database_url(self) -> str:
+        url = self.database_url
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+asyncpg://", 1)
+        return url
 
 
 @lru_cache
