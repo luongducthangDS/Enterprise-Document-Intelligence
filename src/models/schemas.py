@@ -11,6 +11,13 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=5000, description="Tin nhắn từ user")
 
 
+class AgentQueryRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=2000)
+    request_id: str = Field(..., min_length=1, max_length=128)
+    user_id: str = Field(..., min_length=1, max_length=128)
+    department: str = Field(default="GENERAL", max_length=128)
+
+
 Role = Literal["employee", "manager", "hr_admin"]
 EmploymentStatus = Literal["probation", "full_time", "on_notice_termination", "resigned"]
 ContractType = Literal["xac_dinh_thoi_han", "khong_xac_dinh_thoi_han", "thu_viec"]

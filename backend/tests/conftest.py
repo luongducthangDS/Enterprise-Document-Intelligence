@@ -3,6 +3,7 @@ import os
 import pytest_asyncio
 from app.api.dependencies.db_deps import get_db
 from app.core.database import AsyncSessionLocal, Base
+from app.schemas.agent import AgentAnswerDTO
 from app.services.chat_service import ChatService
 from fastapi.testclient import TestClient
 from sqlalchemy import event
@@ -31,9 +32,50 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 TestingSessionLocal = async_sessionmaker(bind=test_engine, class_=AsyncSession, expire_on_commit=False)
 
 
+class FakeAgentClient:
+    async def query_agent(self, user_id: str, query: str, department: str, request_id: str) -> AgentAnswerDTO:
+        normalized_query = query.lower()
+        if "khong co trong tai lieu" in normalized_query or "không có trong tài liệu" in normalized_query:
+            return AgentAnswerDTO(
+                response="Toi chua tim thay du thong tin trong tai lieu hien co.",
+                intent="hr_question",
+                confidence_score=0.0,
+                escalate=True,
+                escalate_reason="low_confidence",
+                ticket_draft={
+                    "employee_question": query,
+                    "escalate_reason": "low_confidence",
+                    "confidence_score": 0.0,
+                    "category": "GENERAL",
+                    "target_department": "HRBP",
+                    "priority": "Medium",
+                },
+            )
+        return AgentAnswerDTO(
+            response=f"Agent answer for {department}: {query}",
+            intent="hr_question",
+            confidence_score=0.9,
+            citations=[
+                {
+                    "chunk_id": "policy::0001",
+                    "source_file": "policy.pdf",
+                    "title": "HR Policy",
+                    "page_start": 3,
+                    "page_end": 3,
+                    "category": "GENERAL",
+                    "is_official_policy": True,
+                }
+            ],
+        )
+
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_test_database():
     ChatService.session_factory = TestingSessionLocal
+    original_agent_client = ChatService.agent_client
+    original_background_tasks_enabled = ChatService.background_tasks_enabled
+    ChatService.agent_client = FakeAgentClient()
+    ChatService.background_tasks_enabled = False
 
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -49,6 +91,8 @@ async def setup_test_database():
 
     app.dependency_overrides.clear()
     ChatService.session_factory = AsyncSessionLocal
+    ChatService.agent_client = original_agent_client
+    ChatService.background_tasks_enabled = original_background_tasks_enabled
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 

@@ -1,9 +1,31 @@
-from fastapi import APIRouter, HTTPException
+import logging
+import secrets
+
+from fastapi import APIRouter, Header, HTTPException, status
 
 from src.agents.service import answer as agent_answer
-from src.models.schemas import ChatRequest, ChatResponse
+from src.config import get_settings
+from src.models.schemas import AgentAnswer, AgentQueryRequest, ChatRequest, ChatResponse
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def _verify_service_token(x_service_token: str | None) -> None:
+    expected = get_settings().agent_service_token
+    if expected and (not x_service_token or not secrets.compare_digest(x_service_token, expected)):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid service token")
+
+
+@router.post("/agent/query", response_model=AgentAnswer)
+async def query_agent(
+    request: AgentQueryRequest,
+    x_service_token: str | None = Header(default=None),
+) -> AgentAnswer:
+    """Internal Backend-to-Agent contract. Identity fields are trace context only."""
+    _verify_service_token(x_service_token)
+    logger.info("Processing agent request %s for user %s", request.request_id, request.user_id)
+    return await agent_answer(request.query)
 
 
 @router.post("/chat", response_model=ChatResponse)

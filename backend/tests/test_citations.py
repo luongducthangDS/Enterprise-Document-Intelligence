@@ -86,6 +86,24 @@ async def setup_citations_test_data():
         )
         session.add(msg)
 
+        normal_msg = MessageDB(
+            id=uuid.uuid4(),
+            conversation_id=conv.id,
+            role="ASSISTANT",
+            content="Normal citation",
+            citations=[
+                {
+                    "citation_id": "cit_01",
+                    "title": "HR Policy",
+                    "source_file": "hr_policy.pdf",
+                    "page": 5,
+                    "chunk_id": "hr-policy::0001",
+                    "excerpt": "Policy excerpt",
+                }
+            ],
+        )
+        session.add(normal_msg)
+
         await session.commit()
 
 

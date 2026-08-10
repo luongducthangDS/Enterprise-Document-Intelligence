@@ -36,7 +36,8 @@ class Settings(BaseSettings):
 
     # ---- External AI Agent REST Service ----
     ai_agent_service_url: str = "http://localhost:8001/api/v1/agent"
-    ai_agent_timeout_seconds: float = 30.0
+    ai_agent_timeout_seconds: float = 60.0
+    ai_agent_service_token: str = ""
 
     @property
     def async_database_url(self) -> str:

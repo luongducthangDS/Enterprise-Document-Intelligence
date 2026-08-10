@@ -3,7 +3,7 @@ import time
 import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import AsyncSessionLocal
@@ -12,10 +12,15 @@ from app.core.logging import logger
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.messages import MessageDB
+from app.services.agent_answer_adapter import AgentAnswerAdapter
+from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
+from app.services.ticket_service import TicketService
 
 
 class ChatService:
     session_factory = AsyncSessionLocal
+    agent_client = AIAgentClient()
+    background_tasks_enabled = True
 
     @classmethod
     async def submit_chat_request(
@@ -34,27 +39,18 @@ class ChatService:
                 message="Câu hỏi không được để trống và không vượt quá 2.000 ký tự.",
             )
 
-        # Validate conversation
-        conv_stmt = select(ConversationDB).where(ConversationDB.id == conversation_id)
-        conv_res = await db.execute(conv_stmt)
+        conv_res = await db.execute(select(ConversationDB).where(ConversationDB.id == conversation_id))
         conv = conv_res.scalar_one_or_none()
-
         if not conv:
-            raise NotFoundError(
-                code="CONVERSATION_NOT_FOUND",
-                message="Không tìm thấy phiên hội thoại.",
-            )
-
+            raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy phiên hội thoại.")
         if conv.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền truy cập phiên hội thoại này.")
-
         if conv.state == "ENDED":
             raise ConflictError(
                 code="CONVERSATION_ENDED",
                 message="Phiên hội thoại đã kết thúc, không thể gửi thêm câu hỏi.",
             )
 
-        # Create user message
         user_msg_id = uuid.uuid4()
         user_msg = MessageDB(
             id=user_msg_id,
@@ -64,7 +60,6 @@ class ChatService:
         )
         db.add(user_msg)
 
-        # Create chat request in QUEUED state
         chat_req_id = uuid.uuid4()
         chat_req = ChatRequestDB(
             id=chat_req_id,
@@ -74,24 +69,22 @@ class ChatService:
             state="QUEUED",
         )
         db.add(chat_req)
-
-        # Flush both records so user_msg and chat_req exist in DB before linking circular FKs
         await db.flush()
 
         chat_req.user_message_id = user_msg_id
         user_msg.chat_request_id = chat_req_id
         await db.commit()
 
-        # Trigger async background processing
-        asyncio.create_task(
-            cls._process_chat_rag_request(
-                chat_request_id=chat_req_id,
-                user_id=user_id,
-                department=department,
-                question=clean_question,
-                conversation_id=conversation_id,
+        if cls.background_tasks_enabled:
+            asyncio.create_task(
+                cls._process_chat_rag_request(
+                    chat_request_id=chat_req_id,
+                    user_id=user_id,
+                    department=department,
+                    question=clean_question,
+                    conversation_id=conversation_id,
+                )
             )
-        )
 
         return {
             "chat_request_id": str(chat_req_id),
@@ -109,95 +102,86 @@ class ChatService:
         question: str,
         conversation_id: uuid.UUID,
     ) -> None:
-        start_time = time.time()
+        start_time = time.monotonic()
         factory = cls.session_factory or AsyncSessionLocal
         async with factory() as db:
             try:
-                stmt = select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id)
-                res = await db.execute(stmt)
-                chat_req = res.scalar_one_or_none()
-                if not chat_req:
+                claim = await db.execute(
+                    update(ChatRequestDB)
+                    .where(ChatRequestDB.id == chat_request_id, ChatRequestDB.state == "QUEUED")
+                    .values(state="GENERATING")
+                )
+                await db.commit()
+                if claim.rowcount != 1:
                     return
 
-                # Stage 1: RETRIEVING & GENERATING
-                chat_req.state = "GENERATING"
+                agent_answer = await cls.agent_client.query_agent(
+                    user_id=str(user_id),
+                    query=question,
+                    department=department,
+                    request_id=str(chat_request_id),
+                )
+                mapped = AgentAnswerAdapter.map(agent_answer, chat_request_id)
 
-                # Evaluate if question is insufficient evidence or answered
-                is_refused = "không có trong tài liệu" in question.lower()
+                chat_req = await db.get(ChatRequestDB, chat_request_id)
+                if not chat_req or chat_req.assistant_message_id is not None:
+                    return
 
-                if is_refused:
-                    chat_req.state = "REFUSED"
-                    chat_req.answer_status = "INSUFFICIENT_EVIDENCE"
-                    chat_req.answer = "Tôi chưa tìm thấy đủ thông tin trong tài liệu hiện có."
-                    chat_req.citations = []
-                    chat_req.retryable = True
+                assistant_msg_id = uuid.uuid4()
+                assistant_msg = MessageDB(
+                    id=assistant_msg_id,
+                    conversation_id=conversation_id,
+                    role="ASSISTANT",
+                    content=mapped.message_content,
+                    chat_request_id=chat_request_id,
+                    answer_status=mapped.answer_status,
+                    citations=mapped.citations,
+                    confidence_score=agent_answer.confidence_score,
+                    escalated=agent_answer.escalate,
+                )
+                db.add(assistant_msg)
+                await db.flush()
 
-                    assistant_msg_id = uuid.uuid4()
-                    assistant_msg = MessageDB(
-                        id=assistant_msg_id,
+                if agent_answer.escalate:
+                    if agent_answer.ticket_draft is None:
+                        raise ValueError("Escalated AgentAnswer is missing ticket_draft")
+                    ticket = await TicketService.create_from_agent_draft(
+                        db=db,
+                        draft=agent_answer.ticket_draft,
                         conversation_id=conversation_id,
-                        role="ASSISTANT",
-                        content=chat_req.answer,
-                        chat_request_id=chat_request_id,
-                        answer_status="INSUFFICIENT_EVIDENCE",
-                        citations=[],
+                        message_id=assistant_msg_id,
+                        requester_id=user_id,
                     )
-                    db.add(assistant_msg)
-                    await db.flush()
-                    chat_req.assistant_message_id = assistant_msg_id
-                else:
-                    answer_text = (
-                        f"Dựa trên tài liệu chính sách của phòng ban {department}, "
-                        f"liên quan đến '{question}': Nhân viên được hưởng đầy đủ quyền lợi theo quy định hiện hành."
-                    )
-                    citations = [
-                        {
-                            "citation_id": f"cit_{uuid.uuid4().hex[:6]}",
-                            "title": f"Chính sách nhân sự - Phòng {department}",
-                            "page": 3,
-                            "section": "Điều 2.1",
-                            "version": "1.0",
-                            "effective_date": "2026-01-01",
-                        }
-                    ]
-                    chat_req.state = "COMPLETED"
-                    chat_req.answer_status = "ANSWERED"
-                    chat_req.answer = answer_text
-                    chat_req.citations = citations
-                    chat_req.warnings = []
+                    assistant_msg.ticket_id = ticket.id
 
-                    assistant_msg_id = uuid.uuid4()
-                    assistant_msg = MessageDB(
-                        id=assistant_msg_id,
-                        conversation_id=conversation_id,
-                        role="ASSISTANT",
-                        content=answer_text,
-                        chat_request_id=chat_request_id,
-                        answer_status="ANSWERED",
-                        citations=citations,
-                    )
-                    db.add(assistant_msg)
-                    await db.flush()
-                    chat_req.assistant_message_id = assistant_msg_id
-
-                chat_req.latency_ms = int((time.time() - start_time) * 1000)
+                chat_req.state = mapped.state
+                chat_req.answer_status = mapped.answer_status
+                chat_req.answer = mapped.answer
+                chat_req.citations = mapped.citations
+                chat_req.warnings = mapped.warnings
+                chat_req.clarification = mapped.clarification
+                chat_req.failure = None
+                chat_req.retryable = mapped.retryable
+                chat_req.assistant_message_id = assistant_msg_id
+                chat_req.latency_ms = int((time.monotonic() - start_time) * 1000)
                 await db.commit()
 
             except Exception as exc:
                 logger.error(f"Error processing Chat RAG request {chat_request_id}: {exc}", exc_info=True)
                 try:
-                    stmt = select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id)
-                    res = await db.execute(stmt)
-                    chat_req = res.scalar_one_or_none()
+                    await db.rollback()
+                    chat_req = await db.get(ChatRequestDB, chat_request_id)
                     if chat_req:
+                        error_code = exc.code if isinstance(exc, AIAgentClientError) else "RAG_SERVICE_ERROR"
+                        retryable = exc.retryable if isinstance(exc, AIAgentClientError) else True
                         chat_req.state = "FAILED"
                         chat_req.failure = {
-                            "code": "RAG_SERVICE_ERROR",
+                            "code": error_code,
                             "message": "Không thể xử lý câu hỏi lúc này. Vui lòng thử lại.",
-                            "retryable": True,
+                            "retryable": retryable,
                         }
-                        chat_req.retryable = True
-                        chat_req.latency_ms = int((time.time() - start_time) * 1000)
+                        chat_req.retryable = retryable
+                        chat_req.latency_ms = int((time.monotonic() - start_time) * 1000)
                         await db.commit()
                 except Exception as inner_exc:
                     logger.error(f"Failed to record FAILED state for {chat_request_id}: {inner_exc}")
@@ -209,16 +193,10 @@ class ChatService:
         chat_request_id: uuid.UUID,
         user_id: uuid.UUID,
     ) -> dict[str, Any]:
-        stmt = select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id)
-        res = await db.execute(stmt)
+        res = await db.execute(select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id))
         chat_req = res.scalar_one_or_none()
-
         if not chat_req:
-            raise NotFoundError(
-                code="CHAT_REQUEST_NOT_FOUND",
-                message="Không tìm thấy yêu cầu chat.",
-            )
-
+            raise NotFoundError(code="CHAT_REQUEST_NOT_FOUND", message="Không tìm thấy yêu cầu chat.")
         if chat_req.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền xem thông tin yêu cầu chat này.")
 
@@ -246,32 +224,23 @@ class ChatService:
         department: str,
         reason: str | None = "USER_RETRY",
     ) -> dict[str, Any]:
-        stmt = select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id)
-        res = await db.execute(stmt)
+        res = await db.execute(select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id))
         chat_req = res.scalar_one_or_none()
-
         if not chat_req:
-            raise NotFoundError(
-                code="CHAT_REQUEST_NOT_FOUND",
-                message="Không tìm thấy yêu cầu chat.",
-            )
-
+            raise NotFoundError(code="CHAT_REQUEST_NOT_FOUND", message="Không tìm thấy yêu cầu chat.")
         if chat_req.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền thử lại yêu cầu chat này.")
-
         if not chat_req.retryable and chat_req.state not in ("FAILED", "REFUSED"):
             raise ConflictError(
                 code="REQUEST_NOT_RETRYABLE",
                 message="Yêu cầu chat hiện tại không cho phép thử lại.",
             )
-
         if chat_req.retry_count >= 3:
             raise ConflictError(
                 code="RETRY_LIMIT_REACHED",
                 message="Đã đạt giới hạn số lần thử lại tối đa (3 lần).",
             )
 
-        # Create new chat request referencing parent_chat_request_id
         new_chat_req_id = uuid.uuid4()
         new_chat_req = ChatRequestDB(
             id=new_chat_req_id,
@@ -286,16 +255,16 @@ class ChatService:
         db.add(new_chat_req)
         await db.commit()
 
-        # Trigger async background processing
-        asyncio.create_task(
-            cls._process_chat_rag_request(
-                chat_request_id=new_chat_req_id,
-                user_id=user_id,
-                department=department,
-                question=chat_req.question,
-                conversation_id=chat_req.conversation_id,
+        if cls.background_tasks_enabled:
+            asyncio.create_task(
+                cls._process_chat_rag_request(
+                    chat_request_id=new_chat_req_id,
+                    user_id=user_id,
+                    department=department,
+                    question=chat_req.question,
+                    conversation_id=chat_req.conversation_id,
+                )
             )
-        )
 
         return {
             "chat_request_id": str(new_chat_req_id),

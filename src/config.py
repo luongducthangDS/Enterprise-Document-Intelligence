@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     cors_origins: str = "http://localhost:3000"
+    agent_service_token: str = ""
 
     # Database (dữ liệu quan hệ: user/RBAC, chat history, ticket, document metadata)
     database_url: str = "sqlite:///./data/app.db"
