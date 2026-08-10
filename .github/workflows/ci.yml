@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-test:
+  agent-lint-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,3 +36,29 @@ jobs:
       # chạy được trên máy CI sạch (phần cần data/chunks sẽ tự bỏ qua).
       - name: Check eval dataset integrity
         run: python eval/scripts/check_dataset_integrity.py
+
+  backend-lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Lint with ruff
+        working-directory: backend
+        run: ruff check app/ tests/
+
+      - name: Run tests
+        working-directory: backend
+        run: pytest tests/ -v --tb=short
+        env:
+          APP_ENV: test

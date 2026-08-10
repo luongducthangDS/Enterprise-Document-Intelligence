@@ -1,13 +1,37 @@
-.PHONY: run test lint format typecheck check clean eval-check eval-retrieval eval-agent eval-router remap-qrels eval-heldout
+.PHONY: run run-agent run-backend compose-up compose-down test test-agent test-backend test-all lint lint-agent lint-backend format typecheck check clean eval-check eval-retrieval eval-agent eval-router remap-qrels eval-heldout
 
 run:
 	uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
-test:
+run-agent:
+	uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+
+run-backend:
+	cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+compose-up:
+	docker compose up --build
+
+compose-down:
+	docker compose down
+
+test: test-agent
+
+test-agent:
 	pytest tests/ -v
 
-lint:
+test-backend:
+	cd backend && pytest tests/ -v
+
+test-all: test-agent test-backend
+
+lint: lint-agent
+
+lint-agent:
 	ruff check src/ tests/
+
+lint-backend:
+	cd backend && ruff check app/ tests/
 
 format:
 	ruff format src/ tests/
