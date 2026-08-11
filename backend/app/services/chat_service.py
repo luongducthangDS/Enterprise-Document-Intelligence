@@ -3,7 +3,7 @@ import time
 import uuid
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -39,9 +39,9 @@ class ChatService:
             select(MessageDB)
             .where(
                 MessageDB.conversation_id == conversation_id,
-                MessageDB.role.in_(("user", "assistant")),
+                func.lower(MessageDB.role).in_(("user", "assistant")),
             )
-            .order_by(MessageDB.created_at.desc())
+            .order_by(MessageDB.created_at.desc(), MessageDB.id.desc())
             .limit(max_turns)
         )
         if exclude_message_id is not None:
@@ -51,7 +51,7 @@ class ChatService:
         messages = list(reversed(result.scalars().all()))
         return [
             {
-                "role": message.role,
+                "role": message.role.lower(),
                 "content": message.content.strip()[:5000],
             }
             for message in messages
