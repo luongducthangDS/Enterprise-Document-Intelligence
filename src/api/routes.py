@@ -4,6 +4,7 @@ import secrets
 from fastapi import APIRouter, Header, HTTPException, status
 
 from src.agents.service import answer as agent_answer
+from src.agents.service import sanitize_citations
 from src.config import get_settings
 from src.models.schemas import AgentAnswer, AgentQueryRequest, ChatRequest, ChatResponse
 
@@ -25,7 +26,8 @@ async def query_agent(
     """Internal Backend-to-Agent contract. Identity fields are trace context only."""
     _verify_service_token(x_service_token)
     logger.info("Processing agent request %s for user %s", request.request_id, request.user_id)
-    return await agent_answer(request.query)
+    history = [turn.model_dump() for turn in request.history]
+    return await agent_answer(request.query, history=history)
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -36,7 +38,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
     try:
         history = [h.model_dump() for h in request.history]
         result = await agent_answer(request.message, history=history)
-        return ChatResponse(**result.model_dump())
+        response = result.model_dump()
+        response["citations"] = [item.model_dump() for item in sanitize_citations(response["citations"])]
+        return ChatResponse(**response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

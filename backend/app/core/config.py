@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     ai_agent_service_url: str = "http://localhost:8001/api/v1/agent"
     ai_agent_timeout_seconds: float = 60.0
     ai_agent_service_token: str = ""
+    ai_agent_max_history_turns: int = Field(default=8, ge=0, le=16)
 
     @property
     def async_database_url(self) -> str:

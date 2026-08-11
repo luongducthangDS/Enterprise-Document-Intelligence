@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.messages import MessageDB
+from app.services.content_safety import sanitize_citations_for_client
 
 
 class ConversationService:
@@ -122,7 +123,7 @@ class ConversationService:
                 "content": msg.content,
                 "chat_request_id": str(msg.chat_request_id) if msg.chat_request_id else None,
                 "answer_status": msg.answer_status,
-                "citations": msg.citations,
+                "citations": sanitize_citations_for_client(msg.citations),
                 "created_at": msg.created_at.isoformat(),
             }
             for msg in result_messages

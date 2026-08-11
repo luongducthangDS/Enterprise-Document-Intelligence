@@ -17,7 +17,7 @@ flowchart LR
 
     subgraph BE["Backend - FastAPI adapter and system of record"]
         BE_AUTH["JWT authentication and role RBAC"]
-        BE_CHAT["Conversation and ChatService"]
+        BE_CHAT["Conversation, history and ChatService"]
         BE_CLIENT["AIAgentClient"]
         BE_ADAPTER["AgentAnswerAdapter"]
         BE_DOC["Document, index and evaluation services"]
@@ -28,12 +28,14 @@ flowchart LR
 
     subgraph AI["Agent service - stateless LangGraph workflow"]
         AI_API["Internal Agent query API"]
+        AI_CONTEXT["Multi-turn condense and input guardrail"]
         AI_ROUTER["Intent routing"]
         AI_DIRECT["Direct response, clarification or refusal"]
         AI_RAG["Dense retrieval, optional BM25/RRF and rerank"]
         AI_GEN["Generation, hallucination check and confidence"]
         AI_ESC["Escalation decision and TicketDraft"]
         AI_RESULT["AgentAnswer"]
+        AI_STREAM["SSE/streaming transport"]
         AI_ACL["Role and department filtering during retrieval"]
         AI_INGEST["Online document ingestion endpoint"]
     end
@@ -59,7 +61,7 @@ flowchart LR
     BE_CIT --> PG
     BE_TICKET --> PG
     BE_CHAT --> BE_CLIENT -->|"Internal REST"| AI_API
-    AI_API --> AI_ROUTER
+    AI_API --> AI_CONTEXT --> AI_ROUTER
     AI_ROUTER -->|"HR question"| AI_RAG --> AI_GEN --> AI_ESC --> AI_RESULT
     AI_ROUTER -->|"Greeting, ambiguous or out of scope"| AI_DIRECT --> AI_RESULT
     AI_RAG --> CHROMA
@@ -74,8 +76,9 @@ flowchart LR
     INGEST -.-> AI_INGEST
     AI_INGEST -.-> CHROMA
     AI_ACL -.-> AI_RAG
+    AI_STREAM -.-> AI_API
 
     classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
     classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
-    class USER,FE_AUTH,FE_CHAT,FE_SOURCE,FE_ADMIN,BE_AUTH,BE_CHAT,BE_CLIENT,BE_ADAPTER,BE_DOC,BE_CIT,BE_TICKET,AI_API,AI_ROUTER,AI_DIRECT,AI_RAG,AI_GEN,AI_ESC,AI_RESULT,PG,CHROMA,FPT,CURRENT current;
-    class FE_FUTURE,BE_FUTURE,AI_ACL,AI_INGEST,INGEST,FUTURE future;
+    class USER,FE_AUTH,FE_CHAT,FE_SOURCE,FE_ADMIN,BE_AUTH,BE_CHAT,BE_CLIENT,BE_ADAPTER,BE_DOC,BE_CIT,BE_TICKET,AI_API,AI_CONTEXT,AI_ROUTER,AI_DIRECT,AI_RAG,AI_GEN,AI_ESC,AI_RESULT,PG,CHROMA,FPT,CURRENT current;
+    class FE_FUTURE,BE_FUTURE,AI_STREAM,AI_ACL,AI_INGEST,INGEST,FUTURE future;

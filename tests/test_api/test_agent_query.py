@@ -18,6 +18,10 @@ async def test_internal_agent_query_returns_agent_answer(client):
         "request_id": "req-123",
         "user_id": "user-123",
         "department": "Engineering",
+        "history": [
+            {"role": "user", "content": "Previous question"},
+            {"role": "assistant", "content": "Previous answer"},
+        ],
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
@@ -25,7 +29,24 @@ async def test_internal_agent_query_returns_agent_answer(client):
 
     assert response.status_code == 200
     assert response.json()["response"] == "Policy answer"
-    mocked.assert_awaited_once_with(payload["query"])
+    mocked.assert_awaited_once_with(payload["query"], history=payload["history"])
+
+
+@pytest.mark.asyncio
+async def test_internal_agent_query_keeps_history_optional(client):
+    answer = AgentAnswer(response="Hello", intent="greeting", citations=[])
+    payload = {
+        "query": "Hello",
+        "request_id": "req-124",
+        "user_id": "user-123",
+        "department": "Engineering",
+    }
+
+    with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
+        response = await client.post("/api/v1/agent/query", json=payload)
+
+    assert response.status_code == 200
+    mocked.assert_awaited_once_with("Hello", history=[])
 
 
 @pytest.mark.asyncio

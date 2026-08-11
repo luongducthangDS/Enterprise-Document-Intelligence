@@ -36,6 +36,7 @@ class AIAgentClient:
         query: str,
         department: str,
         request_id: str,
+        history: list[dict[str, str]] | None = None,
     ) -> AgentAnswerDTO:
         async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
             try:
@@ -44,6 +45,7 @@ class AIAgentClient:
                     "query": query,
                     "department": department,
                     "request_id": request_id,
+                    "history": history or [],
                 }
                 headers = {"X-Request-ID": request_id}
                 if self.service_token:

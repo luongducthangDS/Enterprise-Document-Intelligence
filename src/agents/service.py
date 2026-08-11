@@ -14,6 +14,7 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 from src.agents.graph import agent
+from src.agents.guardrails import redact_pii
 from src.agents.state import AgentState
 from src.models.schemas import AgentAnswer, Citation, TicketDraft
 
@@ -33,6 +34,23 @@ _RETRIEVE_TOOL_NAME = "hr_policy_search"
 # ~15 từ/chunk (tiếng Việt trung bình 4-6 ký tự/từ) -> chunk vừa đủ nhỏ để tạo
 # hiệu ứng gõ chữ mượt, vừa đủ lớn để không spam quá nhiều event/response ngắn.
 _ANSWER_CHUNK_WORDS = 15
+
+
+def sanitize_citations(citations: list[dict]) -> list[Citation]:
+    sanitized = []
+    for item in citations:
+        safe_item = dict(item)
+        for field in ("source_file", "title", "category"):
+            safe_item[field], _ = redact_pii(str(safe_item.get(field, "")))
+        sanitized.append(Citation(**safe_item))
+    return sanitized
+
+
+def _sanitize_response(state: AgentState) -> str:
+    response, pii_found = redact_pii(state.get("response", ""))
+    if pii_found:
+        state["guardrail_pii_redacted"] = True
+    return response
 
 
 def _build_ticket_draft(state: AgentState) -> TicketDraft | None:
@@ -137,18 +155,19 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
         yield {"type": "error", "message": f"{type(e).__name__}: {e}"}
         return
 
+    safe_response = _sanitize_response(state)
     _log_audit(state)
 
-    for chunk in _chunk_answer_text(state.get("response", "")):
+    for chunk in _chunk_answer_text(safe_response):
         yield {"type": "answer_delta", "content": chunk}
 
-    for citation in state.get("citations", []):
+    for citation in sanitize_citations(state.get("citations", [])):
         yield {
             "type": "citation",
-            "source": citation["source_file"],
-            "title": citation["title"],
-            "page_start": citation.get("page_start"),
-            "is_official_policy": citation["is_official_policy"],
+            "source": citation.source_file,
+            "title": citation.title,
+            "page_start": citation.page_start,
+            "is_official_policy": citation.is_official_policy,
         }
 
     ticket_draft = _build_ticket_draft(state)
@@ -166,13 +185,14 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
 
 async def answer(query: str, history: list[dict] | None = None) -> AgentAnswer:
     state: AgentState = await agent.ainvoke({"query": query, "history": history or []})
+    safe_response = _sanitize_response(state)
     _log_audit(state)
 
     return AgentAnswer(
-        response=state.get("response", ""),
+        response=safe_response,
         intent=state.get("intent", "hr_question"),
         confidence_score=state.get("confidence_score"),
-        citations=[Citation(**c) for c in state.get("citations", [])],
+        citations=[Citation(**item) for item in state.get("citations", [])],
         needs_clarification=state.get("needs_clarification", False),
         clarifying_question=state.get("clarifying_question"),
         escalate=state.get("escalate", False),

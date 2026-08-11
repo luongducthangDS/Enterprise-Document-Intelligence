@@ -147,7 +147,7 @@ async def test_worker_maps_clarification(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_follow_up_clarification_preserves_original_context():
+async def test_agent_history_preserves_follow_up_context():
     conversation_id = uuid.uuid4()
     original_request_id = uuid.uuid4()
     async with TestingSessionLocal() as session:
@@ -160,6 +160,7 @@ async def test_follow_up_clarification_preserves_original_context():
         session.add(conversation)
         await session.flush()
 
+        original_user_message_id = uuid.uuid4()
         original_request = ChatRequestDB(
             id=original_request_id,
             conversation_id=conversation_id,
@@ -172,22 +173,31 @@ async def test_follow_up_clarification_preserves_original_context():
 
         session.add(
             MessageDB(
+                id=original_user_message_id,
+                conversation_id=conversation_id,
+                role="USER",
+                content="How many annual leave days do I receive?",
+                chat_request_id=original_request_id,
+            )
+        )
+        session.add(
+            MessageDB(
                 id=uuid.uuid4(),
                 conversation_id=conversation_id,
                 role="ASSISTANT",
-                content="Bạn là nhân viên chính thức hay thử việc?",
+                content="Are you a full-time or probationary employee?",
                 chat_request_id=original_request_id,
                 answer_status="CLARIFICATION_REQUIRED",
             )
         )
         await session.commit()
 
-        query = await ChatService._resolve_agent_query(session, conversation_id, "Nhân viên chính thức")
+        history = await ChatService._load_agent_history(session, conversation_id)
 
-    assert "Tôi được nghỉ phép bao nhiêu ngày?" in query
-    assert "Bạn là nhân viên chính thức hay thử việc?" in query
-    assert "Nhân viên chính thức" in query
-    assert len(query) <= 2000
+    assert history == [
+        {"role": "user", "content": "How many annual leave days do I receive?"},
+        {"role": "assistant", "content": "Are you a full-time or probationary employee?"},
+    ]
 
 
 @pytest.mark.asyncio

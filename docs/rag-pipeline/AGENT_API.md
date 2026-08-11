@@ -34,9 +34,15 @@ Content-Type: application/json
   "query": "Tôi được nghỉ mấy ngày phép năm?",
   "request_id": "a4a13978-ef91-43c0-818e-f08f15e4d00c",
   "user_id": "2bb95df9-4544-42c2-b5f1-25a45d40e714",
-  "department": "Engineering"
+  "department": "Engineering",
+  "history": [
+    {"role": "user", "content": "Tôi được nghỉ mấy ngày phép năm?"},
+    {"role": "assistant", "content": "Bạn muốn hỏi phép năm hay nghỉ ốm?"}
+  ]
 }
 ```
+
+`history` là field optional và backward-compatible. Backend lấy tối đa 8 message gần nhất từ conversation, loại message hiện tại để không gửi trùng, rồi gửi theo thứ tự cũ đến mới.
 
 Response là `AgentAnswer` nguyên bản. `request_id`, `user_id` và `department` là trace context do Backend đã xác thực; Agent hiện không dùng chúng để truy cập dữ liệu cá nhân hoặc tự tạo ticket.
 
@@ -87,7 +93,7 @@ else:
 
 ## `TicketDraft`
 
-Khớp `data/metadata/ticket_routing_rules.json::ticket_template`, thiếu đúng những field chỉ backend/phiên đăng nhập mới biết:
+Khớp versioned config `src/agents/resources/ticket_routing_rules.json`, thiếu đúng những field chỉ backend/phiên đăng nhập mới biết:
 
 | Field | Nguồn |
 |---|---|
@@ -100,9 +106,11 @@ Khớp `data/metadata/ticket_routing_rules.json::ticket_template`, thiếu đún
 
 Mỗi `Citation.is_official_policy=False` nghĩa là nguồn đến từ template công khai/tài liệu synthetic — **không phải chính sách chính thức của công ty**. `response` đã tự kèm cảnh báo này trong văn bản khi cần (xem `finalize_node`), nhưng nếu backend/frontend render citation card riêng, nên hiển thị lại cảnh báo đó thay vì chỉ liệt kê tên tài liệu — tránh để user hiểu nhầm là quy định chính thức.
 
-## Streaming (`astream_answer`)
+## Streaming (`astream_answer`) - future transport
 
-Bản streaming của `answer()`: [`src/agents/service.py::astream_answer(query, history=None) -> AsyncIterator[dict]`](../../src/agents/service.py). Dùng khi backend cần phản hồi tiến trình ngay thay vì im lặng 15-35s rồi trả 1 cục (xem "Giới hạn đã biết" bên dưới).
+`astream_answer()` hiện chỉ là capability Python nội bộ. MVP production vẫn dùng background task + REST polling; chưa có SSE endpoint ở Agent, BE proxy hay FE consumer. Không coi streaming là end-to-end cho tới khi cả ba lớp được triển khai và kiểm thử.
+
+Bản streaming nội bộ: [`src/agents/service.py::astream_answer(query, history=None) -> AsyncIterator[dict]`](../../src/agents/service.py).
 
 **Quyết định kiến trúc quan trọng — KHÔNG stream token thô từ LLM.** `hallucination_check`/`confidence`/`redact_pii` chạy SAU khi model sinh xong câu trả lời và có thể FAIL/retry/cap điểm/che PII — tức có thể huỷ hoặc sửa toàn bộ nội dung. Stream token sống nghĩa là user thấy nội dung TRƯỚC KHI qua các lớp guardrail đó — đi ngược triết lý an toàn của cả pipeline (xem [`AI_SAFETY_GUARDRAILS.md`](AI_SAFETY_GUARDRAILS.md)). Vì vậy tách 2 luồng:
 

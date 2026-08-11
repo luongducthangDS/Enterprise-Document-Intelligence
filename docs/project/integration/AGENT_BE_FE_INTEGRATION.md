@@ -17,7 +17,9 @@ Next.js FE -> FastAPI BE -> FastAPI Agent/LangGraph -> ChromaDB + FPT.AI
 ```text
 FE POST /chat/requests
 -> BE lưu user Message + ChatRequest=QUEUED
--> background task POST /agent/query
+-> BE lấy tối đa 8 message gần nhất trong conversation
+-> background task POST /agent/query với query + optional history
+-> Agent condense follow-up thành câu hỏi độc lập
 -> Agent trả AgentAnswer
 -> BE adapter map state và lưu Message/Citation/Ticket
 -> FE poll GET /chat/requests/{id}
@@ -44,7 +46,11 @@ escalate, escalate_reason, ticket_draft
 - Mapping `AgentAnswer` sang `ChatRequestDB`, `MessageDB`, citations và `TicketDB`.
 - Giữ nguyên FE contract; không expose LangGraph state/rewrite/hallucination nội bộ.
 - Chuyển FE sang Next.js + TypeScript và nối API auth, chat, polling, retry, citation, document, index và evaluation.
-- Clarification follow-up được BE ghép với câu hỏi gốc trước khi gọi lại Agent.
+- Multi-turn và clarification dùng history đã persist; Agent vẫn stateless và tự condense follow-up.
+- Guardrail loại prompt injection khỏi RAG context và history trước node condense.
+- PII được che ở response, citation metadata và citation excerpt trước khi FE nhìn thấy.
+- Audit log chỉ ghi metadata/count, không ghi query hoặc đoạn injection thô.
+- Ticket routing config nằm trong source, độc lập working directory; hỗ trợ personal-data reason và ưu tiên rule nghiêm trọng nhất.
 - Chuẩn hóa role `EMPLOYEE`, `HR_ADMIN`, `SUPER_ADMIN`; vẫn nhận token role lowercase cũ.
 - Thêm RBAC server-side cho document, index và evaluation.
 - Citation chỉ được mở bởi chủ conversation và vẫn kiểm tra confidentiality.
@@ -59,11 +65,12 @@ escalate, escalate_reason, ticket_draft
 - Public Ticket API, ticket dashboard, assignment, resolution và notification.
 - Khôi phục active conversation ổn định trên FE và timeout polling.
 - Monitoring, feedback, 2FA/SSO và citation metadata đầy đủ.
+- SSE/streaming transport. MVP tiếp tục dùng background task + polling; `astream_answer()` mới là capability nội bộ của Agent.
 
 ## Kiểm thử
 
-- Backend: **61 passed**.
-- Agent/RAG pipeline: **170 passed**.
+- Backend: **63 passed**.
+- Agent/RAG pipeline: **214 passed**.
 - FE Next.js: lint, typecheck và build đã pass.
 
 ## Tài liệu liên quan

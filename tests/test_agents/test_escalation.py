@@ -1,4 +1,11 @@
-from src.agents.nodes.escalation import _match_routing_rule, _strip_diacritics, confidence_node, escalate_node
+from src.agents.nodes.escalation import (
+    TICKET_ROUTING_PATH,
+    _match_routing_rule,
+    _requires_personal_data,
+    _strip_diacritics,
+    confidence_node,
+    escalate_node,
+)
 from src.config import get_settings
 
 
@@ -16,6 +23,11 @@ class TestStripDiacritics:
 
 
 class TestMatchRoutingRule:
+    def test_versioned_routing_config_exists_outside_gitignored_data(self):
+        assert TICKET_ROUTING_PATH.is_absolute()
+        assert TICKET_ROUTING_PATH.is_file()
+        assert "resources" in TICKET_ROUTING_PATH.parts
+
     def test_matches_compensation_keyword_with_diacritics(self):
         rule = _match_routing_rule("Lương của tôi tháng này bị trừ, tại sao vậy?")
         assert rule["target_department"] == "CB"
@@ -30,6 +42,19 @@ class TestMatchRoutingRule:
         rule = _match_routing_rule("Hôm nay thời tiết thế nào?")
         assert rule["category"] == "unmatched"
         assert rule["target_department"] == "HRBP"
+
+    def test_higher_priority_rule_wins_when_multiple_departments_match(self):
+        rule = _match_routing_rule("Tôi bị quấy rối và còn bị trừ lương.")
+        assert rule["target_department"] == "ER"
+        assert rule["ticket_priority"] == "High"
+
+
+class TestPersonalDataDetection:
+    def test_detects_personal_leave_balance(self):
+        assert _requires_personal_data("Tôi còn bao nhiêu ngày phép năm nay?") is True
+
+    def test_does_not_treat_general_policy_as_personal_data(self):
+        assert _requires_personal_data("Nhân viên được bao nhiêu ngày phép năm?") is False
 
 
 class TestConfidenceNode:
@@ -152,4 +177,4 @@ class TestEscalateNode:
         state = {"query": "Tôi còn bao nhiêu ngày phép năm nay?", "intent": "out_of_scope_or_personal"}
         result = escalate_node(state)
         assert result["escalate"] is True
-        assert result["escalate_reason"] == "out_of_scope"
+        assert result["escalate_reason"] == "personal_data_required"

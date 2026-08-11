@@ -1,18 +1,34 @@
 import json
 import unicodedata
 from functools import lru_cache
+from pathlib import Path
 
 from src.agents.state import AgentState
 from src.config import get_settings
 
-TICKET_ROUTING_PATH = "data/metadata/ticket_routing_rules.json"
+TICKET_ROUTING_PATH = Path(__file__).resolve().parents[1] / "resources" / "ticket_routing_rules.json"
 
-# priority "High" theo đúng priority_rules trong ticket_routing_rules.json chỉ
-# liệt kê rõ nhóm "lien quan phap ly/tranh chap lao dong (ER)" — các nhóm còn
-# lại (kể cả personal_data_request) rơi vào điều kiện Medium
-# ("cau hoi ca nhan can tra cuu du lieu he thong"). Heuristic đơn giản cho MVP:
-# chỉ employee_relations mới High, mặc định Medium.
-_HIGH_PRIORITY_CATEGORIES = {"employee_relations"}
+_PERSONAL_MARKERS = (
+    "cua toi",
+    "toi con bao nhieu",
+    "don cua toi",
+    "hop dong cua toi",
+    "ho so cua toi",
+    "tai khoan cua toi",
+)
+_PERSONAL_DATA_TERMS = (
+    "luong",
+    "thuong",
+    "ngay phep",
+    "don",
+    "hop dong",
+    "ho so",
+    "cham cong",
+    "bhxh",
+    "bhyt",
+    "bao hiem",
+    "thue",
+)
 
 # Câu hỏi nhắc tên 1 công ty khác cụ thể (router đã gom chung vào
 # out_of_scope_or_personal cùng với câu hỏi dữ liệu cá nhân — xem
@@ -44,19 +60,45 @@ def _strip_diacritics(text: str) -> str:
 
 @lru_cache
 def _load_routing_rules() -> dict:
-    with open(TICKET_ROUTING_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    with TICKET_ROUTING_PATH.open(encoding="utf-8") as file:
+        config = json.load(file)
+
+    rules = config.get("routing_rules") if isinstance(config, dict) else None
+    if not isinstance(rules, list) or not rules:
+        raise ValueError("Ticket routing config must contain a non-empty routing_rules list")
+
+    required_fields = {"category", "target_department", "ticket_priority", "routing_priority", "trigger_keywords"}
+    for rule in rules:
+        if not isinstance(rule, dict) or not required_fields.issubset(rule):
+            raise ValueError("Each ticket routing rule must contain all required fields")
+        if rule["ticket_priority"] not in {"Low", "Medium", "High"}:
+            raise ValueError("ticket_priority must be Low, Medium, or High")
+        if not isinstance(rule["routing_priority"], int) or not isinstance(rule["trigger_keywords"], list):
+            raise ValueError("routing_priority must be an integer and trigger_keywords must be a list")
+
+    if not any(rule["category"] == "unmatched" for rule in rules):
+        raise ValueError("Ticket routing config must contain an unmatched fallback rule")
+    return config
 
 
 def _match_routing_rule(query: str) -> dict:
     normalized_query = _strip_diacritics(query).lower()
     rules = _load_routing_rules()["routing_rules"]
+    matches = []
     for rule in rules:
         keywords = rule.get("trigger_keywords", [])
         if any(_strip_diacritics(kw).lower() in normalized_query for kw in keywords):
-            return rule
-    # Rule cuối cùng trong file luôn là "unmatched" -> HRBP (fallback theo thiết kế).
-    return rules[-1]
+            matches.append(rule)
+    if matches:
+        return max(matches, key=lambda rule: rule["routing_priority"])
+    return next(rule for rule in rules if rule["category"] == "unmatched")
+
+
+def _requires_personal_data(query: str) -> bool:
+    normalized_query = _strip_diacritics(query).lower()
+    return any(marker in normalized_query for marker in _PERSONAL_MARKERS) and any(
+        term in normalized_query for term in _PERSONAL_DATA_TERMS
+    )
 
 
 def confidence_node(state: AgentState) -> dict:
@@ -120,7 +162,7 @@ def escalate_node(state: AgentState) -> dict:
     không có gì để HR công ty mình xử lý khi được hỏi chính sách công ty khác —
     tạo ticket ở trường hợp này là sai, chỉ nên từ chối lịch sự (khác hẳn câu
     hỏi cần tra dữ liệu cá nhân, nơi tạo ticket mới hợp lý)."""
-    query = state.get("query", "")
+    query = state.get("condensed_query") or state.get("query", "")
     intent = state.get("intent", "hr_question")
 
     if intent == "out_of_scope_or_personal" and _mentions_competitor_company(query):
@@ -135,14 +177,17 @@ def escalate_node(state: AgentState) -> dict:
             "response": response,
         }
 
-    reason = state.get("escalate_reason") or (
-        "out_of_scope" if intent == "out_of_scope_or_personal" else "low_confidence"
-    )
+    reason = state.get("escalate_reason")
+    if not reason:
+        if intent == "out_of_scope_or_personal" and _requires_personal_data(query):
+            reason = "personal_data_required"
+        else:
+            reason = "out_of_scope" if intent == "out_of_scope_or_personal" else "low_confidence"
 
     rule = _match_routing_rule(query)
     department = rule["target_department"]
     category = rule["category"]
-    priority = "High" if category in _HIGH_PRIORITY_CATEGORIES else "Medium"
+    priority = rule["ticket_priority"]
 
     response = (
         "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. "
