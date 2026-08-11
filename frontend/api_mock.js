@@ -90,13 +90,13 @@
       citation_id: "cit_leave",
       document: {
         document_id: "doc_2",
-        title: "Annual Leave and PTO Guidelines 2026",
+        title: "Quy định Nghỉ phép năm PTO 2026",
         version: leaveDocument.version,
         effective_date: toIsoDate(leaveDocument.effectiveDate),
         status: "ACTIVE"
       },
-      location: { page: 3, section: "Section 1.3", chunk_id: "chk_leave_01" },
-      excerpt: "Full-time employees receive 18 days of paid annual leave per calendar year. Unused leave up to 5 days can carry over to Q1 of the subsequent year.",
+      location: { page: 3, section: "Mục 1.3", chunk_id: "chk_leave_01" },
+      excerpt: "Nhân viên chính thức làm việc toàn thời gian được hưởng 18 ngày phép năm có hưởng lương mỗi năm. Tối đa 5 ngày phép chưa sử dụng có thể chuyển sang Quý 1 của năm tiếp theo.",
       conflict_warning: false
     });
 
@@ -105,13 +105,13 @@
       citation_id: "cit_probation",
       document: {
         document_id: "doc_3",
-        title: "Probation Review and Onboarding SOP",
+        title: "Quy trình Đánh giá Thử việc SOP",
         version: probationDocument.version,
         effective_date: toIsoDate(probationDocument.effectiveDate),
         status: "ACTIVE"
       },
-      location: { page: 6, section: "Section 3.4", chunk_id: "chk_probation_01" },
-      excerpt: "The standard probation period is 90 days. Formal 30-day, 60-day, and 90-day check-in reviews are conducted by the line manager.",
+      location: { page: 6, section: "Mục 3.4", chunk_id: "chk_probation_01" },
+      excerpt: "Thời gian thử việc tiêu chuẩn là 90 ngày. Các mốc đánh giá chính thức diễn ra vào ngày thứ 30, 60 và 90 do Quản lý trực tiếp thực hiện.",
       conflict_warning: false
     });
   }
