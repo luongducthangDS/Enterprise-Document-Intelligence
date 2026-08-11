@@ -30,6 +30,10 @@ class Citation(TypedDict):
     page_start: int | None
     page_end: int | None
     is_official_policy: bool
+    # government_law | official_policy | public_template | synthetic |
+    # public_article — bản đầy đủ của is_official_policy, để backend/FE phân
+    # biệt được luật tham khảo với chính sách nội bộ thay vì chỉ có cờ nhị phân.
+    source_type: str
 
 
 class AgentState(TypedDict, total=False):

@@ -109,6 +109,7 @@ async def generate_node(state: AgentState) -> dict:
             page_start=c.get("page_start"),
             page_end=c.get("page_end"),
             is_official_policy=c["is_official_policy"],
+            source_type=c.get("source_type") or "",
         )
         for c in chunks
     ]
