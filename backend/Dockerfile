@@ -3,16 +3,21 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN python -m venv "$VIRTUAL_ENV"
+
 COPY requirements.prod.txt .
-RUN pip install --no-cache-dir --user -r requirements.prod.txt
+RUN pip install --no-cache-dir -r requirements.prod.txt
 
 # ---- Stage 2: Production ----
 FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /opt/venv /opt/venv
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN useradd -m appuser
 
