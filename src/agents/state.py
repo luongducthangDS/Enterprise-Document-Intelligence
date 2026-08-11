@@ -39,6 +39,12 @@ class AgentState(TypedDict, total=False):
     """
 
     query: str
+    # Các lượt hội thoại trước đó (cũ -> mới), do caller truyền vào — agent
+    # không tự lưu session. Rỗng ở lượt đầu tiên.
+    history: list[dict]
+    # Câu hỏi hiện tại đã viết lại thành câu hỏi độc lập, mang đủ ngữ cảnh cần
+    # thiết từ `history` (condense_node). Không có `history` thì bằng `query`.
+    condensed_query: str
     intent: Intent
     rewritten_query: str
     retrieved_chunks: list[RetrievedChunk]
@@ -62,3 +68,9 @@ class AgentState(TypedDict, total=False):
     response: str
     error: str
     metadata: dict
+    # Guardrail kỹ thuật (src/agents/guardrails.py) — cờ audit, không phải
+    # điều khiển luồng. True khi phát hiện câu nghi injection trong câu hỏi
+    # hoặc trong chunk RAG (chunk đã bị cắt trước khi vào prompt bất kể cờ
+    # này), hoặc khi response cuối có PII bị che.
+    guardrail_injection_detected: bool
+    guardrail_pii_redacted: bool
