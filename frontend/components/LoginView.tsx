@@ -6,20 +6,31 @@ import { api, ApiClientError } from "@/lib/api";
 import type { User } from "@/lib/types";
 
 export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setNotice("");
     try {
-      await api.login(email.trim(), password);
-      onAuthenticated(await api.me());
+      if (mode === "register") {
+        await api.register(email.trim(), password, fullName.trim(), department.trim());
+        setMode("login");
+        setNotice("Tài khoản Supabase đã được tạo. Hãy xác nhận email nếu project yêu cầu, rồi đăng nhập.");
+      } else {
+        await api.login(email.trim(), password);
+        onAuthenticated(await api.me());
+      }
     } catch (reason) {
-      setError(reason instanceof ApiClientError ? reason.message : "Không thể đăng nhập.");
+      setError(reason instanceof ApiClientError ? reason.message : "Không thể xác thực tài khoản.");
     } finally {
       setLoading(false);
     }
@@ -43,17 +54,27 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
         <form className="login-form" onSubmit={submit}>
           <div className="brand-lockup brand-lockup-dark"><BookOpen size={21} /><span>HR Knowledge</span></div>
           <div>
-            <h2>Đăng nhập</h2>
-            <p>Sử dụng tài khoản đã được cấp trong hệ thống.</p>
+            <h2>{mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}</h2>
+            <p>{mode === "login" ? "Sử dụng tài khoản Supabase của hệ thống." : "Tài khoản mới được tạo qua Supabase Auth."}</p>
           </div>
+          {mode === "register" && <label>Họ và tên<input value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
+          {mode === "register" && <label>Phòng ban<input value={department} onChange={(event) => setDepartment(event.target.value)} required /></label>}
           <label>Email công việc<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-          <label>Mật khẩu<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+          <label>Mật khẩu<input type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
           {error && <div className="inline-error" role="alert">{error}</div>}
+          {notice && <div className="inline-success" role="status">{notice}</div>}
           <button className="primary-command" disabled={loading} type="submit">
             {loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}
-            {loading ? "Đang xác thực" : "Đăng nhập"}
+            {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
           </button>
-          <p className="form-note">2FA và SSO đang được giữ ngoài scope cho tới khi Backend có contract chính thức.</p>
+          <button
+            className="secondary-command auth-mode-command"
+            type="button"
+            onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setNotice(""); }}
+          >
+            {mode === "login" ? "Chưa có tài khoản? Đăng ký" : "Đã có tài khoản? Đăng nhập"}
+          </button>
+          <p className="form-note">Tài khoản và phiên đăng nhập được quản lý bởi Supabase Auth.</p>
         </form>
       </section>
     </main>

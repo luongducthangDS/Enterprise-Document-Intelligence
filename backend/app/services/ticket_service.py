@@ -28,8 +28,8 @@ class TicketService:
             confidence_score=draft.confidence_score if draft.confidence_score is not None else 0.0,
             category=draft.category or "GENERAL",
             target_department=draft.target_department,
-            priority=draft.priority.upper(),
-            status="OPEN",
+            priority=draft.priority.strip().capitalize(),
+            status="open",
         )
         db.add(ticket)
         await db.flush()

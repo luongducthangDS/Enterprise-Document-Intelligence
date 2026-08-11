@@ -1,7 +1,7 @@
 import re
 
-from src.agents.nodes.escalation import _mentions_competitor_company
 from src.agents.llm import acall_llm
+from src.agents.nodes.escalation import _mentions_competitor_company
 from src.agents.state import AgentState, Intent
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal")

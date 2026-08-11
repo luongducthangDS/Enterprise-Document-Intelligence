@@ -127,15 +127,14 @@ async def test_get_conversation_messages_endpoint():
         msg1 = MessageDB(
             id=uuid.uuid4(),
             conversation_id=uuid.UUID(conv_id),
-            role="USER",
+            role="user",
             content="Quy định nghỉ phép năm như thế nào?",
         )
         msg2 = MessageDB(
             id=uuid.uuid4(),
             conversation_id=uuid.UUID(conv_id),
-            role="ASSISTANT",
+            role="assistant",
             content="Theo quy định, nhân viên được hưởng 12 ngày phép năm...",
-            answer_status="ANSWERED",
             citations=[{"citation_id": "cit_01", "title": "Chính sách nghỉ phép", "page": 5}],
         )
         session.add_all([msg1, msg2])
@@ -146,8 +145,8 @@ async def test_get_conversation_messages_endpoint():
     res_data = response.json()
     assert res_data["success"] is True
     assert len(res_data["data"]["messages"]) == 2
-    assert res_data["data"]["messages"][0]["role"] == "USER"
-    assert res_data["data"]["messages"][1]["role"] == "ASSISTANT"
+    assert res_data["data"]["messages"][0]["role"] == "user"
+    assert res_data["data"]["messages"][1]["role"] == "assistant"
     assert res_data["data"]["messages"][1]["citations"][0]["citation_id"] == "cit_01"
 
 

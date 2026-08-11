@@ -29,16 +29,16 @@ class TicketDB(Base):
         index=True,
     )
 
-    conversation_id: Mapped[uuid.UUID] = mapped_column(
+    conversation_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),
         ForeignKey("conversations.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
     )
 
-    message_id: Mapped[uuid.UUID] = mapped_column(
+    message_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),
         ForeignKey("messages.id", ondelete="CASCADE", use_alter=True, name="tickets_message_id_fkey"),
-        nullable=False,
+        nullable=True,
     )
 
     requester_id: Mapped[uuid.UUID] = mapped_column(
@@ -57,14 +57,14 @@ class TicketDB(Base):
         nullable=False,
     )
 
-    confidence_score: Mapped[float] = mapped_column(
-        Numeric(5, 4),
-        nullable=False,
+    confidence_score: Mapped[float | None] = mapped_column(
+        Numeric(4, 3),
+        nullable=True,
     )
 
-    category: Mapped[str] = mapped_column(
+    category: Mapped[str | None] = mapped_column(
         String,
-        nullable=False,
+        nullable=True,
     )
 
     target_department: Mapped[str] = mapped_column(
@@ -75,13 +75,13 @@ class TicketDB(Base):
     priority: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="MEDIUM",
+        default="Medium",
     )
 
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="OPEN",
+        default="open",
     )
 
     assignee_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -124,12 +124,12 @@ class TicketDB(Base):
         foreign_keys=[assignee_id],
     )
 
-    conversation: Mapped["ConversationDB"] = relationship(
+    conversation: Mapped["ConversationDB | None"] = relationship(
         "ConversationDB",
         back_populates="tickets",
     )
 
-    message: Mapped["MessageDB"] = relationship(
+    message: Mapped["MessageDB | None"] = relationship(
         "MessageDB",
         foreign_keys=[message_id],
     )

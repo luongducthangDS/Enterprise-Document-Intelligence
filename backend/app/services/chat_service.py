@@ -39,7 +39,7 @@ class ChatService:
             select(MessageDB)
             .where(
                 MessageDB.conversation_id == conversation_id,
-                MessageDB.role.in_(("USER", "ASSISTANT")),
+                MessageDB.role.in_(("user", "assistant")),
             )
             .order_by(MessageDB.created_at.desc())
             .limit(max_turns)
@@ -51,7 +51,7 @@ class ChatService:
         messages = list(reversed(result.scalars().all()))
         return [
             {
-                "role": "user" if message.role == "USER" else "assistant",
+                "role": message.role,
                 "content": message.content.strip()[:5000],
             }
             for message in messages
@@ -91,7 +91,7 @@ class ChatService:
         user_msg = MessageDB(
             id=user_msg_id,
             conversation_id=conversation_id,
-            role="USER",
+            role="user",
             content=clean_question,
         )
         db.add(user_msg)
@@ -173,10 +173,9 @@ class ChatService:
                 assistant_msg = MessageDB(
                     id=assistant_msg_id,
                     conversation_id=conversation_id,
-                    role="ASSISTANT",
+                    role="assistant",
                     content=mapped.message_content,
                     chat_request_id=chat_request_id,
-                    answer_status=mapped.answer_status,
                     citations=mapped.citations,
                     confidence_score=agent_answer.confidence_score,
                     escalated=agent_answer.escalate,

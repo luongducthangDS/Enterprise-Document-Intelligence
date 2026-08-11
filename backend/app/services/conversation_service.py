@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
+from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.messages import MessageDB
 from app.services.content_safety import sanitize_citations_for_client
@@ -99,7 +100,11 @@ class ConversationService:
         if conv.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền truy cập cuộc hội thoại này")
 
-        msg_query = select(MessageDB).where(MessageDB.conversation_id == conversation_id)
+        msg_query = (
+            select(MessageDB, ChatRequestDB.answer_status)
+            .outerjoin(ChatRequestDB, ChatRequestDB.id == MessageDB.chat_request_id)
+            .where(MessageDB.conversation_id == conversation_id)
+        )
 
         if cursor:
             try:
@@ -110,11 +115,11 @@ class ConversationService:
 
         msg_query = msg_query.order_by(MessageDB.created_at.asc()).limit(limit + 1)
         msg_res = await db.execute(msg_query)
-        fetched_messages = list(msg_res.scalars().all())
+        fetched_messages = list(msg_res.all())
 
         has_more = len(fetched_messages) > limit
         result_messages = fetched_messages[:limit]
-        next_cursor = result_messages[-1].created_at.isoformat() if has_more and result_messages else None
+        next_cursor = result_messages[-1][0].created_at.isoformat() if has_more and result_messages else None
 
         message_items = [
             {
@@ -122,11 +127,11 @@ class ConversationService:
                 "role": msg.role,
                 "content": msg.content,
                 "chat_request_id": str(msg.chat_request_id) if msg.chat_request_id else None,
-                "answer_status": msg.answer_status,
+                "answer_status": answer_status,
                 "citations": sanitize_citations_for_client(msg.citations),
                 "created_at": msg.created_at.isoformat(),
             }
-            for msg in result_messages
+            for msg, answer_status in result_messages
         ]
 
         return {

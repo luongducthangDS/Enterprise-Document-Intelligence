@@ -2,7 +2,13 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from src.config import get_settings
 from src.models.schemas import AgentAnswer
+
+
+def service_headers() -> dict[str, str]:
+    token = get_settings().agent_service_token
+    return {"X-Service-Token": token} if token else {}
 
 
 @pytest.mark.asyncio
@@ -25,7 +31,7 @@ async def test_internal_agent_query_returns_agent_answer(client):
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
-        response = await client.post("/api/v1/agent/query", json=payload)
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
 
     assert response.status_code == 200
     assert response.json()["response"] == "Policy answer"
@@ -43,7 +49,7 @@ async def test_internal_agent_query_keeps_history_optional(client):
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
-        response = await client.post("/api/v1/agent/query", json=payload)
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
 
     assert response.status_code == 200
     mocked.assert_awaited_once_with("Hello", history=[])

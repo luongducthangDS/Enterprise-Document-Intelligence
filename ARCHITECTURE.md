@@ -52,8 +52,8 @@ graph TB
 ### 2. Backend (FastAPI)
 - **Entry point:** `src/main.py` → include router `src/api/routes.py` với prefix `/api/v1`.
 - **Endpoint chính:** `POST /api/v1/chat` — lớp mỏng gọi `src/agents/service.py::answer(query, history=None)`, trả `ChatResponse` (kế thừa `AgentAnswer`). `history` optional cho multi-turn — backend tự lưu/truyền lại, agent không tự lưu session. Contract đầy đủ: [`docs/rag-pipeline/AGENT_API.md`](docs/rag-pipeline/AGENT_API.md).
-- **Vấn đề đang mở:** tồn tại 2 kiến trúc backend song song — `src/api/` (Supabase Auth/RLS, đang dùng trên nhánh này) và `backend/` trên nhánh `develop` (JWT tự chế, có thêm Conversation/Chat RAG/Citation API riêng). Chưa chốt 1 hướng với team.
-- **Authentication:** Supabase Auth (RLS trên bảng `conversations`/`tickets`) ở `src/api/`; JWT tự viết ở `backend/`.
+- **Backend thống nhất:** `backend/` cung cấp Conversation/Chat RAG/Citation API và dùng PostgreSQL của dự án Supabase qua `DATABASE_URL`.
+- **Authentication:** Backend xác thực bảng `public.users` (`hashed_password`), phát JWT và lấy RBAC từ `public.profiles`; không dùng Supabase Auth cho luồng đăng nhập hiện tại.
 
 ### 3. AI Agent (LangGraph)
 - **Agent type:** Graph có điều kiện, không phải ReAct thuần — router phân loại trước, sau đó rẽ nhánh cứng theo intent.
@@ -112,4 +112,4 @@ Chưa deploy live URL (deliverable #5) tại thời điểm viết tài liệu n
 | Embedding model | `multilingual-e5-large` | Thực nghiệm so sánh cho kết quả tốt hơn (90% vs 83.33%) so với phương án khác, cộng thêm +6.7 điểm Recall@10 nhờ prefix `passage:`/`query:` đúng chuẩn E5 |
 | Confidence score | Điểm reranker (0–1), không dùng cosine distance | Phân phối cosine distance của in-scope/out-of-scope chồng lấn quá nặng (in-scope p90 > out-of-scope p25) — không tồn tại ngưỡng nào tách sạch; reranker tách bạch tốt hơn hẳn |
 | Vector DB | Chroma Cloud | Không cần persistent disk khi deploy (Render free/standard tier không hỗ trợ); dùng chung giữa các máy trong team |
-| Database | Supabase (Postgres + Auth/RLS) | Có sẵn RBAC, RLS, và Auth — không cần tự viết JWT (dù nhánh `develop` hiện có bản JWT tự chế song song, chưa chốt) |
+| Database | Supabase (Postgres + Auth/RLS) | Supabase quản lý password/session; Backend không tự phát JWT |

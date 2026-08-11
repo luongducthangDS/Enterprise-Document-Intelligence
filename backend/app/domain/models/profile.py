@@ -29,30 +29,28 @@ class ProfileDB(Base):
     role: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="EMPLOYEE",
+        default="employee",
     )
 
     employment_status: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="FULL_TIME",
+        default="full_time",
     )
 
-    department: Mapped[str] = mapped_column(
+    department: Mapped[str | None] = mapped_column(
         String,
-        nullable=False,
+        nullable=True,
     )
 
-    business_unit: Mapped[str] = mapped_column(
+    business_unit: Mapped[str | None] = mapped_column(
         String,
-        nullable=False,
-        default="",
+        nullable=True,
     )
 
-    contract_type: Mapped[str] = mapped_column(
+    contract_type: Mapped[str | None] = mapped_column(
         String,
-        nullable=False,
-        default="KHONG_XAC_DINH_THOI_HAN",
+        nullable=True,
     )
 
     tenure_months: Mapped[int] = mapped_column(
@@ -70,7 +68,7 @@ class ProfileDB(Base):
     access_level: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="SELF_ONLY",
+        default="self_only",
     )
 
     manager_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -92,11 +90,6 @@ class ProfileDB(Base):
         nullable=False,
     )
 
-    user: Mapped["UserDB"] = relationship(
-        "UserDB",
-        back_populates="profile",
-    )
-
     manager: Mapped["ProfileDB | None"] = relationship(
         "ProfileDB",
         remote_side=[id],
@@ -106,4 +99,9 @@ class ProfileDB(Base):
     subordinates: Mapped[list["ProfileDB"]] = relationship(
         "ProfileDB",
         back_populates="manager",
+    )
+
+    user: Mapped["UserDB"] = relationship(
+        "UserDB",
+        back_populates="profile",
     )

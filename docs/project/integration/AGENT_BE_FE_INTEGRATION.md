@@ -8,7 +8,7 @@ Next.js FE -> FastAPI BE -> FastAPI Agent/LangGraph -> ChromaDB + FPT.AI
 ```
 
 - FE chỉ gọi BE bằng REST và polling.
-- BE quản lý JWT, RBAC, conversation, persistence, citation và ticket.
+- PostgreSQL của Supabase lưu `public.users`/`public.profiles`; BE xác minh mật khẩu đã hash, phát JWT và quản lý RBAC, conversation, persistence, citation, ticket.
 - Agent stateless, phụ trách intent, RAG, generation, confidence, clarification và escalation draft.
 - BE và Agent là hai service riêng; giao tiếp qua internal REST API.
 

@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_v1_router
 from app.core.config import get_settings
-from app.core.database import create_tables
 from app.core.exceptions import (
     AppException,
     app_exception_handler,
@@ -25,18 +24,14 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
-    try:
-        await create_tables()
-        logger.info("Database tables initialized successfully.")
-    except Exception as exc:
-        logger.warning(f"Database table initialization skipped/failed: {exc}")
+    logger.info("Database schema is managed by Supabase migrations; automatic create_all is disabled.")
     yield
     logger.info("Shutting down application...")
 
 
 app = FastAPI(
     title=settings.app_name,
-    description="Independent Backend Service with JWT Auth, PostgreSQL & AI Agent REST Integration",
+    description="Backend Service with Supabase PostgreSQL and AI Agent REST Integration",
     version="1.0.0",
     lifespan=lifespan,
 )

@@ -73,7 +73,7 @@ async def setup_citations_test_data():
         msg = MessageDB(
             id=uuid.uuid4(),
             conversation_id=conv.id,
-            role="ASSISTANT",
+            role="assistant",
             content="Nội dung bảo mật",
             citations=[
                 {
@@ -89,7 +89,7 @@ async def setup_citations_test_data():
         normal_msg = MessageDB(
             id=uuid.uuid4(),
             conversation_id=conv.id,
-            role="ASSISTANT",
+            role="assistant",
             content="Normal citation",
             citations=[
                 {

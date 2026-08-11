@@ -11,7 +11,6 @@ from app.domain.models.user import UserDB
 
 __all__ = [
     "Base",
-    "UserDB",
     "ProfileDB",
     "TicketDB",
     "ConversationDB",
@@ -21,6 +20,7 @@ __all__ = [
     "EvaluationRunDB",
     "MessageDB",
     "ChatRequestDB",
+    "UserDB",
 ]
 
 

@@ -175,7 +175,7 @@ async def test_agent_history_preserves_follow_up_context():
             MessageDB(
                 id=original_user_message_id,
                 conversation_id=conversation_id,
-                role="USER",
+                role="user",
                 content="How many annual leave days do I receive?",
                 chat_request_id=original_request_id,
             )
@@ -184,10 +184,9 @@ async def test_agent_history_preserves_follow_up_context():
             MessageDB(
                 id=uuid.uuid4(),
                 conversation_id=conversation_id,
-                role="ASSISTANT",
+                role="assistant",
                 content="Are you a full-time or probationary employee?",
                 chat_request_id=original_request_id,
-                answer_status="CLARIFICATION_REQUIRED",
             )
         )
         await session.commit()
@@ -235,7 +234,7 @@ async def test_worker_creates_ticket_for_escalation(monkeypatch):
         assert chat_request.state == "REFUSED"
         assert message.escalated is True
         assert ticket.category == "GENERAL"
-        assert ticket.priority == "HIGH"
+        assert ticket.priority == "High"
         assert float(ticket.confidence_score) == 0.0
 
 

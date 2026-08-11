@@ -49,18 +49,14 @@ class MessageDB(Base):
         nullable=True,
     )
 
-    answer_status: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True,
-    )
-
-    citations: Mapped[list | None] = mapped_column(
+    citations: Mapped[list] = mapped_column(
         JSON,
-        nullable=True,
+        nullable=False,
+        default=list,
     )
 
     confidence_score: Mapped[float | None] = mapped_column(
-        Numeric(5, 4),
+        Numeric(4, 3),
         nullable=True,
     )
 

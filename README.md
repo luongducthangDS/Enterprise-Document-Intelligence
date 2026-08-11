@@ -100,7 +100,7 @@ make eval-heldout    # CHỈ chạy 1 lần khi đã chốt config — không tu
 - ✅ Data ingestion + RAG agent (LangGraph) hoạt động end-to-end, pass rate 75.7%/140 câu eval, router accuracy 95.7%
 - ✅ Bộ eval 3 tầng có thống kê (bootstrap CI, kappa liên-giám khảo), coverage đang mở rộng từ 40% → phủ đủ 29/29 tài liệu
 - ⚠️ Latency p50 in-scope ~35s — chưa tối ưu cho demo, xem `docs/rag-pipeline/PIPELINE.md`
-- ⚠️ 2 kiến trúc backend song song (`src/api/` dùng Supabase Auth/RLS, `backend/` trên nhánh `develop` dùng JWT tự chế) — chưa chốt 1 hướng
+- ✅ Backend dùng PostgreSQL của Supabase, xác thực bằng `public.users`, lưu RBAC tại `public.profiles` và phát JWT của backend.
 - ⚠️ Frontend chưa dựng trên nhánh này
 - 📄 Chi tiết vấn đề đang mở: theo dõi nội bộ trong `docs/reports/` (không đưa lên GitHub, xem `.gitignore`)
 

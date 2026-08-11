@@ -29,6 +29,7 @@ class DocumentDB(Base):
     source_file: Mapped[str] = mapped_column(
         String,
         nullable=False,
+        unique=True,
     )
 
     category: Mapped[str] = mapped_column(
@@ -91,10 +92,10 @@ class DocumentDB(Base):
         nullable=True,
     )
 
-    uploaded_by: Mapped[uuid.UUID] = mapped_column(
+    uploaded_by: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),
         ForeignKey("profiles.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -111,7 +112,7 @@ class DocumentDB(Base):
     )
 
     # Relationships
-    uploader: Mapped["ProfileDB"] = relationship(
+    uploader: Mapped["ProfileDB | None"] = relationship(
         "ProfileDB",
     )
     ingestion_jobs: Mapped[list["IngestionJobDB"]] = relationship(
