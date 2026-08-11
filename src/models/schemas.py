@@ -9,7 +9,7 @@ from src.agents.state import Intent
 
 class HistoryTurn(BaseModel):
     role: Literal["user", "assistant"]
-    content: str
+    content: str = Field(..., min_length=1, max_length=5000)
 
 
 class ChatRequest(BaseModel):
@@ -24,6 +24,7 @@ class AgentQueryRequest(BaseModel):
     request_id: str = Field(..., min_length=1, max_length=128)
     user_id: str = Field(..., min_length=1, max_length=128)
     department: str = Field(default="GENERAL", max_length=128)
+    history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
 
 
 Role = Literal["employee", "manager", "hr_admin"]
@@ -125,9 +126,9 @@ class Ticket(BaseModel):
 
 
 class TicketDraft(BaseModel):
-    """Phần của `Ticket` mà agent tự đủ dữ liệu để điền — khớp
-    `data/metadata/ticket_routing_rules.json::ticket_template`. Backend chỉ
-    cần bổ sung `id`/`ticket_code`/`conversation_id`/`message_id`/
+    """Phần của `Ticket` mà agent tự đủ dữ liệu để điền theo versioned
+    ticket routing config. Backend chỉ cần bổ sung
+    `id`/`ticket_code`/`conversation_id`/`message_id`/
     `requester_id`/`created_at` (đến từ phiên đăng nhập, ngoài phạm vi agent)
     rồi insert thẳng vào bảng `tickets`."""
 

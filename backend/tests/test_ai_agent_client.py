@@ -31,6 +31,10 @@ async def test_client_sends_internal_contract_and_parses_response():
             "query": "Leave policy",
             "department": "Engineering",
             "request_id": "request-1",
+            "history": [
+                {"role": "user", "content": "Previous question"},
+                {"role": "assistant", "content": "Previous answer"},
+            ],
         }
         return httpx.Response(200, json=agent_response())
 
@@ -39,7 +43,16 @@ async def test_client_sends_internal_contract_and_parses_response():
         service_token="secret",
         transport=httpx.MockTransport(handler),
     )
-    result = await client.query_agent("user-1", "Leave policy", "Engineering", "request-1")
+    result = await client.query_agent(
+        "user-1",
+        "Leave policy",
+        "Engineering",
+        "request-1",
+        history=[
+            {"role": "user", "content": "Previous question"},
+            {"role": "assistant", "content": "Previous answer"},
+        ],
+    )
     assert result.response == "Policy answer"
     assert result.confidence_score == 0.9
 

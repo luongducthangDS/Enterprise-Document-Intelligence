@@ -9,6 +9,7 @@ from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
+from app.services.content_safety import redact_pii
 
 
 class CitationService:
@@ -84,16 +85,16 @@ class CitationService:
             "citation_id": clean_cit_id,
             "document": {
                 "document_id": document_id,
-                "title": title,
+                "title": redact_pii(title),
                 "version": version,
                 "effective_date": effective_date,
                 "status": document_status,
             },
             "location": {
                 "page": found_item.get("page") or found_item.get("page_start"),
-                "section": found_item.get("section"),
+                "section": redact_pii(found_item.get("section")) or None,
                 "chunk_id": found_item.get("chunk_id"),
             },
-            "excerpt": found_item.get("excerpt") or "",
+            "excerpt": redact_pii(found_item.get("excerpt")),
             "conflict_warning": bool(found_item.get("conflict_warning", False)),
         }

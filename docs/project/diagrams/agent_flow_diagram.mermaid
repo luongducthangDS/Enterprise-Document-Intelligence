@@ -11,11 +11,12 @@ flowchart TD
         AUTH["Validate JWT and role"]
         CHAT_REQ["Create ChatRequest and user Message"]
         ASYNC["Run background chat task"]
-        CONTEXT["Compose clarification context when required"]
+        HISTORY["Load up to 8 recent messages\nMap USER/ASSISTANT roles"]
     end
 
     subgraph AGENT["Agent service - FastAPI and LangGraph"]
         AGENT_API["POST /api/v1/agent/query\nService token + trace context"]
+        CONDENSE["Condense follow-up with history\nStrip injection from prior turns"]
         ROUTER{"Intent router"}
         DIRECT["Direct response"]
         CLARIFY["Clarification question"]
@@ -30,6 +31,7 @@ flowchart TD
         CONFIDENCE["Evaluate confidence"]
         FINAL_ROUTE{"Escalate?"}
         FINALIZE["Finalize cited answer"]
+        PII["Redact PII in response\nand citation metadata"]
         DRAFT["Create TicketDraft or refusal result"]
         AGENT_RESULT["AgentAnswer"]
         ACL_FILTER["Retrieval ACL filter\nRole + department"]
@@ -45,10 +47,10 @@ flowchart TD
 
     RESULT["FE polls and renders result"]
 
-    USER --> AUTH --> CHAT_REQ --> ASYNC --> CONTEXT --> AGENT_API --> ROUTER
-    ROUTER -->|"greeting"| DIRECT --> AGENT_RESULT
-    ROUTER -->|"ambiguous"| CLARIFY --> AGENT_RESULT
-    ROUTER -->|"out_of_scope_or_personal"| DRAFT --> AGENT_RESULT
+    USER --> AUTH --> CHAT_REQ --> ASYNC --> HISTORY --> AGENT_API --> CONDENSE --> ROUTER
+    ROUTER -->|"greeting"| DIRECT --> PII
+    ROUTER -->|"ambiguous"| CLARIFY --> PII
+    ROUTER -->|"out_of_scope_or_personal"| DRAFT
     ROUTER -->|"hr_question"| RETRIEVE --> RERANK --> GRADE
     GRADE -->|"No"| REWRITE --> RETRIEVE
     GRADE -->|"Yes or retry exhausted"| GENERATE --> ANSWERABLE
@@ -57,8 +59,9 @@ flowchart TD
     HALLUC_ROUTE -->|"Retry"| GENERATE
     HALLUC_ROUTE -->|"Pass or retry exhausted"| CONFIDENCE
     CONFIDENCE --> FINAL_ROUTE
-    FINAL_ROUTE -->|"No"| FINALIZE --> AGENT_RESULT
+    FINAL_ROUTE -->|"No"| FINALIZE --> PII --> AGENT_RESULT
     FINAL_ROUTE -->|"Yes"| DRAFT
+    DRAFT --> PII
 
     AGENT_RESULT --> ADAPTER --> STATE --> PERSIST --> RESULT
     ADAPTER -->|"escalate=true"| TICKET --> PERSIST
@@ -70,6 +73,6 @@ flowchart TD
     classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
     classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
     classDef decision fill:#172554,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
-    class USER,AUTH,CHAT_REQ,ASYNC,CONTEXT,AGENT_API,DIRECT,CLARIFY,RETRIEVE,RERANK,REWRITE,GENERATE,HALLUC,CONFIDENCE,FINALIZE,DRAFT,AGENT_RESULT,ADAPTER,STATE,PERSIST,TICKET,RESULT,CURRENT current;
+    class USER,AUTH,CHAT_REQ,ASYNC,HISTORY,AGENT_API,CONDENSE,DIRECT,CLARIFY,RETRIEVE,RERANK,REWRITE,GENERATE,HALLUC,CONFIDENCE,FINALIZE,PII,DRAFT,AGENT_RESULT,ADAPTER,STATE,PERSIST,TICKET,RESULT,CURRENT current;
     class ROUTER,GRADE,ANSWERABLE,HALLUC_ROUTE,FINAL_ROUTE decision;
     class ACL_FILTER,TICKET_API,FUTURE future;

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.agents.service import answer, astream_answer
+from src.agents.service import answer, astream_answer, sanitize_citations
 
 
 def _citation(**overrides) -> dict:
@@ -36,6 +36,31 @@ class TestAnswer:
         assert result.citations[0].source_file == "doc.md"
         assert result.escalate is False
         assert result.ticket_draft is None
+
+    def test_sanitizes_pii_from_client_facing_citation_metadata(self):
+        citations = sanitize_citations(
+            [
+                _citation(
+                    source_file="owner-hr@company.com.pdf",
+                    title="Contact 0912345678",
+                )
+            ]
+        )
+
+        assert "hr@company.com" not in citations[0].source_file
+        assert "0912345678" not in citations[0].title
+
+    @pytest.mark.asyncio
+    async def test_redacts_pii_from_non_rag_response(self):
+        state = {
+            "response": "Contact hr@company.com",
+            "intent": "greeting",
+        }
+        with patch("src.agents.service.agent.ainvoke", new=AsyncMock(return_value=state)):
+            result = await answer("Hello")
+
+        assert "hr@company.com" not in result.response
+        assert state["guardrail_pii_redacted"] is True
 
     @pytest.mark.asyncio
     async def test_escalated_state_produces_ticket_draft_from_state_fields(self):

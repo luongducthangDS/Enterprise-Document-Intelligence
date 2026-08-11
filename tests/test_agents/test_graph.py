@@ -39,7 +39,7 @@ async def test_out_of_scope_flow_escalates_without_calling_retrieval():
 
     assert "retrieved_chunks" not in result
     assert result["escalate"] is True
-    assert result["escalate_reason"] == "out_of_scope"
+    assert result["escalate_reason"] == "personal_data_required"
     assert result["ticket_department"] == "CB"
 
 

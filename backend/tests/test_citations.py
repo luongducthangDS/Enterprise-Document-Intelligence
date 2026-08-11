@@ -98,7 +98,7 @@ async def setup_citations_test_data():
                     "source_file": "hr_policy.pdf",
                     "page": 5,
                     "chunk_id": "hr-policy::0001",
-                    "excerpt": "Policy excerpt",
+                    "excerpt": "Contact hr@company.com or 0912345678 for support.",
                 }
             ],
         )
@@ -134,6 +134,8 @@ def test_get_citation_detail_success():
     assert "document" in res_data["data"]
     assert "location" in res_data["data"]
     assert "excerpt" in res_data["data"]
+    assert "hr@company.com" not in res_data["data"]["excerpt"]
+    assert "0912345678" not in res_data["data"]["excerpt"]
     assert res_data["data"]["conflict_warning"] is False
 
 

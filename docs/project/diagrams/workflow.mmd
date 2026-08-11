@@ -15,8 +15,9 @@ flowchart TD
         CONV["Create active conversation"]
         QUESTION["Submit question"]
         REQUEST["BE persists user Message and ChatRequest=QUEUED"]
-        TASK["Background task calls Agent service"]
-        AGENT["LangGraph routes, retrieves, reranks,\ngenerates and evaluates confidence"]
+        HISTORY["BE loads recent conversation history"]
+        TASK["Background task calls Agent service\nwith query and optional history"]
+        AGENT["Agent condenses follow-up, routes, retrieves,\nreranks, generates and evaluates confidence"]
         MAP["BE maps AgentAnswer and persists result"]
         POLL["FE polls ChatRequest"]
         CHAT_STATE{"Terminal state"}
@@ -24,7 +25,7 @@ flowchart TD
         SOURCE["Open citation detail\nOwnership and confidentiality checked"]
         CLARIFY["CLARIFICATION_REQUIRED\nRender clarifying question"]
         FOLLOWUP["Submit clarification in same conversation"]
-        CONTEXT["BE combines original question,\nclarifying question and new answer"]
+        CONTEXT["Agent condenses clarification answer\nusing persisted conversation history"]
         REFUSED["REFUSED\nRender insufficient-evidence/escalation note"]
         TICKET["Create TicketDB when escalate=true"]
         FAILED["FAILED\nRender safe error and retry action"]
@@ -52,7 +53,7 @@ flowchart TD
     AUTH -->|"No"| LOGIN
     AUTH -->|"Yes"| ROLE --> HOME
     HOME -->|"Chat"| CONV --> QUESTION --> REQUEST
-    REQUEST --> TASK --> AGENT --> MAP
+    REQUEST --> HISTORY --> TASK --> AGENT --> MAP
     REQUEST --> POLL
     MAP --> POLL --> CHAT_STATE
     CHAT_STATE -->|"COMPLETED"| ANSWER --> SOURCE
@@ -78,6 +79,6 @@ flowchart TD
     classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
     classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
     classDef decision fill:#172554,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
-    class START,LOGIN,ROLE,CONV,QUESTION,REQUEST,TASK,AGENT,MAP,POLL,ANSWER,SOURCE,CLARIFY,FOLLOWUP,CONTEXT,REFUSED,TICKET,FAILED,RETRY,DOCS,DOC_JOB,INDEX,EVAL,CURRENT current;
+    class START,LOGIN,ROLE,CONV,QUESTION,REQUEST,HISTORY,TASK,AGENT,MAP,POLL,ANSWER,SOURCE,CLARIFY,FOLLOWUP,CONTEXT,REFUSED,TICKET,FAILED,RETRY,DOCS,DOC_JOB,INDEX,EVAL,CURRENT current;
     class AUTH,HOME,CHAT_STATE,ADMIN_RBAC decision;
     class TWO_FA,INGEST,DURABLE,TICKET_UI,MONITOR,RETRIEVAL_RBAC,FUTURE future;

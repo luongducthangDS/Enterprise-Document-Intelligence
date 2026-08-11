@@ -33,7 +33,14 @@ TestingSessionLocal = async_sessionmaker(bind=test_engine, class_=AsyncSession, 
 
 
 class FakeAgentClient:
-    async def query_agent(self, user_id: str, query: str, department: str, request_id: str) -> AgentAnswerDTO:
+    async def query_agent(
+        self,
+        user_id: str,
+        query: str,
+        department: str,
+        request_id: str,
+        history: list[dict[str, str]] | None = None,
+    ) -> AgentAnswerDTO:
         normalized_query = query.lower()
         if "khong co trong tai lieu" in normalized_query or "không có trong tài liệu" in normalized_query:
             return AgentAnswerDTO(

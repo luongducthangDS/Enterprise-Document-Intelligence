@@ -33,6 +33,7 @@ flowchart TB
     QUEUE["Durable queue and workers\nChat + ingestion + indexing"]
     REDIS[("Redis\nRate limit and distributed cache")]
     OBS["Monitoring and feedback services"]
+    STREAM["SSE transport and BE stream proxy"]
 
     USERS -->|"HTTPS"| NEXT
     NEXT -->|"REST + JWT + polling"| BE
@@ -51,8 +52,10 @@ flowchart TB
     BE -.-> REDIS
     BE -.-> OBS
     AGENT_API -.-> OBS
+    NEXT -.-> STREAM
+    STREAM -.-> AGENT_API
 
     classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
     classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
     class USERS,NEXT,BE,BE_TASK,AGENT_API,LANGGRAPH,LOCAL_DATA,POSTGRES,CHROMA,FPT,CURRENT current;
-    class OBJECT_STORE,QUEUE,REDIS,OBS,FUTURE future;
+    class OBJECT_STORE,QUEUE,REDIS,OBS,STREAM,FUTURE future;

@@ -74,6 +74,7 @@ class Settings(BaseSettings):
     # Số lượt hội thoại gần nhất đưa vào prompt condense — chặn phình token khi
     # hội thoại dài, các lượt cũ hơn không còn cần thiết để viết lại câu hỏi.
     max_history_turns: int = 8
+    max_history_content_chars: int = 2000
     # Model chấm điểm trong eval — PHẢI khác họ với `llm_model`. Nếu để cùng
     # model vừa sinh dữ liệu, vừa trả lời, vừa chấm thì phần lớn thứ đo được là
     # độ nhất quán của model với chính nó, không phải chất lượng hệ thống

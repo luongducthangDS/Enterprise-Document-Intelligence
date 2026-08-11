@@ -1,54 +1,45 @@
 # Architecture Diagram
 
-> Bản đầy đủ (component, quyết định thiết kế, số liệu đo): [`../ARCHITECTURE.md`](../ARCHITECTURE.md) và [`rag-pipeline/PIPELINE.md`](rag-pipeline/PIPELINE.md).
+Code on `develop` is the source of truth. Product traffic uses REST polling; streaming transport remains future scope.
 
-## System Overview
-
-```mermaid
-graph TB
-    User([User]) --> UI["Client app<br/>(chưa dựng trên nhánh này)"]
-    UI -->|REST API| API["FastAPI Backend<br/>POST /api/v1/chat"]
-    API --> Agent[LangGraph Agent]
-    Agent --> LLM["LLM<br/>GLM-5.2 (FPT.AI Marketplace gateway)"]
-    Agent --> Emb["Embedding<br/>multilingual-e5-large"]
-    Agent --> Rerank["Reranker<br/>bge-reranker-v2-m3"]
-    Agent --> VS["Vector Store<br/>Chroma Cloud"]
-    API --> DB[(Supabase Postgres<br/>users/RBAC · conversations · tickets)]
-```
-
-## Agent Flow (LangGraph, 11 node)
+## System overview
 
 ```mermaid
-graph LR
-    START((Start)) --> Router{router}
-    Router -->|greeting| Direct[direct] --> END((End))
-    Router -->|ambiguous| Clarify[clarify] --> END
-    Router -->|hr_question| Retrieve[retrieve]
-    Retrieve --> Grade{grade}
-    Grade -->|đủ context| Generate[generate]
-    Grade -->|thiếu context| Rewrite[rewrite] --> Retrieve
-    Generate --> Hallu[hallucination_check]
-    Hallu --> Confidence{confidence}
-    Confidence -->|đủ tin cậy| Finalize[finalize] --> END
-    Confidence -->|thấp / out_of_scope / cần dữ liệu cá nhân| Escalate[escalate_ticket] --> END
+flowchart LR
+    USER["Employee / HR Admin"] --> FE["Next.js frontend"]
+    FE -->|"REST + JWT + polling"| BE["FastAPI backend"]
+    BE --> DB[("PostgreSQL")]
+    BE -->|"Internal REST + service token\nquery + optional history"| AGENT["FastAPI Agent service\nLangGraph"]
+    AGENT --> CHROMA[("Chroma Cloud")]
+    AGENT --> FPT["FPT.AI\nLLM + embedding + rerank"]
 ```
 
-## Data Ingestion Flow (offline)
+## Responsibilities
+
+| Component | Current responsibility |
+|---|---|
+| Next.js FE | Login, chat, polling, clarification, retry, citation viewer and admin screens |
+| FastAPI BE | JWT/RBAC, conversations, recent history, background processing, persistence, citation access and ticket creation |
+| Agent service | Stateless condense, intent routing, RAG, guardrails, generation, confidence, clarification and escalation draft |
+| PostgreSQL | Users, conversations, messages, chat requests, tickets and document metadata |
+| Chroma Cloud | RAG chunks and embeddings |
+
+## Agent flow
 
 ```mermaid
-graph LR
-    Raw["data/raw/<br/>6 category HR"] --> Extract[extract + clean] --> Chunk[chunk] --> Embed["embed<br/>multilingual-e5-large"] --> Index[(Chroma Cloud)]
+flowchart LR
+    START((Start)) --> CONDENSE["condense\nwhen history exists"] --> ROUTER{router}
+    ROUTER -->|greeting| DIRECT[direct] --> SAFE["PII-safe AgentAnswer"]
+    ROUTER -->|ambiguous| CLARIFY[clarify] --> SAFE
+    ROUTER -->|out of scope / personal| ESC[escalate_ticket] --> SAFE
+    ROUTER -->|HR question| RETRIEVE[retrieve] --> GRADE{grade}
+    GRADE -->|no evidence| REWRITE[rewrite] --> RETRIEVE
+    GRADE -->|evidence / retry exhausted| GENERATE[generate]
+    GENERATE --> CHECK{answerable?}
+    CHECK -->|yes| HALLUC[hallucination_check] --> CONF[confidence]
+    CHECK -->|no| CONF
+    CONF -->|accepted| FINAL[finalize] --> SAFE
+    CONF -->|low| ESC
 ```
 
-## Component Details
-
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| Client app | Chưa dựng trên nhánh này (bản demo thử nghiệm ở nhánh khác) | Giao diện chat cho nhân viên |
-| Backend | FastAPI | API server, endpoint `/api/v1/chat` |
-| Agent | LangGraph (11 node) | Orchestration: router → retrieve → grade → generate → hallucination-check → confidence → finalize/escalate |
-| LLM | GLM-5.2 qua FPT.AI Marketplace (OpenAI-compatible gateway) | Sinh câu trả lời, phân loại intent |
-| Embedding | multilingual-e5-large qua FPT.AI Marketplace | Vector hoá chunk và câu hỏi (prefix `passage:`/`query:`) |
-| Reranker | bge-reranker-v2-m3 qua FPT.AI Marketplace | Xếp hạng lại top-k kết quả retrieval, làm cơ sở tính confidence |
-| Vector Store | Chroma Cloud (cosine distance) | Lưu trữ embedding chunk cho RAG |
-| Database | Supabase (Postgres + Auth/RLS) | Users/RBAC, lịch sử hội thoại, ticket |
+Detailed current diagrams are in [`project/diagrams`](project/diagrams), and the Agent-BE-FE contract is in [`project/integration/AGENT_BE_FE_INTEGRATION.md`](project/integration/AGENT_BE_FE_INTEGRATION.md).

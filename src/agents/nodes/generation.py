@@ -88,7 +88,7 @@ async def generate_node(state: AgentState) -> dict:
     if get_settings().guardrail_injection_enabled:
         injection_hits.extend(detect_injection(query))
     if injection_hits:
-        print(f"[guardrail] injection nghi vấn ({len(injection_hits)}): {injection_hits}")
+        print(f"[guardrail] injection_detected count={len(injection_hits)}")
 
     user_prompt = f"Câu hỏi: {query}\n\nCác đoạn trích:\n{context}"
 
@@ -116,7 +116,7 @@ async def generate_node(state: AgentState) -> dict:
         "generated_answer": answer,
         "citations": citations,
         "answerable": answerable,
-        "guardrail_injection_detected": bool(injection_hits),
+        "guardrail_injection_detected": bool(injection_hits) or state.get("guardrail_injection_detected", False),
     }
 
 
