@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.agents.service import answer
+from src.agents.service import answer, astream_answer
 
 
 def _citation(**overrides) -> dict:
@@ -104,3 +104,161 @@ class TestAnswer:
         assert result.response == "Chào bạn!"
         assert result.citations == []
         assert result.escalate is False
+
+
+def _fake_astream(steps: list[dict]):
+    """Giả lập `agent.astream(state, stream_mode="updates")` — mỗi item trong
+    `steps` là 1 dict `{node_name: delta}`, đúng shape LangGraph thật trả về
+    (đã verify thủ công bằng smoke test trên graph thật trước khi viết
+    astream_answer, xem lịch sử trao đổi 2026-08-10)."""
+
+    async def _gen(state, **kwargs):
+        for step in steps:
+            for node_name, delta in step.items():
+                state.update(delta)
+            yield step
+
+    return _gen
+
+
+class TestAstreamAnswer:
+    @pytest.mark.asyncio
+    async def test_emits_status_for_known_nodes_only(self):
+        steps = [
+            {"router": {"intent": "hr_question"}},
+            {"grade": {"retrieved_chunks": []}},  # không có status message -> bỏ qua
+            {"generate": {"generated_answer": "12 ngày.", "citations": [], "answerable": True}},
+            {"confidence": {"confidence_score": 0.9}},  # code thuần -> bỏ qua
+            {"finalize": {"response": "12 ngày."}},
+        ]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("Mấy ngày phép?")]
+
+        statuses = [e["value"] for e in events if e["type"] == "status"]
+        assert statuses == ["Đang phân tích yêu cầu...", "Đang soạn câu trả lời..."]
+
+    @pytest.mark.asyncio
+    async def test_condense_status_skipped_when_no_history(self):
+        """condense_node là 0-cost skip khi không có history (xem condense.py)
+        — không nên báo status 'đang xử lý' cho việc không thật sự chạy."""
+        steps = [
+            {"condense": {"condensed_query": "abc"}},
+            {"router": {"intent": "hr_question"}},
+            {"finalize": {"response": "abc", "citations": []}},
+        ]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc", history=None)]
+
+        statuses = [e["value"] for e in events if e["type"] == "status"]
+        assert statuses == ["Đang phân tích yêu cầu..."]
+
+    @pytest.mark.asyncio
+    async def test_condense_status_shown_when_history_present(self):
+        steps = [
+            {"condense": {"condensed_query": "abc, cụ thể hơn"}},
+            {"router": {"intent": "hr_question"}},
+            {"finalize": {"response": "abc", "citations": []}},
+        ]
+        history = [{"role": "user", "content": "câu trước"}, {"role": "assistant", "content": "trả lời trước"}]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc", history=history)]
+
+        statuses = [e["value"] for e in events if e["type"] == "status"]
+        assert statuses == ["Đang xử lý ngữ cảnh hội thoại trước đó...", "Đang phân tích yêu cầu..."]
+
+    @pytest.mark.asyncio
+    async def test_emits_tool_events_for_retrieve_node(self):
+        steps = [
+            {"router": {"intent": "hr_question"}},
+            {"retrieve": {"retrieved_chunks": []}},
+            {"finalize": {"response": "abc"}},
+        ]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc")]
+
+        tool_events = [e for e in events if e["type"] in ("tool_start", "tool_end")]
+        assert tool_events == [
+            {"type": "tool_start", "tool": "hr_policy_search"},
+            {"type": "tool_end", "tool": "hr_policy_search"},
+        ]
+
+    @pytest.mark.asyncio
+    async def test_answer_delta_chunks_reassemble_to_original_response(self):
+        long_answer = " ".join(f"từ{i}" for i in range(40))
+        steps = [{"finalize": {"response": long_answer, "citations": []}}]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc")]
+
+        deltas = [e["content"] for e in events if e["type"] == "answer_delta"]
+        assert len(deltas) > 1  # thật sự bị chia nhỏ, không phải 1 cục
+        assert "".join(deltas) == long_answer
+
+    @pytest.mark.asyncio
+    async def test_emits_citation_events_from_state(self):
+        citation = {
+            "chunk_id": "doc::0001",
+            "source_file": "doc.md",
+            "title": "Chính sách nghỉ phép",
+            "category": "leave_policies",
+            "page_start": 3,
+            "page_end": 3,
+            "is_official_policy": True,
+        }
+        steps = [{"finalize": {"response": "12 ngày.", "citations": [citation]}}]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc")]
+
+        citation_events = [e for e in events if e["type"] == "citation"]
+        assert citation_events == [
+            {
+                "type": "citation",
+                "source": "doc.md",
+                "title": "Chính sách nghỉ phép",
+                "page_start": 3,
+                "is_official_policy": True,
+            }
+        ]
+
+    @pytest.mark.asyncio
+    async def test_done_event_carries_escalate_and_ticket_draft(self):
+        steps = [
+            {
+                "escalate_ticket": {
+                    "response": "Đã tạo ticket.",
+                    "escalate": True,
+                    "escalate_reason": "low_confidence",
+                    "query": "abc",
+                    "ticket_category": "leave_policies",
+                    "ticket_department": "HRBP",
+                    "ticket_priority": "Medium",
+                }
+            }
+        ]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc")]
+
+        done = events[-1]
+        assert done["type"] == "done"
+        assert done["escalate"] is True
+        assert done["ticket_draft"]["target_department"] == "HRBP"
+
+    @pytest.mark.asyncio
+    async def test_done_event_ticket_draft_none_when_not_escalated(self):
+        steps = [{"finalize": {"response": "12 ngày.", "citations": []}}]
+        with patch("src.agents.service.agent.astream", new=_fake_astream(steps)):
+            events = [e async for e in astream_answer("abc")]
+
+        assert events[-1]["ticket_draft"] is None
+
+    @pytest.mark.asyncio
+    async def test_error_during_graph_run_emits_error_event_and_stops(self):
+        async def _broken_gen(state, **kwargs):
+            yield {"router": {"intent": "hr_question"}}
+            raise RuntimeError("gateway timeout")
+
+        with patch("src.agents.service.agent.astream", new=_broken_gen):
+            events = [e async for e in astream_answer("abc")]
+
+        assert events[-1] == {"type": "error", "message": "RuntimeError: gateway timeout"}
+        # Không có answer_delta/done nào lọt qua sau lỗi.
+        assert not any(e["type"] in ("answer_delta", "done") for e in events)

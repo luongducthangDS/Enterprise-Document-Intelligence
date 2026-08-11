@@ -1,5 +1,6 @@
 import re
 
+from src.agents.nodes.escalation import _mentions_competitor_company
 from src.agents.llm import acall_llm
 from src.agents.state import AgentState, Intent
 
@@ -45,7 +46,12 @@ _CLARIFY_SYSTEM = """Câu hỏi của nhân viên về chủ đề HR nhưng cò
 async def router_node(state: AgentState) -> dict:
     from src.config import get_settings
 
-    query = state.get("query", "")
+    query = state.get("condensed_query") or state.get("query", "")
+    # Deterministic brand guard for the course/demo scope: named companies that are
+    # not the internal demo persona must not be treated as currently applicable HR policy.
+    if _mentions_competitor_company(query):
+        return {"intent": "out_of_scope_or_personal"}
+
     # router_model rỗng -> None -> acall_llm dùng llm_model như cũ.
     model = get_settings().router_model or None
     raw = await acall_llm(_get_router_system(), query, temperature=0.0, model=model)
@@ -56,12 +62,12 @@ async def router_node(state: AgentState) -> dict:
 
 
 async def direct_node(state: AgentState) -> dict:
-    query = state.get("query", "")
+    query = state.get("condensed_query") or state.get("query", "")
     answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.5)
     return {"response": answer.strip()}
 
 
 async def clarify_node(state: AgentState) -> dict:
-    query = state.get("query", "")
+    query = state.get("condensed_query") or state.get("query", "")
     question = (await acall_llm(_CLARIFY_SYSTEM, query, temperature=0.4)).strip()
     return {"needs_clarification": True, "clarifying_question": question, "response": question}

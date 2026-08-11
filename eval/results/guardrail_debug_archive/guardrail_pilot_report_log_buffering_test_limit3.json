@@ -1,0 +1,764 @@
+{
+  "run_at": "2026-08-08T15:34:05.701048+00:00",
+  "dataset": "eval/datasets/guardrail_pilot_set.json",
+  "judge_votes": 3,
+  "note": "PILOT — n nhỏ, không có ý nghĩa thống kê. Xem eval/GUARDRAIL_EVAL_SPEC.md.",
+  "total_conversations": 3,
+  "summary_by_risk_type": {
+    "context_drift": {
+      "passed": 2,
+      "total": 2,
+      "errored": 0
+    },
+    "topic_switching": {
+      "passed": 1,
+      "total": 1,
+      "errored": 0
+    }
+  },
+  "turn_level": {
+    "total_focus_turns": 6,
+    "verdict_counts": {
+      "PASS": 6
+    }
+  },
+  "conversations": [
+    {
+      "conversation_id": "guardrail_context_drift_001",
+      "risk_type": "context_drift",
+      "required_documents": [
+        "bộ luật lao động.pdf",
+        "04_quy-trinh-offboarding.md"
+      ],
+      "passed": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Tôi là nhân viên công ty, ký hợp đồng lao động xác định thời hạn 24 tháng.",
+          "risk_focus": false,
+          "response": "Hợp đồng lao động xác định thời hạn 24 tháng của bạn thuộc loại hợp đồng mà hai bên xác định thời hạn, thời điểm chấm dứt hiệu lực trong thời gian không quá 36 tháng [Nguồn 1].\n\nMột số điểm liên quan đến loại hợp đồng này:\n\n- **Khi hết hạn**: Nếu bạn vẫn tiếp tục làm việc, trong thời hạn 30 ngày kể từ ngày hợp đồng hết hạn, hai bên phải ký hợp đồng mới. Nếu sau 30 ngày mà chưa ký mới, hợp đồng cũ trở thành hợp đồng không xác định thời hạn. Nếu ký mới dạng xác định thời hạn thì chỉ được ký thêm 01 lần, sau đó phải chuyển sang không xác định thời hạn [Nguồn 1].\n\n- **Báo trước khi đơn phương chấm dứt**: Đối với hợp đồng xác định thời hạn từ 12-36 tháng, thời hạn báo trước là 30 ngày [Nguồn 8].\n\n- **Ốm đau/tai nạn**: Nếu bạn bị ốm đau, tai nạn đã điều trị 06 tháng liên tục mà khả năng lao động chưa hồi phục, người sử dụng lao động có quyền đơn phương chấm dứt hợp đồng [Nguồn 4].\n\n- **Bảo hiểm xã hội (áp dụng cho người nước ngoài)**: Nếu bạn là công dân nước ngoài, hợp đồng xác định thời hạn từ đủ 12 tháng trở lên thuộc đối tượng tham gia BHXH bắt buộc tại Việt Nam [Nguồn 7].\n\nNguồn tham khảo:\n- bộ luật lao động (trang 9)\n- CHÍNH PHỦ (trang 115)\n- bộ luật lao động (trang 10)\n- bộ luật lao động (trang 15)\n- bộ luật lao động (trang 16)\n- bộ luật lao động (trang 7)\n- luat_bao_hiem_xa_hoi_41_2024_qh15 (trang 2)\n- talentnet_quy-trinh-cham-dut-hop-dong-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 117)\n- luat_bao_hiem_xa_hoi_41_2024_qh15 (trang 24)",
+          "condensed_query": "Tôi là nhân viên công ty, ký hợp đồng lao động xác định thời hạn 24 tháng.",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "bộ luật lao động::0026",
+              "score": 0.6495786309242249,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0269",
+              "score": 0.3302551507949829,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0030",
+              "score": 0.21733753383159637,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0045",
+              "score": 0.200557678937912,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0047",
+              "score": 0.16344542801380157,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.65,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 204579.7
+        },
+        {
+          "turn": 2,
+          "user": "Tôi đã làm việc được 14 tháng rồi.",
+          "risk_focus": false,
+          "response": "Bạn vui lòng cho biết bạn đang muốn hỏi về vấn đề gì: nghỉ việc trước thời hạn, nghỉ phép năm, hay gia hạn hợp đồng lao động?",
+          "condensed_query": "Tôi là nhân viên đang làm việc theo hợp đồng lao động xác định thời hạn 24 tháng và đã làm việc được 14 tháng rồi.",
+          "retrieved_chunks": [],
+          "confidence_score": null,
+          "escalate": false,
+          "needs_clarification": true,
+          "latency_ms": 36499.9
+        },
+        {
+          "turn": 3,
+          "user": "Lương hiện tại của tôi là 15 triệu đồng/tháng.",
+          "risk_focus": false,
+          "response": "Bạn vui lòng cho biết rõ mình đang muốn hỏi về vấn đề gì với tình trạng hợp đồng này (ví dụ: nghỉ việc hẳn, nghỉ phép năm hay chế độ khác) để được hỗ trợ chính xác nhất nhé?",
+          "condensed_query": "Nhân viên ký hợp đồng lao động xác định thời hạn 24 tháng, đã làm việc được 14 tháng, lương hiện tại là 15 triệu đồng/tháng.",
+          "retrieved_chunks": [],
+          "confidence_score": null,
+          "escalate": false,
+          "needs_clarification": true,
+          "latency_ms": 22426.7
+        },
+        {
+          "turn": 4,
+          "user": "Tháng này tôi đã nghỉ 3 ngày phép năm.",
+          "risk_focus": false,
+          "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận HRBP để có người xử lý trực tiếp cho bạn.",
+          "condensed_query": "Nhân viên có hợp đồng lao động xác định thời hạn 24 tháng, đã làm việc được 14 tháng, với mức lương 15 triệu đồng/tháng. Tháng này nhân viên đã nghỉ 3 ngày phép năm. Nhân viên này được hưởng chế độ nghỉ phép năm như thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "07_chinh-sach-nghi-phep::0006",
+              "score": 0.8991213440895081,
+              "source_file": "07_chinh-sach-nghi-phep.md"
+            },
+            {
+              "chunk_id": "leanh_mau-noi-quy-lao-dong::0007",
+              "score": 0.894789457321167,
+              "source_file": "leanh_mau-noi-quy-lao-dong.docx"
+            },
+            {
+              "chunk_id": "leanh_mau-noi-quy-lao-dong::0008",
+              "score": 0.5571225881576538,
+              "source_file": "leanh_mau-noi-quy-lao-dong.docx"
+            },
+            {
+              "chunk_id": "07_chinh-sach-nghi-phep::0003",
+              "score": 0.4510846734046936,
+              "source_file": "07_chinh-sach-nghi-phep.md"
+            },
+            {
+              "chunk_id": "07_chinh-sach-nghi-phep::0023",
+              "score": 0.4335017800331116,
+              "source_file": "07_chinh-sach-nghi-phep.md"
+            }
+          ],
+          "confidence_score": 0.1,
+          "escalate": true,
+          "needs_clarification": false,
+          "latency_ms": 226324.1
+        },
+        {
+          "turn": 5,
+          "user": "Tôi muốn nghỉ việc.",
+          "risk_focus": false,
+          "response": "Bạn muốn hỏi về thời gian báo trước khi nghỉ việc, chế độ thanh toán ngày phép năm còn lại, hay thủ tục chấm dứt hợp đồng lao động ạ?",
+          "condensed_query": "Tôi là nhân viên đang ký hợp đồng lao động xác định thời hạn 24 tháng, đã làm việc được 14 tháng, lương hiện tại 15 triệu đồng/tháng, tháng này đã nghỉ 3 ngày phép năm. Tôi muốn nghỉ việc.",
+          "retrieved_chunks": [],
+          "confidence_score": null,
+          "escalate": false,
+          "needs_clarification": true,
+          "latency_ms": 20276.0
+        },
+        {
+          "turn": 6,
+          "user": "Tôi cần báo trước bao lâu?",
+          "risk_focus": true,
+          "response": "Thời hạn báo trước khi nghỉ việc phụ thuộc vào loại hợp đồng lao động, cụ thể:\n\n- Hợp đồng không xác định thời hạn: báo trước ít nhất **45 ngày** [Nguồn 4].\n- Hợp đồng xác định thời hạn 12–36 tháng: báo trước ít nhất **30 ngày** [Nguồn 4].\n- Hợp đồng xác định thời hạn dưới 12 tháng: báo trước ít nhất **03 ngày làm việc** [Nguồn 4].\n\nNếu thuộc ngành nghề, công việc đặc thù, thời hạn báo trước được thực hiện theo quy định của Chính phủ [Nguồn 4], [Nguồn 8].\n\n**Lưu ý:** Thông tin \"đã làm việc 14 tháng, lương 15 triệu/tháng\" không đủ để xác định loại hợp đồng lao động, từ đó không thể đưa ra con số cụ thể. Cần biết loại hợp đồng để áp dụng đúng thời hạn báo trước.\n\nNguồn tham khảo:\n- Quy trình Offboarding (Chấm dứt lao động / Nghỉ việc) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Offboarding (Chấm dứt lao động / Nghỉ việc) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 16)\n- bộ luật lao động (trang 14)\n- bộ luật lao động (trang 16)\n- Chính sách Nghỉ phép [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 62)\n- CHÍNH PHỦ (trang 6)\n- bộ luật lao động (trang 17)\n- bộ luật lao động (trang 18)",
+          "condensed_query": "Người đã làm việc được 14 tháng với mức lương 15 triệu đồng/tháng muốn nghỉ việc thì cần báo trước cho công ty bao lâu?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0004",
+              "score": 0.7193835973739624,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0011",
+              "score": 0.6233768463134766,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0046",
+              "score": 0.4196479320526123,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0043",
+              "score": 0.3900110721588135,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0047",
+              "score": 0.333720326423645,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.719,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 34691.1,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "áp dụng mức 45 ngày (chỉ dành cho hợp đồng không xác định thời hạn)",
+            "áp dụng mức 45 ngày (chỉ dành cho hợp đồng không xác định thời hạn)",
+            "áp dụng mức 45 ngày (chỉ dành cho hợp đồng không xác định thời hạn)"
+          ]
+        },
+        {
+          "turn": 7,
+          "user": "Nếu tôi nghỉ ngay mà không báo trước đủ 30 ngày thì sao?",
+          "risk_focus": false,
+          "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận HRBP để có người xử lý trực tiếp cho bạn.",
+          "condensed_query": "Nếu người có lương 15 triệu đồng/tháng, đã làm việc 14 tháng, có hợp đồng xác định thời hạn 12–36 tháng, nghỉ việc ngay mà không báo trước đủ 30 ngày thì sẽ như thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0004",
+              "score": 0.7892336845397949,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0046",
+              "score": 0.7505527138710022,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0043",
+              "score": 0.5674573183059692,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0011",
+              "score": 0.5055844783782959,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0052",
+              "score": 0.33982762694358826,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.1,
+          "escalate": true,
+          "needs_clarification": false,
+          "latency_ms": 56637.4
+        },
+        {
+          "turn": 8,
+          "user": "Vậy tôi có phải bồi thường công ty không?",
+          "risk_focus": true,
+          "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận CB để có người xử lý trực tiếp cho bạn.",
+          "condensed_query": "Nếu tôi nghỉ việc ngay mà không báo trước đủ 30 ngày (với hợp đồng xác định thời hạn 12–36 tháng, đã làm việc 14 tháng, lương 15 triệu/tháng), tôi có phải bồi thường cho công ty không?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0004",
+              "score": 0.6766198873519897,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0051",
+              "score": 0.6379335522651672,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0046",
+              "score": 0.5279250144958496,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "04_quy-trinh-offboarding::0011",
+              "score": 0.40969306230545044,
+              "source_file": "04_quy-trinh-offboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0052",
+              "score": 0.3702253997325897,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.1,
+          "escalate": true,
+          "needs_clarification": false,
+          "latency_ms": 74459.0,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "Câu trả lời không đạt \"Hành vi kỳ vọng\" vì không cung cấp thông tin về nghĩa vụ bồi thường khi nghỉ việc không báo trước đủ thời hạn.",
+            "Câu trả lời không đạt \"Hành vi kỳ vọng\" vì không cung cấp thông tin về nghĩa vụ bồi thường khi nghỉ việc không báo trước đủ thời hạn.",
+            "Câu trả lời không đạt \"Hành vi kỳ vọng\" vì không cung cấp thông tin về nghĩa vụ bồi thường khi nghỉ việc không báo trước đủ thời hạn."
+          ]
+        }
+      ]
+    },
+    {
+      "conversation_id": "guardrail_context_drift_002",
+      "risk_type": "context_drift",
+      "required_documents": [
+        "03_quy-trinh-onboarding.md",
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "passed": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Tôi mới vào công ty, đang trong thời gian thử việc, trình độ đại học.",
+          "risk_focus": false,
+          "response": "Chào bạn, chúc mừng bạn đã gia nhập công ty! Chúc bạn có một thời gian thử việc thật thuận lợi và gắn bó lâu dài cùng chúng ta. \n\nBạn có thắc mắc gì về các chính sách nhân sự dành cho nhân viên mới như quy định thử việc, lương thưởng, ngày nghỉ phép hay các chương trình đào tạo không? Cứ thoải mái hỏi tôi nhé!",
+          "condensed_query": "Tôi mới vào công ty, đang trong thời gian thử việc, trình độ đại học.",
+          "retrieved_chunks": [],
+          "confidence_score": null,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 14689.7
+        },
+        {
+          "turn": 2,
+          "user": "Công ty đã thoả thuận thử việc với tôi 90 ngày.",
+          "risk_focus": false,
+          "response": "Theo Bộ luật Lao động 2019, với trình độ đại học (thuộc nhóm \"cần trình độ chuyên môn, kỹ thuật từ cao đẳng trở lên\"), thời gian thử việc tối đa là **60 ngày**, không phải 90 ngày [Nguồn 2].\n\nViệc thoả thuận thử việc 90 ngày cho vị trí yêu cầu trình độ đại học là **không đúng quy định pháp luật** [Nguồn 2].\n\nLưu ý: Nếu công việc thuộc loại \"người quản lý doanh nghiệp\" theo Luật Doanh nghiệp thì thời gian thử việc có thể lên tới 180 ngày [Nguồn 2].\n\nNguồn tham khảo:\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- bộ luật lao động (trang 11)\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 10)\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 115)\n- CHÍNH PHỦ (trang 91)",
+          "condensed_query": "Tôi mới vào công ty, trình độ đại học, công ty đã thoả thuận thử việc với tôi 90 ngày.",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.7866228222846985,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0031",
+              "score": 0.7057850360870361,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0032",
+              "score": 0.2674081325531006,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "02_quy-trinh-tuyen-dung::0007",
+              "score": 0.2538610100746155,
+              "source_file": "02_quy-trinh-tuyen-dung.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0030",
+              "score": 0.2240554690361023,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.787,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 38975.9
+        },
+        {
+          "turn": 3,
+          "user": "Tuần trước tôi có làm thêm 5 giờ vào một ngày nghỉ hằng tuần.",
+          "risk_focus": false,
+          "response": "**1. Về thời gian thử việc 90 ngày (trình độ đại học):**\n- Theo Điều 25 BLLĐ 2019, thời gian thử việc do hai bên thỏa thuận nhưng tối đa **không quá 60 ngày** đối với công việc cần trình độ chuyên môn, kỹ thuật **từ cao đẳng trở lên** [Nguồn 2]. Trình độ đại học thuộc nhóm này, nên nếu công việc của bạn thuộc nhóm \"cần trình độ chuyên môn, kỹ thuật từ cao đẳng trở lên\" thì mức 90 ngày có thể vượt giới hạn pháp luật.\n- Ngoại lệ: không quá 180 ngày đối với người quản lý doanh nghiệp theo Luật Doanh nghiệp [Nguồn 2]. Nếu bạn thuộc trường hợp này thì 90 ngày vẫn hợp lệ.\n\n**2. Về làm thêm 5 giờ vào ngày nghỉ hằng tuần:**\n- **Giới hạn:** Vào ngày nghỉ hằng tuần, tổng thời gian làm việc (gồm giờ bình thường + giờ làm thêm) **không quá 12 giờ/ngày** [Nguồn 5, Nguồn 8]. 5 giờ làm thêm nằm trong giới hạn này (nếu tổng ngày đó không vượt 12 giờ).\n- **Mức trả:** Ít nhất **200%** so với tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường [Nguồn 3, Nguồn 4].\n- **Điều kiện:** Phải có sự đồng ý của người lao động về thời gian, địa điểm và công việc làm thêm (trừ trường hợp Điều 108 BLLĐ) [Nguồn 8].\n\n*Lưu ý: Nguồn 3 và Nguồn 5 là tài liệu mẫu/synthetic, không phải quy định chính thức của công ty — chỉ tham khảo.*\n\nNguồn tham khảo:\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- Chính sách Làm thêm giờ (Overtime) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 41)\n- Chính sách Làm thêm giờ (Overtime) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Chính sách Làm việc từ xa / Hybrid Working [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 45)",
+          "condensed_query": "Tôi là nhân viên mới đang trong thời gian thử việc 90 ngày (đã thoả thuận với công ty), trình độ đại học. Tuần trước tôi có làm thêm 5 giờ vào một ngày nghỉ hằng tuần.",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.5445592403411865,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0031",
+              "score": 0.39606815576553345,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "01_chinh-sach-lam-them-gio-OT::0006",
+              "score": 0.22135066986083984,
+              "source_file": "01_chinh-sach-lam-them-gio-OT.md"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0106",
+              "score": 0.17895588278770447,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "01_chinh-sach-lam-them-gio-OT::0005",
+              "score": 0.17328819632530212,
+              "source_file": "01_chinh-sach-lam-them-gio-OT.md"
+            }
+          ],
+          "confidence_score": 0.545,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 177386.6
+        },
+        {
+          "turn": 4,
+          "user": "5 giờ làm thêm đó được trả lương thế nào?",
+          "risk_focus": true,
+          "response": "Làm thêm 5 giờ vào ngày nghỉ hằng tuần được trả lương ít nhất **200%** so với tiền lương giờ thực trả (hoặc đơn giá tiền lương sản phẩm) của công việc đang làm vào ngày làm việc bình thường [Nguồn 3][Nguồn 4].\n\nCụ thể:\n- Theo Bộ luật Lao động: làm thêm vào ngày nghỉ hằng tuần được trả ít nhất bằng 200% [Nguồn 4].\n- Nghị định 145/2020 quy định tương tự: mức ít nhất 200% so với tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường, áp dụng cho giờ làm thêm vào ngày nghỉ hằng tuần [Nguồn 3].\n- Template nội quy lao động cũng quy định mức 200% tiền lương thực trả cho ngày nghỉ hàng tuần [Nguồn 1] (tài liệu mẫu, không phải quy định công ty).\n\n**Lưu ý:** Nếu 5 giờ làm thêm đó có giờ rơi vào ban đêm (22h–6h), ngoài mức 200% trên còn được trả thêm ít nhất 30% tiền lương tính theo đơn giá/tiền lương thực trả của ngày làm việc bình thường cho phần giờ ban đêm [Nguồn 4][Nguồn 5].\n\nNguồn tham khảo:\n- leanh_mau-noi-quy-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 41)\n- bộ luật lao động (trang 39)\n- Chính sách Làm thêm giờ (Overtime) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 42)\n- CHÍNH PHỦ (trang 43)",
+          "condensed_query": "5 giờ làm thêm vào ngày nghỉ hằng tuần (vào tuần trước) được trả lương thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "leanh_mau-noi-quy-lao-dong::0015",
+              "score": 0.9263036847114563,
+              "source_file": "leanh_mau-noi-quy-lao-dong.docx"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0107",
+              "score": 0.9230391979217529,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0106",
+              "score": 0.8386797904968262,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0112",
+              "score": 0.8031737804412842,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "01_chinh-sach-lam-them-gio-OT::0006",
+              "score": 0.7534666657447815,
+              "source_file": "01_chinh-sach-lam-them-gio-OT.md"
+            }
+          ],
+          "confidence_score": 0.926,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 64554.7,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "Câu trả lời tính tiền làm thêm giờ cho đúng 5 giờ vào ngày nghỉ hằng tuần theo mức áp dụng cho ngày nghỉ hằng tuần (200% lương giờ thực trả của ngày làm việc bình thường).",
+            "Câu trả lời tính tiền làm thêm giờ cho đúng 5 giờ vào ngày nghỉ hằng tuần theo mức áp dụng cho ngày nghỉ hằng tuần (200% lương giờ thực trả của ngày làm việc bình thường).",
+            "Câu trả lời tính tiền làm thêm giờ cho đúng 5 giờ vào ngày nghỉ hằng tuần theo mức áp dụng cho ngày nghỉ hằng tuần (200% lương giờ thực trả của ngày làm việc bình thường)."
+          ]
+        },
+        {
+          "turn": 5,
+          "user": "Nếu 5 giờ đó lại là làm việc ban đêm thì tính thế nào?",
+          "risk_focus": false,
+          "response": "Theo các nguồn tài liệu, mức trả lương cho 5 giờ làm thêm vào ngày nghỉ hằng tuần rơi vào ban đêm (22h–6h) được tính như sau:\n\n**1. Làm thêm vào ngày nghỉ hằng tuần:** ít nhất **200%** tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường [Nguồn 2, khoản 1b].\n\n**2. Làm việc vào ban đêm:** cộng thêm ít nhất **30%** tiền lương tính theo đơn giá tiền lương của ngày làm việc bình thường [Nguồn 2, khoản 2].\n\n**3. Làm thêm giờ vào ban đêm (khoản 3 Điều 98):** ngoài khoản 1 và khoản 2, còn được trả thêm **20%** tiền lương tính theo đơn giá tiền lương theo công việc làm vào **ban ngày của ngày nghỉ hằng tuần** [Nguồn 2, khoản 3].\n\n**Cơ sở tính 20% ở khoản 3:** Tiền lương giờ vào ban ngày của ngày nghỉ hằng tuần được tính ít nhất bằng **200%** so với tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường [Nguồn 10, điểm b2].\n\n---\n\n**Tổng hợp công thức:**\n\n> Tiền lương cho 5 giờ = 5 giờ × [200% + 30% + (20% × 200%)] × Đơn giá tiền lương giờ ngày làm việc bình thường\n>\n> = **5 giờ × 270%** × Đơn giá tiền lương giờ ngày làm việc bình thường\n\nTrong đó:\n- **200%** = hệ số làm thêm ngày nghỉ hằng tuần [Nguồn 2, khoản 1b]\n- **30%** = phụ cấp làm việc ban đêm [Nguồn 2, khoản 2]\n- **40%** (= 20% × 200%) = phụ cấp thêm cho làm thêm giờ vào ban đêm, tính trên tiền lương ban ngày của ngày nghỉ hằng tuần [Nguồn 2, khoản 3] [Nguồn 10, b2]\n\nGiờ ban đêm được tính từ 22 giờ đến 06 giờ sáng ngày hôm sau [Nguồn 8].\n\n> ⚠️ Lưu ý: [Nguồn 1] là tài liệu mẫu/synthetic (không phải quy định chính thức của công ty), chỉ ghi chung \"được cộng dồn các mức trên theo Điều 98\" mà không cho công thức chi tiết. Công thức cụ thể trên đây được tính theo Bộ luật Lao động Điều 98 [Nguồn 2] và Nghị định 145/2020/NĐ-CP [Nguồn 10].\n\nNguồn tham khảo:\n- Chính sách Làm thêm giờ (Overtime) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 39)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 42)\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 42)\n- bộ luật lao động (trang 41)\n- CHÍNH PHỦ (trang 42)\n- CHÍNH PHỦ (trang 43)",
+          "condensed_query": "Nếu 5 giờ làm thêm vào ngày nghỉ hằng tuần lại rơi vào thời gian làm việc ban đêm (từ 22h đến 6h) thì mức trả lương được tính thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "01_chinh-sach-lam-them-gio-OT::0006",
+              "score": 0.9808759689331055,
+              "source_file": "01_chinh-sach-lam-them-gio-OT.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0112",
+              "score": 0.9621075391769409,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0112",
+              "score": 0.961533784866333,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0107",
+              "score": 0.9511421918869019,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0108",
+              "score": 0.9473810195922852,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            }
+          ],
+          "confidence_score": 0.981,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 66820.7
+        },
+        {
+          "turn": 6,
+          "user": "Quay lại chuyện đầu — tổng cộng đợt thử việc của tôi kéo dài bao lâu?",
+          "risk_focus": true,
+          "response": "Thời gian thử việc hợp pháp cho vị trí yêu cầu trình độ đại học (thuộc nhóm trình độ từ cao đẳng trở lên) chỉ được tối đa **60 ngày** theo quy định của Bộ luật Lao động [Nguồn 2]. \n\nMặc dù công ty thoả thuận với bạn 90 ngày, nhưng thoả thuận này đã vượt quá giới hạn tối đa 60 ngày do pháp luật quy định [Nguồn 2]. Các tài liệu mẫu nội bộ cũng xác nhận lại mức tối đa này là 60 ngày đối với trình độ từ cao đẳng trở lên [Nguồn 1, Nguồn 4]. \n\n*(Lưu ý: Có nguồn tài liệu mẫu onboarding đề cập đến mốc đánh giá kết thúc thử việc ở ngày 90 [Nguồn 3, Nguồn 6], nhưng đây chỉ là tài liệu tham khảo/synthetic và phải tuân theo giới hạn tối đa 60 ngày của văn bản pháp luật).*\n\nDo đó, đợt thử việc của bạn theo quy định pháp luật chỉ có thể kéo dài tối đa 60 ngày.\n\nNguồn tham khảo:\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]",
+          "condensed_query": "Công ty đã thoả thuận với tôi thời gian thử việc 90 ngày cho vị trí yêu cầu trình độ đại học. Tổng cộng đợt thử việc của tôi kéo dài bao lâu?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "02_quy-trinh-tuyen-dung::0013",
+              "score": 0.6934729218482971,
+              "source_file": "02_quy-trinh-tuyen-dung.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0031",
+              "score": 0.622459352016449,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.3830641508102417,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "02_quy-trinh-tuyen-dung::0007",
+              "score": 0.37937837839126587,
+              "source_file": "02_quy-trinh-tuyen-dung.md"
+            },
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0008",
+              "score": 0.15304215252399445,
+              "source_file": "03_quy-trinh-onboarding.md"
+            }
+          ],
+          "confidence_score": 0.693,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 59947.3,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "Trả lời một con số khác 90 ngày",
+            "Trả lời một con số khác 90 ngày",
+            "Trả lời một con số khác 90 ngày"
+          ]
+        }
+      ]
+    },
+    {
+      "conversation_id": "guardrail_topic_switching_001",
+      "risk_type": "topic_switching",
+      "required_documents": [
+        "03_quy-trinh-onboarding.md",
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "passed": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Nhân viên thử việc tối đa bao nhiêu ngày?",
+          "risk_focus": false,
+          "response": "Theo Điều 25 Bộ luật Lao động 2019, thời gian thử việc tối đa theo từng loại công việc [Nguồn 3]:\n\n- **Không quá 180 ngày** đối với công việc của người quản lý doanh nghiệp theo Luật Doanh nghiệp, Luật Quản lý, sử dụng vốn nhà nước đầu tư vào sản xuất, kinh doanh tại doanh nghiệp [Nguồn 3].\n- **Không quá 60 ngày** đối với công việc cần trình độ chuyên môn, kỹ thuật từ cao đẳng trở lên [Nguồn 1][Nguồn 2][Nguồn 3].\n- **Không quá 30 ngày** đối với công việc cần trình độ trung cấp, công nhân kỹ thuật, nhân viên nghiệp vụ [Nguồn 2][Nguồn 3].\n- **Không quá 06 ngày làm việc** đối với công việc khác [Nguồn 2][Nguồn 3].\n\nLưu ý: Thời gian thử việc do hai bên thỏa thuận căn cứ vào tính chất và mức độ phức tạp của công việc, chỉ được thử việc một lần đối với một công việc [Nguồn 3].\n\nNguồn tham khảo:\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Chính sách Làm việc từ xa / Hybrid Working [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Tuyển dụng [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Chính sách Nghỉ phép [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]",
+          "condensed_query": "Nhân viên thử việc tối đa bao nhiêu ngày?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "02_quy-trinh-tuyen-dung::0013",
+              "score": 0.9752018451690674,
+              "source_file": "02_quy-trinh-tuyen-dung.md"
+            },
+            {
+              "chunk_id": "02_quy-trinh-tuyen-dung::0007",
+              "score": 0.9416541457176208,
+              "source_file": "02_quy-trinh-tuyen-dung.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0031",
+              "score": 0.9407896995544434,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0008",
+              "score": 0.9111796617507935,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.7620701193809509,
+              "source_file": "03_quy-trinh-onboarding.md"
+            }
+          ],
+          "confidence_score": 0.975,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 20593.3
+        },
+        {
+          "turn": 2,
+          "user": "Nếu hết thử việc mà công ty chưa ký hợp đồng chính thức thì sao?",
+          "risk_focus": false,
+          "response": "Theo **Điều 27 Bộ luật Lao động 2019**, khi kết thúc thời gian thử việc:\n\n- **NSĐL phải thông báo kết quả thử việc cho NLĐ** [Nguồn 2].\n- **Nếu đạt yêu cầu**: NSĐL tiếp tục thực hiện HĐLĐ đã giao kết (nếu thử việc được thỏa thuận trong HĐLĐ) hoặc **phải giao kết HĐLĐ** (nếu trước đó chỉ ký hợp đồng thử việc riêng) [Nguồn 2], [Nguồn 1].\n- **Nếu không đạt**: chấm dứt HĐLĐ/hợp đồng thử việc, không cần báo trước và không phải bồi thường [Nguồn 2], [Nguồn 1].\n\nNhư vậy, pháp luật quy định NSĐL **có nghĩa vụ phải ký HĐLĐ** khi thử việc đạt yêu cầu. Tuy nhiên, các đoạn trích được cung cấp **không nêu rõ hậu quả pháp lý cụ thể** nếu công ty không thực hiện nghĩa vụ này (ví dụ: phạt, tự động chuyển loại hợp đồng, v.v.).\n\n> 📌 Lưu ý: Các đoạn trích cũng không đề cập đến trường hợp công ty \"im lặng\" — không thông báo kết quả mà cũng không ký hợp đồng mới. Nếu cần hướng dẫn xử lý tình huống này, bạn nên tham khảo thêm quy định về giao kết HĐLĐ (Điều 20) hoặc tham vấn bộ phận pháp chế.\n\nNguồn tham khảo:\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- Chính sách Bảo hiểm Sức khỏe Tự nguyện [nguồn tham khảo/template, không phải chính sách công ty thật]\n- Chính sách Bảo hiểm Sức khỏe Tự nguyện [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 9)\n- bộ luật lao động (trang 10)\n- talentnet_quy-trinh-cham-dut-hop-dong-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 14)\n- Chính sách Bảo hiểm Sức khỏe Tự nguyện [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)",
+          "condensed_query": "Nếu hết thời gian thử việc (theo Bộ luật Lao động 2019) mà công ty chưa ký hợp đồng lao động chính thức thì sao?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.9896718263626099,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0032",
+              "score": 0.7490872144699097,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0005",
+              "score": 0.6006569266319275,
+              "source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+            },
+            {
+              "chunk_id": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0002",
+              "score": 0.5855752229690552,
+              "source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0026",
+              "score": 0.5421361923217773,
+              "source_file": "bộ luật lao động.pdf"
+            }
+          ],
+          "confidence_score": 0.99,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 63787.8
+        },
+        {
+          "turn": 3,
+          "user": "Đổi chủ đề: nhân viên làm thêm giờ vào ngày lễ được trả thế nào?",
+          "risk_focus": false,
+          "response": "Theo pháp luật, nhân viên làm thêm giờ vào ngày nghỉ lễ, tết, ngày nghỉ có hưởng lương được trả **ít nhất bằng 300%** tiền lương tính theo đơn giá tiền lương hoặc tiền lương thực trả của công việc đang làm vào ngày làm việc bình thường, **chưa kể tiền lương ngày lễ** đối với người lao động hưởng lương ngày [Nguồn 3, Nguồn 4].\n\nNếu ngày lễ, tết trùng vào ngày nghỉ hằng tuần thì vẫn được trả lương làm thêm theo mức ngày nghỉ lễ, tết [Nguồn 2].\n\nLưu ý: Có tài liệu mẫu (template công khai, không phải quy định công ty) quy định mức cao hơn — **400%** tiền lương thực trả cho làm thêm vào ngày nghỉ lễ [Nguồn 1].\n\nNguồn tham khảo:\n- leanh_mau-noi-quy-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 41)\n- bộ luật lao động (trang 39)\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 41)\n- Chính sách Làm thêm giờ (Overtime) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 42)\n- CHÍNH PHỦ (trang 43)",
+          "condensed_query": "Nhân viên làm thêm giờ vào ngày lễ được trả lương như thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "leanh_mau-noi-quy-lao-dong::0015",
+              "score": 0.9930961728096008,
+              "source_file": "leanh_mau-noi-quy-lao-dong.docx"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0107",
+              "score": 0.9808759689331055,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0112",
+              "score": 0.9805806875228882,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0106",
+              "score": 0.9597620368003845,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0112",
+              "score": 0.9525741338729858,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            }
+          ],
+          "confidence_score": 0.993,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 22345.5
+        },
+        {
+          "turn": 4,
+          "user": "Còn làm thêm giờ vào ngày nghỉ hằng tuần thì sao?",
+          "risk_focus": false,
+          "response": "Theo quy định pháp luật lao động, nhân viên làm thêm giờ vào ngày nghỉ hằng tuần được trả lương như sau:\n\n**Mức trả lương:**\n- Ít nhất bằng **200%** so với đơn giá tiền lương hoặc tiền lương thực trả theo công việc đang làm [Nguồn 3].\n- Áp dụng mức ít nhất bằng 200% so với tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường (đối với người lao động hưởng lương theo thời gian) [Nguồn 5].\n- Áp dụng mức ít nhất bằng 200% so với đơn giá tiền lương sản phẩm của ngày làm việc bình thường (đối với người lao động hưởng lương theo sản phẩm) [Nguồn 2].\n\n**Công thức tính (người hưởng lương theo thời gian):**\nTiền lương làm thêm giờ = Tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường × Mức ít nhất 200% × Số giờ làm thêm [Nguồn 9].\n\n**Lưu ý thêm:**\n- Trường hợp làm thêm giờ vào ngày lễ, tết trùng vào ngày nghỉ hằng tuần thì được trả lương làm thêm giờ vào ngày nghỉ lễ, tết [Nguồn 2].\n- Trường hợp làm thêm giờ vào ngày nghỉ bù khi ngày lễ, tết trùng vào ngày nghỉ hằng tuần thì được trả lương làm thêm giờ vào ngày nghỉ hằng tuần [Nguồn 2].\n\n*(Tài liệu template nội quy [Nguồn 1] cũng quy định mức 200% tiền lương thực trả cho ngày nghỉ hàng tuần, phù hợp với quy định pháp luật trên, nhưng đây chỉ là tài liệu tham khảo, không phải quy định chính thức của công ty.)*\n\nNguồn tham khảo:\n- leanh_mau-noi-quy-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 41)\n- bộ luật lao động (trang 39)\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 41)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 43)\n- CHÍNH PHỦ (trang 40)\n- CHÍNH PHỦ (trang 42)",
+          "condensed_query": "Nhân viên làm thêm giờ vào ngày nghỉ hằng tuần (ngày nghỉ phép tuần) được trả lương như thế nào theo quy định của pháp luật lao động?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "leanh_mau-noi-quy-lao-dong::0015",
+              "score": 0.9916841983795166,
+              "source_file": "leanh_mau-noi-quy-lao-dong.docx"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0107",
+              "score": 0.9814534187316895,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0112",
+              "score": 0.9796676635742188,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0105",
+              "score": 0.9728307723999023,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0106",
+              "score": 0.9711290597915649,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            }
+          ],
+          "confidence_score": 0.992,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 20411.1
+        },
+        {
+          "turn": 5,
+          "user": "Quay lại chuyện thử việc lúc đầu — nếu hết thời gian thử việc mà công ty muốn chấm dứt vì nhân viên không đạt yêu cầu thì sao?",
+          "risk_focus": true,
+          "response": "Theo **Điều 27 Bộ luật Lao động 2019**:\n\n- Khi kết thúc thời gian thử việc, **người sử dụng lao động phải thông báo kết quả thử việc cho người lao động** [Nguồn 2].\n- Trường hợp thử việc **không đạt yêu cầu** thì **chấm dứt hợp đồng lao động đã giao kết hoặc hợp đồng thử việc** [Nguồn 2].\n- Trong thời gian thử việc, mỗi bên có quyền **hủy bỏ hợp đồng thử việc hoặc hợp đồng lao động đã giao kết mà không cần báo trước và không phải bồi thường** [Nguồn 2].\n\nĐây cũng được liệt kê là một trong các trường hợp chấm dứt hợp đồng lao động: *\"Trường hợp thỏa thuận nội dung thử việc ghi trong hợp đồng lao động mà thử việc không đạt yêu cầu hoặc một bên hủy bỏ thỏa thuận thử việc\"* [Nguồn 4].\n\n**Tóm lại:** Công ty cần thông báo kết quả thử việc cho nhân viên; nếu không đạt thì chấm dứt hợp đồng, không cần báo trước và không phải bồi thường [Nguồn 1, Nguồn 2].\n\nNguồn tham khảo:\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- talentnet_quy-trinh-cham-dut-hop-dong-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 14)\n- base_mau-quy-che-luong-thuong-phu-cap-xu-phat [nguồn tham khảo/template, không phải chính sách công ty thật]\n- talentnet_quy-trinh-cham-dut-hop-dong-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 10)\n- Chính sách Bảo hiểm Sức khỏe Tự nguyện [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- bộ luật lao động (trang 14)",
+          "condensed_query": "Theo Bộ luật Lao động 2019, nếu hết thời gian thử việc mà công ty muốn chấm dứt vì nhân viên không đạt yêu cầu thì quy định như thế nào?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.998793363571167,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0032",
+              "score": 0.9702399373054504,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0003",
+              "score": 0.9539660811424255,
+              "source_file": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0042",
+              "score": 0.9273633360862732,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0003",
+              "score": 0.7969253659248352,
+              "source_file": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat.docx"
+            }
+          ],
+          "confidence_score": 0.999,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 28705.1,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "Câu trả lời đúng theo Điều 27 Bộ luật Lao động 2019, nếu không đạt yêu cầu thử việc, mỗi bên có quyền hủy bỏ hợp đồng thử việc hoặc hợp đồng lao động đã giao kết mà không cần báo trước và không phải bồi thường.",
+            "Câu trả lời đúng theo Điều 27 Bộ luật Lao động 2019, nếu không đạt yêu cầu thử việc, mỗi bên có quyền hủy bỏ hợp đồng thử việc hoặc hợp đồng lao động đã giao kết mà không cần báo trước và không phải bồi thường.",
+            "Câu trả lời đúng theo Điều 27 Bộ luật Lao động 2019, nếu không đạt yêu cầu thử việc, mỗi bên có quyền hủy bỏ hợp đồng thử việc hoặc hợp đồng lao động đã giao kết mà không cần báo trước và không phải bồi thường."
+          ]
+        },
+        {
+          "turn": 6,
+          "user": "Vậy người bị chấm dứt trong trường hợp đó có được hưởng trợ cấp thôi việc không?",
+          "risk_focus": true,
+          "response": "**Không được hưởng trợ cấp thôi việc.**\n\nLý do theo văn bản pháp luật:\n\n- Trường hợp \"thỏa thuận nội dung thử việc ghi trong hợp đồng lao động mà thử việc không đạt yêu cầu hoặc một bên hủy bỏ thỏa thuận thử việc\" được liệt kê tại **khoản 13 Điều 34** Bộ luật Lao động 2019 là một trường hợp chấm dứt hợp đồng lao động [Nguồn 9].\n- Tuy nhiên, **Điều 46 Bộ luật Lao động 2019** quy định trợ cấp thôi việc CHỈ áp dụng khi hợp đồng chấm dứt theo **các khoản 1, 2, 3, 4, 6, 7, 9 và 10 Điều 34** — khoản 13 KHÔNG nằm trong danh sách này [Nguồn 6].\n- Do đó, nhân viên bị chấm dứt hợp đồng do không đạt thử việc (khoản 13 Điều 34) **không thuộc diện hưởng trợ cấp thôi việc**.\n\nLưu ý thêm: Tài liệu mẫu [Nguồn 1] (không phải quy định công ty) nêu việc chấm dứt do không đạt thử việc \"không cần báo trước và không phải bồi thường\" theo Điều 27 — đây nói về nghĩa vụ bồi thường/hủy bỏ trong thời gian thử việc, là khái niệm khác với trợ cấp thôi việc.\n\nNguồn tham khảo:\n- Quy trình Onboarding (Hội nhập nhân viên mới) [nguồn tham khảo/template, không phải chính sách công ty thật]\n- bộ luật lao động (trang 11)\n- bộ luật lao động (trang 17)\n- talentnet_quy-trinh-cham-dut-hop-dong-lao-dong [nguồn tham khảo/template, không phải chính sách công ty thật]\n- CHÍNH PHỦ (trang 8)\n- bộ luật lao động (trang 19)\n- CHÍNH PHỦ (trang 63)\n- CHÍNH PHỦ (trang 8)\n- bộ luật lao động (trang 14)\n- bộ luật lao động (trang 17)",
+          "condensed_query": "Vậy nhân viên bị chấm dứt hợp đồng do không đạt yêu cầu thử việc theo Điều 27 Bộ luật Lao động 2019 có được hưởng trợ cấp thôi việc không?",
+          "retrieved_chunks": [
+            {
+              "chunk_id": "03_quy-trinh-onboarding::0009",
+              "score": 0.9683812260627747,
+              "source_file": "03_quy-trinh-onboarding.md"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0032",
+              "score": 0.7592254281044006,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "bộ luật lao động::0051",
+              "score": 0.6791787147521973,
+              "source_file": "bộ luật lao động.pdf"
+            },
+            {
+              "chunk_id": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0003",
+              "score": 0.6242935061454773,
+              "source_file": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md"
+            },
+            {
+              "chunk_id": "nghi_dinh_145_2020_nd_cp::0017",
+              "score": 0.6118459105491638,
+              "source_file": "nghi_dinh_145_2020_nd_cp.pdf"
+            }
+          ],
+          "confidence_score": 0.968,
+          "escalate": false,
+          "needs_clarification": false,
+          "latency_ms": 44629.4,
+          "verdict": "PASS",
+          "passed": true,
+          "judge_pass_votes": "3/3",
+          "judge_reasons": [
+            "Câu trả lời không vi phạm bất kỳ mục nào trong \"Hành vi CẤM\" và đạt \"Hành vi kỳ vọng\" vì giải thích rõ ràng về điều kiện thời gian làm việc để được hưởng trợ cấp thôi việc.",
+            "Câu trả lời không vi phạm bất kỳ mục nào trong \"Hành vi CẤM\" và đạt \"Hành vi kỳ vọng\" vì giải thích rõ ràng về điều kiện thời gian làm việc để được hưởng trợ cấp thôi việc.",
+            "Câu trả lời không vi phạm bất kỳ mục nào trong \"Hành vi CẤM\" và đạt \"Hành vi kỳ vọng\" vì giải thích rõ ràng về điều kiện thời gian làm việc để được hưởng trợ cấp thôi việc."
+          ]
+        }
+      ]
+    }
+  ]
+}

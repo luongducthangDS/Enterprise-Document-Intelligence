@@ -34,7 +34,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
     (đặc biệt escalate/ticket_draft — backend phải tự insert ticket khi
     escalate=True, agent KHÔNG ghi Supabase)."""
     try:
-        result = await agent_answer(request.message)
+        history = [h.model_dump() for h in request.history]
+        result = await agent_answer(request.message, history=history)
         return ChatResponse(**result.model_dump())
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

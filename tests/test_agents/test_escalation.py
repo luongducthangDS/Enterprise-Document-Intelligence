@@ -131,12 +131,22 @@ class TestEscalateNode:
         assert result["escalate"] is False
         assert result["escalate_reason"] == "competitor_question"
         assert "ticket_department" not in result
-        assert "công ty khác" in result["response"]
+        assert "phạm vi demo" in result["response"]
 
     def test_competitor_detection_is_diacritic_insensitive(self):
         state = {"query": "Samsung Electronics Vietnam trả lương bao nhiêu?", "intent": "out_of_scope_or_personal"}
         result = escalate_node(state)
         assert result["escalate_reason"] == "competitor_question"
+
+    def test_vinfast_reference_declines_without_ticket_by_default(self):
+        state = {
+            "query": "Tôi là nhân viên VinFast, lương thưởng thế nào?",
+            "intent": "out_of_scope_or_personal",
+        }
+        result = escalate_node(state)
+        assert result["escalate"] is False
+        assert result["escalate_reason"] == "competitor_question"
+        assert "ticket_department" not in result
 
     def test_personal_data_question_without_company_name_still_escalates_ticket(self):
         state = {"query": "Tôi còn bao nhiêu ngày phép năm nay?", "intent": "out_of_scope_or_personal"}

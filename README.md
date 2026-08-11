@@ -1,201 +1,120 @@
-# 🤖 AI20K Agent Template
+# HR Document Intelligence Agent — P-153
 
-Template chính thức cho học viên **VinUni AI20K Build Phase** — cung cấp sẵn cấu trúc dự án, code mẫu, và hướng dẫn kỹ thuật chi tiết để xây dựng AI Agent đạt điểm cao (35+/50).
+AI Agent trả lời câu hỏi của nhân viên về chính sách nhân sự — pháp luật lao động, BHXH/BHYT, thuế TNCN, và quy định nội bộ (nghỉ phép, lương thưởng, tuyển dụng, onboarding/offboarding) — dựa trên RAG (Retrieval-Augmented Generation), tự động tạo ticket chuyển phòng ban phù hợp khi không đủ tự tin trả lời hoặc câu hỏi cần dữ liệu cá nhân.
 
-> 📖 **Technical Guidebook:** [phoenix.note.transformerlabs.ai/technical-book](https://phoenix.note.transformerlabs.ai/technical-book)
+> Dự án học phần **VinUni AI20K Build Phase**, team **AI20K-Build-Phase-Cohort-3**.
 
-## 🎯 Template này dùng để làm gì?
+## Vấn đề & phạm vi
 
-Khi tham gia AI20K Build Phase, mỗi đội cần xây dựng một AI Agent hoàn chỉnh — từ kiến trúc, code, test, đến deploy. Thay vì bắt đầu từ con số không, template này cung cấp:
+Nhân viên thường không tra cứu được nhanh các quy định rải rác giữa văn bản pháp luật (Bộ luật Lao động, Nghị định 145/2020, Luật BHXH/BHYT, Luật thuế TNCN...) và quy định nội bộ công ty. Agent giải quyết bài toán này cho HR nói chung — **không gắn cứng vào một công ty cụ thể**: dữ liệu gồm văn bản pháp luật công khai + quy định nội bộ mẫu (VinFast/Vingroup) + template công khai (nội quy lao động, quy chế lương thưởng, quy trình chấm dứt HĐLĐ).
 
-- **Cấu trúc thư mục chuẩn** — đã được thiết kế theo best practices (separation of concerns)
-- **Code mẫu** cho các phần cốt lõi: LangGraph agent, FastAPI API, config, schemas
-- **Docker + CI/CD sẵn** — Dockerfile multi-stage, GitHub Actions workflow
-- **Hướng dẫn kỹ thuật 10 chương** — từ clone template đến nộp bài Demo Day
-- **Checklist 10 deliverables** — đảm bảo không bỏ sót yêu cầu BTC
-- **AI Usage Logging tự động** — Pre-configured hooks cho Claude Code, Cursor, Codex, Gemini CLI, Antigravity, và GitHub Copilot
+Khi agent không đủ tự tin, câu hỏi ngoài phạm vi, hoặc cần dữ liệu cá nhân (lương, số ngày phép còn lại...), agent tạo **ticket draft** để backend chuyển cho đúng phòng ban (Comp & Benefits, Employee Relations, Talent Acquisition, Learning & Development, hoặc HRBP fallback).
+
+## Kiến trúc tóm tắt
+
+```
+Data ingestion (extract → clean → chunk → embed)  →  Chroma Cloud (vector store)
+                                                              │
+User query → FastAPI (/api/v1/chat) → LangGraph Agent ───────┘
+             router → retrieve → grade → generate → hallucination-check → confidence → finalize / escalate
+                                                              │
+                                              Supabase (users/RBAC, chat history, ticket)
+```
+
+Chi tiết đầy đủ (từng node, quyết định thiết kế, kết quả đo eval): [`docs/rag-pipeline/PIPELINE.md`](docs/rag-pipeline/PIPELINE.md). Contract API của agent cho backend: [`docs/rag-pipeline/AGENT_API.md`](docs/rag-pipeline/AGENT_API.md).
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| AI Agent | LangGraph (11 node: router/retrieve/grade/rewrite/generate/hallucination-check/confidence/escalate/finalize/...) |
+| Backend | FastAPI + Uvicorn |
+| LLM / Embedding / Rerank | FPT.AI Marketplace gateway (OpenAI-compatible) — `GLM-5.2` (chat), `multilingual-e5-large` (embedding), `bge-reranker-v2-m3` (rerank) — xem [`models_config.json`](models_config.json) |
+| Vector Store | Chroma Cloud (cosine distance, prefix `passage:`/`query:`) |
+| Database | Supabase (Postgres + Auth/RLS) — users/RBAC, chat history, ticket |
+| Frontend | Chưa hoàn thiện trên nhánh này — xem mục "Trạng thái hiện tại" |
+| Testing | pytest + pytest-asyncio |
+| DevOps | Docker + GitHub Actions |
 
 ## ⚡ Quick Start
 
-### Bước 1: Fork hoặc Clone
-
 ```bash
-# Clone template
-git clone https://github.com/AI20K-Build-Cohort-2/starter-code-template.git team-YOUR_TEAM_NAME
-cd team-YOUR_TEAM_NAME
-
-# Xóa git history cũ và khởi tạo lại
-rm -rf .git
-git init
-git add .
-git commit -m "feat: khởi tạo dự án từ template"
-```
-
-### Bước 2: Setup môi trường
-
-```bash
-# Tạo virtual environment
+# 1. Setup môi trường
 python3.11 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 
-# Cài dependencies
-pip install -e ".[dev]"
-
-# Cấu hình API keys
+# 2. Cấu hình
 cp .env.example .env
-# Mở .env và thêm OPENAI_API_KEY của bạn
-# Đồng thời cập nhật AI_LOG_API_KEY bằng key riêng từ link mời của BTC
-# (giá trị trong .env.example chỉ là placeholder)
-```
+# Điền: FPT_API_KEY, CHROMA_CLOUD_*, SUPABASE_* (xem .env.example để biết ý nghĩa từng biến)
 
-### Bước 3: Cài AI Logging Hooks
-
-```bash
-# Linux / macOS / Git Bash
+# 3. Cài AI Logging Hooks (bắt buộc — nộp bài cần log prompt tự động)
 bash scripts/setup_hooks.sh
+# Windows PowerShell: powershell -ExecutionPolicy Bypass -File scripts/setup_hooks.ps1
 
-# Windows PowerShell
-# powershell -ExecutionPolicy Bypass -File scripts\setup_hooks.ps1
+# 4. Chạy server
+make run            # = uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+# Swagger UI: http://localhost:8000/docs
 ```
 
-Hooks tự động log mọi AI prompt khi dùng Claude Code, Cursor, Codex, Gemini CLI, Antigravity, hoặc GitHub Copilot. Không cần thao tác thủ công.
-
-### Bước 4: Chạy server
+### Lệnh thường dùng
 
 ```bash
-# Chạy FastAPI backend
-uvicorn src.main:app --reload --port 8000
+make test            # pytest tests/ -v
+make lint            # ruff check
+make check           # lint + format + test + eval-check
 
-# Mở Swagger UI
-# http://localhost:8000/docs
+make eval-retrieval  # đo retrieval (dense + rerank) trên split dev
+make eval-router     # đo router (intent classification)
+make eval-agent      # đo agent end-to-end (tốn ~300 LLM call, ~25 phút)
+make eval-heldout    # CHỈ chạy 1 lần khi đã chốt config — không tune dựa trên kết quả này
 ```
-
-### Bước 5: Đọc hướng dẫn
-
-📖 Mở **[Technical Guidebook](https://phoenix.note.transformerlabs.ai/technical-book)** và làm theo từng chương.
 
 ## 📁 Cấu trúc dự án
 
 ```
 ├── src/
-│   ├── agents/           # 🧠 LangGraph Agent
-│   │   ├── graph.py      #    State graph (nodes + edges)
-│   │   ├── state.py      #    State schema (TypedDict)
-│   │   ├── nodes/        #    Node functions
-│   │   └── tools/        #    Agent tools (@tool)
-│   ├── api/              # 🌐 FastAPI Backend
-│   │   └── routes.py     #    API endpoints
-│   ├── models/           # 📋 Pydantic schemas
-│   ├── services/         # 🔧 Business logic (LLM, etc.)
-│   ├── config.py         # ⚙️ Pydantic Settings
-│   └── main.py           # 🚀 App entry point
-├── tests/                # 🧪 pytest suite
-│   ├── test_agents/      #    Agent/graph tests
-│   └── test_api/         #    API endpoint tests
-├── scripts/              # 🔌 AI Logging Hooks
-│   ├── log_hook.py       #    Auto-log cho Claude/Cursor/Codex/Gemini/Copilot
-│   ├── log_antigravity.py#    Antigravity IDE prompt scanner
-│   ├── log_manual.py     #    Manual log cho ChatGPT / web tools
-│   ├── submit_log.py     #    Submit logs on git push
-│   └── setup_hooks.sh    #    One-time hook installer
-├── .claude/ .codex/ .cursor/ .gemini/  # Per-tool hook configs
-├── .agents/              # Antigravity rules + workflows
-├── .ai-log/              # 📊 AI usage logs (auto-generated)
+│   ├── agents/          # LangGraph agent (graph, state, nodes/, tools/)
+│   ├── api/              # FastAPI routes (POST /api/v1/chat)
+│   ├── ingestion/        # Pipeline extract → clean → chunk → embed → index
+│   ├── retrieval/        # Retrieval + BM25 + rerank client
+│   ├── models/           # Pydantic schemas (AgentAnswer, Citation, TicketDraft...)
+│   ├── services/         # LLM/embedding client (FPT.AI gateway)
+│   └── config.py, main.py
+├── data/                 # gitignored — raw/processed/chunks/metadata/rejected theo 6 category HR
+├── eval/                 # Bộ eval 3 tầng (router/retrieval/agent) + datasets + results
+├── scripts/rag_pipeline/ # CLI cho ingestion + eval (collect_data, build_chunks, build_vector_db, ...)
+├── supabase/migrations/  # Schema: users/RBAC, conversations, tickets
 ├── docs/
-│   ├── guide/            # 📖 Technical Guidebook (10 chapters)
-│   └── architecture_diagram.md
-├── eval/                 # 📊 Evaluation results
-├── presentation/         # 🎤 Demo Day slides
-├── .github/workflows/    # ⚡ CI/CD (GitHub Actions)
-├── .github/hooks/        # 🪝 Copilot hook config
-├── Dockerfile            # 🐳 Multi-stage build
-├── docker-compose.yml    # 🐙 Full stack orchestration
-└── README_boilerplate.md # 📝 README template cho đội của bạn
+│   ├── rag-pipeline/     # PIPELINE.md, AGENT_API.md, folder_structure.md
+│   ├── project/          # Brief, PRD (.docx), diagrams chung
+│   └── guide/            # Technical Guidebook 10 chương (từ template gốc)
+├── tests/                # pytest suite
+├── presentation/         # Demo Day slides
+├── JOURNAL.md, WORKLOG.md
+└── docker-compose.yml, Dockerfile
 ```
 
-## 📚 Technical Guidebook — 10 Chương
+## 📋 Trạng thái hiện tại (2026-08-07)
 
-| Chương | Nội dung | Thời gian |
-|---------|----------|-----------|
-| 1 | Lời mở đầu — Mục tiêu, cách sử dụng | 15 phút |
-| 2 | Khởi tạo dự án — Clone, setup, git workflow | 4 giờ |
-| 3 | Thiết kế kiến trúc — 3-tier, diagrams, ADR | 6 giờ |
-| 4 | **LangGraph Agent** — State, nodes, edges, tools, RAG | 8 giờ |
-| 5 | FastAPI — Routes, validation, error handling, streaming | 6 giờ |
-| 6 | Giao diện — Next.js + Streamlit quickstart | 6 giờ |
-| 7 | DevOps — Docker, CI/CD, deploy, logging | 6 giờ |
-| 8 | Kiểm thử — Unit test, integration test, RAGAS | 4 giờ |
-| 9 | Demo Day — 10 deliverables, checklist, tips | 2 giờ |
-| 10 | Tài nguyên — Khóa học, docs, BMAD method | tham khảo |
+- ✅ Data ingestion + RAG agent (LangGraph) hoạt động end-to-end, pass rate 75.7%/140 câu eval, router accuracy 95.7%
+- ✅ Bộ eval 3 tầng có thống kê (bootstrap CI, kappa liên-giám khảo), coverage đang mở rộng từ 40% → phủ đủ 29/29 tài liệu
+- ⚠️ Latency p50 in-scope ~35s — chưa tối ưu cho demo, xem `docs/rag-pipeline/PIPELINE.md`
+- ⚠️ 2 kiến trúc backend song song (`src/api/` dùng Supabase Auth/RLS, `backend/` trên nhánh `develop` dùng JWT tự chế) — chưa chốt 1 hướng
+- ⚠️ Frontend chưa dựng trên nhánh này
+- 📄 Chi tiết vấn đề đang mở: theo dõi nội bộ trong `docs/reports/` (không đưa lên GitHub, xem `.gitignore`)
 
-📖 **Đọc online:** [phoenix.note.transformerlabs.ai/technical-book](https://phoenix.note.transformerlabs.ai/technical-book)
-
-## 📋 10 Deliverables cho Demo Day
-
-| # | Deliverable | File vị trí | Template có sẵn |
-|---|-------------|-------------|:---:|
-| 1 | Source Code | `src/` | ✅ |
-| 2 | README.md | `README_boilerplate.md` → copy thành `README.md` | ✅ |
-| 3 | Architecture Diagram | `docs/architecture_diagram.md` | ✅ |
-| 4 | AI Logs | LangSmith (3 env vars) + Auto AI Usage Logging | ✅ |
-| 5 | Live URL | Deploy lên Render/Vercel | ⚡ CI/CD sẵn |
-| 6 | Video Demo | `presentation/` | 📝 |
-| 7 | Pitch Deck | `presentation/` | 📝 |
-| 8 | Development Journal | `JOURNAL.md` | ✅ |
-| 9 | Worklog | `WORKLOG.md` | ✅ |
-| 10 | Evaluation Evidence | `eval/` | 📝 |
-
-## 🛠 Tech Stack
-
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| AI Agent | LangGraph + LangChain | Latest |
-| Backend | FastAPI + Uvicorn | 0.100+ |
-| LLM | OpenAI GPT-4o-mini | API |
-| Frontend | Next.js / Streamlit | 14+ / 1.30+ |
-| Database | SQLite (dev) / PostgreSQL (prod) | — |
-| DevOps | Docker + GitHub Actions | — |
-| Testing | pytest + pytest-asyncio | 8+ |
+Xem tiến độ chi tiết theo ngày ở [`WORKLOG.md`](WORKLOG.md) và theo tuần ở [`JOURNAL.md`](JOURNAL.md).
 
 ## 📊 AI Usage Logging
 
-Template đã tích hợp sẵn auto-logging hooks cho 6 AI tools:
+Prompt và tool-call của Claude Code/Cursor/Codex/Gemini CLI/Copilot được tự động log vào `.ai-log/session.jsonl` và submit lên grading server mỗi khi `git push` (yêu cầu đã chạy `scripts/setup_hooks.sh`). ChatGPT/web tools khác cần log thủ công:
 
-| Tool | Cơ chế | Config |
-|------|--------|--------|
-| Claude Code | `.claude/settings.json` hooks | Tự động |
-| Cursor | `.cursor/hooks.json` | Tự động |
-| OpenAI Codex CLI | `.codex/hooks.json` | Tự động |
-| Gemini CLI | `.gemini/settings.json` | Tự động |
-| GitHub Copilot | `.github/hooks/hooks.json` | Tự động |
-| Antigravity IDE | Pre-push scan transcript | Tự động trên `git push` |
-
-Tất cả prompts và tool calls được log vào `.ai-log/session.jsonl` và tự động submit lên grading server mỗi khi `git push`.
-
-**ChatGPT / web tools khác** — log thủ công:
 ```bash
 bash scripts/_pyrun.sh scripts/log_manual.py --tool chatgpt --prompt "What you asked"
 ```
 
-> ⚠️ Chạy `bash scripts/setup_hooks.sh` một lần sau khi clone để cài pre-push hook.
-
-## 📖 Đọc Technical Guidebook
-
-**Online (khuyến nghị):** [phoenix.note.transformerlabs.ai/technical-book](https://phoenix.note.transformerlabs.ai/technical-book)
-
-Đăng nhập bằng GitHub (cùng account đã được BTC mời vào org `AI20K-Build-Cohort-2`)
-→ chọn tab **Technical Book** ở sidebar trái → đọc 10 chương + topic sections,
-có table of contents bên phải, hỗ trợ light/dark/cyberpunk theme.
-
-**Offline:** mọi chương đều ở thư mục `docs/guide/` trong template này — mở bằng
-bất kỳ markdown viewer/editor nào (VS Code, Obsidian, GitHub UI, …).
-
 ## 🔗 Liên kết
 
-- 📖 **Technical Guidebook:** [phoenix.note.transformerlabs.ai/technical-book](https://phoenix.note.transformerlabs.ai/technical-book)
-- 🏫 **AI20K Program:** VinUni AI20K Build Phase
-- 👨‍🏫 **Mentor:** Đặng Hải Lộc
-
-## 📄 License
-
-MIT — Sử dụng tự do cho mục đích giáo dục.
+- 📖 Technical Guidebook (nguồn template): [phoenix.note.transformerlabs.ai/technical-book](https://phoenix.note.transformerlabs.ai/technical-book)
+- 🏫 VinUni AI20K Build Phase — Cohort 3

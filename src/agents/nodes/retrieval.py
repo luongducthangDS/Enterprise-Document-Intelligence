@@ -77,7 +77,7 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
 
 async def retrieval_node(state: AgentState) -> dict:
     settings = get_settings()
-    query = state.get("rewritten_query") or state.get("query", "")
+    query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
     embedding = await _aembed_query(query)
 
     collection = _collection()
@@ -202,7 +202,9 @@ def grade_node(state: AgentState) -> dict:
 
 
 async def rewrite_node(state: AgentState) -> dict:
-    query = state.get("query", "")
-    rewritten = (await acall_llm(_REWRITE_SYSTEM, query, temperature=0.3)).strip()
+    query = state.get("condensed_query") or state.get("query", "")
+    # temperature=0.0: cùng lý do như condense_node — đây là node quyết định query
+    # đưa vào retrieval lần thử lại, không phải node sinh văn phong tự nhiên.
+    rewritten = (await acall_llm(_REWRITE_SYSTEM, query, temperature=0.0)).strip()
     rewrite_count = state.get("rewrite_count", 0) + 1
     return {"rewritten_query": rewritten, "rewrite_count": rewrite_count}

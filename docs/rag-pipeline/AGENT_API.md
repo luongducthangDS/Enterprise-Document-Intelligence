@@ -1,11 +1,21 @@
 # Agent API Contract
 
-Điểm vào nội bộ của Agent là [`src/agents/service.py::answer(query: str) -> AgentAnswer`](../../src/agents/service.py). Không đọc `AgentState` (TypedDict nội bộ trong [`src/agents/state.py`](../../src/agents/state.py)) trực tiếp — nó có field runtime-only (`rewrite_count`, `hallucination_retry_count`, ...) không thuộc contract và có thể đổi bất cứ lúc nào theo nhu cầu nội bộ của graph.
+Điểm vào nội bộ của Agent là [`src/agents/service.py::answer(query: str, history: list[dict] | None = None) -> AgentAnswer`](../../src/agents/service.py). Không đọc `AgentState` (TypedDict nội bộ trong [`src/agents/state.py`](../../src/agents/state.py)) trực tiếp — nó có field runtime-only (`rewrite_count`, `hallucination_retry_count`, ...) không thuộc contract và có thể đổi bất cứ lúc nào theo nhu cầu nội bộ của graph.
 
 ```python
 from src.agents.service import answer
 
-result = await answer("Tôi được nghỉ mấy ngày phép năm?")  # -> AgentAnswer
+result = await answer("Tôi được nghỉ mấy ngày phép năm?")  # -> AgentAnswer, lượt đầu tiên
+
+# Lượt tiếp theo trong cùng hội thoại — caller tự truyền lại các lượt trước
+# (agent KHÔNG tự lưu session, xem mục "State hội thoại đa lượt" bên dưới).
+result2 = await answer(
+    "Vậy nghỉ ốm thì sao?",
+    history=[
+        {"role": "user", "content": "Tôi được nghỉ mấy ngày phép năm?"},
+        {"role": "assistant", "content": result.response},
+    ],
+)
 ```
 
 Khi Agent và Backend deploy riêng, Backend chỉ gọi HTTP endpoint nội bộ `POST /api/v1/agent/query`. Endpoint cũ `POST /api/v1/chat` được giữ lại để tương thích với client Agent hiện có.
@@ -31,6 +41,16 @@ Content-Type: application/json
 Response là `AgentAnswer` nguyên bản. `request_id`, `user_id` và `department` là trace context do Backend đã xác thực; Agent hiện không dùng chúng để truy cập dữ liệu cá nhân hoặc tự tạo ticket.
 
 Hai service dùng cùng secret qua `AI_AGENT_SERVICE_TOKEN` ở Backend và `AGENT_SERVICE_TOKEN` ở Agent. Có thể để trống trong local development; môi trường deploy phải cấu hình secret và chỉ expose Agent trong private network.
+
+`src/api/routes.py::POST /api/v1/chat` chỉ là một lớp mỏng gọi hàm này — `ChatResponse` kế thừa thẳng `AgentAnswer`, `ChatRequest` có thêm field `history: list[HistoryTurn]` (xem [`src/models/schemas.py`](../../src/models/schemas.py)).
+
+## State hội thoại đa lượt
+
+Agent vẫn **stateless** — không tự lưu session, không đọc Supabase `Conversation`/`Message` (bảng đó do backend quản lý). Mỗi lời gọi `answer()`/`POST /chat`, caller tự truyền lại các lượt gần nhất qua `history` (dạng `[{"role": "user"|"assistant", "content": str}, ...]`, thứ tự cũ → mới).
+
+Node đầu tiên của graph (`condense_node`, [`src/agents/nodes/condense.py`](../../src/agents/nodes/condense.py)) dùng `history` để viết lại câu hỏi hiện tại thành 1 câu hỏi độc lập, tự chứa đủ ngữ cảnh (thay đại từ/tham chiếu mơ hồ bằng thực thể cụ thể, giữ lại dữ kiện định lượng đã nêu ở lượt trước) trước khi vào router/retrieval/generate. Không truyền `history` (hoặc `history=[]`) → bỏ qua bước này hoàn toàn, không tốn thêm LLM call — hành vi giống hệt trước khi có field này.
+
+Chỉ `max_history_turns` lượt gần nhất (mặc định 8, `src/config.py`) được đưa vào prompt condense — hội thoại dài hơn bị cắt bớt phần cũ.
 
 ## Response shape (`AgentAnswer`)
 
@@ -80,8 +100,37 @@ Khớp `data/metadata/ticket_routing_rules.json::ticket_template`, thiếu đún
 
 Mỗi `Citation.is_official_policy=False` nghĩa là nguồn đến từ template công khai/tài liệu synthetic — **không phải chính sách chính thức của công ty**. `response` đã tự kèm cảnh báo này trong văn bản khi cần (xem `finalize_node`), nhưng nếu backend/frontend render citation card riêng, nên hiển thị lại cảnh báo đó thay vì chỉ liệt kê tên tài liệu — tránh để user hiểu nhầm là quy định chính thức.
 
+## Streaming (`astream_answer`)
+
+Bản streaming của `answer()`: [`src/agents/service.py::astream_answer(query, history=None) -> AsyncIterator[dict]`](../../src/agents/service.py). Dùng khi backend cần phản hồi tiến trình ngay thay vì im lặng 15-35s rồi trả 1 cục (xem "Giới hạn đã biết" bên dưới).
+
+**Quyết định kiến trúc quan trọng — KHÔNG stream token thô từ LLM.** `hallucination_check`/`confidence`/`redact_pii` chạy SAU khi model sinh xong câu trả lời và có thể FAIL/retry/cap điểm/che PII — tức có thể huỷ hoặc sửa toàn bộ nội dung. Stream token sống nghĩa là user thấy nội dung TRƯỚC KHI qua các lớp guardrail đó — đi ngược triết lý an toàn của cả pipeline (xem [`AI_SAFETY_GUARDRAILS.md`](AI_SAFETY_GUARDRAILS.md)). Vì vậy tách 2 luồng:
+
+1. **Tiến trình (`status`/`tool_start`/`tool_end`)** — phát LIVE ngay khi mỗi node LangGraph hoàn thành, chỉ là metadata (node nào vừa chạy xong), không chứa nội dung câu trả lời → an toàn tuyệt đối, giải quyết đúng vấn đề "màn hình chết".
+2. **Nội dung (`answer_delta`/`citation`)** — chỉ phát SAU KHI graph chạy xong toàn bộ, đã qua mọi guardrail giống hệt `answer()`, rồi chia nhỏ theo cụm ~15 từ để tạo hiệu ứng gõ chữ ở client. **Không giảm latency tới ký tự đầu tiên của câu trả lời** — đây là đánh đổi có chủ đích, không phải giới hạn chưa biết.
+
+Event shape (mỗi item là 1 dict, backend tự quyết định đóng gói SSE/WebSocket):
+
+| `type` | Field khác | Khi nào phát |
+|---|---|---|
+| `status` | `value: str` | Sau khi 1 node "đáng chờ" (condense có history/router/rewrite/generate/hallucination_check/escalate_ticket) chạy xong |
+| `tool_start` / `tool_end` | `tool: str` (`"hr_policy_search"`) | Bọc quanh node `retrieve` |
+| `answer_delta` | `content: str` | Sau khi graph xong, câu trả lời đã duyệt được chia nhỏ theo cụm từ |
+| `citation` | `source`, `title`, `page_start`, `is_official_policy` | 1 event/citation, sau `answer_delta` cuối |
+| `done` | `intent`, `confidence_score`, `needs_clarification`, `clarifying_question`, `escalate`, `escalate_reason`, `ticket_draft` | Event cuối cùng — tương đương phần metadata của `AgentAnswer` (trừ `response`/`citations` đã phát riêng ở trên) |
+| `error` | `message: str` | Khi graph lỗi giữa chừng — stream dừng ngay sau event này, không có `done` |
+
+```python
+from src.agents.service import astream_answer
+
+async for event in astream_answer("Tôi được nghỉ mấy ngày phép năm?"):
+    ...  # backend tự chuyển thành SSE: f"data: {json.dumps(event)}\n\n"
+```
+
+Node nào chạy đủ nhanh/thuần code (`grade`/`confidence`/`finalize`, hoặc `condense` khi không có `history` — 0-cost skip) không phát `status` riêng, tránh spam.
+
 ## Giới hạn đã biết
 
-- **Latency**: p50 ~15-35s cho câu hỏi cần RAG đầy đủ (router → retrieve → grade → generate → hallucination-check → confidence), tuỳ tải hệ thống. Chưa tối ưu trong đợt này — xem ghi chú trong `eval/results/report.md`. Backend nên có timeout/loading state phù hợp, không giả định phản hồi tức thời.
-- **Không có streaming.** `answer()` trả về sau khi toàn bộ graph chạy xong.
-- **Không có state hội thoại đa lượt.** Mỗi lời gọi `answer(query)` độc lập — agent không tự nhớ câu hỏi trước đó. Nếu cần multi-turn, backend phải tự truyền lại ngữ cảnh vào `query` (chưa có API riêng cho việc này).
+- **Latency tới câu trả lời cuối cùng**: p50 ~15-35s cho câu hỏi cần RAG đầy đủ (router → retrieve → grade → generate → hallucination-check → confidence), tuỳ tải hệ thống — `astream_answer` cho phản hồi tiến trình sớm hơn nhưng KHÔNG rút ngắn tổng thời gian này. Chưa tối ưu trong đợt này — xem ghi chú trong `eval/results/report.md`.
+- **Multi-turn qua `history`, không qua session ở agent.** Xem mục "State hội thoại đa lượt" ở trên — backend/caller chịu trách nhiệm lưu trữ và truyền lại lịch sử mỗi lần gọi, agent không tự nhớ.
+- **Chưa xử lý câu hỏi tổng hợp nhiều tài liệu trong 1 lượt** (vd "tổng hợp tất cả quyền lợi khi nghỉ việc" cần gộp OT + phép + trợ cấp thôi việc + BHXH) — retrieval hiện chỉ chạy 1 lần cho toàn câu hỏi, chưa có query decomposition.

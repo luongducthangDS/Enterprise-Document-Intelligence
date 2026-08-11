@@ -9,10 +9,23 @@ from src.config import get_settings
 class TestRouterNode:
     def test_get_router_system_includes_internal_names(self):
         settings = get_settings()
-        settings.internal_company_names = ["vingroup", "vinfast"]
-        prompt = _get_router_system()
-        assert "vingroup, vinfast" in prompt
-        assert "VinFast" not in prompt # just to ensure we check what is rendered
+        original = settings.internal_company_names
+        try:
+            settings.internal_company_names = ["v-nova", "vnova"]
+            prompt = _get_router_system()
+            assert "v-nova, vnova" in prompt
+            assert "VinFast" not in prompt
+        finally:
+            settings.internal_company_names = original
+
+    @pytest.mark.asyncio
+    async def test_named_company_question_is_out_of_scope_before_llm(self):
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+            result = await router_node({"query": "Tôi là nhân viên VinFast, lương thưởng thế nào?"})
+
+        assert result["intent"] == "out_of_scope_or_personal"
+        llm.assert_not_called()
+
     @pytest.mark.asyncio
     async def test_parses_valid_intent_from_llm_output(self):
         with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")):

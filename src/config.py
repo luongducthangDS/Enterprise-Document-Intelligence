@@ -14,12 +14,13 @@ class Settings(BaseSettings):
 
     # App
     app_name: str = "AI20K Agent"
-    # Tên các công ty XUẤT HIỆN TRONG CHÍNH KHO TÀI LIỆU của mình — hỏi về chúng
-    # là hỏi tài liệu nội bộ, không phải hỏi đối thủ. "V-NOVA" là công ty giả
-    # định trong bộ chính sách synthetic (05/06/07/08_*.md); thiếu nó thì router
-    # từ chối luôn các câu hỏi về chính sách WFH/đào tạo/nghỉ phép của mình.
+    # Tên persona nội bộ dùng cho demo. Không đưa tên doanh nghiệp thật vào đây:
+    # các tài liệu corporate policy thật chỉ là nguồn tham khảo, không phải chính
+    # sách đang áp dụng cho một công ty cụ thể. "V-NOVA" là công ty giả định trong
+    # bộ chính sách synthetic (05/06/07/08_*.md); thiếu nó thì router từ chối luôn
+    # các câu hỏi về chính sách WFH/đào tạo/nghỉ phép của persona demo.
     internal_company_names: list[str] = Field(
-        default_factory=lambda: ["vingroup", "vinfast", "v-nova", "vnova"]
+        default_factory=lambda: ["v-nova", "vnova"]
     )
     app_env: Literal["development", "production", "test"] = "development"
     app_port: int = Field(default=8000, ge=1, le=65535)
@@ -66,6 +67,13 @@ class Settings(BaseSettings):
     # Giữ rỗng (dùng GLM-5.2) cho tới khi có model khác đạt ngưỡng.
     router_model: str = "DeepSeek-V4-Flash"
     hallucination_model: str = ""
+    # Model viết lại câu hỏi hiện tại thành câu hỏi độc lập dựa trên lịch sử hội
+    # thoại (condense_node) — cùng dạng tác vụ rewrite như router, không cần
+    # model reasoning to. Rỗng = dùng llm_model.
+    condense_model: str = ""
+    # Số lượt hội thoại gần nhất đưa vào prompt condense — chặn phình token khi
+    # hội thoại dài, các lượt cũ hơn không còn cần thiết để viết lại câu hỏi.
+    max_history_turns: int = 8
     # Model chấm điểm trong eval — PHẢI khác họ với `llm_model`. Nếu để cùng
     # model vừa sinh dữ liệu, vừa trả lời, vừa chấm thì phần lớn thứ đo được là
     # độ nhất quán của model với chính nó, không phải chất lượng hệ thống
@@ -114,6 +122,12 @@ class Settings(BaseSettings):
     # nhóm "reranker tự tin vào đoạn sai", vốn có score 0.78-1.00 nên ngưỡng
     # này dù cao tới đâu cũng không bắt được.
     low_confidence_threshold: float = 0.2
+
+    # Guardrail kỹ thuật (src/agents/guardrails.py) — deterministic, không gọi
+    # LLM. Toggle riêng cho từng lớp để có thể tắt nhanh nếu đo được false
+    # positive trong production, không cần deploy lại code.
+    guardrail_injection_enabled: bool = True
+    guardrail_pii_redaction_enabled: bool = True
 
     # Chunking
     chunk_target_chars: int = 1200

@@ -1,5 +1,6 @@
 from langgraph.graph import END, StateGraph
 
+from src.agents.nodes.condense import condense_node
 from src.agents.nodes.escalation import confidence_node, escalate_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
@@ -64,6 +65,7 @@ def route_after_confidence(state: AgentState) -> str:
 def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
+    graph.add_node("condense", condense_node)
     graph.add_node("router", router_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
@@ -76,7 +78,8 @@ def build_graph() -> StateGraph:
     graph.add_node("escalate_ticket", escalate_node)
     graph.add_node("finalize", finalize_node)
 
-    graph.set_entry_point("router")
+    graph.set_entry_point("condense")
+    graph.add_edge("condense", "router")
     graph.add_conditional_edges(
         "router",
         route_by_intent,

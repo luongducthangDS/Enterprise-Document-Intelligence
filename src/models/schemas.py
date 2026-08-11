@@ -7,8 +7,16 @@ from pydantic import BaseModel, Field
 from src.agents.state import Intent
 
 
+class HistoryTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=5000, description="Tin nhắn từ user")
+    history: list[HistoryTurn] = Field(
+        default_factory=list, description="Các lượt hội thoại trước đó (cũ -> mới), rỗng nếu là lượt đầu"
+    )
 
 
 class AgentQueryRequest(BaseModel):
