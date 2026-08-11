@@ -1,100 +1,83 @@
-%%{init: {
-  "flowchart": { "defaultRenderer": "elk" },
-  "theme": "dark",
-  "themeVariables": {
-    "primaryColor": "#1e1e2e",
-    "primaryTextColor": "#cdd6f4",
-    "primaryBorderColor": "#45475a",
-    "lineColor": "#89b4fa",
-    "secondaryColor": "#181825",
-    "tertiaryColor": "#11111b",
-    "background": "#1e1e2e",
-    "mainBkg": "#1e1e2e",
-    "nodeBorder": "#45475a",
-    "clusterBkg": "#181825",
-    "clusterBorder": "#585b70",
-    "titleColor": "#cdd6f4",
-    "edgeLabelBackground": "#313244",
-    "fontFamily": "Inter, Segoe UI, sans-serif"
-  }
-}}%%
-
+%% End-to-end product workflow after Agent-BE-FE mapping.
 flowchart TD
+    subgraph LEGEND["Legend"]
+        CURRENT["Implemented"]
+        FUTURE["Future"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% ENTRY
-  %% ─────────────────────────────────────────────
-  USER(["User\nEmployee / HR Admin"])
+    START["User opens Next.js application"]
+    LOGIN["Login with email and password"]
+    AUTH{"JWT valid?"}
+    ROLE["BE returns profile, role and department"]
+    HOME{"Selected function"}
 
-  %% ─────────────────────────────────────────────
-  %% SCREEN 1 — Login & Auth
-  %% ─────────────────────────────────────────────
-  subgraph S1 ["SCREEN 1 — Login & Auth"]
-    direction TB
-    S1_ROLE["Role Selection\n─────────────────────────────\nEmployee  /  HR Admin"]
-    S1_2FA["2FA Verification\n─────────────────────────────\nOne-time code check"]
-    S1_ROLE --> S1_2FA
-  end
+    subgraph CHAT["Current chat workflow"]
+        CONV["Create active conversation"]
+        QUESTION["Submit question"]
+        REQUEST["BE persists user Message and ChatRequest=QUEUED"]
+        TASK["Background task calls Agent service"]
+        AGENT["LangGraph routes, retrieves, reranks,\ngenerates and evaluates confidence"]
+        MAP["BE maps AgentAnswer and persists result"]
+        POLL["FE polls ChatRequest"]
+        CHAT_STATE{"Terminal state"}
+        ANSWER["COMPLETED\nRender answer, warnings and citations"]
+        SOURCE["Open citation detail\nOwnership and confidentiality checked"]
+        CLARIFY["CLARIFICATION_REQUIRED\nRender clarifying question"]
+        FOLLOWUP["Submit clarification in same conversation"]
+        CONTEXT["BE combines original question,\nclarifying question and new answer"]
+        REFUSED["REFUSED\nRender insufficient-evidence/escalation note"]
+        TICKET["Create TicketDB when escalate=true"]
+        FAILED["FAILED\nRender safe error and retry action"]
+        RETRY["Create child ChatRequest\nKeep parent_chat_request_id"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% SCREEN 2 — AI Assistant Chat
-  %% ─────────────────────────────────────────────
-  subgraph S2 ["SCREEN 2 — AI Assistant Chat"]
-    direction TB
-    S2_QUERY["User Query\n─────────────────────────────\n\"What's the hybrid work policy?\""]
-    S2_THINK["Routing & Retrieval\n─────────────────────────────\nThinking indicator"]
-    S2_CONF["Confidence Score\n─────────────────────────────\nHigh / Low indicator"]
-    S2_ANSWER["Answer Card\n─────────────────────────────\nResponse + clickable citations"]
-    S2_QUERY --> S2_THINK --> S2_CONF --> S2_ANSWER
-  end
+    subgraph ADMIN["Current HR Admin workflow"]
+        ADMIN_RBAC{"HR_ADMIN or SUPER_ADMIN?"}
+        DOCS["Upload/list/detail/archive documents"]
+        DOC_JOB["Create IngestionJob=QUEUED"]
+        INDEX["Create and poll index rebuild job"]
+        EVAL["Create and poll evaluation run"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% SCREEN 3 — Ticket Escalation Pop-up
-  %% ─────────────────────────────────────────────
-  subgraph S3 [" SCREEN 3 — Ticket Escalation Pop-up"]
-    direction TB
-    S3_WARN["Low Confidence Warning\n─────────────────────────────\nAnswer flagged uncertain"]
-    S3_MODAL["HR Ticket Created\n─────────────────────────────\nAuto-generated pop-up modal"]
-    S3_WARN --> S3_MODAL
-  end
+    subgraph FUTURE_FLOW["Future workflow"]
+        TWO_FA["2FA / SSO"]
+        INGEST["Persist source file, extract, clean,\nchunk, embed and upsert ChromaDB"]
+        DURABLE["Durable queue, timeout recovery and idempotency"]
+        TICKET_UI["Ticket list, assignment, resolution,\nnotification and ticket status in FE"]
+        MONITOR["Monitoring and user feedback"]
+        RETRIEVAL_RBAC["Filter Agent retrieval by access scope"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% SCREEN 4 — HR Admin Dashboard
-  %% ─────────────────────────────────────────────
-  subgraph S4 ["SCREEN 4 — HR Admin Dashboard"]
-    direction TB
-    S4_TICKETS["Ticket Management Table\n─────────────────────────────\nStatus, assignee, SLA"]
-    S4_DOCS["Document Management\n─────────────────────────────\nUpload + vector indexing status"]
-  end
+    START --> LOGIN --> AUTH
+    AUTH -->|"No"| LOGIN
+    AUTH -->|"Yes"| ROLE --> HOME
+    HOME -->|"Chat"| CONV --> QUESTION --> REQUEST
+    REQUEST --> TASK --> AGENT --> MAP
+    REQUEST --> POLL
+    MAP --> POLL --> CHAT_STATE
+    CHAT_STATE -->|"COMPLETED"| ANSWER --> SOURCE
+    CHAT_STATE -->|"CLARIFICATION_REQUIRED"| CLARIFY --> FOLLOWUP --> CONTEXT --> REQUEST
+    CHAT_STATE -->|"REFUSED"| REFUSED
+    MAP -->|"escalate=true"| TICKET --> REFUSED
+    CHAT_STATE -->|"FAILED"| FAILED --> RETRY --> TASK
 
-  %% ═════════════════════════════════════════════
-  %% WORKFLOW EDGES (agent flow labels)
-  %% ═════════════════════════════════════════
-  USER -->|"Login"| S1_ROLE
-  S1_2FA -->|"Check Auth"| S2_QUERY
-  S2_THINK -->|"Intent Router & RAG Retrieval"| S2_CONF
+    HOME -->|"Admin"| ADMIN_RBAC
+    ADMIN_RBAC -->|"Denied"| HOME
+    ADMIN_RBAC -->|"Allowed"| DOCS --> DOC_JOB
+    ADMIN_RBAC -->|"Allowed"| INDEX
+    ADMIN_RBAC -->|"Allowed"| EVAL
 
-  S2_CONF -->|"Hallucination Check Pass\n(High confidence)"| S2_ANSWER
-  S2_ANSWER --> END_OK(["Final Answer Shown"])
-  S2_CONF -->|"Hallucination Check Fail\n(Low confidence)"| S3_WARN
-  S3_MODAL -->|"Auto Escalation"| S4_TICKETS
+    LOGIN -.-> TWO_FA
+    DOC_JOB -.-> INGEST
+    INDEX -.-> INGEST
+    REQUEST -.-> DURABLE
+    TICKET -.-> TICKET_UI
+    HOME -.-> MONITOR
+    AGENT -.-> RETRIEVAL_RBAC
 
-  S4_TICKETS -->|"HR resolves & notifies user"| S2_ANSWER
-  S4_DOCS -->|"Re-index"| S2_THINK
-
-  %% ─────────────────────────────────────────────
-  %% STYLING
-  %% ─────────────────────────────────────────────
-  classDef entryNode   fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
-  classDef authNode    fill:#1c2b3a,stroke:#89b4fa,stroke-width:1.5px,color:#cce7ff
-  classDef chatNode    fill:#1e1e2e,stroke:#89b4fa,stroke-width:1.5px,color:#cdd6f4
-  classDef escNode     fill:#4a1a1a,stroke:#e74c3c,stroke-width:2px,color:#ffcccc
-  classDef dashNode    fill:#3b1f5e,stroke:#a855f7,stroke-width:1.5px,color:#f3e8ff
-  classDef endOk       fill:#1a472a,stroke:#2ecc71,stroke-width:2px,color:#ffffff
-
-  class USER entryNode
-  class S1_ROLE,S1_2FA authNode
-  class S2_QUERY,S2_THINK,S2_ANSWER,S2_CONF chatNode
-  class S3_WARN,S3_MODAL escNode
-  class S4_TICKETS,S4_DOCS dashNode
-  class END_OK endOk
+    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
+    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
+    classDef decision fill:#172554,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+    class START,LOGIN,ROLE,CONV,QUESTION,REQUEST,TASK,AGENT,MAP,POLL,ANSWER,SOURCE,CLARIFY,FOLLOWUP,CONTEXT,REFUSED,TICKET,FAILED,RETRY,DOCS,DOC_JOB,INDEX,EVAL,CURRENT current;
+    class AUTH,HOME,CHAT_STATE,ADMIN_RBAC decision;
+    class TWO_FA,INGEST,DURABLE,TICKET_UI,MONITOR,RETRIEVAL_RBAC,FUTURE future;
