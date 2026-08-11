@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 import uuid
 from unittest.mock import AsyncMock
 
@@ -171,6 +172,7 @@ async def test_agent_history_preserves_follow_up_context():
         session.add(original_request)
         await session.flush()
 
+        now = datetime.now(UTC)
         session.add(
             MessageDB(
                 id=original_user_message_id,
@@ -178,6 +180,7 @@ async def test_agent_history_preserves_follow_up_context():
                 role="user",
                 content="How many annual leave days do I receive?",
                 chat_request_id=original_request_id,
+                created_at=now,
             )
         )
         session.add(
@@ -187,6 +190,7 @@ async def test_agent_history_preserves_follow_up_context():
                 role="assistant",
                 content="Are you a full-time or probationary employee?",
                 chat_request_id=original_request_id,
+                created_at=now + timedelta(seconds=1),
             )
         )
         await session.commit()
