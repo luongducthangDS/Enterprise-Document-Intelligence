@@ -88,6 +88,16 @@ def test_create_index_rebuild_success():
     assert res["data"]["poll_after_ms"] == 2000
 
 
+def test_employee_cannot_create_index_rebuild():
+    headers = get_auth_header(role="EMPLOYEE")
+    response = client.post(
+        "/api/v1/indexes/rebuilds",
+        headers=headers,
+        json={"document_ids": None, "strategy": "REPLACE"},
+    )
+    assert response.status_code == 403
+
+
 def test_create_index_rebuild_conflict():
     headers = get_auth_header()
     payload = {

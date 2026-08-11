@@ -84,6 +84,30 @@ def test_upload_document_success():
     assert res["data"]["status"] == "ACTIVE"
 
 
+def test_upload_document_accepts_legacy_lowercase_admin_role():
+    headers = get_auth_header(role="hr_admin")
+    files = {"file": ("legacy_admin.pdf", io.BytesIO(b"%PDF-1.4 Legacy admin"), "application/pdf")}
+
+    response = client.post("/api/v1/documents", headers=headers, files=files)
+
+    assert response.status_code == 201
+
+
+def test_employee_cannot_upload_or_list_documents():
+    headers = get_auth_header(
+        user_id="77777777-7777-7777-7777-777777777777",
+        email="doc_user@company.com",
+        role="EMPLOYEE",
+    )
+    files = {"file": ("forbidden.pdf", io.BytesIO(b"%PDF-1.4 Forbidden"), "application/pdf")}
+
+    upload_response = client.post("/api/v1/documents", headers=headers, files=files)
+    list_response = client.get("/api/v1/documents", headers=headers)
+
+    assert upload_response.status_code == 403
+    assert list_response.status_code == 403
+
+
 def test_upload_document_unsupported_type():
     headers = get_auth_header()
     file_content = b"Binary data executable"

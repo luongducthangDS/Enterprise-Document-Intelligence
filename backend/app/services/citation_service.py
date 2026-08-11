@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from sqlalchemy import or_, select
@@ -5,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ForbiddenError, NotFoundError
 from app.domain.models.chat_requests import ChatRequestDB
+from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
 
@@ -28,12 +30,22 @@ class CitationService:
         user: dict[str, Any],
     ) -> dict[str, Any]:
         clean_cit_id = citation_id.strip()
+        user_id = uuid.UUID(str(user.get("user_id")))
 
-        msg_res = await db.execute(select(MessageDB).where(MessageDB.citations.is_not(None)))
+        msg_res = await db.execute(
+            select(MessageDB)
+            .join(ConversationDB, ConversationDB.id == MessageDB.conversation_id)
+            .where(MessageDB.citations.is_not(None), ConversationDB.user_id == user_id)
+        )
         found_item = cls._find_in_rows(list(msg_res.scalars().all()), clean_cit_id)
 
         if not found_item:
-            req_res = await db.execute(select(ChatRequestDB).where(ChatRequestDB.citations.is_not(None)))
+            req_res = await db.execute(
+                select(ChatRequestDB).where(
+                    ChatRequestDB.citations.is_not(None),
+                    ChatRequestDB.user_id == user_id,
+                )
+            )
             found_item = cls._find_in_rows(list(req_res.scalars().all()), clean_cit_id)
 
         if not found_item:

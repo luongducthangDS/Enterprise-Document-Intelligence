@@ -55,6 +55,8 @@ node_modules/
 .next/
 out/
 .nuxt/
+.pnpm-store/
+*.tsbuildinfo
 
 # Build
 *.pyc

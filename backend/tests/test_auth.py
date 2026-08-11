@@ -179,7 +179,7 @@ def test_api_register_endpoint_success():
     res_data = response.json()
     assert res_data["success"] is True
     assert res_data["data"]["email"] == "newuser@company.com"
-    assert res_data["data"]["role"].upper() == "EMPLOYEE"
+    assert res_data["data"]["role"] == "EMPLOYEE"
     assert res_data["data"]["department"] == "Marketing"
 
 

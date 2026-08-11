@@ -55,7 +55,7 @@ class AuthService:
         )
         new_profile = ProfileDB(
             display_name=full_name,
-            role="employee",
+            role="EMPLOYEE",
             employment_status="full_time",
             department=register_data.department or "IT",
             contract_type="khong_xac_dinh_thoi_han",
@@ -76,14 +76,14 @@ class AuthService:
             id=str(user.id),
             email=user.email,
             full_name=user.profile.display_name,
-            role=user.profile.role,
+            role=user.profile.role.upper(),
             department=user.profile.department,
         )
 
     @classmethod
     async def login(cls, db: AsyncSession, login_data: LoginRequest) -> TokenResponse:
         user = await cls.authenticate_user(db, login_data.email, login_data.password)
-        role = user.profile.role if user.profile else "employee"
+        role = (user.profile.role if user.profile else "EMPLOYEE").upper()
         department = user.profile.department if user.profile else ""
 
         payload = {
@@ -122,7 +122,7 @@ class AuthService:
         if not user:
             raise AuthenticationError("User associated with token no longer exists")
 
-        role = user.profile.role if user.profile else "employee"
+        role = (user.profile.role if user.profile else "EMPLOYEE").upper()
         department = user.profile.department if user.profile else ""
 
         new_access_payload = {

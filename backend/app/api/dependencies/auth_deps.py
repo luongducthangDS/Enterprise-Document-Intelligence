@@ -22,10 +22,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     if payload.get("type") != "access":
         raise AuthenticationError("Invalid token type. Expected access token")
 
+    role = str(payload.get("role") or "EMPLOYEE").upper()
     return {
         "user_id": payload.get("sub"),
         "email": payload.get("email"),
-        "role": payload.get("role"),
+        "role": role,
         "department": payload.get("department"),
     }
 
@@ -33,8 +34,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
 def require_role(allowed_roles: list[str]):
     """Dependency factory kiểm tra quyền truy cập RBAC."""
 
+    normalized_roles = {role.upper() for role in allowed_roles}
+
     async def role_checker(current_user: dict = Depends(get_current_user)):
-        if current_user.get("role") not in allowed_roles:
+        if str(current_user.get("role") or "").upper() not in normalized_roles:
             raise ForbiddenError("You do not have permission to access this resource.")
         return current_user
 

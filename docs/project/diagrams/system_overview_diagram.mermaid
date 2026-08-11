@@ -1,132 +1,81 @@
-%%{init: {
-  "theme": "dark",
-  "themeVariables": {
-    "primaryColor": "#1e1e2e",
-    "primaryTextColor": "#cdd6f4",
-    "primaryBorderColor": "#45475a",
-    "lineColor": "#89b4fa",
-    "secondaryColor": "#181825",
-    "tertiaryColor": "#11111b",
-    "background": "#1e1e2e",
-    "mainBkg": "#1e1e2e",
-    "nodeBorder": "#45475a",
-    "clusterBkg": "#181825",
-    "clusterBorder": "#585b70",
-    "titleColor": "#cdd6f4",
-    "edgeLabelBackground": "#313244",
-    "fontFamily": "Inter, Segoe UI, sans-serif"
-  }
-}}%%
+%% Logical system boundaries after Agent-BE-FE mapping.
+flowchart LR
+    subgraph LEGEND["Legend"]
+        CURRENT["Implemented"]
+        FUTURE["Future"]
+    end
 
-flowchart TD
+    USER["Employee / HR Admin"]
 
-  subgraph LEGEND ["Scope Legend"]
-    direction LR
-    LEG_MVP["MVP Scope\nBuild for first demo"]
-    LEG_TARGET["Target / Future Scope\nKeep in design, implement later"]
-  end
+    subgraph FE["Frontend - Next.js"]
+        FE_AUTH["Login and session UI"]
+        FE_CHAT["Chat, polling, clarification and retry"]
+        FE_SOURCE["Citation source panel"]
+        FE_ADMIN["Documents, index and evaluation"]
+        FE_FUTURE["Ticket dashboard, monitoring and feedback"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% USER (external actor)
-  %% ─────────────────────────────────────────────
-  USER(["👤 Người Dùng\n(Employee / HR Admin)"])
+    subgraph BE["Backend - FastAPI adapter and system of record"]
+        BE_AUTH["JWT authentication and role RBAC"]
+        BE_CHAT["Conversation and ChatService"]
+        BE_CLIENT["AIAgentClient"]
+        BE_ADAPTER["AgentAnswerAdapter"]
+        BE_DOC["Document, index and evaluation services"]
+        BE_CIT["Citation ownership and access control"]
+        BE_TICKET["TicketDB creation from TicketDraft"]
+        BE_FUTURE["Idempotency, durable workers, rate limit,\nticket API, monitoring and feedback"]
+    end
 
-  %% ─────────────────────────────────────────────
-  %% KHỐI 1: FRONTEND (React)
-  %% ─────────────────────────────────────────────
-  subgraph FE ["🖥️  FRONTEND — React"]
-    direction TB
-    FE_AUTH["🔐 Employee & HR Admin Interface\n─────────────────────────────\nXác thực 2 vai trò\n(Employee / HR Admin)"]
-    FE_CHAT["💬 Chat Interface\n─────────────────────────────\nHỏi đáp tài liệu nội bộ\nHiển thị trích dẫn nguồn\nCảnh báo độ tin cậy thấp"]
-    FE_DOC["📂 Document Management\n─────────────────────────────\nHR Upload & Cập nhật Chính sách\nPhân quyền theo Phòng ban"]
-    FE_DASH["📊 HR Dashboard\n─────────────────────────────\nThống kê câu hỏi phổ biến\nGợi ý cập nhật chính sách\nQuản lý Ticket hỗ trợ"]
+    subgraph AI["Agent service - stateless LangGraph workflow"]
+        AI_API["Internal Agent query API"]
+        AI_ROUTER["Intent routing"]
+        AI_DIRECT["Direct response, clarification or refusal"]
+        AI_RAG["Dense retrieval, optional BM25/RRF and rerank"]
+        AI_GEN["Generation, hallucination check and confidence"]
+        AI_ESC["Escalation decision and TicketDraft"]
+        AI_RESULT["AgentAnswer"]
+        AI_ACL["Role and department filtering during retrieval"]
+        AI_INGEST["Online document ingestion endpoint"]
+    end
 
+    PG[("PostgreSQL\nBusiness and conversation data")]
+    CHROMA[("ChromaDB\nRAG chunks and embeddings")]
+    FPT["FPT.AI\nLLM, embeddings and reranker"]
+    INGEST["Storage and ingestion worker"]
+
+    USER --> FE_AUTH
     FE_AUTH --> FE_CHAT
-    FE_AUTH --> FE_DOC
-    FE_AUTH --> FE_DASH
-  end
+    FE_AUTH --> FE_ADMIN
+    FE_CHAT --> FE_SOURCE
 
-  %% ─────────────────────────────────────────────
-  %% KHỐI 2: BACKEND (FastAPI)
-  %% ─────────────────────────────────────────────
-  subgraph BE ["⚙️  BACKEND — FastAPI"]
-    direction TB
-    BE_API["🌐 API Endpoints\n─────────────────────────────\nGateway xử lý toàn bộ Request\nRouting & Load Balancing"]
-    BE_AUTH["🛡️ Authentication & RBAC\n─────────────────────────────\nPhân quyền theo Vai trò & Phòng ban\nJWT Token Validation\nGiới hạn Rate Limit / Quota"]
-    BE_TICKET["🎫 Ticket Escalation Manager\n─────────────────────────────\nTự động / Thủ công tạo Ticket\nNotification & Assignment\nTracking trạng thái"]
-    BE_PG[("🗄️ PostgreSQL\n─────────────────────────────\nLịch sử Hội thoại\nTicket & Metadata\nThống kê sử dụng")]
-    BE_REDIS[("⚡ Redis Cache\n─────────────────────────────\nCache câu hỏi phổ biến\nSession Management\nRate Limit Counter")]
+    FE_AUTH -->|"REST"| BE_AUTH
+    FE_CHAT -->|"REST polling"| BE_CHAT
+    FE_SOURCE -->|"REST"| BE_CIT
+    FE_ADMIN -->|"REST"| BE_DOC
 
-    BE_API --> BE_AUTH
-    BE_API --> BE_PG
-    BE_API --> BE_REDIS
-    BE_API --> BE_TICKET
-  end
+    BE_AUTH --> PG
+    BE_CHAT --> PG
+    BE_DOC --> PG
+    BE_CIT --> PG
+    BE_TICKET --> PG
+    BE_CHAT --> BE_CLIENT -->|"Internal REST"| AI_API
+    AI_API --> AI_ROUTER
+    AI_ROUTER -->|"HR question"| AI_RAG --> AI_GEN --> AI_ESC --> AI_RESULT
+    AI_ROUTER -->|"Greeting, ambiguous or out of scope"| AI_DIRECT --> AI_RESULT
+    AI_RAG --> CHROMA
+    AI_RAG --> FPT
+    AI_GEN --> FPT
+    AI_RESULT --> BE_ADAPTER
+    BE_ADAPTER --> BE_CHAT
+    BE_ADAPTER --> BE_TICKET
 
-  %% ─────────────────────────────────────────────
-  %% KHỐI 3: AI AGENT CORE
-  %% ─────────────────────────────────────────────
-  subgraph AI ["🤖  AI AGENT CORE — LangGraph & LlamaIndex / LangChain"]
-    direction TB
-    AI_ROUTER["🧭 Intent Router & Query Planner\n─────────────────────────────\nLập kế hoạch truy vấn Đa tài liệu\nĐánh giá độ tin cậy\nLangGraph Orchestration"]
-    AI_MEMORY["🧠 Agent Memory\n─────────────────────────────\nQuản lý Ngữ cảnh Hội thoại\nIndexed theo User ID\nShort-term & Long-term"]
-    AI_RAG["🔍 RAG & Retrieval Engine\n─────────────────────────────\nLlamaIndex / LangChain Retrieval\nHybrid Search (Dense + Sparse)\nCohere Reranker"]
-    AI_VDB[("🗃️ Vector DB\n─────────────────────────────\nPinecone / Qdrant\nLưu trữ Vector Embeddings\nSemantic Search Index")]
-    AI_LLM["✨ LLM Provider\n─────────────────────────────\nGPT-4o / Claude 3.5 / Llama 3\nPrompt Engineering\nResponse Synthesis"]
+    FE_FUTURE -.-> BE_FUTURE
+    BE_DOC -.-> INGEST
+    INGEST -.-> AI_INGEST
+    AI_INGEST -.-> CHROMA
+    AI_ACL -.-> AI_RAG
 
-    AI_ROUTER --> AI_MEMORY
-    AI_ROUTER --> AI_RAG
-    AI_RAG --> AI_VDB
-    AI_VDB --> AI_RAG
-    AI_RAG --> AI_LLM
-  end
-
-  %% ─────────────────────────────────────────────
-  %% LUỒNG KẾT NỐI CHÍNH (EDGES)
-  %% ─────────────────────────────────────────────
-
-  %% [1] User → Frontend
-  USER -->|"Truy cập giao diện"| FE_AUTH
-
-  %% [2] Frontend → Backend API
-  FE_CHAT -->|"HTTP Request / WebSocket"| BE_API
-  FE_DOC  -->|"Upload tài liệu / Cấu hình quyền"| BE_API
-  FE_DASH -->|"Truy vấn thống kê & Ticket"| BE_API
-
-  %% [3] Backend → AI Core
-  BE_AUTH -->|"✅ Access Token + Dept Context"| BE_API
-  BE_API  -->|"🚀 Dispatch AI Query\n(User ID + Query + Context)"| AI_ROUTER
-
-  %% [4] Ticket Escalation từ AI → Backend
-  AI_ROUTER -->|"⚠️ Độ tin cậy thấp hoặc\nyêu cầu hỗ trợ trực tiếp"| BE_TICKET
-
-  %% [5] Backend → Frontend (Response)
-  BE_API -->|"📨 Trả về Response\n(Answer + Citations + Confidence)"| FE_CHAT
-  BE_TICKET -->|"🎫 Cập nhật trạng thái Ticket"| FE_DASH
-
-  %% [6] LLM → Intent Router (kết quả)
-  AI_LLM -->|"📝 Generated Answer + Confidence Score"| AI_ROUTER
-  AI_ROUTER -->|"✅ Final Response"| BE_API
-
-  %% ─────────────────────────────────────────────
-  %% STYLING
-  %% ─────────────────────────────────────────────
-  classDef frontendNode  fill:#1e3a5f,stroke:#3b82f6,stroke-width:1.5px,color:#e0f2fe,rx:6
-  classDef backendNode   fill:#1e3a2f,stroke:#22c55e,stroke-width:1.5px,color:#dcfce7,rx:6
-  classDef aiNode        fill:#3b1f5e,stroke:#a855f7,stroke-width:1.5px,color:#f3e8ff,rx:6
-  classDef dbNode        fill:#1a1a2e,stroke:#f59e0b,stroke-width:2px,color:#fef3c7,rx:6
-  classDef userNode      fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
-
-  class FE_AUTH,FE_CHAT,FE_DOC,FE_DASH frontendNode
-  class BE_API,BE_AUTH,BE_TICKET backendNode
-  class BE_PG,BE_REDIS dbNode
-  class AI_ROUTER,AI_MEMORY,AI_RAG,AI_LLM aiNode
-  class AI_VDB dbNode
-  class USER userNode
-
-  %% Scope overlay: keep all nodes, but separate MVP from target/future scope.
-  classDef mvpScope      fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8,rx:6
-  classDef futureScope   fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,rx:6,stroke-dasharray: 6 4
-
-  class LEG_MVP,USER,FE_AUTH,FE_CHAT,BE_API,AI_ROUTER,AI_MEMORY,AI_RAG,AI_VDB,AI_LLM mvpScope
-  class LEG_TARGET,FE_DOC,FE_DASH,BE_AUTH,BE_TICKET,BE_PG,BE_REDIS futureScope
+    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
+    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
+    class USER,FE_AUTH,FE_CHAT,FE_SOURCE,FE_ADMIN,BE_AUTH,BE_CHAT,BE_CLIENT,BE_ADAPTER,BE_DOC,BE_CIT,BE_TICKET,AI_API,AI_ROUTER,AI_DIRECT,AI_RAG,AI_GEN,AI_ESC,AI_RESULT,PG,CHROMA,FPT,CURRENT current;
+    class FE_FUTURE,BE_FUTURE,AI_ACL,AI_INGEST,INGEST,FUTURE future;
