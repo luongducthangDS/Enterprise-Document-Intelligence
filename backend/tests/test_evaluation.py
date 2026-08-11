@@ -64,6 +64,16 @@ def test_create_evaluation_run_success():
     assert res["data"]["poll_after_ms"] == 3000
 
 
+def test_employee_cannot_create_evaluation_run():
+    headers = get_auth_header(role="EMPLOYEE")
+    response = client.post(
+        "/api/v1/evaluation/runs",
+        headers=headers,
+        json={"dataset_id": "evalset_hr_v1"},
+    )
+    assert response.status_code == 403
+
+
 def test_create_evaluation_run_conflict():
     headers = get_auth_header()
     payload = {

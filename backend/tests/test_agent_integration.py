@@ -147,6 +147,50 @@ async def test_worker_maps_clarification(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_follow_up_clarification_preserves_original_context():
+    conversation_id = uuid.uuid4()
+    original_request_id = uuid.uuid4()
+    async with TestingSessionLocal() as session:
+        conversation = ConversationDB(
+            id=conversation_id,
+            user_id=USER_ID,
+            title="Clarification context",
+            state="ACTIVE",
+        )
+        session.add(conversation)
+        await session.flush()
+
+        original_request = ChatRequestDB(
+            id=original_request_id,
+            conversation_id=conversation_id,
+            user_id=USER_ID,
+            question="Tôi được nghỉ phép bao nhiêu ngày?",
+            state="CLARIFICATION_REQUIRED",
+        )
+        session.add(original_request)
+        await session.flush()
+
+        session.add(
+            MessageDB(
+                id=uuid.uuid4(),
+                conversation_id=conversation_id,
+                role="ASSISTANT",
+                content="Bạn là nhân viên chính thức hay thử việc?",
+                chat_request_id=original_request_id,
+                answer_status="CLARIFICATION_REQUIRED",
+            )
+        )
+        await session.commit()
+
+        query = await ChatService._resolve_agent_query(session, conversation_id, "Nhân viên chính thức")
+
+    assert "Tôi được nghỉ phép bao nhiêu ngày?" in query
+    assert "Bạn là nhân viên chính thức hay thử việc?" in query
+    assert "Nhân viên chính thức" in query
+    assert len(query) <= 2000
+
+
+@pytest.mark.asyncio
 async def test_worker_creates_ticket_for_escalation(monkeypatch):
     request_id = await create_queued_request("My salary is incorrect")
     answer = AgentAnswerDTO(

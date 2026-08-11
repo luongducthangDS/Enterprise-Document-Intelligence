@@ -22,6 +22,57 @@ class ChatService:
     agent_client = AIAgentClient()
     background_tasks_enabled = True
 
+    @staticmethod
+    def _build_clarification_query(
+        original_question: str,
+        clarifying_question: str,
+        clarification_answer: str,
+        max_length: int = 2000,
+    ) -> str:
+        answer = clarification_answer.strip()
+        prefix = "Câu hỏi gốc: "
+        middle = "\nCâu hỏi làm rõ: "
+        suffix = "\nThông tin người dùng bổ sung: "
+        fixed_length = len(prefix) + len(middle) + len(suffix) + len(answer)
+        context_budget = max(0, max_length - fixed_length)
+        original_budget = (context_budget * 2) // 3
+        clarifying_budget = context_budget - original_budget
+        return (
+            f"{prefix}{original_question.strip()[:original_budget]}"
+            f"{middle}{clarifying_question.strip()[:clarifying_budget]}"
+            f"{suffix}{answer}"
+        )[:max_length]
+
+    @classmethod
+    async def _resolve_agent_query(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user_question: str,
+    ) -> str:
+        previous_res = await db.execute(
+            select(MessageDB)
+            .where(MessageDB.conversation_id == conversation_id, MessageDB.role == "ASSISTANT")
+            .order_by(MessageDB.created_at.desc())
+            .limit(1)
+        )
+        previous_assistant = previous_res.scalar_one_or_none()
+        if (
+            not previous_assistant
+            or previous_assistant.answer_status != "CLARIFICATION_REQUIRED"
+            or not previous_assistant.chat_request_id
+        ):
+            return user_question
+
+        original_request = await db.get(ChatRequestDB, previous_assistant.chat_request_id)
+        if not original_request:
+            return user_question
+        return cls._build_clarification_query(
+            original_question=original_request.question,
+            clarifying_question=previous_assistant.content,
+            clarification_answer=user_question,
+        )
+
     @classmethod
     async def submit_chat_request(
         cls,
@@ -50,6 +101,8 @@ class ChatService:
                 code="CONVERSATION_ENDED",
                 message="Phiên hội thoại đã kết thúc, không thể gửi thêm câu hỏi.",
             )
+
+        agent_query = await cls._resolve_agent_query(db, conversation_id, clean_question)
 
         user_msg_id = uuid.uuid4()
         user_msg = MessageDB(
@@ -81,7 +134,7 @@ class ChatService:
                     chat_request_id=chat_req_id,
                     user_id=user_id,
                     department=department,
-                    question=clean_question,
+                    question=agent_query,
                     conversation_id=conversation_id,
                 )
             )

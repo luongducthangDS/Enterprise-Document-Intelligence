@@ -157,3 +157,16 @@ def test_get_citation_detail_access_denied():
     res_data = response.json()
     assert res_data["success"] is False
     assert res_data["error"]["code"] == "DOCUMENT_ACCESS_DENIED"
+
+
+def test_citation_from_another_users_conversation_is_not_visible():
+    headers = get_auth_header(
+        user_id="99999999-9999-9999-9999-999999999999",
+        email="hr_admin@company.com",
+        role="HR_ADMIN",
+    )
+
+    response = client.get("/api/v1/citations/cit_01", headers=headers)
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "CITATION_NOT_FOUND"
