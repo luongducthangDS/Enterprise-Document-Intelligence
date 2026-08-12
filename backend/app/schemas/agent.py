@@ -11,6 +11,7 @@ class AgentCitationDTO(BaseModel):
     page_end: int | None = None
     category: str
     is_official_policy: bool
+    source_type: str = ""
 
 
 class AgentTicketDraftDTO(BaseModel):

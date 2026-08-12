@@ -85,6 +85,7 @@ class Citation(BaseModel):
     page_end: int | None = None
     category: str
     is_official_policy: bool
+    source_type: str = Field(default="", description="government_law | official_policy | public_template | synthetic | public_article")
 
 
 class Message(BaseModel):
