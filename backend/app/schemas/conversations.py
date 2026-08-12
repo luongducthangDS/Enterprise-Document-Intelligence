@@ -24,6 +24,10 @@ class CitationDTO(BaseModel):
     section: str | None = None
     version: str | None = None
     effective_date: str | None = None
+    is_official_policy: bool = Field(
+        default=True, description="Xác định tài liệu chính sách chính thức hay không"
+    )
+    source_type: str | None = Field(default=None, description="Loại nguồn tài liệu")
 
 
 class MessageDTO(BaseModel):
