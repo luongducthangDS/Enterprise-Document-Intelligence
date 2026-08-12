@@ -23,5 +23,9 @@ def sanitize_citations_for_client(citations: list[dict] | None) -> list[dict] | 
         for field in ("title", "source_file", "category", "section", "excerpt"):
             if field in safe_item:
                 safe_item[field] = redact_pii(safe_item.get(field))
+        if "is_official_policy" not in safe_item:
+            safe_item["is_official_policy"] = True
+        if "source_type" not in safe_item:
+            safe_item["source_type"] = None
         sanitized.append(safe_item)
     return sanitized

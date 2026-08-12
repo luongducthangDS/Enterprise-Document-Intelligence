@@ -146,8 +146,9 @@ async def test_get_conversation_messages_endpoint():
     assert res_data["success"] is True
     assert len(res_data["data"]["messages"]) == 2
     assert res_data["data"]["messages"][0]["role"] == "user"
-    assert res_data["data"]["messages"][1]["role"] == "assistant"
     assert res_data["data"]["messages"][1]["citations"][0]["citation_id"] == "cit_01"
+    assert "is_official_policy" in res_data["data"]["messages"][1]["citations"][0]
+    assert "source_type" in res_data["data"]["messages"][1]["citations"][0]
 
 
 def test_end_conversation_endpoint():

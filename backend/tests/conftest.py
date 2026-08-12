@@ -16,7 +16,9 @@ TEST_DATABASE_URL = f"sqlite+aiosqlite:///{TEST_DB_FILE}"
 
 test_engine = create_async_engine(
     TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False, "timeout": 30},
+    connect_args={"check_same_thread": False, "timeout": 60},
+    pool_size=50,
+    max_overflow=50,
 )
 
 

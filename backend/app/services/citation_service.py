@@ -81,6 +81,14 @@ class CitationService:
                     message="Bạn không có quyền truy cập trích dẫn từ tài liệu này.",
                 )
 
+        is_official_policy = found_item.get("is_official_policy")
+        if is_official_policy is None:
+            is_official_policy = doc.is_official_policy if doc else True
+        else:
+            is_official_policy = bool(is_official_policy)
+
+        source_type = found_item.get("source_type") or (doc.source_type if doc else None)
+
         return {
             "citation_id": clean_cit_id,
             "document": {
@@ -89,6 +97,8 @@ class CitationService:
                 "version": version,
                 "effective_date": effective_date,
                 "status": document_status,
+                "is_official_policy": is_official_policy,
+                "source_type": source_type,
             },
             "location": {
                 "page": found_item.get("page") or found_item.get("page_start"),
@@ -97,4 +107,6 @@ class CitationService:
             },
             "excerpt": redact_pii(found_item.get("excerpt")),
             "conflict_warning": bool(found_item.get("conflict_warning", False)),
+            "is_official_policy": is_official_policy,
+            "source_type": source_type,
         }

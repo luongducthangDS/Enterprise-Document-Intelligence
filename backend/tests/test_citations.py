@@ -137,6 +137,10 @@ def test_get_citation_detail_success():
     assert "hr@company.com" not in res_data["data"]["excerpt"]
     assert "0912345678" not in res_data["data"]["excerpt"]
     assert res_data["data"]["conflict_warning"] is False
+    assert res_data["data"]["is_official_policy"] is True
+    assert res_data["data"]["document"]["is_official_policy"] is True
+    assert "source_type" in res_data["data"]
+    assert "source_type" in res_data["data"]["document"]
 
 
 def test_get_citation_detail_not_found():
