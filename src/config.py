@@ -136,6 +136,27 @@ class Settings(BaseSettings):
     chunk_min_chars: int = 200
 
 
+    # Worker (job runner phía Agent — ingestion/index rebuild/evaluation).
+    # Contract với Backend: docs/rag-pipeline/AGENT_WORKERS.md.
+    #
+    # agent_jobs_dir nằm trên đĩa chứ không giữ trong RAM: agent restart giữa
+    # chừng thì job đang chạy được đánh dấu FAILED lúc startup, để Backend poll
+    # ra trạng thái kết thúc thay vì kẹt QUEUED/PROCESSING vĩnh viễn.
+    agent_jobs_dir: str = "./storage/agent_jobs"
+    data_dir: str = "./data"
+    # Nhãn phiên bản index trả về cho Backend (active_index_version).
+    index_version: str = "v1.0"
+
+    # Evaluation worker
+    eval_concurrency: int = 3
+    eval_datasets_dir: str = "./eval/datasets"
+    # Ngưỡng quality gate — vượt hết thì PASSED, thiếu bất kỳ chỉ số nào thì
+    # FAILED. Lấy theo mức đang đo được của pipeline hiện tại, hạ biên an toàn.
+    eval_gate_recall_at_k: float = 0.80
+    eval_gate_answer_correctness: float = 0.70
+    eval_gate_citation_coverage: float = 0.90
+
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
