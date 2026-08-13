@@ -1,23 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   BookOpenCheck,
   CircleAlert,
   Database,
   FileText,
   FlaskConical,
+  History,
   LogOut,
   Menu,
   MessageSquare,
   Plus,
+  Pencil,
   RefreshCw,
   ShieldCheck,
   Ticket,
   X,
 } from "lucide-react";
 import { api, ApiClientError, clearSession, hasSession } from "@/lib/api";
-import type { User } from "@/lib/types";
+import type { ConversationDetail, User } from "@/lib/types";
 import { ChatView, clearChatRecovery } from "./ChatView";
 import { DocumentsView, OperationsView } from "./KnowledgeAdmin";
 import { LoginView } from "./LoginView";
@@ -42,6 +44,28 @@ function roleLabel(role: string) {
   return "Nhân viên";
 }
 
+function conversationDate(conversation: ConversationDetail) {
+  return new Date(conversation.last_message_at ?? conversation.created_at);
+}
+
+function conversationGroup(conversation: ConversationDetail) {
+  const date = conversationDate(conversation);
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const dayDifference = Math.floor((startOfToday - startOfDate) / 86_400_000);
+  if (dayDifference <= 0) return "Hôm nay";
+  if (dayDifference === 1) return "Hôm qua";
+  if (dayDifference <= 7) return "7 ngày qua";
+  return "Cũ hơn";
+}
+
+function conversationMeta(conversation: ConversationDetail) {
+  return `${conversationDate(conversation).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} · ${conversation.message_count} tin nhắn`;
+}
+
+const conversationGroups = ["Hôm nay", "Hôm qua", "7 ngày qua", "Cũ hơn"];
+
 export function HrKnowledgeApp() {
   const [user, setUser] = useState<User | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -49,6 +73,8 @@ export function HrKnowledgeApp() {
   const [view, setView] = useState<View>("chat");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [newConversationSignal, setNewConversationSignal] = useState(0);
+  const [conversations, setConversations] = useState<ConversationDetail[]>([]);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
   async function restoreSession() {
     if (!hasSession()) {
@@ -85,7 +111,43 @@ export function HrKnowledgeApp() {
   function requestNewConversation() {
     setView("chat");
     setMobileMenu(false);
+    setSelectedConversationId(null);
     setNewConversationSignal((value) => value + 1);
+  }
+
+  const handleConversationsChange = useCallback((next: ConversationDetail[]) => {
+    setConversations(next);
+  }, []);
+
+  const handleConversationSelected = useCallback((conversationId: string) => {
+    setSelectedConversationId(conversationId);
+  }, []);
+
+  function selectConversation(conversationId: string) {
+    setView("chat");
+    setMobileMenu(false);
+    setSelectedConversationId(conversationId);
+  }
+
+  async function refreshConversations() {
+    try {
+      setConversations(await api.listConversations());
+    } catch (reason) {
+      window.alert(reason instanceof ApiClientError ? reason.message : "Không thể tải danh sách hội thoại.");
+    }
+  }
+
+  async function renameConversation(conversation: ConversationDetail) {
+    const title = window.prompt("Đặt tên cuộc hội thoại", conversation.title === "Hội thoại mới" ? "" : conversation.title);
+    if (!title?.trim() || title.trim() === conversation.title) return;
+    try {
+      const updated = await api.renameConversation(conversation.conversation_id, title.trim());
+      setConversations((current) => current.map((item) => item.conversation_id === conversation.conversation_id
+        ? { ...item, title: updated.title }
+        : item));
+    } catch (reason) {
+      window.alert(reason instanceof ApiClientError ? reason.message : "Không thể đổi tên cuộc hội thoại.");
+    }
   }
 
   if (checkingSession) {
@@ -139,6 +201,34 @@ export function HrKnowledgeApp() {
               return <button className={view === item.id ? "active" : ""} key={item.id} onClick={() => { setView(item.id); setMobileMenu(false); }}><Icon size={18} /><span>{item.label}</span></button>;
             })}
           </nav>
+
+          <section className="sidebar-history" aria-label="Lịch sử hội thoại">
+            <header className="sidebar-history-heading">
+              <div><History size={15} /><span>Lịch sử hội thoại</span></div>
+              <button className="sidebar-history-refresh" aria-label="Tải lại lịch sử hội thoại" title="Tải lại" onClick={() => void refreshConversations()}><RefreshCw size={14} /></button>
+            </header>
+            <div className="sidebar-history-list">
+              {conversationGroups.map((group) => {
+                const groupItems = conversations.filter((conversation) => conversationGroup(conversation) === group);
+                if (!groupItems.length) return null;
+                return (
+                  <div className="sidebar-history-group" key={group}>
+                    <p>{group}</p>
+                    {groupItems.map((conversation) => (
+                      <div className={`sidebar-history-item ${selectedConversationId === conversation.conversation_id ? "active" : ""}`} key={conversation.conversation_id}>
+                        <button className="sidebar-history-main" onClick={() => selectConversation(conversation.conversation_id)} disabled={view === "chat" && selectedConversationId === conversation.conversation_id}>
+                          <span>{conversation.title || "Hội thoại mới"}</span>
+                          <small>{conversationMeta(conversation)}</small>
+                        </button>
+                        <button className="sidebar-history-edit" aria-label={`Đổi tên ${conversation.title}`} title="Đổi tên" onClick={() => void renameConversation(conversation)}><Pencil size={13} /></button>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+              {!conversations.length && <p className="sidebar-history-empty">Chưa có hội thoại nào</p>}
+            </div>
+          </section>
         </div>
 
         <footer>
@@ -157,7 +247,13 @@ export function HrKnowledgeApp() {
           <div className="system-trust"><ShieldCheck size={15} /><span>Knowledge Base được bảo vệ</span></div>
         </header>
         <div className="view-body">
-          {view === "chat" && <ChatView newConversationSignal={newConversationSignal} />}
+          {view === "chat" && <ChatView
+            newConversationSignal={newConversationSignal}
+            selectedConversationId={selectedConversationId}
+            conversations={conversations}
+            onConversationsChange={handleConversationsChange}
+            onConversationSelected={handleConversationSelected}
+          />}
           {view === "tickets" && <TicketsView isAdmin={isAdmin} />}
           {view === "documents" && <DocumentsView />}
           {view === "index" && <OperationsView mode="index" />}

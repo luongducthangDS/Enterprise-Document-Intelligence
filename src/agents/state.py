@@ -34,6 +34,7 @@ class Citation(TypedDict):
     # public_article — bản đầy đủ của is_official_policy, để backend/FE phân
     # biệt được luật tham khảo với chính sách nội bộ thay vì chỉ có cờ nhị phân.
     source_type: str
+    excerpt: str
 
 
 class AgentState(TypedDict, total=False):

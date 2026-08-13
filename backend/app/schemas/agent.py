@@ -12,6 +12,7 @@ class AgentCitationDTO(BaseModel):
     category: str
     is_official_policy: bool
     source_type: str = ""
+    excerpt: str = ""
 
 
 class AgentTicketDraftDTO(BaseModel):

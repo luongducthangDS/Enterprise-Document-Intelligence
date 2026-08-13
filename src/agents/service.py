@@ -40,7 +40,7 @@ def sanitize_citations(citations: list[dict]) -> list[Citation]:
     sanitized = []
     for item in citations:
         safe_item = dict(item)
-        for field in ("source_file", "title", "category"):
+        for field in ("source_file", "title", "category", "excerpt"):
             safe_item[field], _ = redact_pii(str(safe_item.get(field, "")))
         sanitized.append(Citation(**safe_item))
     return sanitized

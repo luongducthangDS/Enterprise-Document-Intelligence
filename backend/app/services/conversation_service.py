@@ -12,6 +12,111 @@ from app.services.content_safety import sanitize_citations_for_client
 
 
 class ConversationService:
+    @staticmethod
+    def title_from_question(question: str) -> str:
+        normalized = " ".join(question.split())
+        if len(normalized) <= 48:
+            return normalized
+        shortened = normalized[:48].rsplit(" ", 1)[0].rstrip(".,!?;:")
+        return f"{shortened}..."
+
+    @classmethod
+    async def rename_conversation(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user_id: uuid.UUID,
+        title: str,
+    ) -> dict:
+        stmt = select(ConversationDB).where(ConversationDB.id == conversation_id)
+        result = await db.execute(stmt)
+        conversation = result.scalar_one_or_none()
+        if not conversation:
+            raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy cuộc hội thoại")
+        if conversation.user_id != user_id:
+            raise ForbiddenError("Bạn không có quyền cập nhật cuộc hội thoại này")
+
+        clean_title = " ".join(title.split())
+        conversation.title = clean_title
+        await db.commit()
+        await db.refresh(conversation)
+
+        return {
+            "conversation_id": str(conversation.id),
+            "title": conversation.title,
+            "state": conversation.state,
+        }
+
+    @classmethod
+    async def list_conversations(
+        cls,
+        db: AsyncSession,
+        user_id: uuid.UUID,
+        limit: int = 50,
+    ) -> list[dict]:
+        stmt = (
+            select(ConversationDB)
+            .where(ConversationDB.user_id == user_id)
+            .order_by(ConversationDB.updated_at.desc(), ConversationDB.created_at.desc())
+            .limit(limit)
+        )
+        result = await db.execute(stmt)
+        conversations = list(result.scalars().all())
+        if not conversations:
+            return []
+
+        conversation_ids = [conversation.id for conversation in conversations]
+        message_stmt = (
+            select(
+                MessageDB.conversation_id,
+                func.count(MessageDB.id),
+                func.max(MessageDB.created_at),
+            )
+            .where(MessageDB.conversation_id.in_(conversation_ids))
+            .group_by(MessageDB.conversation_id)
+        )
+        message_result = await db.execute(message_stmt)
+        message_stats = {
+            conversation_id: (message_count, last_message_at)
+            for conversation_id, message_count, last_message_at in message_result.all()
+        }
+        question_stmt = (
+            select(MessageDB.conversation_id, MessageDB.content)
+            .where(
+                MessageDB.conversation_id.in_(conversation_ids),
+                func.lower(MessageDB.role) == "user",
+            )
+            .order_by(MessageDB.created_at.asc(), MessageDB.id.asc())
+        )
+        question_result = await db.execute(question_stmt)
+        first_questions = {}
+        for conversation_id, content in question_result.all():
+            first_questions.setdefault(conversation_id, content)
+
+        items = []
+        for conversation in conversations:
+            message_count, last_message_at = message_stats.get(conversation.id, (0, None))
+            title = conversation.title
+            if title == "Hội thoại mới" and first_questions.get(conversation.id):
+                title = cls.title_from_question(first_questions[conversation.id])
+            items.append(
+                {
+                    "conversation_id": str(conversation.id),
+                    "title": title,
+                    "state": conversation.state,
+                    "created_at": conversation.created_at.isoformat(),
+                    "ended_at": conversation.ended_at.isoformat() if conversation.ended_at else None,
+                    "message_count": message_count or 0,
+                    "last_message_at": last_message_at.isoformat() if last_message_at else None,
+                }
+            )
+
+        return sorted(
+            items,
+            key=lambda item: item["last_message_at"] or item["created_at"],
+            reverse=True,
+        )
+
     @classmethod
     async def create_conversation(
         cls,

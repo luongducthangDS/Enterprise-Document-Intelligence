@@ -67,7 +67,7 @@ Chỉ `max_history_turns` lượt gần nhất (mặc định 8, `src/config.py`
 | `response` | `str` | Văn bản hiển thị cho user. Khi `needs_clarification=True`, đây chính là câu hỏi làm rõ. |
 | `intent` | `"greeting" \| "hr_question" \| "ambiguous" \| "out_of_scope_or_personal"` | Kết quả phân loại của router. Chỉ mang tính thông tin — hành vi backend cần quan tâm nằm ở `escalate`/`needs_clarification`, không phải suy luận lại từ `intent`. |
 | `confidence_score` | `float \| None`, 0–1 | `None` khi không đi qua nhánh RAG (greeting/ambiguous). Không phải xác suất đúng theo nghĩa thống kê — là điểm liên quan của đoạn tốt nhất sau reranker, đã bị ép thấp nếu hallucination-check fail hoặc agent tự nhận không đủ thông tin. |
-| `citations` | `list[Citation]` | Rỗng nếu không có nguồn nào được dùng. Mỗi `Citation` có `source_file`, `title`, `category`, `page_start`/`page_end` (`None` nếu tài liệu không phải PDF phân trang), `is_official_policy`. |
+| `citations` | `list[Citation]` | Rỗng nếu không có nguồn nào được dùng. Mỗi `Citation` có `source_file`, `title`, `category`, `page_start`/`page_end` (`None` nếu tài liệu không phải PDF phân trang), `is_official_policy` và `excerpt` là nội dung chunk được dùng làm nguồn. |
 | `needs_clarification` | `bool` | `True` → hiển thị `clarifying_question`/`response` và chờ câu trả lời tiếp theo của user; **không có gì để lưu như một câu trả lời "cuối"**. |
 | `clarifying_question` | `str \| None` | Chỉ có khi `needs_clarification=True`. |
 | `escalate` | `bool` | `True` → **backend phải tạo ticket** từ `ticket_draft`. Agent không tự ghi Supabase (ngoài phạm vi agent — xem CLAUDE.md). |

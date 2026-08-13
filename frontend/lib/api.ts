@@ -127,19 +127,26 @@ export const api = {
   },
   me: () => request<User>("/auth/me").then((response) => response.data!),
   createConversation: (title: string | null = null) =>
-    request<{ conversation_id: string; state: string; created_at: string }>("/conversations", {
+    request<{ conversation_id: string; state: string; title: string; created_at: string }>("/conversations", {
       method: "POST",
       headers: idempotencyHeaders(),
       body: JSON.stringify({ title }),
     }).then((response) => response.data!),
+  listConversations: () =>
+    request<ConversationDetail[]>("/conversations?limit=100").then((response) => response.data!),
   getConversation: (conversationId: string) =>
     request<ConversationDetail>(`/conversations/${conversationId}`).then((response) => response.data!),
+  renameConversation: (conversationId: string, title: string) =>
+    request<{ conversation_id: string; title: string; state: string }>(`/conversations/${conversationId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ title }),
+    }).then((response) => response.data!),
   endConversation: (conversationId: string) =>
     request<{ conversation_id: string; state: string; ended_at: string }>(`/conversations/${conversationId}/end`, {
       method: "POST",
     }).then((response) => response.data!),
   getConversationMessages: (conversationId: string) =>
-    request<{ conversation_id: string; messages: ConversationMessage[] }>(`/conversations/${conversationId}/messages`).then(
+    request<{ conversation_id: string; messages: ConversationMessage[] }>(`/conversations/${conversationId}/messages?limit=100`).then(
       (response) => response.data!,
     ),
   createChatRequest: (conversationId: string, question: string) =>

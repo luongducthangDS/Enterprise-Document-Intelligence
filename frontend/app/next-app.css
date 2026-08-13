@@ -82,6 +82,26 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .next-sidebar nav button:hover { color: var(--text); background: #f8fafc; }
 .next-sidebar nav button.active { color: #1d4ed8; background: var(--primary-soft); }
 .next-sidebar nav button.active svg { color: var(--primary); }
+.sidebar-history { margin-top: 22px; }
+.sidebar-history-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 10px 8px; color: #64748b; }
+.sidebar-history-heading > div { display: flex; align-items: center; gap: 7px; }
+.sidebar-history-heading span { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.sidebar-history-refresh { width: 26px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 7px; color: var(--muted); background: transparent; }
+.sidebar-history-refresh:hover { color: var(--primary); background: var(--primary-soft); }
+.sidebar-history-list { display: grid; gap: 12px; }
+.sidebar-history-group { display: grid; gap: 3px; }
+.sidebar-history-group > p { margin: 0 10px 2px; color: #94a3b8; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.sidebar-history-item { min-width: 0; display: flex; align-items: center; border: 1px solid transparent; border-radius: 9px; }
+.sidebar-history-item:hover, .sidebar-history-item.active { border-color: #bfdbfe; background: var(--primary-soft); }
+.sidebar-history-main { min-width: 0; flex: 1; display: grid; gap: 4px; border: 0; padding: 8px 7px 8px 10px; color: #475569; background: transparent; text-align: left; }
+.sidebar-history-item.active .sidebar-history-main { color: #1d4ed8; }
+.sidebar-history-main span, .sidebar-history-main small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-history-main span { font-size: 11px; font-weight: 700; }
+.sidebar-history-main small { color: var(--muted); font-size: 9px; }
+.sidebar-history-edit { width: 28px; height: 28px; display: grid; place-items: center; margin-right: 4px; border: 0; border-radius: 7px; color: #94a3b8; background: transparent; opacity: 0; }
+.sidebar-history-item:hover .sidebar-history-edit, .sidebar-history-item.active .sidebar-history-edit { opacity: 1; }
+.sidebar-history-edit:hover { color: var(--primary); background: white; }
+.sidebar-history-empty { margin: 10px; color: var(--muted); font-size: 11px; }
 .next-sidebar > footer { display: grid; grid-template-columns: 36px minmax(0, 1fr) 34px; align-items: center; gap: 10px; padding: 14px; border-top: 1px solid var(--border); background: #fcfdff; }
 .next-sidebar footer strong, .next-sidebar footer span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .next-sidebar footer strong { font-size: 12px; }

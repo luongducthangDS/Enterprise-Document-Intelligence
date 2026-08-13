@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { BookOpenCheck, Check, CircleAlert, Copy, FileSearch, LoaderCircle, MessageCircleQuestion, RefreshCw, Send, ShieldAlert, Sparkles, Square, Trash2 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
-import type { ChatResult, CitationDetail, CitationSummary, ConversationMessage } from "@/lib/types";
+import type { ChatResult, CitationDetail, CitationSummary, ConversationDetail, ConversationMessage } from "@/lib/types";
 
 type UiMessage =
   | { id: string; kind: "user"; content: string }
@@ -99,6 +99,13 @@ function historyToUi(message: ConversationMessage): UiMessage {
   };
 }
 
+function titleFromQuestion(question: string) {
+  const normalized = question.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 48) return normalized;
+  const shortened = normalized.slice(0, 48).replace(/\s+\S*$/, "").replace(/[.,!?;:]+$/, "");
+  return `${shortened}...`;
+}
+
 function readPendingChat(): PendingChat | null {
   try {
     const raw = window.localStorage.getItem(PENDING_CHAT_KEY);
@@ -120,7 +127,21 @@ function sourceLabel(sourceType: string | null, isOfficial: boolean) {
   return sourceType && labels[sourceType] ? labels[sourceType] : isOfficial ? "Nguồn chính thức" : "Nguồn tham khảo";
 }
 
-export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?: number }) {
+type ChatViewProps = {
+  newConversationSignal?: number;
+  selectedConversationId?: string | null;
+  conversations: ConversationDetail[];
+  onConversationsChange: (conversations: ConversationDetail[]) => void;
+  onConversationSelected: (conversationId: string) => void;
+};
+
+export function ChatView({
+  newConversationSignal = 0,
+  selectedConversationId = null,
+  conversations,
+  onConversationsChange,
+  onConversationSelected,
+}: ChatViewProps) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversationState, setConversationState] = useState("CREATING");
   const [messages, setMessages] = useState<UiMessage[]>([]);
@@ -135,6 +156,12 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
   const newConversationSignalRef = useRef(newConversationSignal);
   const pollController = useRef<AbortController | null>(null);
   const activePollRequestId = useRef<string | null>(null);
+  const conversationsRef = useRef(conversations);
+  const onConversationsChangeRef = useRef(onConversationsChange);
+  const onConversationSelectedRef = useRef(onConversationSelected);
+  conversationsRef.current = conversations;
+  onConversationsChangeRef.current = onConversationsChange;
+  onConversationSelectedRef.current = onConversationSelected;
 
   useEffect(() => {
     mounted.current = true;
@@ -208,6 +235,16 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
       setConversationId(created.conversation_id);
       setConversationState(created.state);
       setMessages([]);
+      onConversationsChangeRef.current([{
+        conversation_id: created.conversation_id,
+        title: created.title,
+        state: created.state,
+        created_at: created.created_at,
+        ended_at: null,
+        message_count: 0,
+        last_message_at: null,
+      }, ...conversationsRef.current.filter((item) => item.conversation_id !== created.conversation_id)]);
+      onConversationSelectedRef.current(created.conversation_id);
     } catch (reason) {
       if (isAbortError(reason)) return;
       setError(reason instanceof ApiClientError ? reason.message : "Không thể tạo cuộc hội thoại.");
@@ -220,20 +257,31 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
     const version = ++operationVersion.current;
     async function restore() {
       const storedConversationId = window.localStorage.getItem(CONVERSATION_KEY);
-      if (!storedConversationId) { await createConversation(); return; }
       setBusy(true);
       try {
+        const conversationList = await api.listConversations();
+        if (!mounted.current || operationVersion.current !== version) return;
+        onConversationsChangeRef.current(conversationList);
+        const targetConversationId = storedConversationId && conversationList.some((item) => item.conversation_id === storedConversationId)
+          ? storedConversationId
+          : conversationList[0]?.conversation_id;
+        if (!targetConversationId) {
+          await createConversation();
+          return;
+        }
         const [conversation, history] = await Promise.all([
-          api.getConversation(storedConversationId),
-          api.getConversationMessages(storedConversationId),
+          api.getConversation(targetConversationId),
+          api.getConversationMessages(targetConversationId),
         ]);
         if (!mounted.current || operationVersion.current !== version) return;
-        setConversationId(storedConversationId);
+        window.localStorage.setItem(CONVERSATION_KEY, targetConversationId);
+        setConversationId(targetConversationId);
         setConversationState(conversation.state);
         setMessages(history.messages.map(historyToUi));
+        onConversationSelectedRef.current(targetConversationId);
 
         const pending = readPendingChat();
-        if (pending?.conversationId === storedConversationId) {
+        if (pending?.conversationId === targetConversationId) {
           setProcessingState("Đang khôi phục yêu cầu");
           await poll(pending, version);
         }
@@ -256,6 +304,40 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
     void restore();
   }, [createConversation, poll]);
 
+  async function openConversation(targetConversationId: string) {
+    if (busy || targetConversationId === conversationId) return;
+    const version = ++operationVersion.current;
+    pollController.current?.abort();
+    setBusy(true);
+    setError("");
+    setCitation(null);
+    setProcessingState(null);
+    try {
+      const [conversation, history] = await Promise.all([
+        api.getConversation(targetConversationId),
+        api.getConversationMessages(targetConversationId),
+      ]);
+      if (!mounted.current || operationVersion.current !== version) return;
+      window.localStorage.setItem(CONVERSATION_KEY, targetConversationId);
+      setConversationId(targetConversationId);
+      setConversationState(conversation.state);
+      setMessages(history.messages.map(historyToUi));
+      onConversationSelectedRef.current(targetConversationId);
+    } catch (reason) {
+      if (isAbortError(reason)) return;
+      setError(reason instanceof ApiClientError ? reason.message : "Không thể mở cuộc hội thoại cũ.");
+    } finally {
+      if (mounted.current && operationVersion.current === version) setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedConversationId || selectedConversationId === conversationId || busy) return;
+    void openConversation(selectedConversationId);
+    // The sidebar disables selection while the chat is busy.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversationId, busy]);
+
   async function sendQuestion(text: string) {
     const cleanQuestion = text.trim();
     if (!conversationId || !cleanQuestion || busy || conversationState !== "ACTIVE") return;
@@ -270,6 +352,16 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
     try {
       const created = await api.createChatRequest(conversationId, cleanQuestion);
       requestAccepted = true;
+      const active = conversationsRef.current.find((item) => item.conversation_id === conversationId);
+      if (active) {
+        const updated = {
+          ...active,
+          title: active.title === "Hội thoại mới" ? titleFromQuestion(cleanQuestion) : active.title,
+          message_count: active.message_count + 1,
+          last_message_at: new Date().toISOString(),
+        };
+        onConversationsChangeRef.current([updated, ...conversationsRef.current.filter((item) => item.conversation_id !== conversationId)]);
+      }
       const pending = { conversationId, chatRequestId: created.chat_request_id, pollAfterMs: created.poll_after_ms };
       window.localStorage.setItem(PENDING_CHAT_KEY, JSON.stringify(pending));
       await poll(pending, version);
@@ -336,6 +428,9 @@ export function ChatView({ newConversationSignal = 0 }: { newConversationSignal?
     try {
       const ended = await api.endConversation(conversationId);
       setConversationState(ended.state);
+      onConversationsChangeRef.current(conversationsRef.current.map((item) => item.conversation_id === conversationId
+        ? { ...item, state: ended.state, ended_at: ended.ended_at }
+        : item));
     } catch (reason) {
       setError(reason instanceof ApiClientError ? reason.message : "Không thể kết thúc phiên.");
     } finally {

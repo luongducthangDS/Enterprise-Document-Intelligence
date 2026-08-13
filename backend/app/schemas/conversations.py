@@ -7,6 +7,10 @@ class CreateConversationRequest(BaseModel):
     title: str | None = Field(default=None, description="Tiêu đề cuộc hội thoại (tùy chọn)")
 
 
+class UpdateConversationRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=120, description="Tiêu đề mới của cuộc hội thoại")
+
+
 class ConversationResponseDTO(BaseModel):
     conversation_id: str
     title: str

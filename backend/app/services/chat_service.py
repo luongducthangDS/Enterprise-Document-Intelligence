@@ -1,9 +1,10 @@
 import asyncio
 import time
 import uuid
+from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import desc, func, select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -16,6 +17,7 @@ from app.domain.models.messages import MessageDB
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
 from app.services.content_safety import sanitize_citations_for_client
+from app.services.conversation_service import ConversationService
 from app.services.ticket_service import TicketService
 
 
@@ -86,6 +88,10 @@ class ChatService:
                 code="CONVERSATION_ENDED",
                 message="Phiên hội thoại đã kết thúc, không thể gửi thêm câu hỏi.",
             )
+
+        if conv.title == "Hội thoại mới":
+            conv.title = ConversationService.title_from_question(clean_question)
+        conv.updated_at = datetime.now(UTC)
 
         user_msg_id = uuid.uuid4()
         user_msg = MessageDB(

@@ -55,6 +55,7 @@ class TestGenerateNode:
         assert len(result["citations"]) == 1
         assert result["citations"][0]["source_file"] == "doc.md"
         assert result["citations"][0]["page_start"] == 3
+        assert result["citations"][0]["excerpt"] == "Nội dung"
 
     @pytest.mark.asyncio
     async def test_no_chunks_still_returns_answer_and_empty_citations(self):

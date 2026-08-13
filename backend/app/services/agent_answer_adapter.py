@@ -46,7 +46,7 @@ class AgentAnswerAdapter:
                     "category": item.category,
                     "is_official_policy": item.is_official_policy,
                     "source_type": item.source_type,
-                    "excerpt": "",
+                    "excerpt": item.excerpt,
                 }
             )
         return citations

@@ -1,5 +1,5 @@
-from datetime import UTC, datetime, timedelta
 import uuid
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock
 
 import pytest
@@ -83,6 +83,7 @@ def normal_answer() -> AgentAnswerDTO:
                 "page_end": 2,
                 "category": "leave",
                 "is_official_policy": True,
+                "excerpt": "Employees receive 12 leave days per year.",
             }
         ],
     )
@@ -94,6 +95,7 @@ def test_adapter_generates_stable_citation_ids():
     second = AgentAnswerAdapter.map(normal_answer(), request_id)
     assert first.citations[0]["citation_id"] == second.citations[0]["citation_id"]
     assert first.citations[0]["page"] == 2
+    assert first.citations[0]["excerpt"] == "Employees receive 12 leave days per year."
 
 
 @pytest.mark.asyncio
@@ -117,6 +119,7 @@ async def test_worker_persists_answer_and_is_idempotent(monkeypatch):
         assert chat_request.state == "COMPLETED"
         assert chat_request.answer_status == "ANSWERED"
         assert chat_request.citations[0]["source_file"] == "leave-policy.pdf"
+        assert chat_request.citations[0]["excerpt"] == "Employees receive 12 leave days per year."
         assert message_count == 1
     assert query_agent.await_count == 1
 

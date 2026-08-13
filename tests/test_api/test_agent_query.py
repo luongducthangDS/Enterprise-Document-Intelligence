@@ -39,6 +39,36 @@ async def test_internal_agent_query_returns_agent_answer(client):
 
 
 @pytest.mark.asyncio
+async def test_internal_agent_query_returns_citation_excerpt(client):
+    answer = AgentAnswer(
+        response="Policy answer",
+        intent="hr_question",
+        citations=[
+            {
+                "chunk_id": "policy::0001",
+                "source_file": "policy.md",
+                "title": "Leave policy",
+                "category": "leave",
+                "is_official_policy": True,
+                "excerpt": "Employees receive 12 leave days per year.",
+            }
+        ],
+    )
+    payload = {
+        "query": "How many leave days do I have?",
+        "request_id": "req-excerpt-123",
+        "user_id": "user-123",
+        "department": "Engineering",
+    }
+
+    with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)):
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
+
+    assert response.status_code == 200
+    assert response.json()["citations"][0]["excerpt"] == "Employees receive 12 leave days per year."
+
+
+@pytest.mark.asyncio
 async def test_internal_agent_query_keeps_history_optional(client):
     answer = AgentAnswer(response="Hello", intent="greeting", citations=[])
     payload = {

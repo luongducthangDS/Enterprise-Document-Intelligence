@@ -79,6 +79,44 @@ def test_create_conversation_default_title():
     assert res_data["data"]["title"] == "Hội thoại mới"
 
 
+def test_list_conversations_only_returns_current_user_items():
+    user1_headers = get_auth_header("11111111-1111-1111-1111-111111111111", "user1@company.com")
+    user2_headers = get_auth_header("22222222-2222-2222-2222-222222222222", "user2@company.com")
+
+    user1_response = client.post(
+        "/api/v1/conversations",
+        json={"title": "Conversation history user 1"},
+        headers=user1_headers,
+    )
+    user2_response = client.post(
+        "/api/v1/conversations",
+        json={"title": "Conversation history user 2"},
+        headers=user2_headers,
+    )
+
+    response = client.get("/api/v1/conversations", headers=user1_headers)
+    assert response.status_code == 200
+    items = response.json()["data"]
+    item_ids = {item["conversation_id"] for item in items}
+    assert user1_response.json()["data"]["conversation_id"] in item_ids
+    assert user2_response.json()["data"]["conversation_id"] not in item_ids
+    assert all("message_count" in item and "last_message_at" in item for item in items)
+
+
+def test_rename_conversation_endpoint():
+    headers = get_auth_header()
+    create_resp = client.post("/api/v1/conversations", json={"title": None}, headers=headers)
+    conv_id = create_resp.json()["data"]["conversation_id"]
+
+    response = client.patch(
+        f"/api/v1/conversations/{conv_id}",
+        json={"title": "Chính sách nghỉ phép"},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["title"] == "Chính sách nghỉ phép"
+
+
 def test_get_conversation_info_endpoint():
     headers = get_auth_header()
     create_resp = client.post("/api/v1/conversations", json={"title": "Hội thoại test GET"}, headers=headers)
