@@ -24,7 +24,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
       if (mode === "register") {
         await api.register(email.trim(), password, fullName.trim(), department.trim());
         setMode("login");
-        setNotice("Tài khoản Supabase đã được tạo. Hãy xác nhận email nếu project yêu cầu, rồi đăng nhập.");
+        setNotice("Tài khoản đã được Backend tạo thành công. Bạn có thể đăng nhập ngay.");
       } else {
         await api.login(email.trim(), password);
         onAuthenticated(await api.me());
@@ -39,23 +39,23 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
   return (
     <main className="login-shell">
       <section className="login-context">
-        <div className="brand-lockup"><BookOpen size={22} /><span>HR Knowledge</span></div>
+        <div className="brand-lockup"><BookOpen size={22} /><span>HR Intelligence</span></div>
         <div className="login-context-copy">
-          <p className="eyebrow">TRỢ LÝ AI HR DỰA TRÊN BẰNG CHỨNG</p>
-          <h1>Nơi tin cậy để tra cứu chính sách nhân sự.</h1>
-          <p>Câu trả lời được kiểm chứng từ kho tài liệu nội bộ và luôn đi kèm nguồn đối soát.</p>
+          <p className="eyebrow">ENTERPRISE DOCUMENT INTELLIGENCE</p>
+          <h1>Hiểu chính sách HR. Tin cậy từng nguồn.</h1>
+          <p>Nền tảng AI giúp nhân viên tra cứu tài liệu nội bộ với câu trả lời có trích dẫn và nguồn đối soát rõ ràng.</p>
           <div className="trust-points">
-            <span><ShieldCheck size={20} /> Nguồn chính sách đã phê duyệt</span>
-            <span><LockKeyhole size={20} /> Phân quyền do Backend kiểm soát</span>
+            <span><ShieldCheck size={20} /> Câu trả lời có nguồn kiểm chứng</span>
+            <span><LockKeyhole size={20} /> Dữ liệu nội bộ được phân quyền</span>
           </div>
         </div>
       </section>
       <section className="login-form-panel">
         <form className="login-form" onSubmit={submit}>
-          <div className="brand-lockup brand-lockup-dark"><BookOpen size={21} /><span>HR Knowledge</span></div>
+          <div className="brand-lockup brand-lockup-dark"><BookOpen size={21} /><span>HR Intelligence</span></div>
           <div>
             <h2>{mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}</h2>
-            <p>{mode === "login" ? "Sử dụng tài khoản Supabase của hệ thống." : "Tài khoản mới được tạo qua Supabase Auth."}</p>
+            <p>{mode === "login" ? "Truy cập không gian tri thức nhân sự của doanh nghiệp." : "Tạo tài khoản để bắt đầu tra cứu tài liệu HR."}</p>
           </div>
           {mode === "register" && <label>Họ và tên<input value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
           {mode === "register" && <label>Phòng ban<input value={department} onChange={(event) => setDepartment(event.target.value)} required /></label>}
@@ -74,7 +74,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
           >
             {mode === "login" ? "Chưa có tài khoản? Đăng ký" : "Đã có tài khoản? Đăng nhập"}
           </button>
-          <p className="form-note">Tài khoản và phiên đăng nhập được quản lý bởi Supabase Auth.</p>
+          <p className="form-note">Bằng việc tiếp tục, bạn xác nhận chỉ sử dụng dữ liệu theo quyền truy cập được cấp.</p>
         </form>
       </section>
     </main>

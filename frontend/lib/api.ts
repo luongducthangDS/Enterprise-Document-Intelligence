@@ -3,10 +3,12 @@ import type {
   AsyncJob,
   ChatResult,
   CitationDetail,
+  ConversationDetail,
   ConversationMessage,
   DocumentDetail,
   DocumentListItem,
   EvaluationRun,
+  TicketItem,
   User,
 } from "./types";
 
@@ -74,7 +76,8 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true, all
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
-  } catch {
+  } catch (reason) {
+    if (reason instanceof DOMException && reason.name === "AbortError") throw reason;
     throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
   }
 
@@ -129,6 +132,8 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ title }),
     }).then((response) => response.data!),
+  getConversation: (conversationId: string) =>
+    request<ConversationDetail>(`/conversations/${conversationId}`).then((response) => response.data!),
   endConversation: (conversationId: string) =>
     request<{ conversation_id: string; state: string; ended_at: string }>(`/conversations/${conversationId}/end`, {
       method: "POST",
@@ -143,8 +148,8 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ conversation_id: conversationId, question }),
     }).then((response) => response.data!),
-  getChatRequest: (chatRequestId: string) =>
-    request<ChatResult>(`/chat/requests/${chatRequestId}`).then((response) => response.data!),
+  getChatRequest: (chatRequestId: string, signal?: AbortSignal) =>
+    request<ChatResult>(`/chat/requests/${chatRequestId}`, { signal }).then((response) => response.data!),
   retryChatRequest: (chatRequestId: string) =>
     request<{ chat_request_id: string; parent_chat_request_id: string; state: string; poll_after_ms: number }>(
       `/chat/requests/${chatRequestId}/retry`,
@@ -152,6 +157,15 @@ export const api = {
     ).then((response) => response.data!),
   getCitation: (citationId: string) =>
     request<CitationDetail>(`/citations/${citationId}`).then((response) => response.data!),
+  listTickets: (filters: { status?: string; priority?: string } = {}) => {
+    const params = new URLSearchParams();
+    if (filters.status) params.set("status", filters.status);
+    if (filters.priority) params.set("priority", filters.priority);
+    const suffix = params.size ? `?${params.toString()}` : "";
+    return request<TicketItem[]>(`/tickets${suffix}`).then((response) => response.data!);
+  },
+  getTicket: (ticketId: string) =>
+    request<TicketItem>(`/tickets/${ticketId}`).then((response) => response.data!),
   listDocuments: (filters: { category?: string; status?: string; indexed?: string } = {}) => {
     const params = new URLSearchParams();
     if (filters.category) params.set("category", filters.category);
