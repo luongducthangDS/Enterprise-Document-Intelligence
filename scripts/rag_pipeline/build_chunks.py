@@ -7,19 +7,16 @@ Chạy: python scripts/rag_pipeline/build_chunks.py [--force] [--only file1.md f
 import argparse
 import json
 import os
-import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import get_settings
-from src.ingestion.chunkers import chunk_text
-from src.ingestion.cleaners import clean_document, page_for_offset
-from src.ingestion.metadata import Chunk, ChunkMetadata, load_registry, rag_eligible_rows, update_registry_column
+from src.ingestion.chunk_builder import build_chunks_from_text
+from src.ingestion.metadata import Chunk, load_registry, rag_eligible_rows, update_registry_column
 
 OUT_DIR = "data/chunks"
-H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 
 
 def atomic_write_json(path: str, data) -> None:
@@ -29,61 +26,19 @@ def atomic_write_json(path: str, data) -> None:
     os.replace(tmp_path, path)
 
 
-def resolve_title(frontmatter: dict, text: str, stem: str) -> str:
-    if frontmatter.get("title"):
-        return str(frontmatter["title"])
-    m = H1_RE.search(text)
-    if m:
-        return m.group(1).strip()
-    return stem
-
-
 def build_chunks_for_doc(row, settings) -> list[Chunk]:
     with open(row.processed_path, encoding="utf-8") as f:
         raw_text = f.read()
 
-    cleaned = clean_document(raw_text)
-    stem = os.path.splitext(row.source_file)[0]
-    title = resolve_title(cleaned.frontmatter, cleaned.text, stem)
-
-    text_chunks = chunk_text(
-        cleaned.text,
-        target_chars=settings.chunk_target_chars,
-        max_chars=settings.chunk_max_chars,
-        min_chars=settings.chunk_min_chars,
+    return build_chunks_from_text(
+        raw_text,
+        source_file=row.source_file,
+        category=row.category,
+        source_type=row.source_type,
+        is_official_policy=row.is_official_policy,
+        caveat=row.caveat,
+        settings=settings,
     )
-
-    chunks: list[Chunk] = []
-    for idx, tc in enumerate(text_chunks):
-        page_start = page_for_offset(cleaned.page_offsets, tc.start)
-        page_end = page_for_offset(cleaned.page_offsets, max(tc.start, tc.end - 1))
-        meta = ChunkMetadata(
-            chunk_id=f"{stem}::{idx:04d}",
-            source_file=row.source_file,
-            source_stem=stem,
-            title=title,
-            category=row.category,
-            source_type=row.source_type,
-            is_official_policy=row.is_official_policy,
-            caveat=row.caveat,
-            heading_path=tc.heading_path,
-            chapter=tc.chapter,
-            article=tc.article,
-            page_start=page_start,
-            page_end=page_end,
-            chunk_index=idx,
-            char_count=len(tc.text),
-            document_code=cleaned.frontmatter.get("document_code"),
-            version=str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None,
-            effective_date=str(cleaned.frontmatter.get("effective_date")) if cleaned.frontmatter.get("effective_date") else None,
-            owner=cleaned.frontmatter.get("owner"),
-            legal_basis=cleaned.frontmatter.get("legal_basis"),
-        )
-        breadcrumb = " — ".join(p for p in (title, tc.heading_path) if p)
-        embedding_text = f"passage: {breadcrumb}\n\n{tc.text}" if breadcrumb else f"passage: {tc.text}"
-        chunks.append(Chunk(text=tc.text, embedding_text=embedding_text, metadata=meta))
-
-    return chunks
 
 
 def main() -> None:

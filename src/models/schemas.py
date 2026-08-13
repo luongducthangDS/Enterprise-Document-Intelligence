@@ -27,6 +27,64 @@ class AgentQueryRequest(BaseModel):
     history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
 
 
+class IngestionJobRequest(BaseModel):
+    """Backend giao 1 tài liệu cho agent parse -> chunk -> embed -> index.
+
+    `job_id` do Backend cấp và là khoá idempotent: submit lại cùng job_id khi job
+    chưa kết thúc sẽ bị từ chối 409.
+    """
+
+    job_id: str = Field(..., min_length=1, max_length=128)
+    document_id: str | None = Field(default=None, max_length=128, description="ID tài liệu bên Backend, để trace")
+    source_file: str = Field(
+        ..., min_length=1, max_length=255, description="Tên file gốc — quyết định chunk_id/source_stem"
+    )
+    content_base64: str = Field(..., min_length=1, description="Nội dung file, base64")
+    category: str = Field(default="GENERAL", max_length=64)
+    source_type: str = Field(default="official_policy", max_length=64)
+    is_official_policy: bool = True
+    caveat: str = Field(default="", max_length=500)
+
+
+class IndexRebuildTarget(BaseModel):
+    document_id: str | None = Field(default=None, max_length=128)
+    source_file: str = Field(..., min_length=1, max_length=255)
+
+
+class IndexRebuildJobRequest(BaseModel):
+    job_id: str = Field(..., min_length=1, max_length=128)
+    documents: list[IndexRebuildTarget] = Field(
+        default_factory=list, description="Rỗng = rebuild toàn bộ tài liệu đã có chunk"
+    )
+    strategy: Literal["REPLACE", "INCREMENTAL", "FULL"] = "REPLACE"
+
+
+class EvaluationJobRequest(BaseModel):
+    job_id: str = Field(..., min_length=1, max_length=128)
+    dataset_id: str = Field(default="evalset_hr_v1", max_length=128)
+    limit: int | None = Field(default=None, ge=1, le=1000, description="Chỉ chạy N câu đầu (smoke run)")
+    concurrency: int | None = Field(default=None, ge=1, le=16)
+    types: list[str] | None = Field(default=None, description="Lọc theo type câu hỏi, vd ['in_scope']")
+
+
+class JobAcceptedResponse(BaseModel):
+    job_id: str
+    kind: str
+    state: str = "QUEUED"
+    poll_after_ms: int = 2000
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    kind: str
+    state: Literal["QUEUED", "PROCESSING", "COMPLETED", "FAILED"]
+    stage: str
+    progress_percent: int
+    result: dict | None = None
+    error: str | None = None
+    poll_after_ms: int = 2000
+
+
 Role = Literal["employee", "manager", "hr_admin"]
 EmploymentStatus = Literal["probation", "full_time", "on_notice_termination", "resigned"]
 ContractType = Literal["xac_dinh_thoi_han", "khong_xac_dinh_thoi_han", "thu_viec"]

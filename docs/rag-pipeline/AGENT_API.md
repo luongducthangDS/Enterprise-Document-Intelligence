@@ -18,7 +18,9 @@ result2 = await answer(
 )
 ```
 
-Khi Agent và Backend deploy riêng, Backend chỉ gọi HTTP endpoint nội bộ `POST /api/v1/agent/query`. Endpoint cũ `POST /api/v1/chat` được giữ lại để tương thích với client Agent hiện có.
+Khi Agent và Backend deploy riêng, Backend chỉ gọi HTTP endpoint nội bộ `POST /api/v1/agent/query`. Endpoint cũ `POST /api/v1/chat` được giữ lại để tương thích với client Agent hiện có — từ 13/08/2026 nó **yêu cầu `X-Service-Token` như mọi route nội bộ khác** (trước đó là route duy nhất không xác thực, xem `bug_1308.md` finding #4).
+
+Các job admin (ingestion, index rebuild, evaluation) chạy qua nhóm route riêng `POST /api/v1/agent/jobs/*` + `GET /api/v1/agent/jobs/{job_id}` — contract đầy đủ ở [`AGENT_WORKERS.md`](AGENT_WORKERS.md).
 
 ## HTTP contract Backend ↔ Agent
 

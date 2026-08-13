@@ -20,77 +20,15 @@ import argparse
 import os
 import sys
 
-import docx
-import pdfplumber
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
-from src.ingestion.extractors import extract_pdf
+# Logic trích xuất nằm ở src/ để ingestion worker (src/workers/ingestion.py) dùng
+# lại được cho file Backend upload lên; script này chỉ còn phần quét thư mục.
+from src.ingestion.extractors.documents import UnsupportedDocumentError, extract_document, has_real_text_layer
 
 RAW_DIR = "data/raw"
 OUT_DIR = "data/processed"
-
-# Trang được coi là "có text layer thật" nếu pdfplumber đọc được > 200 ký tự.
-# PDF được coi là scan (cần VLM) nếu số trang có text layer < 50% tổng số trang.
-TEXT_LAYER_MIN_CHARS_PER_PAGE = 200
-TEXT_LAYER_MIN_RATIO = 0.5
-
-
-def has_real_text_layer(pdf_path: str) -> bool:
-    with pdfplumber.open(pdf_path) as pdf:
-        n = len(pdf.pages)
-        if n == 0:
-            return False
-        pages_with_text = sum(
-            1 for p in pdf.pages if len(p.extract_text() or "") >= TEXT_LAYER_MIN_CHARS_PER_PAGE
-        )
-        return (pages_with_text / n) >= TEXT_LAYER_MIN_RATIO
-
-
-def extract_pdf_text_layer(pdf_path: str, out_path: str) -> None:
-    with pdfplumber.open(pdf_path) as pdf:
-        pages_text = []
-        for i, page in enumerate(pdf.pages, start=1):
-            text = (page.extract_text() or "").strip()
-            pages_text.append(f"<!-- page {i} -->\n\n{text}")
-    full_text = "\n\n---\n\n".join(pages_text)
-    stem = os.path.splitext(os.path.basename(pdf_path))[0]
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(f"# {stem}\n\n{full_text}")
-    print(f"[text-layer] {out_path} ({len(full_text)} chars, {len(pages_text)} trang)")
-
-
-def extract_docx(docx_path: str, out_path: str) -> None:
-    d = docx.Document(docx_path)
-    paragraphs = [p.text.strip() for p in d.paragraphs if p.text.strip()]
-    table_lines = []
-    for table in d.tables:
-        for row in table.rows:
-            cells = [c.text.strip().replace("\n", " ") for c in row.cells if c.text.strip()]
-            if cells:
-                table_lines.append(" | ".join(cells))
-
-    full_text = "\n\n".join(paragraphs)
-    if table_lines:
-        full_text += "\n\n### BẢNG BIỂU / DỮ LIỆU BẢNG\n\n" + "\n".join(table_lines)
-    full_text = full_text.strip()
-
-    stem = os.path.splitext(os.path.basename(docx_path))[0]
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(f"# {stem}\n\n{full_text}")
-    print(f"[docx] {out_path} ({len(full_text)} chars)")
-
-
-def copy_md(src_path: str, out_path: str) -> None:
-    with open(src_path, encoding="utf-8") as f:
-        content = f.read()
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    print(f"[copy] {out_path} ({len(content)} chars)")
 
 
 def process_file(path: str, force: bool) -> None:
@@ -102,18 +40,16 @@ def process_file(path: str, force: bool) -> None:
         print(f"[skip] {stem} — đã có output")
         return
 
-    if ext == ".pdf":
-        if has_real_text_layer(path):
-            extract_pdf_text_layer(path, out_path)
-        else:
-            print(f"[vlm] {stem} — PDF dạng scan, trích xuất qua VLM từng trang (có thể mất vài phút)...")
-            extract_pdf(path, out_path, force=True)
-    elif ext in (".docx", ".doc"):
-        extract_docx(path, out_path)
-    elif ext == ".md":
-        copy_md(path, out_path)
-    else:
+    if ext == ".pdf" and not has_real_text_layer(path):
+        print(f"[vlm] {stem} — PDF dạng scan, trích xuất qua VLM từng trang (có thể mất vài phút)...")
+
+    try:
+        content, method = extract_document(path, out_path)
+    except UnsupportedDocumentError:
         print(f"[skip] {stem} — định dạng không hỗ trợ ({ext})")
+        return
+
+    print(f"[{method}] {out_path} ({len(content)} chars)")
 
 
 def main() -> None:
