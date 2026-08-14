@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Archive, Check, CheckCircle2, Clock3, Database, FileText, FileUp, LoaderCircle, RefreshCw, Search, X } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { AsyncJob, DocumentDetail, DocumentListItem, EvaluationRun } from "@/lib/types";
+import { useSystemDialog } from "./SystemDialog";
 
 function wait(milliseconds: number) {
   return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -36,6 +37,7 @@ function processingClass(state: string) {
 }
 
 export function DocumentsView() {
+  const { confirm } = useSystemDialog();
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [detail, setDetail] = useState<DocumentDetail | null>(null);
   const [filters, setFilters] = useState({ category: "", status: "", indexed: "" });
@@ -87,7 +89,13 @@ export function DocumentsView() {
   }
 
   async function archiveCurrent() {
-    if (!detail || !window.confirm(`Lưu trữ tài liệu “${detail.title}”?`)) return;
+    if (!detail || !await confirm({
+      title: "Lưu trữ tài liệu?",
+      message: `“${detail.title}” sẽ được loại khỏi kho tìm kiếm mặc định nhưng thông tin tài liệu vẫn được lưu.`,
+      confirmLabel: "Lưu trữ",
+      cancelLabel: "Hủy",
+      tone: "danger",
+    })) return;
     try {
       await api.archiveDocument(detail.document_id);
       setDetail(null);
