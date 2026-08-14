@@ -56,6 +56,11 @@
 - Response `data`: `{ "conversation_id", "state": "ENDED", "ended_at" }`
 - Lỗi: `CONVERSATION_NOT_FOUND (404)`, `CONVERSATION_ENDED (409)`
 
+**DELETE /conversations/{conversation_id}** — Ẩn hội thoại khỏi lịch sử
+- Response `data`: `{ "conversation_id", "deleted": true }`
+- Xóa mềm bằng state `DELETED`; giữ message/ticket cho audit.
+- Lỗi: `CONVERSATION_NOT_FOUND (404)`, `FORBIDDEN (403)`
+
 ---
 
 ### 2. Chat RAG API
@@ -64,7 +69,7 @@
 - Request: `{ "conversation_id": "conv_01", "question": "..." }`
 - Response `data`: `{ "chat_request_id", "conversation_id", "state": "QUEUED", "poll_after_ms": 1000 }`
 - Lỗi: `VALIDATION_ERROR (400)`, `CONVERSATION_NOT_FOUND (404)`, `RATE_LIMITED (429)`
-- Lưu ý: `question` sau trim không rỗng; giới hạn đề xuất 2.000 ký tự (TBD).
+- Lưu ý: `question` sau trim không rỗng; không còn giới hạn 2.000 ký tự ở hợp đồng hiện tại.
 
 **GET /chat/requests/{chat_request_id}** — Lấy trạng thái/kết quả trả lời
 - Response `data` (COMPLETED):
@@ -245,7 +250,7 @@
 
 ### 11. Các điểm cần chốt trước khi code
 - Cơ chế authentication & role (RBAC theo phòng ban).
-- Giới hạn `question` (đề xuất 2.000 ký tự) và dung lượng upload (đề xuất 25MB).
+- Giới hạn dung lượng upload (đề xuất 25MB); `question` hiện không áp trần 2.000 ký tự.
 - TTL cho conversation, idempotency key, log.
 - Polling (`poll_after_ms`) hay đổi sang SSE/streaming.
 - Feedback: upsert hay lưu lịch sử.

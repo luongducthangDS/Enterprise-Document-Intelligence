@@ -73,7 +73,7 @@
 
 | **Nhóm** | **Method và endpoint** | **Mục đích** |
 | --- | --- | --- |
-| **Conversation** | POST /conversations<br>GET /conversations/{id}<br>GET /conversations/{id}/messages<br>POST /conversations/{id}/end | Tạo phiên mới; lấy thông tin phiên; lấy lịch sử message; kết thúc/xóa ngữ cảnh phiên |
+| **Conversation** | POST /conversations<br>GET /conversations<br>GET /conversations/{id}<br>PATCH /conversations/{id}<br>DELETE /conversations/{id}<br>GET /conversations/{id}/messages<br>POST /conversations/{id}/end | Tạo và liệt kê phiên; đổi tên; ẩn khỏi lịch sử; lấy message; kết thúc phiên |
 | **Chat RAG** | POST /chat/requests<br>GET /chat/requests/{id}<br>POST /chat/requests/{id}/retry | Gửi câu hỏi; lấy trạng thái/kết quả kèm message id/warnings; thử lại |
 | **Citation** | GET /citations/{id} | Mở đoạn trích và metadata nguồn |
 | **Document** | POST /documents<br>GET /documents<br>GET /documents/{id}<br>PATCH /documents/{id}/metadata<br>POST /documents/{id}/archive<br>GET /ingestion-jobs/{id} | Upload tài liệu; quản lý dataset/metadata; archive tài liệu; theo dõi ingest |
@@ -199,6 +199,21 @@ Kết thúc phiên và xóa ngữ cảnh đang dùng cho lượt hỏi sau.
 
 **Lỗi chính: **CONVERSATION_NOT_FOUND (404), CONVERSATION_ENDED (409)
 
+## DELETE /conversations/{conversation_id}
+
+Ẩn cuộc hội thoại khỏi lịch sử của chủ sở hữu. Backend đánh dấu mềm `DELETED` để giữ message và ticket phục vụ audit; dữ liệu không bị xóa vật lý.
+
+**Response thành công**
+
+```json
+{
+  "success": true,
+  "data": { "conversation_id": "conv_01", "deleted": true }
+}
+```
+
+**Lỗi chính:** CONVERSATION_NOT_FOUND (404), FORBIDDEN (403)
+
 # 4. Chat RAG API
 
 ## POST /chat/requests
@@ -230,7 +245,7 @@ Gửi câu hỏi. Trả 202 để FE bắt đầu polling.
 
 **Lỗi chính: **VALIDATION_ERROR (400), CONVERSATION_NOT_FOUND (404), RATE_LIMITED (429)
 
-**Lưu ý: **question sau trim không được rỗng; giới hạn đề xuất 2.000 ký tự (TBD).
+**Lưu ý: **question sau trim không được rỗng; FE không hiển thị hoặc áp giới hạn 2.000 ký tự.
 
 ## GET /chat/requests/{chat_request_id}
 
