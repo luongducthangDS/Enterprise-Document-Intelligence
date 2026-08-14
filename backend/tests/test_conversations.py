@@ -117,6 +117,22 @@ def test_rename_conversation_endpoint():
     assert response.json()["data"]["title"] == "Chính sách nghỉ phép"
 
 
+def test_delete_conversation_hides_it_without_removing_audit_data():
+    headers = get_auth_header()
+    create_resp = client.post("/api/v1/conversations", json={"title": "Conversation to delete"}, headers=headers)
+    conv_id = create_resp.json()["data"]["conversation_id"]
+
+    response = client.delete(f"/api/v1/conversations/{conv_id}", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["data"] == {"conversation_id": conv_id, "deleted": True}
+
+    listed = client.get("/api/v1/conversations", headers=headers).json()["data"]
+    assert all(item["conversation_id"] != conv_id for item in listed)
+
+    response_again = client.delete(f"/api/v1/conversations/{conv_id}", headers=headers)
+    assert response_again.status_code == 404
+
+
 def test_get_conversation_info_endpoint():
     headers = get_auth_header()
     create_resp = client.post("/api/v1/conversations", json={"title": "Hội thoại test GET"}, headers=headers)

@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { BookOpenCheck, Check, CircleAlert, Copy, FileSearch, LoaderCircle, MessageCircleQuestion, RefreshCw, Send, ShieldAlert, Sparkles, Square, Trash2 } from "lucide-react";
+import { BookOpenCheck, Check, ChevronDown, CircleAlert, Copy, FileSearch, Link2, LoaderCircle, MessageCircleQuestion, RefreshCw, Send, ShieldAlert, Sparkles } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { ChatResult, CitationDetail, CitationSummary, ConversationDetail, ConversationMessage } from "@/lib/types";
+import { useSystemDialog } from "./SystemDialog";
 
 type UiMessage =
   | { id: string; kind: "user"; content: string }
@@ -127,6 +128,41 @@ function sourceLabel(sourceType: string | null, isOfficial: boolean) {
   return sourceType && labels[sourceType] ? labels[sourceType] : isOfficial ? "Nguồn chính thức" : "Nguồn tham khảo";
 }
 
+function stripLegacyCitationFooter(answer: string) {
+  return answer.replace(/\n\s*\nNguồn tham khảo:\s*\n[\s\S]*$/i, "").trimEnd();
+}
+
+function sameDocument(left: CitationSummary, right: CitationSummary) {
+  return left.title === right.title
+    && left.version === right.version
+    && left.effective_date === right.effective_date
+    && left.source_type === right.source_type;
+}
+
+function normalizeCitationDisplay(answer: string, citations: CitationSummary[]) {
+  const documents: CitationSummary[] = [];
+  const documentNumberByCitation = citations.map((citation) => {
+    const existingIndex = documents.findIndex((document) => sameDocument(document, citation));
+    if (existingIndex >= 0) return existingIndex + 1;
+    documents.push(citation);
+    return documents.length;
+  });
+
+  const normalizedAnswer = answer.replace(
+    /\[(?:Nguồn\s*)?(\d+(?:\s*(?:,|;|và)\s*\d+)*)\]/gi,
+    (marker, values: string) => {
+      const documentNumbers = (values.match(/\d+/g) ?? [])
+        .map((value) => documentNumberByCitation[Number(value) - 1])
+        .filter((value, index, all): value is number => Boolean(value) && all.indexOf(value) === index);
+      return documentNumbers.length
+        ? documentNumbers.map((value) => `[Nguồn ${value}]`).join(" ")
+        : marker;
+    },
+  );
+
+  return { answer: normalizedAnswer, citations: documents };
+}
+
 type ChatViewProps = {
   newConversationSignal?: number;
   selectedConversationId?: string | null;
@@ -142,6 +178,7 @@ export function ChatView({
   onConversationsChange,
   onConversationSelected,
 }: ChatViewProps) {
+  const { confirm } = useSystemDialog();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversationState, setConversationState] = useState("CREATING");
   const [messages, setMessages] = useState<UiMessage[]>([]);
@@ -408,47 +445,22 @@ export function ChatView({
     }
   }
 
-  async function reloadHistory() {
-    if (!conversationId || busy) return;
-    setBusy(true);
-    setError("");
-    try {
-      const history = await api.getConversationMessages(conversationId);
-      setMessages(history.messages.map(historyToUi));
-    } catch (reason) {
-      setError(reason instanceof ApiClientError ? reason.message : "Không thể tải lịch sử.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function endConversation() {
-    if (!conversationId || busy || !window.confirm("Kết thúc phiên hội thoại hiện tại?")) return;
-    setBusy(true);
-    try {
-      const ended = await api.endConversation(conversationId);
-      setConversationState(ended.state);
-      onConversationsChangeRef.current(conversationsRef.current.map((item) => item.conversation_id === conversationId
-        ? { ...item, state: ended.state, ended_at: ended.ended_at }
-        : item));
-    } catch (reason) {
-      setError(reason instanceof ApiClientError ? reason.message : "Không thể kết thúc phiên.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function startNewConversation() {
-    if (busy || (messages.length > 0 && !window.confirm("Tạo phiên mới? Nội dung phiên hiện tại vẫn được lưu trên Backend."))) return;
-    await createConversation();
-  }
-
   useEffect(() => {
     if (newConversationSignal === newConversationSignalRef.current || busy) return;
     newConversationSignalRef.current = newConversationSignal;
-    if (messages.length > 0 && !window.confirm("Tạo phiên mới? Nội dung phiên hiện tại vẫn được lưu trên Backend.")) return;
-    void createConversation();
-  }, [newConversationSignal, busy, messages.length, createConversation]);
+    let cancelled = false;
+    async function startNewConversation() {
+      const accepted = messages.length === 0 || await confirm({
+        title: "Bắt đầu hội thoại mới?",
+        message: "Hội thoại hiện tại đã được lưu trong lịch sử. Bạn có thể mở lại bất cứ lúc nào từ thanh bên trái.",
+        confirmLabel: "Tạo hội thoại mới",
+        cancelLabel: "Ở lại hội thoại này",
+      });
+      if (!cancelled && accepted) await createConversation();
+    }
+    void startNewConversation();
+    return () => { cancelled = true; };
+  }, [newConversationSignal, busy, messages.length, createConversation, confirm]);
 
   async function openCitation(item: CitationSummary) {
     setCitationLoading(true);
@@ -465,23 +477,13 @@ export function ChatView({
   return (
     <div className="chat-workspace">
       <section className="chat-main">
-        <header className="workspace-toolbar">
-          <div><p className="eyebrow">PHIÊN HỘI THOẠI</p><strong>{conversationId ?? "Đang tạo..."}</strong></div>
-          <span className={`status-pill ${conversationState === "ACTIVE" ? "success" : "neutral"}`}>{conversationState}</span>
-          <div className="toolbar-actions">
-            <button className="icon-command" aria-label="Tải lại lịch sử" title="Tải lại lịch sử" disabled={busy || !conversationId} onClick={() => void reloadHistory()}><RefreshCw className={busy ? "spin" : ""} size={17} /></button>
-            <button className="icon-command" aria-label="Kết thúc phiên" title="Kết thúc phiên" onClick={() => void endConversation()} disabled={busy || conversationState !== "ACTIVE"}><Square size={16} /></button>
-            <button className="icon-command" aria-label="Tạo phiên mới" title="Tạo phiên mới" disabled={busy} onClick={() => void startNewConversation()}><Trash2 size={17} /></button>
-          </div>
-        </header>
-
         <div className="message-stream">
           {!messages.length && !busy && (
             <div className="empty-chat">
               <div className="empty-icon"><Sparkles size={27} /></div>
               <p className="eyebrow">HR DOCUMENT INTELLIGENCE</p>
               <h2>Chào bạn, tôi có thể giúp gì?</h2>
-              <p>Hỏi về chính sách nhân sự để nhận câu trả lời có trích dẫn từ Knowledge Base nội bộ.</p>
+              <p>Hỏi về chính sách nhân sự để nhận câu trả lời có trích dẫn từ tài liệu nội bộ.</p>
               <div className="prompt-row">
                 {[
                   ["Phép năm", "Nhân viên có bao nhiêu ngày phép năm?"],
@@ -504,8 +506,8 @@ export function ChatView({
         </div>
 
         <form className="composer" onSubmit={submit}>
-          <textarea value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={2000} disabled={busy || conversationState !== "ACTIVE"} placeholder="Hỏi về chính sách, quy trình hoặc quyền lợi nhân sự..." />
-          <div className="composer-footer"><span>AI chỉ trả lời dựa trên nguồn tìm thấy · {question.length.toLocaleString()} / 2.000</span><button className="send-command" aria-label="Gửi câu hỏi" disabled={!question.trim() || busy}><Send size={18} /></button></div>
+          <textarea value={question} onChange={(event) => setQuestion(event.target.value)} disabled={busy || conversationState !== "ACTIVE"} placeholder="Hỏi về chính sách, quy trình hoặc quyền lợi nhân sự..." />
+          <div className="composer-footer"><span>AI chỉ trả lời dựa trên nguồn tìm thấy</span><button className="send-command" aria-label="Gửi câu hỏi" disabled={!question.trim() || busy}><Send size={18} /></button></div>
         </form>
       </section>
 
@@ -530,12 +532,20 @@ function AssistantMessage({ result, activeCitationId, onCitation, onRetry }: {
   onRetry: (requestId: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const hasCitations = Boolean(result.citations?.length);
-  const verified = hasCitations && result.citations?.every((item) => item.is_official_policy);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const citations = result.citations ?? [];
+  const normalized = normalizeCitationDisplay(
+    stripLegacyCitationFooter(result.answer ?? result.failure?.message ?? ""),
+    citations,
+  );
+  const displayAnswer = normalized.answer;
+  const listedCitations = normalized.citations;
+  const hasCitations = Boolean(listedCitations.length);
+  const verified = hasCitations && listedCitations.every((item) => item.is_official_policy);
 
   async function copyAnswer() {
     if (!result.answer) return;
-    await navigator.clipboard.writeText(result.answer);
+    await navigator.clipboard.writeText(displayAnswer);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   }
@@ -551,9 +561,12 @@ function AssistantMessage({ result, activeCitationId, onCitation, onRetry }: {
       {result.state === "COMPLETED" && hasCitations && !verified && <div className="trust-banner reference"><ShieldAlert size={16} /> Có sử dụng nguồn tham khảo</div>}
       {result.state === "REFUSED" && <div className="trust-banner limited"><CircleAlert size={16} /> Thông tin còn hạn chế</div>}
       {result.state === "CLARIFICATION_REQUIRED" ? <div className="clarification-copy"><MessageCircleQuestion size={20} /><div><strong>Cần làm rõ thêm</strong><p>{result.clarification?.question}</p><small>Nhập câu trả lời trong ô chat để tiếp tục cùng phiên.</small></div></div>
-        : <AnswerContent answer={result.answer ?? result.failure?.message ?? ""} citations={result.citations ?? []} onCitation={onCitation} />}
+        : <AnswerContent answer={displayAnswer} citations={listedCitations} onCitation={onCitation} />}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
-      {!!result.citations?.length && <div className="citation-list"><p>Nguồn được sử dụng</p>{result.citations.map((item, index) => <button className={`${item.is_official_policy ? "" : "unofficial"} ${activeCitationId === item.citation_id ? "active" : ""}`} key={item.citation_id} onClick={() => onCitation(item)}><span className="citation-number">{index + 1}</span><span><strong>{item.title}</strong><small>{sourceLabel(item.source_type, item.is_official_policy)} · {item.section ?? "Không rõ mục"} · Trang {item.page ?? "—"}</small></span>{!item.is_official_policy && <ShieldAlert size={16} />}</button>)}</div>}
+      {hasCitations && <div className={`citation-list ${sourcesOpen ? "open" : ""}`}>
+        <button className="citation-toggle" aria-expanded={sourcesOpen} onClick={() => setSourcesOpen((current) => !current)}><span><Link2 size={15} /> Link tham khảo <small>{listedCitations.length} tài liệu</small></span><ChevronDown size={16} /></button>
+        {sourcesOpen && <div className="citation-items">{listedCitations.map((item) => <button className={`${item.is_official_policy ? "" : "unofficial"} ${activeCitationId === item.citation_id ? "active" : ""}`} key={item.citation_id} onClick={() => onCitation(item)}><Link2 className="citation-link-icon" size={16} /><span><strong>{item.title}</strong><small>{sourceLabel(item.source_type, item.is_official_policy)} · {item.section ?? "Không rõ mục"} · Trang {item.page ?? "—"}</small></span>{!item.is_official_policy && <ShieldAlert size={16} />}</button>)}</div>}
+      </div>}
       {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Yêu cầu không đủ bằng chứng có thể đã được Backend chuyển thành ticket.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
       {result.answer && <div className="answer-actions"><button onClick={() => void copyAnswer()}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? "Đã sao chép" : "Sao chép"}</button></div>}
@@ -566,12 +579,14 @@ function AnswerContent({ answer, citations, onCitation }: {
   citations: CitationSummary[];
   onCitation: (citation: CitationSummary) => void;
 }) {
-  const parts = answer.split(/(\[(?:Nguồn\s*)?\d+\])/gi);
+  const parts = answer.split(/(\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\])/gi);
   return <p className="answer-copy">{parts.map((part, index) => {
-    const match = part.match(/^\[(?:Nguồn\s*)?(\d+)\]$/i);
-    if (!match) return <span key={`${part}-${index}`}>{part}</span>;
-    const citation = citations[Number(match[1]) - 1];
-    if (!citation) return <span key={`${part}-${index}`}>{part}</span>;
-    return <button className="inline-citation" key={`${part}-${index}`} title={`Mở nguồn ${match[1]}`} onClick={() => onCitation(citation)}>[{match[1]}]</button>;
+    if (!/^\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\]$/i.test(part)) return <span key={`${part}-${index}`}>{part}</span>;
+    const numbers = part.match(/\d+/g) ?? [];
+    return <span className="inline-citation-group" key={`${part}-${index}`}>{numbers.map((number) => {
+      const citation = citations[Number(number) - 1];
+      if (!citation) return <span key={number}>[{number}]</span>;
+      return <button className="inline-citation" key={number} title={`Mở nguồn ${number}`} onClick={() => onCitation(citation)}>[{number}]</button>;
+    })}</span>;
   })}</p>;
 }

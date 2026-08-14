@@ -66,6 +66,19 @@ async def rename_conversation(
     return wrap_response(data, request)
 
 
+@router.delete("/{conversation_id}")
+async def delete_conversation(
+    conversation_id: uuid.UUID,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Ẩn cuộc hội thoại khỏi lịch sử nhưng giữ dữ liệu phục vụ ticket/audit."""
+    user_id = uuid.UUID(current_user["user_id"])
+    data = await ConversationService.delete_conversation(db, conversation_id, user_id)
+    return wrap_response(data, request)
+
+
 @router.get("/{conversation_id}/messages")
 async def get_conversation_messages(
     conversation_id: uuid.UUID,

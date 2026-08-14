@@ -70,11 +70,11 @@ class ChatService:
         question: str,
     ) -> dict[str, Any]:
         clean_question = question.strip() if question else ""
-        if not clean_question or len(clean_question) > 2000:
+        if not clean_question:
             raise AppException(
                 status_code=400,
                 code="VALIDATION_ERROR",
-                message="Câu hỏi không được để trống và không vượt quá 2.000 ký tự.",
+                message="Câu hỏi không được để trống.",
             )
 
         conv_res = await db.execute(select(ConversationDB).where(ConversationDB.id == conversation_id))
@@ -83,10 +83,10 @@ class ChatService:
             raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy phiên hội thoại.")
         if conv.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền truy cập phiên hội thoại này.")
-        if conv.state == "ENDED":
+        if conv.state != "ACTIVE":
             raise ConflictError(
                 code="CONVERSATION_ENDED",
-                message="Phiên hội thoại đã kết thúc, không thể gửi thêm câu hỏi.",
+                message="Phiên hội thoại không còn hoạt động, không thể gửi thêm câu hỏi.",
             )
 
         if conv.title == "Hội thoại mới":

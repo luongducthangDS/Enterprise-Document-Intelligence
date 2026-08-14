@@ -1,3 +1,5 @@
+import re
+
 from src.agents.guardrails import detect_injection, redact_pii, strip_injection
 from src.agents.llm import acall_llm
 from src.agents.state import AgentState, Citation, RetrievedChunk
@@ -26,6 +28,43 @@ _SOURCE_LABEL = {
     "public_template": "template công khai — không phải quy định công ty",
     "synthetic": "tài liệu mẫu/synthetic — không phải quy định công ty",
 }
+
+_CITATION_MARKER = re.compile(
+    r"\[(?:Nguồn\s*)?(\d+(?:\s*(?:,|;|và)\s*\d+)*)\]",
+    re.IGNORECASE,
+)
+
+
+def _keep_used_citations(answer: str, chunks: list[RetrievedChunk]) -> tuple[str, list[RetrievedChunk]]:
+    """Giữ nguồn được viện dẫn và chỉ đánh một số cho mỗi tài liệu."""
+    used_chunks: list[RetrievedChunk] = []
+    source_number_by_document: dict[str, int] = {}
+    number_map: dict[int, int] = {}
+    for match in _CITATION_MARKER.finditer(answer):
+        for value in re.findall(r"\d+", match.group(1)):
+            original_number = int(value)
+            index = original_number - 1
+            if not 0 <= index < len(chunks):
+                continue
+            chunk = chunks[index]
+            document_key = chunk["source_file"].strip().casefold()
+            if document_key not in source_number_by_document:
+                source_number_by_document[document_key] = len(used_chunks) + 1
+                used_chunks.append(chunk)
+            number_map[original_number] = source_number_by_document[document_key]
+
+    if not used_chunks:
+        return answer, []
+
+    def renumber(match: re.Match[str]) -> str:
+        replacements: list[int] = []
+        for value in re.findall(r"\d+", match.group(1)):
+            replacement = number_map.get(int(value))
+            if replacement is not None and replacement not in replacements:
+                replacements.append(replacement)
+        return " ".join(f"[Nguồn {number}]" for number in replacements) if replacements else match.group(0)
+
+    return _CITATION_MARKER.sub(renumber, answer), used_chunks
 
 
 def _build_context_block(
@@ -100,6 +139,8 @@ async def generate_node(state: AgentState) -> dict:
         # khiển nội bộ, phần giải thích "thiếu gì" phía sau vẫn giữ nguyên.
         answer = answer.replace(INSUFFICIENT_MARKER, "").strip()
 
+    answer, cited_chunks = _keep_used_citations(answer, chunks)
+
     citations: list[Citation] = [
         Citation(
             chunk_id=c["chunk_id"],
@@ -112,7 +153,7 @@ async def generate_node(state: AgentState) -> dict:
             source_type=c.get("source_type") or "",
             excerpt=c.get("text") or "",
         )
-        for c in chunks
+        for c in cited_chunks
     ]
     return {
         "generated_answer": answer,
@@ -142,19 +183,10 @@ async def hallucination_check_node(state: AgentState) -> dict:
 
 
 def finalize_node(state: AgentState) -> dict:
-    """Ghép câu trả lời cuối + danh sách nguồn tham khảo — chạy sau khi confidence
-    đủ cao (không escalate)."""
+    """Hoàn thiện câu trả lời; nguồn được trả riêng qua trường citations cho FE."""
     from src.config import get_settings
 
     answer = state.get("generated_answer", "")
-    citations = state.get("citations", [])
-    if citations:
-        lines = []
-        for c in citations:
-            page = f" (trang {c['page_start']})" if c.get("page_start") else ""
-            caveat = "" if c["is_official_policy"] else " [nguồn tham khảo/template, không phải chính sách công ty thật]"
-            lines.append(f"- {c['title']}{page}{caveat}")
-        answer = f"{answer}\n\nNguồn tham khảo:\n" + "\n".join(lines)
 
     pii_found: list[str] = []
     if get_settings().guardrail_pii_redaction_enabled:

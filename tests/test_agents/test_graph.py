@@ -78,7 +78,7 @@ async def test_hr_question_flow_returns_grounded_answer_with_citations():
 
     assert result.get("escalate") is not True
     assert "12 ngày" in result["response"]
-    assert "Nguồn tham khảo" in result["response"]
+    assert "Nguồn tham khảo" not in result["response"]
     assert result["citations"][0]["source_file"] == "leave.md"
 
 

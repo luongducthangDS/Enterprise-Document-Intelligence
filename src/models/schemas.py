@@ -20,7 +20,7 @@ class ChatRequest(BaseModel):
 
 
 class AgentQueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=2000)
+    query: str = Field(..., min_length=1)
     request_id: str = Field(..., min_length=1, max_length=128)
     user_id: str = Field(..., min_length=1, max_length=128)
     department: str = Field(default="GENERAL", max_length=128)

@@ -8,8 +8,7 @@ class CreateChatRequestSchema(BaseModel):
     question: str = Field(
         ...,
         min_length=1,
-        max_length=2000,
-        description="Câu hỏi của người dùng (tối đa 2.000 ký tự)",
+        description="Câu hỏi của người dùng",
     )
 
 

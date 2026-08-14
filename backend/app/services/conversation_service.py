@@ -31,7 +31,7 @@ class ConversationService:
         stmt = select(ConversationDB).where(ConversationDB.id == conversation_id)
         result = await db.execute(stmt)
         conversation = result.scalar_one_or_none()
-        if not conversation:
+        if not conversation or conversation.state == "DELETED":
             raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy cuộc hội thoại")
         if conversation.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền cập nhật cuộc hội thoại này")
@@ -56,7 +56,10 @@ class ConversationService:
     ) -> list[dict]:
         stmt = (
             select(ConversationDB)
-            .where(ConversationDB.user_id == user_id)
+            .where(
+                ConversationDB.user_id == user_id,
+                ConversationDB.state != "DELETED",
+            )
             .order_by(ConversationDB.updated_at.desc(), ConversationDB.created_at.desc())
             .limit(limit)
         )
@@ -155,7 +158,7 @@ class ConversationService:
         result = await db.execute(stmt)
         conv = result.scalar_one_or_none()
 
-        if not conv:
+        if not conv or conv.state == "DELETED":
             raise NotFoundError(
                 code="CONVERSATION_NOT_FOUND",
                 message="Không tìm thấy cuộc hội thoại",
@@ -196,7 +199,7 @@ class ConversationService:
         result = await db.execute(stmt)
         conv = result.scalar_one_or_none()
 
-        if not conv:
+        if not conv or conv.state == "DELETED":
             raise NotFoundError(
                 code="CONVERSATION_NOT_FOUND",
                 message="Không tìm thấy cuộc hội thoại",
@@ -259,7 +262,7 @@ class ConversationService:
         result = await db.execute(stmt)
         conv = result.scalar_one_or_none()
 
-        if not conv:
+        if not conv or conv.state == "DELETED":
             raise NotFoundError(
                 code="CONVERSATION_NOT_FOUND",
                 message="Không tìm thấy cuộc hội thoại",
@@ -284,3 +287,26 @@ class ConversationService:
             "state": "ENDED",
             "ended_at": conv.ended_at.isoformat() if conv.ended_at else datetime.now(UTC).isoformat(),
         }
+
+    @classmethod
+    async def delete_conversation(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> dict:
+        stmt = select(ConversationDB).where(ConversationDB.id == conversation_id)
+        result = await db.execute(stmt)
+        conversation = result.scalar_one_or_none()
+        if not conversation or conversation.state == "DELETED":
+            raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy cuộc hội thoại")
+        if conversation.user_id != user_id:
+            raise ForbiddenError("Bạn không có quyền xóa cuộc hội thoại này")
+
+        now = datetime.now(UTC)
+        conversation.state = "DELETED"
+        conversation.ended_at = conversation.ended_at or now
+        conversation.updated_at = now
+        await db.commit()
+
+        return {"conversation_id": str(conversation.id), "deleted": True}

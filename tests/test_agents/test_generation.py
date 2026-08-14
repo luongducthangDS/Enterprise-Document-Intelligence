@@ -64,6 +64,55 @@ class TestGenerateNode:
         assert result["citations"] == []
 
     @pytest.mark.asyncio
+    async def test_only_returns_sources_explicitly_used_by_answer(self):
+        chunks = [_chunk("a"), _chunk("b"), _chunk("c")]
+        with patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(return_value="Nội dung từ tài liệu thứ ba [Nguồn 3]."),
+        ):
+            result = await generate_node({"query": "abc", "retrieved_chunks": chunks})
+
+        assert result["generated_answer"] == "Nội dung từ tài liệu thứ ba [Nguồn 1]."
+        assert [citation["chunk_id"] for citation in result["citations"]] == ["c"]
+
+    @pytest.mark.asyncio
+    async def test_grouped_citation_markers_are_split_renumbered_and_clickable_by_fe(self):
+        chunks = [_chunk("a"), _chunk("b"), _chunk("c"), _chunk("d")]
+        with patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(return_value="Áp dụng theo hai nguồn [Nguồn 2, 4]."),
+        ):
+            result = await generate_node({"query": "abc", "retrieved_chunks": chunks})
+
+        assert result["generated_answer"] == "Áp dụng theo hai nguồn [Nguồn 1] [Nguồn 2]."
+        assert [citation["chunk_id"] for citation in result["citations"]] == ["b", "d"]
+
+    @pytest.mark.asyncio
+    async def test_repeated_chunks_from_different_pages_of_same_document_are_listed_once(self):
+        chunks = [
+            _chunk("a", source_file="policy.pdf", page_start=3, page_end=3),
+            _chunk("b", source_file="policy.pdf", page_start=8, page_end=8),
+        ]
+        with patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(return_value="Cùng một tài liệu [Nguồn 1, 2]."),
+        ):
+            result = await generate_node({"query": "abc", "retrieved_chunks": chunks})
+
+        assert result["generated_answer"] == "Cùng một tài liệu [Nguồn 1]."
+        assert [citation["chunk_id"] for citation in result["citations"]] == ["a"]
+
+    @pytest.mark.asyncio
+    async def test_does_not_expose_retrieved_sources_when_answer_does_not_cite_them(self):
+        with patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(return_value="Chưa tìm thấy căn cứ phù hợp."),
+        ):
+            result = await generate_node({"query": "abc", "retrieved_chunks": [_chunk("a"), _chunk("b")]})
+
+        assert result["citations"] == []
+
+    @pytest.mark.asyncio
     async def test_insufficient_marker_sets_answerable_false_and_is_stripped(self):
         """Marker là tín hiệu điều khiển nội bộ — không được lọt ra câu trả lời
         hiển thị cho user, nhưng phần giải thích phía sau phải giữ nguyên."""
@@ -162,7 +211,7 @@ class TestHallucinationCheckNode:
 
 
 class TestFinalizeNode:
-    def test_appends_citation_footer_when_citations_present(self):
+    def test_does_not_append_duplicate_citation_footer(self):
         state = {
             "generated_answer": "Bạn được nghỉ 12 ngày.",
             "citations": [
@@ -177,9 +226,7 @@ class TestFinalizeNode:
             ],
         }
         result = finalize_node(state)
-        assert "Nguồn tham khảo" in result["response"]
-        assert "trang 3" in result["response"]
-        assert "không phải chính sách công ty thật" in result["response"]
+        assert result["response"] == "Bạn được nghỉ 12 ngày."
 
     def test_no_citations_returns_answer_unchanged(self):
         result = finalize_node({"generated_answer": "Chưa đủ thông tin.", "citations": []})

@@ -131,6 +131,22 @@ def test_submit_chat_request_ended_conversation():
     assert res_data["error"]["code"] == "CONVERSATION_ENDED"
 
 
+def test_submit_chat_request_accepts_more_than_2000_characters():
+    headers = get_auth_header()
+    conv_id = "33333333-3333-3333-3333-333333333333"
+    ChatService.background_tasks_enabled = False
+    try:
+        response = client.post(
+            "/api/v1/chat/requests",
+            json={"conversation_id": conv_id, "question": "a" * 2001},
+            headers=headers,
+        )
+    finally:
+        ChatService.background_tasks_enabled = True
+
+    assert response.status_code == 202
+
+
 def test_get_chat_request_status_not_found():
     headers = get_auth_header()
     fake_id = str(uuid.uuid4())
