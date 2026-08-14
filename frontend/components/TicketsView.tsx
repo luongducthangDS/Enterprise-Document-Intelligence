@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CircleAlert, LoaderCircle, RefreshCw, X } from "lucide-react";
+import { CheckCircle2, CircleAlert, LoaderCircle, PlayCircle, RefreshCw, X } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { TicketItem } from "@/lib/types";
+import { useSystemDialog } from "./SystemDialog";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -17,11 +18,14 @@ function statusClass(status: string) {
 }
 
 export function TicketsView({ isAdmin = false }: { isAdmin?: boolean }) {
+  const { confirm } = useSystemDialog();
   const [tickets, setTickets] = useState<TicketItem[]>([]);
   const [detail, setDetail] = useState<TicketItem | null>(null);
   const [filters, setFilters] = useState({ status: "", priority: "" });
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [resolutionNote, setResolutionNote] = useState("");
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -42,12 +46,42 @@ export function TicketsView({ isAdmin = false }: { isAdmin?: boolean }) {
     setDetailLoading(true);
     setError("");
     try {
-      setDetail(await api.getTicket(item.id));
+      const ticket = await api.getTicket(item.id);
+      setDetail(ticket);
+      setResolutionNote(ticket.resolution_note ?? "");
     } catch (reason) {
       setError(reason instanceof ApiClientError ? reason.message : "Không thể mở ticket.");
     } finally {
       setDetailLoading(false);
     }
+  }
+
+  async function updateTicket(update: { status: string; assignee_id?: string; resolution_note?: string }) {
+    if (!detail || updating) return;
+    setUpdating(true);
+    setError("");
+    try {
+      const updated = await api.updateTicket(detail.id, update);
+      setDetail(updated);
+      setTickets((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setResolutionNote(updated.resolution_note ?? "");
+    } catch (reason) {
+      setError(reason instanceof ApiClientError ? reason.message : "Không thể cập nhật ticket.");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function closeTicket() {
+    const accepted = await confirm({
+      title: isAdmin ? "Đóng ticket thay người tạo?" : "Xác nhận hoàn tất ticket?",
+      message: isAdmin
+        ? "Bạn đang đóng ticket thay cho người tạo. Kết quả xử lý và toàn bộ lịch sử vẫn được lưu để tra cứu."
+        : "Hãy xác nhận khi kết quả xử lý đã phù hợp. Ticket sẽ chuyển sang Đã đóng và vẫn được lưu trong lịch sử của bạn.",
+      confirmLabel: isAdmin ? "Đóng thay" : "Xác nhận & đóng",
+      cancelLabel: "Xem lại",
+    });
+    if (accepted) await updateTicket({ status: "closed" });
   }
 
   return <div className="content-page">
@@ -74,8 +108,17 @@ export function TicketsView({ isAdmin = false }: { isAdmin?: boolean }) {
     {detail && <div className="modal-layer" onMouseDown={() => setDetail(null)}><section className="detail-modal" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={`Chi tiết ${detail.ticket_code}`}>
       <header><div><p className="eyebrow">CHI TIẾT TICKET</p><h3>{detail.ticket_code}</h3></div><button className="icon-command" aria-label="Đóng chi tiết ticket" onClick={() => setDetail(null)}><X size={18} /></button></header>
       <div className="ticket-detail-copy"><span className={`status-pill ${statusClass(detail.status)}`}>{detail.status}</span><p>{detail.employee_question}</p></div>
-      <dl><div><dt>Bộ phận xử lý</dt><dd>{detail.target_department}</dd></div><div><dt>Mức ưu tiên</dt><dd>{detail.priority}</dd></div><div><dt>Lý do chuyển tiếp</dt><dd>{detail.escalate_reason}</dd></div><div><dt>Người xử lý</dt><dd>{detail.assignee_name ?? "Chưa phân công"}</dd></div><div><dt>Ngày tạo</dt><dd>{formatDate(detail.created_at)}</dd></div></dl>
+      <dl><div><dt>Bộ phận xử lý</dt><dd>{detail.target_department}</dd></div><div><dt>Mức ưu tiên</dt><dd>{detail.priority}</dd></div><div><dt>Lý do chuyển tiếp</dt><dd>{detail.escalate_reason}</dd></div><div><dt>Người xử lý</dt><dd>{detail.assignee_name ?? "Chưa phân công"}</dd></div><div><dt>Ngày tạo</dt><dd>{formatDate(detail.created_at)}</dd></div>{detail.resolved_at && <div><dt>Ngày xử lý xong</dt><dd>{formatDate(detail.resolved_at)}</dd></div>}{detail.closed_at && <div><dt>Ngày đóng</dt><dd>{formatDate(detail.closed_at)}</dd></div>}</dl>
       {detail.resolution_note && <div className="ticket-resolution"><strong>Kết quả xử lý</strong><p>{detail.resolution_note}</p></div>}
+      {isAdmin && !["resolved", "closed"].includes(detail.status.toLowerCase()) && <div className="ticket-admin-actions">
+        {detail.status.toLowerCase() === "in_progress" && <label>Ghi chú xử lý<textarea value={resolutionNote} onChange={(event) => setResolutionNote(event.target.value)} placeholder="Nhập kết quả xử lý trước khi hoàn tất ticket..." /></label>}
+        <div className="ticket-admin-action-row">
+          {detail.status.toLowerCase() === "open" && <button className="primary-command" disabled={updating} onClick={() => void updateTicket({ status: "in_progress" })}><PlayCircle size={16} /> Duyệt & tiếp nhận ticket</button>}
+          {detail.status.toLowerCase() === "in_progress" && <button className="primary-command" disabled={updating || !resolutionNote.trim()} onClick={() => void updateTicket({ status: "resolved", resolution_note: resolutionNote.trim() })}><CheckCircle2 size={16} /> Hoàn tất xử lý</button>}
+        </div>
+      </div>}
+      {detail.status.toLowerCase() === "resolved" && <div className="ticket-close-actions"><div><strong>{isAdmin ? "Đang chờ người tạo xác nhận" : "HR đã hoàn tất xử lý"}</strong><p>{isAdmin ? "Người tạo ticket có thể xác nhận kết quả và đóng ticket." : "Nếu kết quả đã phù hợp, bạn có thể xác nhận và đóng ticket."}</p></div><button className={isAdmin ? "secondary-command" : "primary-command"} disabled={updating} onClick={closeTicket}><CheckCircle2 size={16} /> {isAdmin ? "Đóng thay" : "Xác nhận & đóng ticket"}</button></div>}
+      {detail.status.toLowerCase() === "closed" && <div className="ticket-closed-note"><CheckCircle2 size={18} /><div><strong>Ticket đã đóng</strong><p>Ticket và toàn bộ kết quả xử lý vẫn được lưu trong lịch sử để tra cứu.</p></div></div>}
     </section></div>}
   </div>;
 }

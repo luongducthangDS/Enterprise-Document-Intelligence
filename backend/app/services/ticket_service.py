@@ -6,7 +6,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.profile import ProfileDB
 from app.domain.models.ticket import TicketDB
 from app.schemas.agent import AgentTicketDraftDTO
@@ -38,6 +38,7 @@ class TicketService:
             "created_at": ticket.created_at.isoformat() if ticket.created_at else None,
             "updated_at": ticket.updated_at.isoformat() if ticket.updated_at else None,
             "resolved_at": ticket.resolved_at.isoformat() if ticket.resolved_at else None,
+            "closed_at": ticket.closed_at.isoformat() if ticket.closed_at else None,
         }
 
     @classmethod
@@ -228,15 +229,46 @@ class TicketService:
             raise NotFoundError(code="TICKET_NOT_FOUND", message="Không tìm thấy ticket hỗ trợ.")
 
         user_role = str(user.get("role", "employee")).upper()
-        if user_role not in ("HR_ADMIN", "SUPER_ADMIN"):
-            raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền cập nhật ticket hỗ trợ.")
+        user_id = uuid.UUID(user["user_id"])
+        is_admin = user_role in ("HR_ADMIN", "SUPER_ADMIN")
+        requested_status = data.status.lower() if data.status is not None else None
+        if not is_admin:
+            if ticket.requester_id != user_id:
+                raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền cập nhật ticket hỗ trợ.")
+            if requested_status != "closed" or any(
+                value is not None for value in (data.assignee_id, data.resolution_note, data.priority)
+            ):
+                raise ForbiddenError(
+                    code="FORBIDDEN",
+                    message="Người tạo chỉ được xác nhận đóng ticket đã xử lý xong.",
+                )
+            if ticket.status.lower() != "resolved":
+                raise ConflictError(
+                    code="TICKET_NOT_RESOLVED",
+                    message="Chỉ có thể đóng ticket sau khi HR đã hoàn tất xử lý.",
+                )
 
         if data.status is not None:
-            new_status = data.status.lower()
-            if new_status in ("open", "in_progress", "resolved", "closed"):
-                ticket.status = new_status
-                if new_status in ("resolved", "closed"):
-                    ticket.resolved_at = datetime.now(UTC)
+            new_status = requested_status or ""
+            if new_status not in ("open", "in_progress", "resolved", "closed"):
+                raise ConflictError(code="INVALID_TICKET_STATUS", message="Trạng thái ticket không hợp lệ.")
+            if new_status in ("resolved", "closed") and not (data.resolution_note or ticket.resolution_note):
+                raise ConflictError(
+                    code="RESOLUTION_NOTE_REQUIRED",
+                    message="Cần nhập kết quả xử lý trước khi hoàn tất ticket.",
+                )
+            ticket.status = new_status
+            if new_status == "in_progress" and ticket.assignee_id is None:
+                ticket.assignee_id = user_id
+            if new_status == "resolved":
+                ticket.resolved_at = datetime.now(UTC)
+                ticket.closed_at = None
+            elif new_status == "closed":
+                ticket.resolved_at = ticket.resolved_at or datetime.now(UTC)
+                ticket.closed_at = datetime.now(UTC)
+            else:
+                ticket.resolved_at = None
+                ticket.closed_at = None
 
         if data.assignee_id is not None:
             ticket.assignee_id = data.assignee_id

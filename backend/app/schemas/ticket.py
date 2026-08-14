@@ -42,3 +42,4 @@ class TicketResponseDTO(BaseModel):
     created_at: str
     updated_at: str
     resolved_at: str | None = None
+    closed_at: str | None = None

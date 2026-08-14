@@ -141,3 +141,92 @@ def test_update_ticket_by_admin():
     assert updated_data["status"] == "resolved"
     assert updated_data["resolution_note"] == "Tự giải quyết"
     assert updated_data["resolved_at"] is not None
+
+
+def test_approve_ticket_assigns_current_admin_and_resolution_requires_note():
+    emp_headers = get_auth_header()
+    create_res = client.post(
+        "/api/v1/tickets",
+        headers=emp_headers,
+        json={"user_query": "Cần HR xác nhận thông tin hợp đồng"},
+    )
+    ticket_id = create_res.json()["data"]["id"]
+    admin_id = "44444444-4444-4444-4444-444444444444"
+    admin_headers = get_auth_header(
+        user_id=admin_id,
+        email="ticket_admin@company.com",
+        role="HR_ADMIN",
+        department="HR",
+    )
+
+    approved = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=admin_headers,
+        json={"status": "in_progress"},
+    )
+    assert approved.status_code == 200
+    assert approved.json()["data"]["assignee_id"] == admin_id
+
+    missing_note = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=admin_headers,
+        json={"status": "resolved"},
+    )
+    assert missing_note.status_code == 409
+    assert missing_note.json()["error"]["code"] == "RESOLUTION_NOTE_REQUIRED"
+
+
+def test_requester_closes_resolved_ticket_and_ticket_remains_in_history():
+    requester_headers = get_auth_header()
+    create_res = client.post(
+        "/api/v1/tickets",
+        headers=requester_headers,
+        json={"user_query": "Nhờ HR xác nhận quyền lợi bảo hiểm"},
+    )
+    ticket_id = create_res.json()["data"]["id"]
+
+    close_too_early = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=requester_headers,
+        json={"status": "closed"},
+    )
+    assert close_too_early.status_code == 409
+    assert close_too_early.json()["error"]["code"] == "TICKET_NOT_RESOLVED"
+
+    admin_headers = get_auth_header(
+        user_id="44444444-4444-4444-4444-444444444444",
+        email="ticket_admin@company.com",
+        role="HR_ADMIN",
+        department="HR",
+    )
+    resolved = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=admin_headers,
+        json={"status": "resolved", "resolution_note": "Đã xác nhận quyền lợi theo hồ sơ."},
+    )
+    assert resolved.status_code == 200
+
+    other_user_headers = get_auth_header(
+        user_id="55555555-5555-5555-5555-555555555555",
+        email="other@company.com",
+    )
+    forbidden = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=other_user_headers,
+        json={"status": "closed"},
+    )
+    assert forbidden.status_code == 403
+
+    closed = client.patch(
+        f"/api/v1/tickets/{ticket_id}",
+        headers=requester_headers,
+        json={"status": "closed"},
+    )
+    assert closed.status_code == 200
+    assert closed.json()["data"]["status"] == "closed"
+    assert closed.json()["data"]["closed_at"] is not None
+    assert closed.json()["data"]["resolution_note"] == "Đã xác nhận quyền lợi theo hồ sơ."
+
+    history = client.get("/api/v1/tickets?status=closed", headers=requester_headers)
+    assert history.status_code == 200
+    assert any(ticket["id"] == ticket_id for ticket in history.json()["data"])

@@ -113,6 +113,11 @@ class TicketDB(Base):
         nullable=True,
     )
 
+    closed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     # Relationships
     requester: Mapped["ProfileDB"] = relationship(
         "ProfileDB",
