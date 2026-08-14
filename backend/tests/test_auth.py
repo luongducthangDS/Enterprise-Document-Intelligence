@@ -205,3 +205,28 @@ def test_api_register_endpoint_validation_error():
         },
     )
     assert response.status_code == 422
+
+
+def test_api_register_rejects_noncanonical_department():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "wrong-department@company.com",
+            "password": "password123",
+            "department": "hr ",
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_api_register_cannot_self_assign_admin_role():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "role-escalation@company.com",
+            "password": "password123",
+            "department": "HR",
+            "role": "SUPER_ADMIN",
+        },
+    )
+    assert response.status_code == 422

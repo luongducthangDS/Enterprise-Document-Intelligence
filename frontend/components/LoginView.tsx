@@ -5,6 +5,17 @@ import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { User } from "@/lib/types";
 
+const DEPARTMENTS = [
+  { value: "HR", label: "Nhân sự (HR)" },
+  { value: "Engineering", label: "Kỹ thuật (Engineering)" },
+  { value: "IT", label: "Công nghệ thông tin (IT)" },
+  { value: "Finance", label: "Tài chính (Finance)" },
+  { value: "Sales", label: "Kinh doanh (Sales)" },
+  { value: "Marketing", label: "Marketing" },
+  { value: "Operations", label: "Vận hành (Operations)" },
+  { value: "Legal", label: "Pháp chế (Legal)" },
+];
+
 export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -58,7 +69,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
             <p>{mode === "login" ? "Truy cập không gian tri thức nhân sự của doanh nghiệp." : "Tạo tài khoản để bắt đầu tra cứu tài liệu HR."}</p>
           </div>
           {mode === "register" && <label>Họ và tên<input value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
-          {mode === "register" && <label>Phòng ban<input value={department} onChange={(event) => setDepartment(event.target.value)} required /></label>}
+          {mode === "register" && <label>Phòng ban<select value={department} onChange={(event) => setDepartment(event.target.value)} required><option value="" disabled>Chọn phòng ban</option>{DEPARTMENTS.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}</select><small className="field-hint">Tài khoản đăng ký mới luôn có quyền Nhân viên. Quyền quản trị chỉ do quản trị viên cấp.</small></label>}
           <label>Email công việc<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
           <label>Mật khẩu<input type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
           {error && <div className="inline-error" role="alert">{error}</div>}

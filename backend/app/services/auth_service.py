@@ -50,7 +50,7 @@ class AuthService:
             display_name=register_data.full_name or register_data.email.split("@")[0],
             role="employee",
             employment_status="full_time",
-            department=register_data.department or "IT",
+            department=register_data.department.value,
             contract_type="khong_xac_dinh_thoi_han",
             access_level="self_only",
         )

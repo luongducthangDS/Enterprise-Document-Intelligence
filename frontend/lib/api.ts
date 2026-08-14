@@ -141,6 +141,10 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ title }),
     }).then((response) => response.data!),
+  deleteConversation: (conversationId: string) =>
+    request<{ conversation_id: string; deleted: boolean }>(`/conversations/${conversationId}`, {
+      method: "DELETE",
+    }).then((response) => response.data!),
   endConversation: (conversationId: string) =>
     request<{ conversation_id: string; state: string; ended_at: string }>(`/conversations/${conversationId}/end`, {
       method: "POST",
@@ -173,6 +177,11 @@ export const api = {
   },
   getTicket: (ticketId: string) =>
     request<TicketItem>(`/tickets/${ticketId}`).then((response) => response.data!),
+  updateTicket: (ticketId: string, update: { status?: string; assignee_id?: string; resolution_note?: string; priority?: string }) =>
+    request<TicketItem>(`/tickets/${ticketId}`, {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    }).then((response) => response.data!),
   listDocuments: (filters: { category?: string; status?: string; indexed?: string } = {}) => {
     const params = new URLSearchParams();
     if (filters.category) params.set("category", filters.category);

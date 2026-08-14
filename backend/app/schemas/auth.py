@@ -1,10 +1,25 @@
-from pydantic import BaseModel, EmailStr, Field
+from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+
+class Department(str, Enum):
+    HR = "HR"
+    ENGINEERING = "Engineering"
+    IT = "IT"
+    FINANCE = "Finance"
+    SALES = "Sales"
+    MARKETING = "Marketing"
+    OPERATIONS = "Operations"
+    LEGAL = "Legal"
 
 
 class RegisterRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     email: EmailStr
     password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
-    department: str = Field(..., min_length=1, description="Department is required")
+    department: Department = Field(..., description="Department must use a supported canonical value")
     full_name: str | None = None
 
 
