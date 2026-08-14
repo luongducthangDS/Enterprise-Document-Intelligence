@@ -127,6 +127,7 @@ export type TicketItem = {
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
+  closed_at: string | null;
 };
 
 export type DocumentListItem = {
