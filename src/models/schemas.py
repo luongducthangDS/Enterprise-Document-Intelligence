@@ -89,11 +89,17 @@ Role = Literal["employee", "manager", "hr_admin"]
 EmploymentStatus = Literal["probation", "full_time", "on_notice_termination", "resigned"]
 ContractType = Literal["xac_dinh_thoi_han", "khong_xac_dinh_thoi_han", "thu_viec"]
 AccessLevel = Literal["self_only", "team_scope", "org_wide"]
-# "competitor_question" không tạo ticket (escalate=False) — xem escalate_node
-# trong src/agents/nodes/escalation.py — nhưng vẫn cần xuất hiện trong Literal
-# này vì AgentAnswer.escalate_reason phản ánh giá trị thật agent trả về.
+# "competitor_question" và "human_first_required" không tạo ticket
+# (escalate=False) — xem escalate_node trong src/agents/nodes/escalation.py —
+# nhưng vẫn cần xuất hiện trong Literal này vì AgentAnswer.escalate_reason phản
+# ánh giá trị thật agent trả về.
 EscalateReason = Literal[
-    "low_confidence", "out_of_scope", "personal_data_required", "user_requested_human", "competitor_question"
+    "low_confidence",
+    "out_of_scope",
+    "personal_data_required",
+    "user_requested_human",
+    "competitor_question",
+    "human_first_required",
 ]
 TargetDepartment = Literal["CB", "ER", "TA", "LD", "HRBP"]
 TicketPriority = Literal["Low", "Medium", "High"]
@@ -154,7 +160,9 @@ class Message(BaseModel):
     content: str = Field(..., description="Nội dung tin nhắn")
     citations: list[Citation] = Field(default_factory=list, description="Trích dẫn nguồn (chỉ có ở tin nhắn assistant)")
     confidence_score: float | None = Field(default=None, ge=0.0, le=1.0, description="Độ tin cậy câu trả lời")
-    escalated: bool = Field(default=False, description="Có bị escalate sang ticket không")
+    # escalated=True nghĩa là "cần người xử lý", KHÔNG phải "đã tạo ticket".
+    # Boundary flow MVP-1 hợp lệ khi escalated=True và ticket_id=None.
+    escalated: bool = Field(default=False, description="Có cần chuyển cho người phụ trách xử lý không")
     ticket_id: UUID | None = None
     created_at: datetime | None = None
 
@@ -200,6 +208,48 @@ class TicketDraft(BaseModel):
     priority: TicketPriority
 
 
+AssistantRole = Literal["ANSWER", "GUIDE", "PREPARE_AND_HANDOFF", "HUMAN_FIRST"]
+RuntimeAction = Literal["NONE", "LINK_ONLY", "PREFILL_DRAFT", "CREATE_CASE"]
+Sensitivity = Literal["Low", "Medium", "High", "Critical"]
+MvpPhase = Literal["MVP_1", "MVP_2", "FUTURE", "OUT_OF_MVP"]
+
+
+class AllowedDataFieldDTO(BaseModel):
+    """Field được phép thu cho scenario — allowlist, không phải gợi ý."""
+
+    field_key: str
+    label: str
+    required_for_prefill: bool = False
+    pii_class: Sensitivity
+    storage_policy: Literal["do_not_store", "store_case_only", "store_message_ok", "store_metadata_only"]
+
+
+class BoundaryDecisionDTO(BaseModel):
+    """Canonical runtime decision theo Runtime-Revised Canonical Scenario Registry.
+
+    `max_runtime_action` là trần theo registry (có thể là CREATE_CASE ở MVP-2),
+    `runtime_action` là mức được phép ngay bây giờ sau khi cắt theo capability
+    của MVP-1. Client phải render theo `runtime_action`, không phải theo trần.
+    """
+
+    scenario_id: int | None = None
+    scenario_name: str | None = None
+    service_code: str | None = None
+    service_name: str | None = None
+    assistant_role: AssistantRole
+    sensitivity: Sensitivity
+    runtime_source_status: str
+    source_of_truth_label: str
+    max_runtime_action: RuntimeAction
+    runtime_action: RuntimeAction
+    mvp_phase: MvpPhase
+    handoff_target: dict[str, str] | None = None
+    user_facing_action_label: str | None = None
+    allowed_data_fields: list[AllowedDataFieldDTO] = Field(default_factory=list)
+    runtime_behavior: str = ""
+    resolution: Literal["registry", "fallback"] = "registry"
+
+
 class AgentAnswer(BaseModel):
     """Contract duy nhất backend cần biết để gọi agent — xem docs/AGENT_API.md.
     Thay thế `ChatResponse` cũ (chỉ có `response`/`analysis` chết, mọi
@@ -211,9 +261,24 @@ class AgentAnswer(BaseModel):
     citations: list[Citation] = Field(default_factory=list)
     needs_clarification: bool = Field(default=False, description="True -> hiển thị clarifying_question, không có response cuối")
     clarifying_question: str | None = None
-    escalate: bool = Field(default=False, description="True -> backend PHẢI tạo ticket từ ticket_draft")
+    escalate: bool = Field(
+        default=False,
+        description=(
+            "True -> lượt này cần người phụ trách xử lý. KHÔNG đồng nghĩa tạo ticket: "
+            "khi có `boundary`, backend không tạo workflow nào (MVP-1)."
+        ),
+    )
     escalate_reason: EscalateReason | None = None
-    ticket_draft: TicketDraft | None = Field(default=None, description="Chỉ có khi escalate=True")
+    # Legacy/compatibility payload: chỉ đường không có `boundary` mới dùng nó để
+    # insert ticket. Với boundary flow MVP-1 nó không được persist thành ticket.
+    ticket_draft: TicketDraft | None = Field(
+        default=None, description="Chỉ có khi escalate=True; chỉ được persist ở đường legacy không có boundary"
+    )
+    # Nullable để client bản cũ không vỡ; client mới render action theo
+    # boundary.runtime_action thay vì suy diễn từ nội dung câu trả lời.
+    boundary: BoundaryDecisionDTO | None = Field(
+        default=None, description="Canonical runtime decision cho lượt trả lời này"
+    )
 
 
 class ChatResponse(AgentAnswer):

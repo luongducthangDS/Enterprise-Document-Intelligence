@@ -44,6 +44,11 @@ class AgentState(TypedDict, total=False):
     """
 
     query: str
+    # Canonical runtime decision từ Runtime-Revised Canonical Scenario Registry
+    # (src/agents/boundary.py). Quyết định assistant được phép làm gì với câu
+    # hỏi này: scenario, assistant_role, sensitivity, trần action, người phụ
+    # trách, field dữ liệu được phép thu. Có mặt từ node `boundary` trở đi.
+    boundary: dict
     # Các lượt hội thoại trước đó (cũ -> mới), do caller truyền vào — agent
     # không tự lưu session. Rỗng ở lượt đầu tiên.
     history: list[dict]
@@ -53,6 +58,9 @@ class AgentState(TypedDict, total=False):
     intent: Intent
     rewritten_query: str
     retrieved_chunks: list[RetrievedChunk]
+    # Tập chunk thực sự được viện dẫn, theo đúng thứ tự [Nguồn N] đã đánh lại
+    # trong generated_answer. Bước hallucination check dựng context từ đây.
+    cited_chunks: list[RetrievedChunk]
     citations: list[Citation]
     generated_answer: str
     # False khi generate_node thấy context không chứa thông tin cụ thể được hỏi
@@ -79,3 +87,18 @@ class AgentState(TypedDict, total=False):
     # này), hoặc khi response cuối có PII bị che.
     guardrail_injection_detected: bool
     guardrail_pii_redacted: bool
+    # Telemetry cho escalation guard (router._guard_escalation) — cờ quan sát,
+    # không điều khiển luồng. Chỉ có mặt khi fast router định escalate:
+    #   verifier_called       — có trả tiền cho 1 LLM call CÓ thinking không
+    #                           (False = heuristic tầng 1-2 đã chốt, 0 LLM).
+    #   verifier_changed_route — verifier có ĐỔI kết quả không (cứu về
+    #                           hr_question) hay chỉ xác nhận điều hiển nhiên.
+    #   verifier_latency_ms   — thời gian riêng của lệnh gọi verifier.
+    # Ba trường này cho phép tính trực tiếp từ log production:
+    #   verifier_trigger_rate = #verifier_called / #request
+    #   verifier_useful_rate  = #verifier_changed_route / #verifier_called
+    # `useful_rate` là metric quyết định: nếu nó tụt (verifier chủ yếu xác nhận
+    # điều đã rõ) thì mới đáng thêm tầng pre-filter phía trước.
+    verifier_called: bool
+    verifier_changed_route: bool
+    verifier_latency_ms: int

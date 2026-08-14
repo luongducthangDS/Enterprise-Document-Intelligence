@@ -1,5 +1,6 @@
 from langgraph.graph import END, StateGraph
 
+from src.agents.nodes.boundary import boundary_node
 from src.agents.nodes.condense import condense_node
 from src.agents.nodes.escalation import confidence_node, escalate_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
@@ -67,6 +68,7 @@ def build_graph() -> StateGraph:
 
     graph.add_node("condense", condense_node)
     graph.add_node("router", router_node)
+    graph.add_node("boundary", boundary_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
     graph.add_node("retrieve", retrieval_node)
@@ -80,8 +82,11 @@ def build_graph() -> StateGraph:
 
     graph.set_entry_point("condense")
     graph.add_edge("condense", "router")
+    # `boundary` nằm giữa router và các nhánh xử lý: nó cần `intent` do router
+    # đặt, và các node phía sau (escalate, finalize) cần decision của nó.
+    graph.add_edge("router", "boundary")
     graph.add_conditional_edges(
-        "router",
+        "boundary",
         route_by_intent,
         {"direct": "direct", "clarify": "clarify", "escalate": "escalate_ticket", "retrieve": "retrieve"},
     )

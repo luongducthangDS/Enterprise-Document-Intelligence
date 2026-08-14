@@ -1,0 +1,277 @@
+{
+  "version": "v2",
+  "note": "Dataset cho P4A — hai nhánh rẻ (direct/clarify). Chấm bằng tín hiệu xác định, không LLM judge. Câu ambiguous lấy nguyên văn từ dev set; câu direct viết mới. Trường `act` thêm ở v2: benchmark v1 gọi cả nhóm là 'greeting' nên chỉ phủ phần chào mở đầu — đúng chỗ làm lọt lỗi trả lời chào cho lời cảm ơn. Sáu speech act: opening, thanks, acknowledgement, goodbye, thanks_goodbye, capability, casual_social.",
+  "direct": [
+    {
+      "id": "dr_01",
+      "query": "chào bạn",
+      "act": "opening"
+    },
+    {
+      "id": "dr_02",
+      "query": "hello bot",
+      "act": "opening"
+    },
+    {
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "act": "opening"
+    },
+    {
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "act": "capability"
+    },
+    {
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "act": "capability"
+    },
+    {
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "act": "thanks"
+    },
+    {
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "act": "thanks"
+    },
+    {
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "act": "opening"
+    },
+    {
+      "id": "dr_09",
+      "query": "hi",
+      "act": "opening"
+    },
+    {
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "act": "opening"
+    },
+    {
+      "id": "dr_11",
+      "query": "ok hiểu rồi",
+      "act": "acknowledgement"
+    },
+    {
+      "id": "dr_12",
+      "query": "à vâng, rõ rồi ạ",
+      "act": "acknowledgement"
+    },
+    {
+      "id": "dr_13",
+      "query": "bye nhé",
+      "act": "goodbye"
+    },
+    {
+      "id": "dr_14",
+      "query": "thôi mình đi làm đây, chào bạn",
+      "act": "goodbye"
+    },
+    {
+      "id": "dr_15",
+      "query": "cảm ơn nhiều nha, mình đi đây",
+      "act": "thanks_goodbye"
+    },
+    {
+      "id": "dr_16",
+      "query": "bạn làm việc cuối tuần luôn à?",
+      "act": "casual_social"
+    },
+    {
+      "id": "dr_17",
+      "query": "bạn có phải người thật không đấy",
+      "act": "casual_social"
+    }
+  ],
+  "clarify": [
+    {
+      "id": "cl_01",
+      "source": "qa_076",
+      "query": "Tôi muốn nghỉ 3 ngày tuần sau.",
+      "expected_options": [
+        "phép năm",
+        "không lương",
+        "ốm",
+        "việc riêng"
+      ],
+      "topic_anchor": [
+        "nghỉ"
+      ]
+    },
+    {
+      "id": "cl_02",
+      "source": "qa_077",
+      "query": "Công ty có hỗ trợ tiền khám bệnh không?",
+      "expected_options": [
+        "bhyt",
+        "bảo hiểm y tế",
+        "sức khỏe",
+        "tự nguyện",
+        "bổ sung"
+      ],
+      "topic_anchor": [
+        "khám",
+        "bảo hiểm",
+        "y tế"
+      ]
+    },
+    {
+      "id": "cl_03",
+      "source": "qa_078",
+      "query": "Tôi khi nào được nhận tiền thưởng?",
+      "expected_options": [
+        "kpi",
+        "tết",
+        "dự án",
+        "hiệu suất",
+        "lễ"
+      ],
+      "topic_anchor": [
+        "thưởng"
+      ]
+    },
+    {
+      "id": "cl_04",
+      "source": "qa_079",
+      "query": "Tôi muốn xin chuyển công tác.",
+      "expected_options": [
+        "phòng ban",
+        "bộ phận",
+        "địa điểm",
+        "chi nhánh",
+        "nghỉ việc"
+      ],
+      "topic_anchor": [
+        "chuyển"
+      ]
+    },
+    {
+      "id": "cl_05",
+      "source": "qa_080",
+      "query": "Tôi làm cuối tuần thì được tính sao?",
+      "expected_options": [
+        "lương",
+        "ot",
+        "làm thêm",
+        "nghỉ bù",
+        "chấm công"
+      ],
+      "topic_anchor": [
+        "cuối tuần",
+        "làm"
+      ]
+    },
+    {
+      "id": "cl_06",
+      "source": "qa_081",
+      "query": "Công ty có đóng bảo hiểm cho mình không?",
+      "expected_options": [
+        "bhxh",
+        "xã hội",
+        "y tế",
+        "sức khỏe",
+        "tự nguyện",
+        "thất nghiệp"
+      ],
+      "topic_anchor": [
+        "bảo hiểm"
+      ]
+    },
+    {
+      "id": "cl_07",
+      "source": "qa_087",
+      "query": "Nếu tôi quit thì có được nhận tiền không?",
+      "expected_options": [
+        "trợ cấp",
+        "thôi việc",
+        "phép",
+        "lương"
+      ],
+      "topic_anchor": [
+        "nghỉ việc",
+        "quit",
+        "thôi việc"
+      ]
+    },
+    {
+      "id": "cl_08",
+      "source": "qa_089",
+      "query": "Công ty có hỗ trợ học tập không?",
+      "expected_options": [
+        "nội bộ",
+        "bên ngoài",
+        "chứng chỉ",
+        "khóa học",
+        "học phí"
+      ],
+      "topic_anchor": [
+        "học",
+        "đào tạo"
+      ]
+    },
+    {
+      "id": "cl_09",
+      "source": "qa_090",
+      "query": "Tôi bị ốm có được trả lương không?",
+      "expected_options": [
+        "bhxh",
+        "ốm đau",
+        "phép năm",
+        "chế độ"
+      ],
+      "topic_anchor": [
+        "ốm"
+      ]
+    },
+    {
+      "id": "cl_10",
+      "source": "qa_025",
+      "query": "Đến ngày thứ 60 thì có đánh giá gì không?",
+      "expected_options": [
+        "thử việc",
+        "onboarding",
+        "hợp đồng",
+        "quy trình"
+      ],
+      "topic_anchor": [
+        "60",
+        "đánh giá"
+      ]
+    },
+    {
+      "id": "cl_11",
+      "source": "qa_082",
+      "query": "Tôi còn bao nhiêu ngày phép?",
+      "expected_options": [
+        "phép năm",
+        "không lương",
+        "ốm",
+        "loại nghỉ",
+        "thâm niên"
+      ],
+      "topic_anchor": [
+        "phép"
+      ]
+    },
+    {
+      "id": "cl_12",
+      "source": "qa_083",
+      "query": "Tôi khi nào được ký hợp đồng mới?",
+      "expected_options": [
+        "thử việc",
+        "gia hạn",
+        "xác định thời hạn",
+        "không xác định",
+        "loại hợp đồng"
+      ],
+      "topic_anchor": [
+        "hợp đồng"
+      ]
+    }
+  ]
+}

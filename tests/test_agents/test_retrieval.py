@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.agents.nodes.retrieval import _arerank, grade_node, retrieval_node, rewrite_node
+from src.agents.nodes.retrieval import _arerank, _expand_retrieval_query, grade_node, retrieval_node, rewrite_node
 from src.config import get_settings
 from src.retrieval.bm25 import BM25
 
@@ -23,6 +23,16 @@ def _chunk(chunk_id: str, distance: float = 0.1, score=None, text: str = "nội 
 
 
 class TestRetrievalNode:
+    def test_expands_hybrid_terms_for_mixed_language_documents(self):
+        expanded = _expand_retrieval_query("Chính sách Hybrid như thế nào?")
+        assert "WFH" in expanded
+        assert "làm việc từ xa" in expanded
+        assert "3-2" in expanded
+
+    def test_leaves_other_queries_unchanged(self):
+        query = "Tôi được nghỉ mấy ngày?"
+        assert _expand_retrieval_query(query) == query
+
     @pytest.mark.asyncio
     async def test_parses_chroma_query_result_into_chunks(self):
         chroma_result = {
@@ -201,7 +211,9 @@ class TestGradeNode:
 class TestRewriteNode:
     @pytest.mark.asyncio
     async def test_increments_rewrite_count_and_sets_rewritten_query(self):
-        with patch("src.agents.nodes.retrieval.acall_llm", new=AsyncMock(return_value="  câu hỏi rõ hơn  ")):
+        llm = AsyncMock(return_value="  câu hỏi rõ hơn  ")
+        with patch("src.agents.nodes.retrieval.acall_llm", new=llm):
             result = await rewrite_node({"query": "câu gốc", "rewrite_count": 1})
         assert result["rewritten_query"] == "câu hỏi rõ hơn"
         assert result["rewrite_count"] == 2
+        assert llm.await_args.kwargs["model"] == get_settings().router_model

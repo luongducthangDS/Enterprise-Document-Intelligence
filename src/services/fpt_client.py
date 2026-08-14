@@ -6,11 +6,16 @@ from typing import TypeVar
 
 import requests
 
+from src.observability import llm_trace
+
 # Session dùng chung cả module — giữ TCP connection + TLS session giữa các lần
 # gọi (connection pooling của urllib3), bỏ được ~100-300ms handshake mỗi call.
 # Một request của agent gọi gateway 3-6 lần (embed/rerank/router/generate/
 # hallucination) nên phần tiết kiệm cộng dồn đáng kể.
 _session = requests.Session()
+# Số lần thử của lệnh gọi gần nhất — dùng để tách thời gian backoff (429/5xx)
+# khỏi latency thuần của model khi profiling. Chỉ đọc ngay sau khi gọi xong.
+_LAST_ATTEMPTS = [1]
 
 T = TypeVar("T")
 
@@ -26,12 +31,15 @@ def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
     last_exc: requests.exceptions.RequestException | None = None
     for attempt in range(retries + 1):
         try:
-            return func()
+            result = func()
+            _LAST_ATTEMPTS[0] = attempt + 1
+            return result
         except requests.exceptions.RequestException as e:
             last_exc = e
             if attempt < retries:
                 delay = min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0)
                 time.sleep(delay)
+    _LAST_ATTEMPTS[0] = retries + 1
     raise last_exc
 
 
@@ -43,21 +51,63 @@ def _post_chat_completion(
     temperature: float | None = None,
     timeout: int = 60,
     retries: int = 2,
+    enable_thinking: bool | None = None,
 ) -> dict:
     """Gọi /chat/completions OpenAI-compatible trên FPT.AI Marketplace, trả về
     message dict {"content": ..., ...}. Dùng chung cho VLM (ảnh+text) và LLM
-    text thuần — khác nhau ở nội dung `messages` truyền vào."""
+    text thuần — khác nhau ở nội dung `messages` truyền vào.
+
+    `enable_thinking=False` tắt chain-of-thought của các reasoning model trên
+    gateway. Đo trực tiếp trên /chat/completions (2026-08-12): GLM-5.2 mặc định
+    sinh reasoning cho MỌI request, kể cả tác vụ trả về 1 từ — phân loại router
+    tốn 265-467 completion token (~1.000 ký tự reasoning) để in ra đúng chữ
+    "hr_question", và trả lời "OK" cho input "ping" cũng tốn 173 token / 5,5s.
+    Tắt đi nhanh hơn 6-14x (router 7,4s -> 0,8s, hallucination check 6,4s ->
+    1,0s, generate 10,0s -> 2,5s) NHƯNG có giá về chất lượng, khác nhau theo
+    từng node — không tự ý bật cho node mới mà chưa A/B. Số đo và quyết định của
+    từng node nằm ở các cờ `thinking_*` trong src/config.py.
+
+    `None` = không gửi field, giữ nguyên hành vi mặc định của model (mọi caller
+    cũ không đổi gì). Chỉ `reasoning_effort` là KHÔNG dùng được: gateway nhận
+    HTTP 200 nhưng vẫn sinh đủ 265-270 token reasoning như thường.
+    """
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload: dict = {"model": model, "messages": messages}
     if temperature is not None:
         payload["temperature"] = temperature
+    if enable_thinking is not None:
+        payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
+
+    captured_usage: dict = {}
 
     def _call() -> dict:
         r = _session.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=timeout)
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]
+        data = r.json()
+        captured_usage.update(data.get("usage") or {})
+        return data["choices"][0]["message"]
 
-    return _retry_with_backoff(_call, retries)
+    if not llm_trace.is_active():
+        return _retry_with_backoff(_call, retries)
+
+    with llm_trace.Timer("chat", model, enable_thinking=enable_thinking) as timer:
+        message = _retry_with_backoff(_call, retries)
+        timer.usage = captured_usage
+        timer.attempts = _LAST_ATTEMPTS[0]
+        # Gateway KHÔNG trả `reasoning_tokens` riêng (xác thực 2026-08-13:
+        # usage chỉ có prompt/completion/total). Nhưng message tách sẵn
+        # `reasoning_content` khỏi `content`, nên đo được ĐỘ DÀI KÝ TỰ của
+        # từng phần — đủ để biết bao nhiêu phần output là suy luận nội bộ và
+        # bao nhiêu là câu trả lời thật. Token thì chỉ ước lượng được theo tỷ
+        # lệ ký tự, và ước lượng đó có sai số: reasoning thường là tiếng Anh
+        # còn answer là tiếng Việt, hai thứ có tỷ lệ token/ký tự khác nhau.
+        timer.extra.update(
+            {
+                "reasoning_chars": len(message.get("reasoning_content") or ""),
+                "answer_chars": len(message.get("content") or ""),
+            }
+        )
+    return message
 
 
 def extract_page_markdown(
@@ -95,11 +145,19 @@ def chat_completion(
     temperature: float = 0.5,
     timeout: int = 180,
     retries: int = 2,
+    enable_thinking: bool | None = None,
 ) -> str:
     """LLM text thuần (vd GLM-5.2 qua FPT.AI Marketplace) — dùng cho sinh synthetic data."""
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     message = _post_chat_completion(
-        messages, model=model, base_url=base_url, api_key=api_key, temperature=temperature, timeout=timeout, retries=retries
+        messages,
+        model=model,
+        base_url=base_url,
+        api_key=api_key,
+        temperature=temperature,
+        timeout=timeout,
+        retries=retries,
+        enable_thinking=enable_thinking,
     )
     return message.get("content") or message.get("reasoning_content") or ""
 
@@ -138,7 +196,13 @@ def rerank(
         results = r.json()["results"]
         return [(int(item["index"]), float(item["relevance_score"])) for item in results]
 
-    return _retry_with_backoff(_call, retries)
+    if not llm_trace.is_active():
+        return _retry_with_backoff(_call, retries)
+
+    with llm_trace.Timer("rerank", model, n_documents=len(documents), top_n=top_n) as timer:
+        ranked = _retry_with_backoff(_call, retries)
+        timer.attempts = _LAST_ATTEMPTS[0]
+    return ranked
 
 
 def embed_batch(
@@ -154,6 +218,8 @@ def embed_batch(
     (API có thể không trả đúng thứ tự khi xử lý batch)."""
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
+    captured_usage: dict = {}
+
     def _call() -> list[list[float]]:
         r = _session.post(
             f"{base_url}/embeddings",
@@ -162,8 +228,17 @@ def embed_batch(
             timeout=timeout,
         )
         r.raise_for_status()
-        data = r.json()["data"]
+        payload_json = r.json()
+        captured_usage.update(payload_json.get("usage") or {})
+        data = payload_json["data"]
         data.sort(key=lambda d: d["index"])
         return [d["embedding"] for d in data]
 
-    return _retry_with_backoff(_call, retries)
+    if not llm_trace.is_active():
+        return _retry_with_backoff(_call, retries)
+
+    with llm_trace.Timer("embedding", model, n_texts=len(texts)) as timer:
+        vectors = _retry_with_backoff(_call, retries)
+        timer.usage = captured_usage
+        timer.attempts = _LAST_ATTEMPTS[0]
+    return vectors

@@ -1,6 +1,9 @@
+import pytest
+
 from src.agents.nodes.escalation import (
     TICKET_ROUTING_PATH,
     _match_routing_rule,
+    _mentions_competitor_company,
     _requires_personal_data,
     _strip_diacritics,
     confidence_node,
@@ -134,7 +137,11 @@ class TestEscalateNode:
         assert result["escalate"] is True
         assert result["escalate_reason"] == "out_of_scope"
         assert result["ticket_department"] == "CB"
-        assert "CB" in result["response"]
+        # Response KHÔNG còn nêu mã phòng ban nội bộ và không được nói đã gửi
+        # cho bộ phận nào — hệ thống chưa tích hợp với HR thật. Người phụ trách
+        # user-facing đến từ boundary decision (xem tests/test_agents/test_boundary.py).
+        assert "đã gửi" not in result["response"].lower()
+        assert "đã tạo yêu cầu hỗ trợ gửi" not in result["response"].lower()
 
     def test_low_confidence_keeps_existing_escalate_reason(self):
         state = {"query": "Câu hỏi không rõ ràng", "intent": "hr_question", "escalate_reason": "low_confidence"}
@@ -178,3 +185,39 @@ class TestEscalateNode:
         result = escalate_node(state)
         assert result["escalate"] is True
         assert result["escalate_reason"] == "personal_data_required"
+
+
+class TestCompetitorCompanyDetection:
+    """Rule chặn câu hỏi chính sách của công ty khác — xét QUAN HỆ NGỮ CẢNH,
+    không phải substring. Xem docstring _mentions_competitor_company."""
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            # Regression qa_006 (in_scope): Grab là phương tiện đi lại, câu hỏi
+            # vẫn là hỏi định mức công tác phí của công ty mình.
+            "Đi công tác nếu dùng taxi hoặc Grab di chuyển trong ngày thì được thanh toán tối đa bao nhiêu?",
+            "Mua hàng trên Shopee có được hoàn thuế không?",
+            "Đặt vé qua MoMo có được thanh toán không?",
+            "Thanh toán bằng MoMo có được hoàn ứng không?",
+        ],
+    )
+    def test_company_name_as_vendor_is_not_competitor_question(self, query):
+        assert _mentions_competitor_company(query) is False
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Grab Việt Nam có trả thưởng KPI hàng quý cho tài xế đối tác không?",
+            "Viettel cấp bao nhiêu ngày nghỉ phép năm cho nhân viên mới thử việc?",
+            "Cho mình hỏi mức thưởng Tết 2024 của nhân viên FPT Software là bao nhiêu tháng lương?",
+            "Chính sách của Viettel ra sao?",
+            "Nhân viên Tiki được nghỉ mấy ngày?",
+            "Tôi làm việc tại FPT thì sao?",
+        ],
+    )
+    def test_company_name_as_subject_is_competitor_question(self, query):
+        assert _mentions_competitor_company(query) is True
+
+    def test_internal_company_is_never_competitor(self):
+        assert _mentions_competitor_company("Chính sách nghỉ phép của V-NOVA thế nào?") is False

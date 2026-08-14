@@ -1,16 +1,30 @@
 import asyncio
+import re
 from functools import lru_cache
 
-from src.agents.llm import acall_llm
+from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import get_chroma_client, get_collection
+from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+
+
+def _expand_retrieval_query(query: str) -> str:
+    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+
+    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
+    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    """
+    if not _HYBRID_QUERY_PATTERN.search(query):
+        return query
+    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
 
 
 @lru_cache
@@ -77,13 +91,23 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
 
 async def retrieval_node(state: AgentState) -> dict:
     settings = get_settings()
-    query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    query = _expand_retrieval_query(raw_query)
     embedding = await _aembed_query(query)
 
-    collection = _collection()
-    result = await asyncio.to_thread(
-        collection.query, query_embeddings=[embedding], n_results=settings.retrieval_top_k
-    )
+    # Đo riêng hai phần, vì chúng có bản chất khác hẳn nhau và trước đây cùng
+    # nằm trong một khối "retrieve" không bóc được:
+    #   - `_collection()` chỉ tốn thời gian ở lần gọi ĐẦU TIÊN mỗi tiến trình
+    #     (dựng CloudClient + bắt tay xác thực), sau đó lru_cache trả ngay.
+    #     Đo thực tế: request đầu của một lần profiling tốn ~18,8s cho riêng
+    #     bước này, đủ để bóp méo mọi thống kê nếu bị trộn vào latency truy vấn.
+    #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
+    with llm_trace.Timer("chroma_init", "chroma_cloud"):
+        collection = _collection()
+    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+        result = await asyncio.to_thread(
+            collection.query, query_embeddings=[embedding], n_results=settings.retrieval_top_k
+        )
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
@@ -202,9 +226,21 @@ def grade_node(state: AgentState) -> dict:
 
 
 async def rewrite_node(state: AgentState) -> dict:
+    from src.config import get_settings
+
     query = state.get("condensed_query") or state.get("query", "")
     # temperature=0.0: cùng lý do như condense_node — đây là node quyết định query
     # đưa vào retrieval lần thử lại, không phải node sinh văn phong tự nhiên.
-    rewritten = (await acall_llm(_REWRITE_SYSTEM, query, temperature=0.0)).strip()
+    settings = get_settings()
+    model = settings.router_model or None
+    rewritten = (
+        await acall_llm(
+            _REWRITE_SYSTEM,
+            query,
+            temperature=0.0,
+            model=model,
+            enable_thinking=thinking_arg(settings.thinking_router),
+        )
+    ).strip()
     rewrite_count = state.get("rewrite_count", 0) + 1
     return {"rewritten_query": rewritten, "rewrite_count": rewrite_count}

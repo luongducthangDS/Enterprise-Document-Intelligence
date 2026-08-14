@@ -1,9 +1,13 @@
+import json
 import logging
 import secrets
+from collections.abc import AsyncIterator
 
 from fastapi import APIRouter, Header, HTTPException, status
+from fastapi.responses import StreamingResponse
 
 from src.agents.service import answer as agent_answer
+from src.agents.service import astream_answer as agent_stream_answer
 from src.agents.service import sanitize_citations
 from src.config import get_settings
 from src.models.schemas import (
@@ -26,6 +30,11 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def _encode_sse(event: dict) -> str:
+    event_type = str(event.get("type") or "message")
+    return f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n"
+
+
 def _verify_service_token(x_service_token: str | None) -> None:
     expected = get_settings().agent_service_token
     if expected and (not x_service_token or not secrets.compare_digest(x_service_token, expected)):
@@ -44,6 +53,29 @@ async def query_agent(
     return await agent_answer(request.query, history=history)
 
 
+@router.post("/agent/query/stream")
+async def stream_agent_query(
+    request: AgentQueryRequest,
+    x_service_token: str | None = Header(default=None),
+) -> StreamingResponse:
+    """Phát tiến trình và câu trả lời đã qua guardrail bằng SSE."""
+    _verify_service_token(x_service_token)
+    history = [turn.model_dump() for turn in request.history]
+
+    async def events() -> AsyncIterator[str]:
+        async for event in agent_stream_answer(request.query, history=history):
+            yield _encode_sse(event)
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
@@ -54,8 +86,8 @@ async def chat(
     không bị gọi trực tiếp nếu vô tình có public ingress.
 
     Xem docs/AGENT_API.md cho ý nghĩa từng trường trả về (đặc biệt
-    escalate/ticket_draft — backend phải tự insert ticket khi escalate=True,
-    agent KHÔNG ghi Supabase)."""
+    escalate/ticket_draft — `ticket_draft` là payload legacy, backend chỉ insert
+    ticket ở đường không có `boundary`; agent KHÔNG ghi Supabase)."""
     _verify_service_token(x_service_token)
     try:
         history = [h.model_dump() for h in request.history]

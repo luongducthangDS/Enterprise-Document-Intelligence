@@ -1,0 +1,1099 @@
+{
+  "run_at": "2026-08-12T17:04:48.265109+00:00",
+  "spec": "eval/CONDENSE_EVAL_SPEC.md",
+  "dataset": "eval/datasets/condense_multiturn_set.json",
+  "thinking_on": {
+    "n": 16,
+    "retrieval_hit": 16,
+    "final_correct": 15,
+    "escalated": 1,
+    "escalated_critical": 1,
+    "needs_clarification": 0,
+    "failures": {
+      "reference_loss": 0,
+      "reference_misresolution": 0,
+      "topic_contamination": 0
+    },
+    "condense_p50_ms": 1926,
+    "condense_p95_ms": 4788,
+    "e2e_p50_ms": 17908,
+    "e2e_p95_ms": 31592
+  },
+  "thinking_off": {
+    "n": 16,
+    "retrieval_hit": 16,
+    "final_correct": 15,
+    "escalated": 1,
+    "escalated_critical": 1,
+    "needs_clarification": 0,
+    "failures": {
+      "reference_loss": 0,
+      "reference_misresolution": 0,
+      "topic_contamination": 0
+    },
+    "condense_p50_ms": 588,
+    "condense_p95_ms": 850,
+    "e2e_p50_ms": 13424,
+    "e2e_p95_ms": 53134
+  },
+  "generation_variance_cases": [
+    "cd_002",
+    "cd_008"
+  ],
+  "results": [
+    {
+      "id": "cd_001",
+      "category": "ellipsis",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?"
+        },
+        {
+          "role": "assistant",
+          "content": "Làm thêm giờ vào ngày nghỉ lễ, tết được trả ít nhất 300% đơn giá tiền lương, chưa kể tiền lương ngày lễ."
+        }
+      ],
+      "query": "Vậy ngày thường thì sao?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Làm thêm giờ vào ngày thường được trả lương bao nhiêu phần trăm?",
+        "condense_latency_ms": 1970,
+        "e2e_latency_ms": 16261,
+        "retrieved_ids": [
+          "bộ luật lao động::0112",
+          "nghi_dinh_145_2020_nd_cp::0106",
+          "nghi_dinh_145_2020_nd_cp::0107",
+          "leanh_mau-noi-quy-lao-dong::0015",
+          "nghi_dinh_145_2020_nd_cp::0111",
+          "01_chinh-sach-lam-them-gio-OT::0006",
+          "nghi_dinh_145_2020_nd_cp::0104",
+          "nghi_dinh_145_2020_nd_cp::0113",
+          "nghi_dinh_145_2020_nd_cp::0112",
+          "01_chinh-sach-lam-them-gio-OT::0010"
+        ],
+        "top_score": 0.9939024448394775,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.994,
+        "response": "Làm thêm giờ vào ngày thường được trả lương ít nhất bằng **150%** tiền lương giờ thực trả (hoặc đơn giá tiền lương sản phẩm) của công việc đang làm. [Nguồn 1][Nguồn 2][Nguồn 3]",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Vậy làm thêm giờ vào ngày thường thì được trả lương bao nhiêu phần trăm?",
+        "condense_latency_ms": 658,
+        "e2e_latency_ms": 9707,
+        "retrieved_ids": [
+          "bộ luật lao động::0112",
+          "nghi_dinh_145_2020_nd_cp::0107",
+          "nghi_dinh_145_2020_nd_cp::0106",
+          "leanh_mau-noi-quy-lao-dong::0015",
+          "nghi_dinh_145_2020_nd_cp::0104",
+          "nghi_dinh_145_2020_nd_cp::0111",
+          "01_chinh-sach-lam-them-gio-OT::0006",
+          "nghi_dinh_145_2020_nd_cp::0113",
+          "nghi_dinh_145_2020_nd_cp::0112",
+          "01_chinh-sach-lam-them-gio-OT::0010"
+        ],
+        "top_score": 0.9935117363929749,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.994,
+        "response": "Làm thêm giờ vào ngày thường được trả lương ít nhất bằng **150%** tiền lương tính theo đơn giá tiền lương hoặc tiền lương thực trả theo công việc đang làm [Nguồn 1][Nguồn 3][Nguồn 5].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_002",
+      "category": "ellipsis",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Thời gian thử việc tối đa với vị trí quản lý doanh nghiệp là bao lâu?"
+        },
+        {
+          "role": "assistant",
+          "content": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày."
+        }
+      ],
+      "query": "Còn công việc cần trình độ cao đẳng thì sao?",
+      "generation_variance": true,
+      "thinking_on": {
+        "rewrite": "Thời gian thử việc tối đa với công việc cần trình độ cao đẳng là bao lâu?",
+        "condense_latency_ms": 2621,
+        "e2e_latency_ms": 12277,
+        "retrieved_ids": [
+          "02_quy-trinh-tuyen-dung::0013",
+          "02_quy-trinh-tuyen-dung::0007",
+          "bộ luật lao động::0031",
+          "03_quy-trinh-onboarding::0009"
+        ],
+        "top_score": 0.9952448010444641,
+        "retrieval_hit": true,
+        "answerable": false,
+        "final_correct": false,
+        "escalated": true,
+        "needs_clarification": false,
+        "confidence_score": 0.1,
+        "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận TA để có người xử lý trực tiếp cho bạn.",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Thời gian thử việc tối đa đối với công việc cần trình độ cao đẳng là bao lâu?",
+        "condense_latency_ms": 575,
+        "e2e_latency_ms": 13237,
+        "retrieved_ids": [
+          "02_quy-trinh-tuyen-dung::0013",
+          "02_quy-trinh-tuyen-dung::0007",
+          "bộ luật lao động::0031",
+          "03_quy-trinh-onboarding::0009"
+        ],
+        "top_score": 0.9952448010444641,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.995,
+        "response": "Thời gian thử việc tối đa đối với công việc cần trình độ cao đẳng trở lên là không quá 60 ngày [Nguồn 3]. Mức thời gian cụ thể do hai bên thỏa thuận căn cứ vào tính chất và mức độ phức tạp của công việc [Nguồn 3].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_003",
+      "category": "ellipsis",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Nghỉ phép năm được bao nhiêu ngày với người làm đủ 12 tháng?"
+        },
+        {
+          "role": "assistant",
+          "content": "Người làm việc đủ 12 tháng được nghỉ hằng năm 12 ngày làm việc trong điều kiện bình thường."
+        }
+      ],
+      "query": "Thế còn người làm nghề nặng nhọc độc hại?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Người làm việc đủ 12 tháng trong điều kiện nghề nặng nhọc, độc hại được nghỉ phép năm bao nhiêu ngày?",
+        "condense_latency_ms": 2392,
+        "e2e_latency_ms": 11183,
+        "retrieved_ids": [
+          "bộ luật lao động::0127",
+          "leanh_mau-noi-quy-lao-dong::0007",
+          "07_chinh-sach-nghi-phep::0004",
+          "07_chinh-sach-nghi-phep::0023",
+          "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0015",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0077",
+          "07_chinh-sach-nghi-phep::0009",
+          "nghi_dinh_145_2020_nd_cp::0123",
+          "07_chinh-sach-nghi-phep::0005",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0122"
+        ],
+        "top_score": 0.9958011507987976,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.996,
+        "response": "Người làm việc đủ 12 tháng trong điều kiện nghề nặng nhọc, độc hại, nguy hiểm được nghỉ 14 ngày làm việc/năm [Nguồn 1]. Nếu công việc thuộc loại đặc biệt nặng nhọc, độc hại, nguy hiểm thì được nghỉ 16 ngày [Nguồn 1].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Thế còn người làm nghề nặng nhọc độc hại thì nghỉ phép năm được bao nhiêu ngày?",
+        "condense_latency_ms": 646,
+        "e2e_latency_ms": 13412,
+        "retrieved_ids": [
+          "07_chinh-sach-nghi-phep::0023",
+          "bộ luật lao động::0127",
+          "07_chinh-sach-nghi-phep::0004",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0077",
+          "leanh_mau-noi-quy-lao-dong::0007",
+          "07_chinh-sach-nghi-phep::0009",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0122",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0034",
+          "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0101",
+          "07_chinh-sach-nghi-phep::0005"
+        ],
+        "top_score": 0.9465966820716858,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.947,
+        "response": "Người làm nghề/công việc nặng nhọc, độc hại, nguy hiểm được nghỉ **14 ngày làm việc/năm**; nếu công việc **đặc biệt** nặng nhọc, độc hại, nguy hiểm thì được **16 ngày/năm** [Nguồn 2]. Ngoài ra, cứ mỗi 5 năm làm việc thì được tăng thêm 1 ngày nghỉ phép [Nguồn 1][Nguồn 2].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_004",
+      "category": "ellipsis",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Giới hạn làm thêm giờ trong một tháng là bao nhiêu?"
+        },
+        {
+          "role": "assistant",
+          "content": "Không quá 40 giờ trong một tháng."
+        }
+      ],
+      "query": "Trong một năm thì sao?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Giới hạn làm thêm giờ trong một năm là bao nhiêu?",
+        "condense_latency_ms": 4332,
+        "e2e_latency_ms": 25560,
+        "retrieved_ids": [
+          "01_chinh-sach-lam-them-gio-OT::0005",
+          "bộ luật lao động::0121",
+          "nghi_dinh_145_2020_nd_cp::0116",
+          "nghi_dinh_145_2020_nd_cp::0118",
+          "nghi_dinh_145_2020_nd_cp::0265",
+          "nghi_dinh_145_2020_nd_cp::0117",
+          "nghi_dinh_145_2020_nd_cp::0115",
+          "bộ luật lao động::0162",
+          "05_chinh-sach-lam-viec-tu-xa::0008",
+          "01_chinh-sach-lam-them-gio-OT::0010"
+        ],
+        "top_score": 0.9908744096755981,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.991,
+        "response": "Giới hạn làm thêm giờ là không quá **200 giờ/năm**; trong một số ngành, nghề, công việc hoặc trường hợp đặc biệt theo quy định pháp luật, có thể lên đến không quá **300 giờ/năm** [Nguồn 2]. Khi tổ chức làm thêm từ trên 200 giờ đến 300 giờ/năm, người sử dụng lao động phải thông báo cho Sở Lao động - Thương binh và Xã hội chậm nhất sau 15 ngày kể từ ngày thực hiện [Nguồn 4].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Giới hạn làm thêm giờ trong một năm là bao nhiêu?",
+        "condense_latency_ms": 508,
+        "e2e_latency_ms": 10147,
+        "retrieved_ids": [
+          "01_chinh-sach-lam-them-gio-OT::0005",
+          "bộ luật lao động::0121",
+          "nghi_dinh_145_2020_nd_cp::0116",
+          "nghi_dinh_145_2020_nd_cp::0118",
+          "nghi_dinh_145_2020_nd_cp::0265",
+          "nghi_dinh_145_2020_nd_cp::0117",
+          "nghi_dinh_145_2020_nd_cp::0115",
+          "bộ luật lao động::0162",
+          "05_chinh-sach-lam-viec-tu-xa::0008",
+          "01_chinh-sach-lam-them-gio-OT::0010"
+        ],
+        "top_score": 0.9908744096755981,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.991,
+        "response": "Giới hạn làm thêm giờ là **không quá 200 giờ/năm**; trong một số ngành, nghề, công việc hoặc trường hợp đặc biệt theo quy định pháp luật, có thể lên đến **300 giờ/năm** [Nguồn 2]. Khi tổ chức làm thêm từ trên 200 giờ đến 300 giờ/năm, người sử dụng lao động phải thông báo cho Sở Lao động – Thương binh và Xã hội chậm nhất sau 15 ngày kể từ ngày thực hiện [Nguồn 4].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_005",
+      "category": "pronoun_reference",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Công ty có chính sách làm việc từ xa không?"
+        },
+        {
+          "role": "assistant",
+          "content": "Có, chính sách làm việc từ xa cho phép nhân viên làm việc hybrid theo mô hình 3 ngày onsite và 2 ngày từ xa."
+        }
+      ],
+      "query": "Cái đó áp dụng cho nhân viên thử việc không?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Chính sách làm việc hybrid theo mô hình 3 ngày onsite và 2 ngày từ xa có áp dụng cho nhân viên thử việc không?",
+        "condense_latency_ms": 1797,
+        "e2e_latency_ms": 9729,
+        "retrieved_ids": [
+          "05_chinh-sach-lam-viec-tu-xa::0031",
+          "05_chinh-sach-lam-viec-tu-xa::0005",
+          "05_chinh-sach-lam-viec-tu-xa::0007",
+          "05_chinh-sach-lam-viec-tu-xa::0003",
+          "05_chinh-sach-lam-viec-tu-xa::0004",
+          "05_chinh-sach-lam-viec-tu-xa::0006",
+          "05_chinh-sach-lam-viec-tu-xa::0002",
+          "05_chinh-sach-lam-viec-tu-xa::0028",
+          "05_chinh-sach-lam-viec-tu-xa::0000",
+          "05_chinh-sach-lam-viec-tu-xa::0029"
+        ],
+        "top_score": 0.9879462122917175,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.988,
+        "response": "Không, nhân viên thử việc không được áp dụng mô hình Hybrid 3-2. Theo chính sách, nhóm \"Thực tập sinh, nhân viên thử việc\" thuộc nhóm \"Không\" áp dụng Hybrid, yêu cầu onsite toàn thời gian để đào tạo [Nguồn 2]. NLĐ phải đã hoàn thành thời gian thử việc và có ít nhất 03 tháng làm việc onsite liên tục mới đủ điều kiện [Nguồn 5]. Lưu ý: các nguồn trên là tài liệu mẫu/synthetic, không phải quy định chí",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Chính sách làm việc hybrid theo mô hình 3 ngày onsite và 2 ngày từ xa áp dụng cho nhân viên thử việc không?",
+        "condense_latency_ms": 684,
+        "e2e_latency_ms": 8350,
+        "retrieved_ids": [
+          "05_chinh-sach-lam-viec-tu-xa::0031",
+          "05_chinh-sach-lam-viec-tu-xa::0005",
+          "05_chinh-sach-lam-viec-tu-xa::0003",
+          "05_chinh-sach-lam-viec-tu-xa::0007",
+          "05_chinh-sach-lam-viec-tu-xa::0004",
+          "05_chinh-sach-lam-viec-tu-xa::0006",
+          "05_chinh-sach-lam-viec-tu-xa::0002",
+          "05_chinh-sach-lam-viec-tu-xa::0028",
+          "05_chinh-sach-lam-viec-tu-xa::0029",
+          "05_chinh-sach-lam-viec-tu-xa::0000"
+        ],
+        "top_score": 0.9863631129264832,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.986,
+        "response": "Không, chính sách Hybrid 3-2 không áp dụng cho nhân viên thử việc. Nhân viên thử việc thuộc nhóm \"Không\" áp dụng Hybrid, yêu cầu onsite toàn thời gian để đào tạo [Nguồn 2]. Để đủ điều kiện Hybrid, NLĐ phải đã hoàn thành thời gian thử việc và có ít nhất 03 tháng làm việc onsite liên tục [Nguồn 5]. *(Lưu ý: các nguồn trên là tài liệu mẫu/synthetic, không phải quy định chính thức của công ty.)*",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_006",
+      "category": "pronoun_reference",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Trợ cấp thôi việc được tính thế nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Mỗi năm làm việc được trợ cấp một nửa tháng tiền lương, áp dụng cho người làm việc thường xuyên từ đủ 12 tháng trở lên."
+        }
+      ],
+      "query": "Khoản đó có bị trừ thuế thu nhập cá nhân không?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Trợ cấp thôi việc có bị trừ thuế thu nhập cá nhân không?",
+        "condense_latency_ms": 1307,
+        "e2e_latency_ms": 11849,
+        "retrieved_ids": [
+          "112-vbhn-vpqh_luat_thue_tncn::0003",
+          "bộ luật lao động::0059",
+          "nghi_dinh_145_2020_nd_cp::0013",
+          "112-vbhn-vpqh_luat_thue_tncn::0015",
+          "nghi_dinh_145_2020_nd_cp::0022"
+        ],
+        "top_score": 0.2958398759365082,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.296,
+        "response": "Trợ cấp thôi việc không bị trừ thuế thu nhập cá nhân, vì đây là một trong các khoản trợ cấp được loại trừ khỏi thu nhập chịu thuế từ tiền lương, tiền công [Nguồn 1].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Trợ cấp thôi việc có bị trừ thuế thu nhập cá nhân không?",
+        "condense_latency_ms": 530,
+        "e2e_latency_ms": 13437,
+        "retrieved_ids": [
+          "112-vbhn-vpqh_luat_thue_tncn::0003",
+          "bộ luật lao động::0059",
+          "nghi_dinh_145_2020_nd_cp::0013",
+          "112-vbhn-vpqh_luat_thue_tncn::0015",
+          "nghi_dinh_145_2020_nd_cp::0022"
+        ],
+        "top_score": 0.2958398759365082,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.296,
+        "response": "Trợ cấp thôi việc **không** bị trừ thuế thu nhập cá nhân, vì đây là khoản được loại trừ khỏi thu nhập chịu thuế từ tiền lương, tiền công theo Luật Thuế TNCN [Nguồn 1].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_007",
+      "category": "pronoun_reference",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Quy trình onboarding cho nhân viên mới gồm những bước nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Quy trình onboarding gồm chuẩn bị trước ngày đầu, ngày đầu tiên nhận việc, và giai đoạn hội nhập trong tháng đầu."
+        }
+      ],
+      "query": "Bước đầu tiên trong đó cần chuẩn bị giấy tờ gì?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Bước đầu tiên trong quy trình onboarding cho nhân viên mới cần chuẩn bị giấy tờ gì?",
+        "condense_latency_ms": 6155,
+        "e2e_latency_ms": 27576,
+        "retrieved_ids": [
+          "02_quy-trinh-tuyen-dung::0008",
+          "03_quy-trinh-onboarding::0004",
+          "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0008",
+          "03_quy-trinh-onboarding::0005",
+          "03_quy-trinh-onboarding::0010",
+          "03_quy-trinh-onboarding::0002",
+          "03_quy-trinh-onboarding::0003"
+        ],
+        "top_score": 0.8766343593597412,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.877,
+        "response": "Các tài liệu dưới đây là mẫu/template, không phải quy định chính thức của công ty. Bước đầu tiên trong onboarding (Pre-boarding), Phòng NS gửi email chào mừng nêu \"giấy tờ cần mang\" nhưng không liệt kê cụ thể [Nguồn 2]. Hồ sơ cụ thể được thu thập ở bước trước (quy trình tuyển dụng, chuyển sang onboarding) gồm: CMND/CCCD, bằng cấp, sơ yếu lý lịch, giấy khám sức khỏe [Nguồn 1].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Bước đầu tiên trong quy trình onboarding (chuẩn bị trước ngày đầu) cần chuẩn bị giấy tờ gì?",
+        "condense_latency_ms": 586,
+        "e2e_latency_ms": 23172,
+        "retrieved_ids": [
+          "03_quy-trinh-onboarding::0004",
+          "02_quy-trinh-tuyen-dung::0008",
+          "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0008",
+          "03_quy-trinh-onboarding::0010",
+          "03_quy-trinh-onboarding::0005",
+          "03_quy-trinh-onboarding::0003"
+        ],
+        "top_score": 0.9481545686721802,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.948,
+        "response": "Các tài liệu tham khảo (mẫu/synthetic) cho biết: trong bước Pre-boarding, Phòng NS gửi email chào mừng nêu \"giấy tờ cần mang\" nhưng không liệt kê cụ thể [Nguồn 1]. Hồ sơ cụ thể được thu thập từ quy trình tuyển dụng gồm: CMND/CCCD, bằng cấp, sơ yếu lý lịch, giấy khám sức khỏe [Nguồn 2]; hợp đồng thử việc/lao động cũng được ký trước khi chuyển sang onboarding [Nguồn 2].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_008",
+      "category": "pronoun_reference",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Mức lương tối thiểu vùng I hiện nay là bao nhiêu?"
+        },
+        {
+          "role": "assistant",
+          "content": "Mức lương tối thiểu tháng vùng I theo Nghị định 293/2025 là 5.310.000 đồng."
+        }
+      ],
+      "query": "Con số này áp dụng từ khi nào?",
+      "generation_variance": true,
+      "thinking_on": {
+        "rewrite": "Mức lương tối thiểu vùng I là 5.310.000 đồng theo Nghị định 293/2025 áp dụng từ khi nào?",
+        "condense_latency_ms": 1882,
+        "e2e_latency_ms": 30410,
+        "retrieved_ids": [
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0012",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0011",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0008",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005",
+          "nghi_dinh_145_2020_nd_cp::0199",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0009",
+          "161-ndcp.signed::0005"
+        ],
+        "top_score": 0.8080672025680542,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.808,
+        "response": "Mức lương tối thiểu vùng I là 5.310.000 đồng theo Nghị định 293/2025/NĐ-CP có hiệu lực thi hành từ ngày 01/01/2026 [Nguồn 3][Nguồn 4]. Danh mục địa bàn áp dụng cũng ghi rõ mức đường tối thiểu áp dụng từ ngày 01/01/2026 [Nguồn 1].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Mức lương tối thiểu tháng vùng I là 5.310.000 đồng theo Nghị định 293/2025 áp dụng từ khi nào?",
+        "condense_latency_ms": 1275,
+        "e2e_latency_ms": 19973,
+        "retrieved_ids": [
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0012",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0011",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0008",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005",
+          "nghi_dinh_145_2020_nd_cp::0199",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0009",
+          "161-ndcp.signed::0005",
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0030"
+        ],
+        "top_score": 0.8116759657859802,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": false,
+        "escalated": true,
+        "needs_clarification": false,
+        "confidence_score": 0.1,
+        "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã tạo yêu cầu hỗ trợ gửi tới bộ phận CB để có người xử lý trực tiếp cho bạn.",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_009",
+      "category": "topic_continuation",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Làm thêm giờ vào ngày nghỉ hằng tuần được tính lương thế nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Làm thêm vào ngày nghỉ hằng tuần được trả ít nhất 200% đơn giá tiền lương."
+        }
+      ],
+      "query": "Nếu ngày lễ thì sao?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Làm thêm giờ vào ngày lễ được tính lương thế nào?",
+        "condense_latency_ms": 2002,
+        "e2e_latency_ms": 19555,
+        "retrieved_ids": [
+          "nghi_dinh_145_2020_nd_cp::0112",
+          "leanh_mau-noi-quy-lao-dong::0015",
+          "bộ luật lao động::0112",
+          "nghi_dinh_145_2020_nd_cp::0107",
+          "nghi_dinh_145_2020_nd_cp::0113",
+          "nghi_dinh_145_2020_nd_cp::0106",
+          "01_chinh-sach-lam-them-gio-OT::0006",
+          "nghi_dinh_145_2020_nd_cp::0111",
+          "nghi_dinh_145_2020_nd_cp::0105",
+          "nghi_dinh_145_2020_nd_cp::0110"
+        ],
+        "top_score": 0.9893474578857422,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.989,
+        "response": "Làm thêm giờ vào ngày lễ được trả ít nhất **300%** tiền lương thực trả của công việc đang làm vào ngày làm việc bình thường, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3, Nguồn 6]. Nếu làm thêm vào ban đêm của ngày lễ, cộng thêm 20% tiền lương tính theo công việc làm vào ban ngày của ngày lễ [Nguồn 3].\n\nLưu ý: Một template nội quy mẫu (không phải quy định công ty) quy định mứ",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Làm thêm giờ vào ngày lễ thì được tính lương thế nào?",
+        "condense_latency_ms": 510,
+        "e2e_latency_ms": 9910,
+        "retrieved_ids": [
+          "nghi_dinh_145_2020_nd_cp::0112",
+          "leanh_mau-noi-quy-lao-dong::0015",
+          "bộ luật lao động::0112",
+          "nghi_dinh_145_2020_nd_cp::0107",
+          "nghi_dinh_145_2020_nd_cp::0113",
+          "nghi_dinh_145_2020_nd_cp::0106",
+          "01_chinh-sach-lam-them-gio-OT::0006",
+          "nghi_dinh_145_2020_nd_cp::0111",
+          "nghi_dinh_145_2020_nd_cp::0105",
+          "nghi_dinh_145_2020_nd_cp::0110"
+        ],
+        "top_score": 0.9883127808570862,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.988,
+        "response": "Làm thêm giờ vào ngày lễ được trả ít nhất **300%** tiền lương thực trả của công việc đang làm vào ngày làm việc bình thường, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3][Nguồn 4][Nguồn 6]. Nếu làm thêm vào ban đêm của ngày lễ, còn được cộng thêm ít nhất 30% (lương ban đêm) và 20% (lương ban ngày) [Nguồn 3].\n\nLưu ý: một mẫu nội quy công khai quy định mức **400%** cho ngày lễ ",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_010",
+      "category": "topic_continuation",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Nghỉ thai sản được bao nhiêu tháng?"
+        },
+        {
+          "role": "assistant",
+          "content": "Lao động nữ được nghỉ thai sản trước và sau khi sinh con là 06 tháng."
+        }
+      ],
+      "query": "Sinh đôi thì được cộng thêm không?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Lao động nữ sinh đôi thì thời gian nghỉ thai sản 06 tháng được cộng thêm không?",
+        "condense_latency_ms": 2237,
+        "e2e_latency_ms": 10485,
+        "retrieved_ids": [
+          "bộ luật lao động::0155",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0102",
+          "leanh_mau-noi-quy-lao-dong::0011",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0097",
+          "leanh_mau-noi-quy-lao-dong::0012",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0099",
+          "07_chinh-sach-nghi-phep::0013",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0124",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0096",
+          "07_chinh-sach-nghi-phep::0014"
+        ],
+        "top_score": 0.9916841983795166,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.992,
+        "response": "Có. Khi lao động nữ sinh đôi, ngoài 06 tháng nghỉ thai sản cơ bản, tính từ con thứ hai trở đi, người mẹ được nghỉ thêm 01 tháng cho mỗi con — tức sinh đôi thì cộng thêm 01 tháng, tổng cộng 07 tháng [Nguồn 1]. Quy định này cũng được nhắc lại trong nội quy mẫu [Nguồn 3] và tài liệu tham khảo [Nguồn 7].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Lao động nữ sinh đôi thì thời gian nghỉ thai sản 06 tháng được cộng thêm không?",
+        "condense_latency_ms": 589,
+        "e2e_latency_ms": 14156,
+        "retrieved_ids": [
+          "bộ luật lao động::0155",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0102",
+          "leanh_mau-noi-quy-lao-dong::0011",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0097",
+          "leanh_mau-noi-quy-lao-dong::0012",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0099",
+          "07_chinh-sach-nghi-phep::0013",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0124",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0096",
+          "07_chinh-sach-nghi-phep::0014"
+        ],
+        "top_score": 0.9916841983795166,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.992,
+        "response": "Có, lao động nữ sinh đôi trở lên được cộng thêm thời gian nghỉ thai sản: tính từ con thứ 02 trở đi, cứ mỗi con, người mẹ được nghỉ thêm 01 tháng [Nguồn 1]. Như vậy, nếu sinh đôi (02 con), tổng thời gian nghỉ là 06 tháng + 01 tháng = 07 tháng [Nguồn 1], [Nguồn 7].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_011",
+      "category": "topic_continuation",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Đi công tác trong ngày thì được thanh toán những khoản gì?"
+        },
+        {
+          "role": "assistant",
+          "content": "Công tác trong ngày được thanh toán chi phí đi lại và phụ cấp công tác theo quy chế công tác phí."
+        }
+      ],
+      "query": "Nếu phải ở lại qua đêm thì có thêm khoản nào?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Nếu đi công tác phải ở lại qua đêm thì ngoài chi phí đi lại và phụ cấp công tác theo quy chế công tác phí, có thêm khoản thanh toán nào không?",
+        "condense_latency_ms": 2215,
+        "e2e_latency_ms": 20457,
+        "retrieved_ids": [
+          "base_quy-che-cong-tac-phi-va-phu-cap::0002",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0000",
+          "nghi_dinh_145_2020_nd_cp::0105",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0005",
+          "01_chinh-sach-lam-them-gio-OT::0008",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0001",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0003",
+          "07_chinh-sach-nghi-phep::0020",
+          "leanh_mau-noi-quy-lao-dong::0009"
+        ],
+        "top_score": 0.5079949498176575,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.508,
+        "response": "Có, ngoài chi phí đi lại, khi công tác qua đêm còn có **Phụ cấp Lưu trú** (bao gồm tiền ăn và chi tiêu cá nhân), được tính theo số ngày công tác thực tế (cả ngày đi và ngày về) với mức theo cấp bậc và vùng [Nguồn 7]. Ngoài ra, chi phí **khách sạn** cũng được liệt kê riêng trong dự toán tạm ứng [Nguồn 4].\n\n*Lưu ý: Các nguồn trên là tài liệu mẫu/tham khảo, không phải quy định chính thức của công ty.",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Nếu đi công tác nhưng phải ở lại qua đêm thì ngoài chi phí đi lại và phụ cấp công tác, người lao động còn được thanh toán thêm khoản nào?",
+        "condense_latency_ms": 709,
+        "e2e_latency_ms": 43891,
+        "retrieved_ids": [
+          "nghi_dinh_145_2020_nd_cp::0105",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0002",
+          "leanh_mau-noi-quy-lao-dong::0009",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0000",
+          "bộ luật lao động::0112",
+          "nghi_dinh_145_2020_nd_cp::0109",
+          "leanh_mau-noi-quy-lao-dong::0015",
+          "bộ luật lao động::0109",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0004",
+          "base_quy-che-cong-tac-phi-va-phu-cap::0003"
+        ],
+        "top_score": 0.575588047504425,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.576,
+        "response": "Ngoài chi phí đi lại và phụ cấp công tác, người lao động còn được thanh toán **chi phí khách sạn/lưu trú** (tối đa theo hóa đơn hợp lệ hoặc hỗ trợ khoán 250.000 VNĐ/đêm nếu tự lo chỗ ở) [Nguồn 9] và **phụ cấp lưu trú** (tiền ăn & chi tiêu cá nhân) tính theo số ngày công tác thực tế [Nguồn 10].\n\n*Lưu ý: Các nguồn trích dẫn là tài liệu tham khảo (template công khai), không phải quy định chính thức c",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_012",
+      "category": "topic_continuation",
+      "critical": true,
+      "history": [
+        {
+          "role": "user",
+          "content": "Nhân viên vi phạm kỷ luật lao động thì có những hình thức xử lý nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Các hình thức xử lý kỷ luật gồm khiển trách, kéo dài thời hạn nâng lương, cách chức và sa thải."
+        }
+      ],
+      "query": "Mức nặng nhất áp dụng trong trường hợp nào?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Hình thức xử lý kỷ luật lao động nặng nhất là sa thải, vậy sa thải được áp dụng trong trường hợp nào?",
+        "condense_latency_ms": 1858,
+        "e2e_latency_ms": 35140,
+        "retrieved_ids": [
+          "bộ luật lao động::0140",
+          "leanh_mau-noi-quy-lao-dong::0034",
+          "nghi_dinh_145_2020_nd_cp::0164",
+          "nghi_dinh_145_2020_nd_cp::0273",
+          "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0001",
+          "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0003",
+          "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0005",
+          "leanh_mau-noi-quy-lao-dong::0030",
+          "nghi_dinh_145_2020_nd_cp::0136",
+          "leanh_mau-noi-quy-lao-dong::0033"
+        ],
+        "top_score": 0.9978172779083252,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.998,
+        "response": "Sa thải được áp dụng trong các trường hợp sau:\n\n- Theo Bộ luật Lao động: (1) trộm cắp, tham ô, đánh bạc, cố ý gây thương tích, sử dụng ma túy tại nơi làm việc; (2) tiết lộ bí mật kinh doanh/công nghệ, xâm phạm sở hữu trí tuệ, gây thiệt hại nghiêm trọng hoặc đe dọa gây thiệt hại đặc biệt nghiêm trọng, quấy rối tình dục tại nơi làm việc; (3) bị xử lý kỷ luật kéo dài thời hạn nâng lương hoặc cách chứ",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Hình thức xử lý kỷ luật lao động nặng nhất là sa thải, vậy sa thải được áp dụng trong trường hợp nào?",
+        "condense_latency_ms": 672,
+        "e2e_latency_ms": 80862,
+        "retrieved_ids": [
+          "bộ luật lao động::0140",
+          "leanh_mau-noi-quy-lao-dong::0034",
+          "nghi_dinh_145_2020_nd_cp::0164",
+          "nghi_dinh_145_2020_nd_cp::0273",
+          "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0001",
+          "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0003",
+          "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0005",
+          "leanh_mau-noi-quy-lao-dong::0030",
+          "nghi_dinh_145_2020_nd_cp::0136",
+          "leanh_mau-noi-quy-lao-dong::0033"
+        ],
+        "top_score": 0.9978172779083252,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.998,
+        "response": "Sa thải được áp dụng trong các trường hợp sau theo Bộ luật Lao động [Nguồn 1]:\n\n1. Người lao động có hành vi trộm cắp, tham ô, đánh bạc, cố ý gây thương tích, sử dụng ma tuý tại nơi làm việc [Nguồn 1].\n2. Tiết lộ bí mật kinh doanh, bí mật công nghệ, xâm phạm quyền sở hữu trí tuệ, gây thiệt hại nghiêm trọng hoặc đe dọa gây thiệt hại đặc biệt nghiêm trọng về tài sản, lợi ích của người sử dụng lao độ",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_013",
+      "category": "topic_switch",
+      "critical": false,
+      "history": [
+        {
+          "role": "user",
+          "content": "Làm thêm giờ cuối tuần được tính lương thế nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Làm thêm vào ngày nghỉ hằng tuần được trả ít nhất 200% đơn giá tiền lương."
+        }
+      ],
+      "query": "Quy định nghỉ thai sản là bao nhiêu tháng?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Quy định nghỉ thai sản là bao nhiêu tháng?",
+        "condense_latency_ms": 1362,
+        "e2e_latency_ms": 13224,
+        "retrieved_ids": [
+          "bộ luật lao động::0155",
+          "leanh_mau-noi-quy-lao-dong::0011",
+          "07_chinh-sach-nghi-phep::0013",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0097",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0102",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0099",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0103",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0094",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0092",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0091"
+        ],
+        "top_score": 0.9840936064720154,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.984,
+        "response": "Lao động nữ được nghỉ thai sản **06 tháng** trước và sau khi sinh; thời gian nghỉ trước khi sinh không quá 02 tháng. Trường hợp sinh đôi trở lên, từ con thứ 02 trở đi cứ mỗi con người mẹ được nghỉ thêm 01 tháng [Nguồn 1][Nguồn 2].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Quy định nghỉ thai sản là bao nhiêu tháng?",
+        "condense_latency_ms": 501,
+        "e2e_latency_ms": 8079,
+        "retrieved_ids": [
+          "bộ luật lao động::0155",
+          "leanh_mau-noi-quy-lao-dong::0011",
+          "07_chinh-sach-nghi-phep::0013",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0097",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0102",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0099",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0103",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0094",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0092",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0091"
+        ],
+        "top_score": 0.9840936064720154,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.984,
+        "response": "Lao động nữ được nghỉ thai sản **06 tháng** trước và sau khi sinh con; thời gian nghỉ trước khi sinh không quá 02 tháng [Nguồn 1][Nguồn 2]. Trường hợp sinh đôi trở lên, tính từ con thứ 02 trở đi, cứ mỗi con người mẹ được nghỉ thêm **01 tháng** [Nguồn 1][Nguồn 2].",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_014",
+      "category": "topic_switch",
+      "critical": false,
+      "history": [
+        {
+          "role": "user",
+          "content": "Quy trình tuyển dụng của công ty có mấy vòng?"
+        },
+        {
+          "role": "assistant",
+          "content": "Quy trình tuyển dụng gồm sàng lọc hồ sơ, phỏng vấn chuyên môn và phỏng vấn với quản lý."
+        }
+      ],
+      "query": "Mức lương tối thiểu vùng I là bao nhiêu?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Mức lương tối thiểu vùng I là bao nhiêu?",
+        "condense_latency_ms": 967,
+        "e2e_latency_ms": 12868,
+        "retrieved_ids": [
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005",
+          "bộ luật lao động::0105"
+        ],
+        "top_score": 0.9930961728096008,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.993,
+        "response": "Mức lương tối thiểu vùng I được quy định ở hai mức khác nhau trong cùng văn bản: 5.000.000 đồng/tháng (20.000 đồng/giờ) và 5.310.000 đồng/tháng (25.500 đồng/giờ) [Nguồn 1]. Bạn cần xác định bảng nào là quy định đang hiệu lực để áp dụng đúng mức cho trường hợp cụ thể.",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Mức lương tối thiểu vùng I là bao nhiêu?",
+        "condense_latency_ms": 548,
+        "e2e_latency_ms": 11910,
+        "retrieved_ids": [
+          "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005",
+          "bộ luật lao động::0105"
+        ],
+        "top_score": 0.9930961728096008,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.993,
+        "response": "Theo Nghị định 293/2025/NĐ-CP, có hai bảng mức lương tối thiểu vùng I được nêu trong cùng tài liệu: 5.000.000 đồng/tháng (20.000 đồng/giờ) và 5.310.000 đồng/tháng (25.500 đồng/giờ) [Nguồn 1]. Bạn cần xác định bảng nào đang được áp dụng hiện hành để biết mức chính xác.",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_015",
+      "category": "topic_switch",
+      "critical": false,
+      "history": [
+        {
+          "role": "user",
+          "content": "Chính sách đào tạo của công ty hỗ trợ những gì?"
+        },
+        {
+          "role": "assistant",
+          "content": "Công ty hỗ trợ đào tạo nội bộ và một phần chi phí cho khóa học bên ngoài có cam kết làm việc."
+        }
+      ],
+      "query": "Người lao động được nghỉ mấy ngày lễ trong năm?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Người lao động được nghỉ mấy ngày lễ trong năm?",
+        "condense_latency_ms": 877,
+        "e2e_latency_ms": 30332,
+        "retrieved_ids": [
+          "leanh_mau-noi-quy-lao-dong::0006",
+          "bộ luật lao động::0126",
+          "leanh_mau-noi-quy-lao-dong::0007",
+          "bộ luật lao động::0127",
+          "nghi_dinh_145_2020_nd_cp::0123",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0083",
+          "bộ luật lao động::0125",
+          "leanh_mau-noi-quy-lao-dong::0008",
+          "07_chinh-sach-nghi-phep::0023",
+          "bộ luật lao động::0129"
+        ],
+        "top_score": 0.9989677667617798,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.999,
+        "response": "Người lao động được nghỉ tổng cộng 11 ngày lễ trong năm, bao gồm: Tết Dương lịch (1 ngày), Tết Âm lịch (5 ngày), Ngày Chiến thắng (1 ngày), Ngày Quốc tế Lao động (1 ngày), Quốc khánh (2 ngày) và Giỗ Tổ Hùng Vương (1 ngày) [Nguồn 2]. Một tài liệu mẫu khác ghi là 10 ngày lễ nhưng danh sách các ngày liệt kê cũng tương đương 11 ngày [Nguồn 1].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Người lao động được nghỉ mấy ngày lễ trong năm?",
+        "condense_latency_ms": 494,
+        "e2e_latency_ms": 30632,
+        "retrieved_ids": [
+          "leanh_mau-noi-quy-lao-dong::0006",
+          "bộ luật lao động::0126",
+          "leanh_mau-noi-quy-lao-dong::0007",
+          "bộ luật lao động::0127",
+          "nghi_dinh_145_2020_nd_cp::0123",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0083",
+          "bộ luật lao động::0125",
+          "leanh_mau-noi-quy-lao-dong::0008",
+          "07_chinh-sach-nghi-phep::0023",
+          "bộ luật lao động::0129"
+        ],
+        "top_score": 0.9989677667617798,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.999,
+        "response": "Người lao động được nghỉ 11 ngày lễ trong năm, gồm: Tết Dương lịch (1 ngày), Tết Âm lịch (5 ngày), Giỗ Tổ Hùng Vương (1 ngày), Chiến thắng 30/4 (1 ngày), Quốc tế Lao động 1/5 (1 ngày), Quốc khánh 2/9 (2 ngày) [Nguồn 2]. Lao động là người nước ngoài còn được nghỉ thêm 01 ngày Tết cổ truyền và 01 ngày Quốc khánh của nước họ [Nguồn 2]. Nguồn template có ghi 10 ngày nhưng danh sách liệt kê lại gồm 11 ",
+        "failure_mode": null
+      }
+    },
+    {
+      "id": "cd_016",
+      "category": "topic_switch",
+      "critical": false,
+      "history": [
+        {
+          "role": "user",
+          "content": "Nghỉ phép năm chưa dùng hết thì xử lý thế nào?"
+        },
+        {
+          "role": "assistant",
+          "content": "Phép năm chưa nghỉ hết có thể được thanh toán hoặc chuyển sang năm sau tùy quy định công ty."
+        }
+      ],
+      "query": "Công ty đóng bảo hiểm xã hội bắt buộc theo tỷ lệ nào?",
+      "generation_variance": false,
+      "thinking_on": {
+        "rewrite": "Công ty đóng bảo hiểm xã hội bắt buộc theo tỷ lệ nào?",
+        "condense_latency_ms": 937,
+        "e2e_latency_ms": 23585,
+        "retrieved_ids": [
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0058",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0126",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0061",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0059",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0064",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0015",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0056",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0017",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0018",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0012"
+        ],
+        "top_score": 0.9879462122917175,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.988,
+        "response": "Công ty (người sử dụng lao động) đóng BHXH bắt buộc với tỷ lệ **3% vào quỹ ốm đau và thai sản** và **14% vào quỹ hưu trí và tử tuất**, tính trên tiền lương làm căn cứ đóng BHXH của người lao động [Nguồn 5].\n\nTổng tỷ lệ đóng BHXH bắt buộc là 25% (3% + 22%), trong đó người lao động tự đóng 8% vào quỹ hưu trí và tử tuất [Nguồn 1][Nguồn 4].",
+        "failure_mode": null
+      },
+      "thinking_off": {
+        "rewrite": "Công ty đóng bảo hiểm xã hội bắt buộc theo tỷ lệ nào?",
+        "condense_latency_ms": 640,
+        "e2e_latency_ms": 25970,
+        "retrieved_ids": [
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0058",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0126",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0061",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0059",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0064",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0015",
+          "luat_bao_hiem_xa_hoi_41_2024_qh15::0056",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0017",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0018",
+          "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0012"
+        ],
+        "top_score": 0.9879462122917175,
+        "retrieval_hit": true,
+        "answerable": true,
+        "final_correct": true,
+        "escalated": false,
+        "needs_clarification": false,
+        "confidence_score": 0.988,
+        "response": "Công ty (người sử dụng lao động) đóng BHXH bắt buộc với tỷ lệ: 3% vào quỹ ốm đau và thai sản + 14% vào quỹ hưu trí và tử tuất (tổng 17%) cho người lao động thông thường [Nguồn 5]. Riêng đối với một số đối tượng đặc biệt (điểm đ, điểm e khoản 1 Điều 2), công ty đóng 22% vào quỹ hưu trí và tử tuất [Nguồn 5]. Tổng tỷ lệ đóng BHXH bắt buộc cả hai bên (người lao động + công ty) là 3% + 22% = 25% [Nguồn",
+        "failure_mode": null
+      }
+    }
+  ],
+  "variance_rule": "top-5 chunk đầu giống nhau + final_correct khác nhau (xem eval_condense_thinking.py)"
+}

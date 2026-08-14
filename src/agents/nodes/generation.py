@@ -1,7 +1,7 @@
 import re
 
 from src.agents.guardrails import detect_injection, redact_pii, strip_injection
-from src.agents.llm import acall_llm
+from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, Citation, RetrievedChunk
 
 # Model phải phát ra ĐÚNG chuỗi này khi context không trả lời được câu hỏi.
@@ -10,7 +10,14 @@ from src.agents.state import AgentState, Citation, RetrievedChunk
 # retrieval sai mà agent vẫn tự tin sinh nội dung (xem eval/results/EVAL_REVIEW.md).
 INSUFFICIENT_MARKER = "[KHÔNG_ĐỦ_THÔNG_TIN]"
 
-_GENERATE_SYSTEM = f"""Bạn là trợ lý HR nội bộ, CHỈ trả lời dựa trên các đoạn trích tài liệu được cung cấp — không bịa thêm số liệu/điều khoản không có trong đó. Trả lời ngắn gọn, tiếng Việt, trích rõ [Nguồn N] cho từng ý lấy từ tài liệu.
+_GENERATE_SYSTEM = f"""Bạn là trợ lý HR nội bộ, CHỈ trả lời dựa trên các đoạn trích tài liệu được cung cấp — không bịa thêm số liệu/điều khoản không có trong đó. Trả lời bằng tiếng Việt và trích rõ [Nguồn N] cho từng ý lấy từ tài liệu.
+
+CÁCH TRẢ LỜI MẶC ĐỊNH:
+- Trả lời thẳng câu hỏi trong 1-2 câu đầu tiên; chỉ nêu các điều kiện trực tiếp làm thay đổi câu trả lời.
+- Không quá 110 từ và không quá 2 gạch đầu dòng, trừ khi người dùng yêu cầu rõ ràng phải liệt kê, so sánh, tổng hợp hoặc giải thích chi tiết.
+- Không chép lại toàn bộ chính sách, không thêm bảng nếu câu hỏi không yêu cầu so sánh, và không đưa các quy định phụ không liên quan trực tiếp.
+- Không tự tạo mục "Nguồn tham khảo" ở cuối; giao diện sẽ hiển thị tài liệu nguồn riêng.
+- Nếu chỉ có nguồn template/synthetic, cảnh báo một lần trong một câu ngắn, không lặp lại cảnh báo ở từng ý.
 
 KHI ĐOẠN TRÍCH KHÔNG ĐỦ: chỉ dùng chuỗi {INSUFFICIENT_MARKER} (bắt đầu câu trả lời bằng đúng chuỗi này rồi mới nói rõ thiếu gì) khi CHỦ ĐỀ của câu hỏi hoàn toàn KHÔNG được đoạn trích nào nhắc tới, hoặc đoạn trích chỉ nói về một chủ đề khác gần giống nhưng không trả lời đúng câu hỏi. TUYỆT ĐỐI KHÔNG dùng chuỗi này chỉ vì đoạn trích không cho một con số cố định — nhiều chính sách hợp lệ trả lời kiểu "mức cụ thể do doanh nghiệp quyết định" hoặc "tuỳ từng trường hợp", đó LÀ câu trả lời đầy đủ và đúng, không phải thiếu thông tin. Nếu đoạn trích có nhắc tới đúng chủ đề được hỏi, hãy trả lời bằng đúng những gì đoạn trích nói, kể cả khi không có số liệu chính xác.
 
@@ -68,7 +75,9 @@ def _keep_used_citations(answer: str, chunks: list[RetrievedChunk]) -> tuple[str
 
 
 def _build_context_block(
-    chunks: list[RetrievedChunk], injection_hits: list[str] | None = None
+    chunks: list[RetrievedChunk],
+    injection_hits: list[str] | None = None,
+    source_numbers: list[int] | None = None,
 ) -> str:
     """Đánh số [Nguồn N] theo ĐÚNG thứ tự relevance đã nhận (reranker/dense) —
     KHÔNG sắp xếp lại theo source_type.
@@ -98,7 +107,8 @@ def _build_context_block(
     injection_guard_on = get_settings().guardrail_injection_enabled
 
     parts = []
-    for i, c in enumerate(chunks, start=1):
+    for position, c in enumerate(chunks):
+        source_number = source_numbers[position] if source_numbers is not None else position + 1
         page = f", trang {c['page_start']}" if c.get("page_start") else ""
         origin = _SOURCE_LABEL.get(
             c.get("source_type") or "",
@@ -109,8 +119,45 @@ def _build_context_block(
             text, hits = strip_injection(text)
             if hits and injection_hits is not None:
                 injection_hits.extend(hits)
-        parts.append(f"[Nguồn {i}] {c['title']} ({c['source_file']}{page}, {origin})\n{text}")
+        parts.append(f"[Nguồn {source_number}] {c['title']} ({c['source_file']}{page}, {origin})\n{text}")
     return "\n\n".join(parts) if parts else "(không tìm thấy đoạn trích liên quan)"
+
+
+def _cited_chunks(answer: str, chunks: list[RetrievedChunk]) -> tuple[list[RetrievedChunk], list[int]]:
+    """Chỉ giữ chunk thực sự được viện dẫn, nhưng bảo toàn số [Nguồn N].
+
+    Nếu model không phát citation hợp lệ, fallback về toàn bộ context để bước
+    kiểm chứng vẫn bảo thủ như trước.
+    """
+    cited_numbers: list[int] = []
+    for match in re.finditer(r"\[Nguồn([^\]]*)\]", answer, flags=re.IGNORECASE):
+        for value in re.findall(r"\d+", match.group(1)):
+            number = int(value)
+            if 1 <= number <= len(chunks) and number not in cited_numbers:
+                cited_numbers.append(number)
+
+    if not cited_numbers:
+        return chunks, list(range(1, len(chunks) + 1))
+    return [chunks[number - 1] for number in cited_numbers], cited_numbers
+
+
+def _renumber_citations(answer: str, cited_numbers: list[int]) -> str:
+    """Đánh số lại [Nguồn N] khớp vị trí trong danh sách citations trả về.
+
+    `_cited_chunks` bỏ các chunk không được viện dẫn, nên số trong câu trả lời
+    (đánh theo thứ tự context, vd 1/4/9) không còn khớp index của mảng citations
+    mà client nhận (chỉ còn 3 phần tử). Không đổi lại thì [Nguồn 9] trỏ vào phần
+    tử không tồn tại và client mất khả năng mở nguồn.
+    """
+    mapping = {old: new for new, old in enumerate(cited_numbers, start=1)}
+    if all(old == new for old, new in mapping.items()):
+        return answer
+
+    def _replace(match: re.Match[str]) -> str:
+        # Giữ nguyên phần chữ gốc ("Nguồn"/"nguồn") và dấu ngoặc, chỉ đổi con số.
+        return match.group(1) + re.sub(r"\d+", lambda m: str(mapping.get(int(m.group(0)), m.group(0))), match.group(2)) + match.group(3)
+
+    return re.sub(r"(\[Nguồn)([^\]]*)(\])", _replace, answer, flags=re.IGNORECASE)
 
 
 async def generate_node(state: AgentState) -> dict:
@@ -131,7 +178,14 @@ async def generate_node(state: AgentState) -> dict:
 
     user_prompt = f"Câu hỏi: {query}\n\nCác đoạn trích:\n{context}"
 
-    answer = (await acall_llm(_GENERATE_SYSTEM, user_prompt, temperature=0.2)).strip()
+    answer = (
+        await acall_llm(
+            _GENERATE_SYSTEM,
+            user_prompt,
+            temperature=0.2,
+            enable_thinking=thinking_arg(get_settings().thinking_generation),
+        )
+    ).strip()
 
     answerable = INSUFFICIENT_MARKER not in answer
     if not answerable:
@@ -158,6 +212,9 @@ async def generate_node(state: AgentState) -> dict:
     return {
         "generated_answer": answer,
         "citations": citations,
+        # Câu trả lời đã được đánh số lại theo đúng danh sách này, nên bước kiểm
+        # chứng phải dựng context từ nó — không phải từ retrieved_chunks đầy đủ.
+        "cited_chunks": cited_chunks,
         "answerable": answerable,
         "guardrail_injection_detected": bool(injection_hits) or state.get("guardrail_injection_detected", False),
     }
@@ -166,14 +223,22 @@ async def generate_node(state: AgentState) -> dict:
 async def hallucination_check_node(state: AgentState) -> dict:
     from src.config import get_settings
 
-    chunks = state.get("retrieved_chunks", [])
+    chunks = state.get("cited_chunks") or state.get("retrieved_chunks", [])
     answer = state.get("generated_answer", "")
-    context = _build_context_block(chunks)
+    cited_chunks, source_numbers = _cited_chunks(answer, chunks)
+    context = _build_context_block(cited_chunks, source_numbers=source_numbers)
     user_prompt = f"Đoạn trích:\n{context}\n\nCâu trả lời cần kiểm tra:\n{answer}"
 
     # hallucination_model rỗng -> None -> acall_llm dùng llm_model như cũ.
-    model = get_settings().hallucination_model or None
-    verdict = await acall_llm(_HALLUCINATION_SYSTEM, user_prompt, temperature=0.0, model=model)
+    settings = get_settings()
+    model = settings.hallucination_model or None
+    verdict = await acall_llm(
+        _HALLUCINATION_SYSTEM,
+        user_prompt,
+        temperature=0.0,
+        model=model,
+        enable_thinking=thinking_arg(settings.thinking_hallucination),
+    )
     passed = "PASS" in verdict.upper()
 
     retry_count = state.get("hallucination_retry_count", 0)
@@ -183,11 +248,14 @@ async def hallucination_check_node(state: AgentState) -> dict:
 
 
 def finalize_node(state: AgentState) -> dict:
-    """Hoàn thiện câu trả lời; nguồn được trả riêng qua trường citations cho FE."""
+    """Che PII trong câu trả lời cuối sau khi confidence đủ cao.
+
+    Citation được trả bằng trường dữ liệu riêng để client hiển thị; không nối
+    lại thành footer văn bản vì mỗi chunk của cùng một tài liệu sẽ gây lặp.
+    """
     from src.config import get_settings
 
     answer = state.get("generated_answer", "")
-
     pii_found: list[str] = []
     if get_settings().guardrail_pii_redaction_enabled:
         answer, pii_found = redact_pii(answer)
