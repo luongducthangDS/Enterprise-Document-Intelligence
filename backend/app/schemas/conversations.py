@@ -16,6 +16,7 @@ class ConversationResponseDTO(BaseModel):
     title: str
     state: str
     created_at: str
+    updated_at: str | None = None
     ended_at: str | None = None
     message_count: int = 0
     last_message_at: str | None = None

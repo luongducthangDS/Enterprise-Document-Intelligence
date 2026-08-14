@@ -3,12 +3,9 @@ import uuid
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.api.v1.router import api_v1_router
 from app.core.config import get_settings
+from app.core.database import engine
 from app.core.exceptions import (
     AppException,
     app_exception_handler,
@@ -16,6 +13,9 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.core.logging import logger, setup_logging
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 settings = get_settings()
 
@@ -25,8 +25,11 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
     logger.info("Database schema is managed by Supabase migrations; automatic create_all is disabled.")
-    yield
-    logger.info("Shutting down application...")
+    try:
+        yield
+    finally:
+        await engine.dispose()
+        logger.info("Shutting down application...")
 
 
 app = FastAPI(

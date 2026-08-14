@@ -53,6 +53,8 @@ docker-compose.override.yml
 # Node (frontend)
 node_modules/
 .next/
+.next-dev/
+.next-hover/
 out/
 .nuxt/
 .pnpm-store/
@@ -91,3 +93,7 @@ ISSUES.md
 .claude/*.local.*
 .cursor/*.local.*
 .agents/*.local.*
+
+# Local agent/UI verification artifacts
+.markiii/
+.omo/

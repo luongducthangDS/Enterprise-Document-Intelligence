@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "animate.css";
 import "../styles.css";
 import "./next-app.css";
 

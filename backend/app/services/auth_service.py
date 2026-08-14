@@ -76,6 +76,7 @@ class AuthService:
             data={
                 "sub": str(user.id),
                 "email": user.email,
+                "full_name": user.profile.display_name if user.profile else user.email.split("@")[0],
                 "role": role,
                 "department": department,
             }
@@ -114,6 +115,7 @@ class AuthService:
                 data={
                     "sub": str(user.id),
                     "email": user.email,
+                    "full_name": user.profile.display_name if user.profile else user.email.split("@")[0],
                     "role": role,
                     "department": department,
                 }

@@ -116,6 +116,33 @@ async def test_submit_chat_request_success():
     assert status_data["data"]["answer"] is not None
 
 
+@pytest.mark.asyncio
+async def test_first_question_names_default_conversation():
+    conversation_id = uuid.uuid4()
+    user_id = uuid.UUID("11111111-1111-1111-1111-111111111111")
+    question = "  Chính sách   làm việc hybrid áp dụng như thế nào?  "
+    async with TestingSessionLocal() as session:
+        session.add(ConversationDB(
+            id=conversation_id,
+            user_id=user_id,
+            title="Hội thoại mới",
+            state="ACTIVE",
+        ))
+        await session.commit()
+        await ChatService.submit_chat_request(
+            session,
+            user_id,
+            "Engineering",
+            conversation_id,
+            question,
+        )
+
+    async with TestingSessionLocal() as session:
+        conversation = await session.get(ConversationDB, conversation_id)
+        assert conversation is not None
+        assert conversation.title == "Chính sách làm việc hybrid áp dụng như thế nào?"
+
+
 def test_submit_chat_request_ended_conversation():
     headers = get_auth_header()
     ended_conv_id = "44444444-4444-4444-4444-444444444444"
@@ -134,6 +161,7 @@ def test_submit_chat_request_ended_conversation():
 def test_submit_chat_request_accepts_more_than_2000_characters():
     headers = get_auth_header()
     conv_id = "33333333-3333-3333-3333-333333333333"
+    previous_background_tasks_enabled = ChatService.background_tasks_enabled
     ChatService.background_tasks_enabled = False
     try:
         response = client.post(
@@ -142,7 +170,7 @@ def test_submit_chat_request_accepts_more_than_2000_characters():
             headers=headers,
         )
     finally:
-        ChatService.background_tasks_enabled = True
+        ChatService.background_tasks_enabled = previous_background_tasks_enabled
 
     assert response.status_code == 202
 
