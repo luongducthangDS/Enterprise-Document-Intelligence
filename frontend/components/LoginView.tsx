@@ -5,23 +5,14 @@ import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { User } from "@/lib/types";
 
-const DEPARTMENTS = [
-  { value: "HR", label: "Nhân sự (HR)" },
-  { value: "Engineering", label: "Kỹ thuật (Engineering)" },
-  { value: "IT", label: "Công nghệ thông tin (IT)" },
-  { value: "Finance", label: "Tài chính (Finance)" },
-  { value: "Sales", label: "Kinh doanh (Sales)" },
-  { value: "Marketing", label: "Marketing" },
-  { value: "Operations", label: "Vận hành (Operations)" },
-  { value: "Legal", label: "Pháp chế (Legal)" },
-];
+const DEPARTMENTS = ["HR", "Engineering", "IT", "Finance", "Sales", "Marketing", "Operations", "Legal"];
 
 export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [department, setDepartment] = useState("");
+  const [department, setDepartment] = useState("Engineering");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -35,7 +26,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
       if (mode === "register") {
         await api.register(email.trim(), password, fullName.trim(), department.trim());
         setMode("login");
-        setNotice("Tài khoản đã được Backend tạo thành công. Bạn có thể đăng nhập ngay.");
+        setNotice("Tài khoản đã được tạo. Bạn có thể đăng nhập ngay.");
       } else {
         await api.login(email.trim(), password);
         onAuthenticated(await api.me());
@@ -47,46 +38,55 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
     }
   }
 
+  function changeMode(nextMode: "login" | "register") {
+    setMode(nextMode);
+    setError("");
+    setNotice("");
+  }
+
   return (
-    <main className="login-shell">
-      <section className="login-context">
-        <div className="brand-lockup"><BookOpen size={22} /><span>HR Intelligence</span></div>
-        <div className="login-context-copy">
-          <p className="eyebrow">ENTERPRISE DOCUMENT INTELLIGENCE</p>
-          <h1>Hiểu chính sách HR. Tin cậy từng nguồn.</h1>
-          <p>Nền tảng AI giúp nhân viên tra cứu tài liệu nội bộ với câu trả lời có trích dẫn và nguồn đối soát rõ ràng.</p>
-          <div className="trust-points">
-            <span><ShieldCheck size={20} /> Câu trả lời có nguồn kiểm chứng</span>
-            <span><LockKeyhole size={20} /> Dữ liệu nội bộ được phân quyền</span>
+    <main className="current-login-scene" data-ui="cusion-shell">
+      <a className="skip-to-login" href="#login-form">Chuyển tới biểu mẫu đăng nhập</a>
+      <div className="login-ambient login-ambient-primary" aria-hidden="true" />
+      <div className="login-ambient login-ambient-gold" aria-hidden="true" />
+      <section className="current-login-layout">
+        <article className="current-login-hero" data-ui="hero">
+          <div className="current-login-brand"><span className="brand-mark"><BookOpen size={20} /></span><span><strong>HR Knowledge</strong><small>Trợ lý AI HR</small></span></div>
+          <div className="current-login-copy">
+            <p className="eyebrow">TRỢ LÝ AI HR DỰA TRÊN BẰNG CHỨNG</p>
+            <h1>Tri thức nhân sự,<br />sẵn sàng khi bạn cần.</h1>
+            <p>Tra cứu chính sách nội bộ, nhận câu trả lời rõ ràng và kiểm chứng từng nguồn đối soát.</p>
           </div>
-        </div>
-      </section>
-      <section className="login-form-panel">
-        <form className="login-form" onSubmit={submit}>
-          <div className="brand-lockup brand-lockup-dark"><BookOpen size={21} /><span>HR Intelligence</span></div>
-          <div>
-            <h2>{mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}</h2>
-            <p>{mode === "login" ? "Truy cập không gian tri thức nhân sự của doanh nghiệp." : "Tạo tài khoản để bắt đầu tra cứu tài liệu HR."}</p>
+          <div className="current-login-trust">
+            <span><ShieldCheck size={18} /><span><strong>Nguồn tin cậy</strong><small>Chính sách được phê duyệt</small></span></span>
+            <span><LockKeyhole size={18} /><span><strong>Truy cập an toàn</strong><small>Backend kiểm soát phân quyền</small></span></span>
           </div>
-          {mode === "register" && <label>Họ và tên<input value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
-          {mode === "register" && <label>Phòng ban<select value={department} onChange={(event) => setDepartment(event.target.value)} required><option value="" disabled>Chọn phòng ban</option>{DEPARTMENTS.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}</select><small className="field-hint">Tài khoản đăng ký mới luôn có quyền Nhân viên. Quyền quản trị chỉ do quản trị viên cấp.</small></label>}
-          <label>Email công việc<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-          <label>Mật khẩu<input type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-          {error && <div className="inline-error" role="alert">{error}</div>}
-          {notice && <div className="inline-success" role="status">{notice}</div>}
-          <button className="primary-command" disabled={loading} type="submit">
-            {loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}
-            {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
-          </button>
-          <button
-            className="secondary-command auth-mode-command"
-            type="button"
-            onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setNotice(""); }}
-          >
-            {mode === "login" ? "Chưa có tài khoản? Đăng ký" : "Đã có tài khoản? Đăng nhập"}
-          </button>
-          <p className="form-note">Bằng việc tiếp tục, bạn xác nhận chỉ sử dụng dữ liệu theo quyền truy cập được cấp.</p>
-        </form>
+        </article>
+
+        <section className="current-login-card" data-ui="membership-card">
+          <div className="login-mode-switch" role="tablist" aria-label="Chọn hình thức xác thực">
+            <button className={mode === "login" ? "active" : ""} role="tab" aria-selected={mode === "login"} type="button" onClick={() => changeMode("login")}>Đăng nhập</button>
+            <button className={mode === "register" ? "active" : ""} role="tab" aria-selected={mode === "register"} type="button" onClick={() => changeMode("register")}>Đăng ký</button>
+          </div>
+          <form id="login-form" className="login-form current-login-form" onSubmit={submit}>
+            <div>
+              <p className="eyebrow">{mode === "login" ? "CHÀO MỪNG TRỞ LẠI" : "TẠO HỒ SƠ MỚI"}</p>
+              <h2>{mode === "login" ? "Đăng nhập hệ thống" : "Tạo tài khoản"}</h2>
+              <p>{mode === "login" ? "Tiếp tục tới không gian HR Knowledge của bạn." : "Tài khoản mới được Backend quản lý và bảo vệ."}</p>
+            </div>
+            {mode === "register" && <label>Họ và tên<input autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
+            {mode === "register" && <label>Phòng ban<select autoComplete="organization" value={department} onChange={(event) => setDepartment(event.target.value)} required>{DEPARTMENTS.map((item) => <option key={item}>{item}</option>)}</select></label>}
+            <label>Email công việc<input autoComplete="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+            <label>Mật khẩu<input autoComplete={mode === "login" ? "current-password" : "new-password"} type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            {error && <div className="inline-error animate__animated animate__shakeX motion-fast" role="alert">{error}</div>}
+            {notice && <div className="inline-success animate__animated animate__fadeIn motion-fast" role="status">{notice}</div>}
+            <button className="primary-command current-login-submit" disabled={loading} type="submit" data-ui="primary-action">
+              {loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}
+              {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
+            </button>
+            <p className="form-note">Phiên đăng nhập dùng JWT do Backend phát hành.</p>
+          </form>
+        </section>
       </section>
     </main>
   );

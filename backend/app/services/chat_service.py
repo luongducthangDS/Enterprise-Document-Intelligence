@@ -1,7 +1,7 @@
 import asyncio
 import time
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import func, select, update
@@ -17,7 +17,7 @@ from app.domain.models.messages import MessageDB
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
 from app.services.content_safety import sanitize_citations_for_client
-from app.services.conversation_service import ConversationService
+from app.services.conversation_service import DEFAULT_CONVERSATION_TITLE, make_conversation_title
 from app.services.ticket_service import TicketService
 
 
@@ -25,6 +25,76 @@ class ChatService:
     session_factory = AsyncSessionLocal
     agent_client = AIAgentClient()
     background_tasks_enabled = True
+    background_tasks: set[asyncio.Task[None]] = set()
+
+    @classmethod
+    def _schedule_chat_request(
+        cls,
+        *,
+        chat_request_id: uuid.UUID,
+        user_id: uuid.UUID,
+        department: str,
+        question: str,
+        conversation_id: uuid.UUID,
+    ) -> None:
+        task = asyncio.create_task(
+            cls._process_chat_rag_request(
+                chat_request_id=chat_request_id,
+                user_id=user_id,
+                department=department,
+                question=question,
+                conversation_id=conversation_id,
+            )
+        )
+        cls.background_tasks.add(task)
+        task.add_done_callback(cls.background_tasks.discard)
+
+    @classmethod
+    async def recover_pending_requests(cls) -> int:
+        if not cls.background_tasks_enabled:
+            return 0
+
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(ChatRequestDB)
+                .where(ChatRequestDB.state.in_(("QUEUED", "GENERATING")))
+                .order_by(ChatRequestDB.created_at.desc())
+            )
+            pending = list(result.scalars().all())
+            cutoff = datetime.now(UTC) - timedelta(minutes=10)
+            recoverable = [request for request in pending if request.created_at >= cutoff][:10]
+            recoverable_ids = {request.id for request in recoverable}
+            for request in pending:
+                if request.id not in recoverable_ids:
+                    request.state = "FAILED"
+                    request.failure = {
+                        "code": "WORKER_RESTARTED",
+                        "message": "Yêu cầu bị gián đoạn khi Backend khởi động lại. Vui lòng thử lại.",
+                        "retryable": True,
+                    }
+                    request.retryable = True
+                    continue
+                request.state = "QUEUED"
+            await db.commit()
+
+        for request in recoverable:
+            cls._schedule_chat_request(
+                chat_request_id=request.id,
+                user_id=request.user_id,
+                department="GENERAL",
+                question=request.question,
+                conversation_id=request.conversation_id,
+            )
+        return len(recoverable)
+
+    @classmethod
+    async def cancel_background_tasks(cls) -> None:
+        tasks = list(cls.background_tasks)
+        for task in tasks:
+            task.cancel()
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        cls.background_tasks.clear()
 
     @classmethod
     async def _load_agent_history(
@@ -83,14 +153,13 @@ class ChatService:
             raise NotFoundError(code="CONVERSATION_NOT_FOUND", message="Không tìm thấy phiên hội thoại.")
         if conv.user_id != user_id:
             raise ForbiddenError("Bạn không có quyền truy cập phiên hội thoại này.")
-        if conv.state != "ACTIVE":
+        if conv.state == "ENDED":
             raise ConflictError(
                 code="CONVERSATION_ENDED",
-                message="Phiên hội thoại không còn hoạt động, không thể gửi thêm câu hỏi.",
+                message="Phiên hội thoại đã kết thúc, không thể gửi thêm câu hỏi.",
             )
-
-        if conv.title == "Hội thoại mới":
-            conv.title = ConversationService.title_from_question(clean_question)
+        if conv.title == DEFAULT_CONVERSATION_TITLE:
+            conv.title = make_conversation_title(clean_question)
         conv.updated_at = datetime.now(UTC)
 
         user_msg_id = uuid.uuid4()
@@ -118,14 +187,12 @@ class ChatService:
         await db.commit()
 
         if cls.background_tasks_enabled:
-            asyncio.create_task(
-                cls._process_chat_rag_request(
-                    chat_request_id=chat_req_id,
-                    user_id=user_id,
-                    department=department,
-                    question=clean_question,
-                    conversation_id=conversation_id,
-                )
+            cls._schedule_chat_request(
+                chat_request_id=chat_req_id,
+                user_id=user_id,
+                department=department,
+                question=clean_question,
+                conversation_id=conversation_id,
             )
 
         return {
@@ -165,6 +232,9 @@ class ChatService:
                     conversation_id,
                     exclude_message_id=chat_req.user_message_id,
                 )
+                # Do not hold a scarce Supabase session-pooler connection while
+                # waiting for the external Agent request to finish.
+                await db.commit()
 
                 agent_answer = await cls.agent_client.query_agent(
                     user_id=str(user_id),
@@ -303,14 +373,12 @@ class ChatService:
         await db.commit()
 
         if cls.background_tasks_enabled:
-            asyncio.create_task(
-                cls._process_chat_rag_request(
-                    chat_request_id=new_chat_req_id,
-                    user_id=user_id,
-                    department=department,
-                    question=chat_req.question,
-                    conversation_id=chat_req.conversation_id,
-                )
+            cls._schedule_chat_request(
+                chat_request_id=new_chat_req_id,
+                user_id=user_id,
+                department=department,
+                question=chat_req.question,
+                conversation_id=chat_req.conversation_id,
             )
 
         return {

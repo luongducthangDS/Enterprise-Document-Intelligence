@@ -5,10 +5,10 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core.exceptions import AuthenticationError, ForbiddenError
 from app.core.security import decode_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+async def get_current_user(token: str | None = Depends(oauth2_scheme)) -> dict:
     """Validate the backend JWT access token and return its user claims."""
     if not token:
         raise AuthenticationError("Token is required")
@@ -24,6 +24,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return {
         "user_id": payload.get("sub"),
         "email": payload.get("email"),
+        "full_name": payload.get("full_name"),
         "role": str(payload.get("role") or "EMPLOYEE").upper(),
         "department": payload.get("department"),
     }
