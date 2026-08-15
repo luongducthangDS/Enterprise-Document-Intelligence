@@ -65,7 +65,9 @@ Chỉ `max_history_turns` lượt gần nhất (mặc định 8, `src/config.py`
 | Field | Kiểu | Ý nghĩa |
 |---|---|---|
 | `response` | `str` | Văn bản hiển thị cho user. Khi `needs_clarification=True`, đây chính là câu hỏi làm rõ. |
-| `intent` | `"greeting" \| "hr_question" \| "ambiguous" \| "out_of_scope_or_personal"` | Kết quả phân loại của router. Chỉ mang tính thông tin — hành vi backend cần quan tâm nằm ở `escalate`/`needs_clarification`, không phải suy luận lại từ `intent`. |
+| `intent` | `"greeting" \| "hr_question" \| "ambiguous" \| "out_of_scope_or_personal" \| "pure_statutory"` | Kết quả phân loại của router. Chỉ mang tính thông tin — hành vi backend cần quan tâm nằm ở `state`/`escalate`/`needs_clarification`, không phải suy luận lại từ `intent`. `pure_statutory` (NexaTech Type-C contract v3.1.0): câu hỏi luật/thủ tục nhà nước thuần tuý, agent từ chối trả lời, không retrieval, không ticket. |
+| `state` | `"ANSWER" \| "ABSTAIN" \| "OUT_OF_SCOPE"` | Tri-state runtime bắt buộc theo NexaTech Type-C contract v3.1.0 (frozen) — tính tập trung trong `src/agents/service.py::_derive_runtime_state`. `ANSWER`: có câu trả lời (kể cả greeting/clarifying question). `ABSTAIN`: từ chối vì thiếu bằng chứng nội bộ hoặc cần dữ liệu cá nhân/con người xử lý — xem `reason_code`. `OUT_OF_SCOPE`: câu hỏi luật/thủ tục nhà nước thuần tuý, nằm ngoài phạm vi trợ lý chính sách nội bộ. Mặc định `ANSWER` nếu không set (backward-compat cho client cũ). |
+| `reason_code` | `"missing_policy_evidence" \| "requires_live_personal_data" \| None` | Chỉ có giá trị khi `state="ABSTAIN"`; luôn `None` khi `state` khác. `missing_policy_evidence`: đã tìm nhưng không đủ căn cứ nội bộ (map từ `escalate_reason` ∈ `low_confidence`/`out_of_scope`/`competitor_question`). `requires_live_personal_data`: cần mở dữ liệu cá nhân/con người xử lý (map từ `escalate_reason` ∈ `personal_data_required`/`user_requested_human`/`human_first_required`). |
 | `confidence_score` | `float \| None`, 0–1 | `None` khi không đi qua nhánh RAG (greeting/ambiguous). Không phải xác suất đúng theo nghĩa thống kê — là điểm liên quan của đoạn tốt nhất sau reranker, đã bị ép thấp nếu hallucination-check fail hoặc agent tự nhận không đủ thông tin. |
 | `citations` | `list[Citation]` | Rỗng nếu không có nguồn nào được dùng. Mỗi `Citation` có `source_file`, `title`, `category`, `page_start`/`page_end` (`None` nếu tài liệu không phải PDF phân trang), `is_official_policy` và `excerpt` là nội dung chunk được dùng làm nguồn. |
 | `needs_clarification` | `bool` | `True` → hiển thị `clarifying_question`/`response` và chờ câu trả lời tiếp theo của user; **không có gì để lưu như một câu trả lời "cuối"**. |
@@ -74,6 +76,48 @@ Chỉ `max_history_turns` lượt gần nhất (mặc định 8, `src/config.py`
 | `escalate_reason` | `str \| None` | Một trong `low_confidence`, `out_of_scope`, `personal_data_required`, `user_requested_human`, `competitor_question`, `human_first_required`. |
 | `ticket_draft` | `TicketDraft \| None` | Chỉ có khi `escalate=True`. |
 | `boundary` | `BoundaryDecision \| None` | Canonical runtime decision theo `Runtime-Revised Canonical Scenario Registry`. Nullable để client bản cũ không vỡ. Client mới render action theo `boundary.runtime_action`, **không** suy diễn từ nội dung `response`. |
+
+## Ví dụ `state`/`reason_code` theo NexaTech Type-C contract v3.1.0
+
+**ANSWER** (trả lời được từ dữ liệu nội bộ):
+```json
+{
+  "state": "ANSWER",
+  "reason_code": null,
+  "response": "Theo Chính sách Công tác phí của NexaTech, taxi/Grab được thanh toán tối đa 300.000 VNĐ/ngày [Nguồn 1].",
+  "citations": [{"source_file": "12_quy-che-cong-tac-phi.md", "..." : "..."}]
+}
+```
+
+**ABSTAIN / `missing_policy_evidence`** (đã tìm nhưng không đủ căn cứ nội bộ):
+```json
+{
+  "state": "ABSTAIN",
+  "reason_code": "missing_policy_evidence",
+  "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Mình đã chuẩn bị nội dung yêu cầu hỗ trợ để bạn chuyển tới người phụ trách.",
+  "citations": []
+}
+```
+
+**ABSTAIN / `requires_live_personal_data`** (cần dữ liệu cá nhân/con người xử lý):
+```json
+{
+  "state": "ABSTAIN",
+  "reason_code": "requires_live_personal_data",
+  "response": "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. Người phụ trách nội dung này là HR Ops.",
+  "citations": []
+}
+```
+
+**OUT_OF_SCOPE** (câu hỏi luật/thủ tục nhà nước thuần tuý — không retrieval, không ticket):
+```json
+{
+  "state": "OUT_OF_SCOPE",
+  "reason_code": null,
+  "response": "[OUT_OF_SCOPE] NexaBot chỉ hỗ trợ giải đáp các quy định và chính sách nội bộ do NexaTech ban hành. ...",
+  "citations": []
+}
+```
 
 ## Khi nào tạo ticket, khi nào không
 
@@ -161,7 +205,7 @@ Event shape (mỗi item là 1 dict, backend tự quyết định đóng gói SSE
 | `tool_start` / `tool_end` | `tool: str` (`"hr_policy_search"`) | Bọc quanh node `retrieve` |
 | `answer_delta` | `content: str` | Sau khi graph xong, câu trả lời đã duyệt được chia nhỏ theo cụm từ |
 | `citation` | `source`, `title`, `page_start`, `is_official_policy` | 1 event/citation, sau `answer_delta` cuối |
-| `done` | Các field điều khiển và `answer: AgentAnswer` | Event cuối của Agent; `answer` là contract hoàn chỉnh để Backend kiểm tra và persist |
+| `done` | Các field điều khiển (gồm `state`, `reason_code` — xem bảng `AgentAnswer` ở trên) và `answer: AgentAnswer` | Event cuối của Agent; `answer` là contract hoàn chỉnh để Backend kiểm tra và persist. `state`/`reason_code` lặp lại ở top-level để Backend không phải đọc sâu vào `answer` chỉ để định tuyến UI. |
 | `error` | `message: str` | Khi graph lỗi giữa chừng — stream dừng ngay sau event này, không có `done` |
 
 ```python
