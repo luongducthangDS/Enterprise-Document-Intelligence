@@ -361,18 +361,32 @@
   },
   {
     "question": "Đến ngày thứ 60 thì có đánh giá gì không?",
-    "expected_answer": "Có đánh giá giữa kỳ thử việc, quản lý sẽ phản hồi điểm mạnh và điểm cần cải thiện.",
-    "ground_truth_context": "Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
+    "reason": "Câu đứng một mình không xác định được 'ngày thứ 60' thuộc quy trình nào (thử việc, onboarding, hay mốc khác). Ngữ cảnh onboarding chỉ tồn tại ở tài liệu sinh ra câu hỏi, không nằm trong chính câu người dùng gõ.",
     "category": "onboarding_offboarding",
-    "type": "in_scope",
+    "type": "ambiguous",
+    "expected_answer": null,
+    "expected_behavior": "ask_clarification",
     "id": "qa_025",
-    "source_file": "03_quy-trinh-onboarding.md",
-    "relevant_chunk_ids": [
-      "03_quy-trinh-onboarding::0008"
-    ],
-    "ground_truth_context_long": "## 8. 60 ngày\n- Nhân viên thực hiện công việc độc lập ở mức cơ bản.\n- Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
-    "evidence_chunk_id": "03_quy-trinh-onboarding::0008",
-    "evidence_source": "llm_verbatim"
+    "label_history": {
+      "changed_at": "2026-08-13",
+      "from_type": "in_scope",
+      "to_type": "ambiguous",
+      "decided_by": "Ted",
+      "why": "Error analysis P2: cả nhánh thinking ON lẫn fast router đều xếp câu này là ambiguous — hai nhánh độc lập đồng thuận là tín hiệu mạnh rằng nhãn sai, không phải classifier sai. Hỏi lại một lượt ở đây là hành vi đúng.",
+      "previous_fields": {
+        "expected_answer": "Có đánh giá giữa kỳ thử việc, quản lý sẽ phản hồi điểm mạnh và điểm cần cải thiện.",
+        "ground_truth_context": "Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
+        "category": "onboarding_offboarding",
+        "type": "in_scope",
+        "source_file": "03_quy-trinh-onboarding.md",
+        "relevant_chunk_ids": [
+          "03_quy-trinh-onboarding::0008"
+        ],
+        "ground_truth_context_long": "## 8. 60 ngày\n- Nhân viên thực hiện công việc độc lập ở mức cơ bản.\n- Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện.",
+        "evidence_chunk_id": "03_quy-trinh-onboarding::0008",
+        "evidence_source": "llm_verbatim"
+      }
+    }
   },
   {
     "question": "Mình làm hợp đồng không xác định thời hạn, nếu muốn nghỉ việc thì phải báo trước bao lâu?",
@@ -751,48 +765,90 @@
   },
   {
     "question": "Văn hóa của người Vingroup gói gọn trong 3 từ gì vậy?",
-    "expected_answer": "Yêu nước, Kỷ luật, Văn minh.",
-    "ground_truth_context": "giới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng cuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế. 2. SỨ MỆNH: Vì một cuộc sống tốt đẹp hơn cho Người Việt. 3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN 4. VĂN HÓA NGƯỜI VINGROUP Yêu nước, Kỷ luật, Văn minh",
-    "category": "company_regulations",
-    "type": "in_scope",
+    "reason": "Câu hỏi về văn hoá/slogan/quy định nội bộ của Vingroup-VinFast. Chatbot phục vụ persona V-NOVA (xem internal_company_names trong src/config.py), nên đây là công ty khác — tài liệu VinFast/Vingroup trong corpus chỉ là NGUỒN THAM KHẢO, không phải chính sách đang áp dụng cho người hỏi. Hành vi đúng là từ chối lịch sự, không trả lời như thể đó là chính sách của họ.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
     "id": "qa_051",
-    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
-    "relevant_chunk_ids": [
-      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
-    ],
-    "ground_truth_context_long": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng\ncuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế.\n2. SỨ MỆNH:\nVì một cuộc sống tốt đẹp hơn cho Người Việt.\n3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN\n4. VĂN HÓA NGƯỜI VINGROUP\nYêu nước, Kỷ luật, Văn minh\nVingroup là nơi hội tụ cùng phát triển của những con người có lý tưởng, có năng lực, có bản lĩnh,\nluôn chủ động tìm hướng đi riêng và khao khát chung tay tạo nên những kỳ tích để đóng góp cho\nsự phát triển của dân tộc. Môi trường làm việc của Vingroup là áp lực, hiệu quả; Văn hóa của\nVingroup là đề cao tinh thần yêu nước và tự tôn dân tộc, thượng tôn kỷ luật, coi trọng công bằng -\nvăn minh; đòi hỏi Người Vingroup phải luôn nỗ lực để nâng tầm và trở thành tấm gương truyền\ncảm hứng, lan tỏa giá trị tốt đẹp tới cộng đồng – xã hội bằng các hành động thiết thực.\n5. SLOGAN:\nMãi mãi tinh thần khởi nghiệp.",
-    "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
-    "evidence_source": "deterministic_fallback"
+    "label_history": {
+      "changed_at": "2026-08-12",
+      "from_type": "in_scope",
+      "to_type": "competitor_comparison",
+      "decided_by": "Ted",
+      "why": "Chốt phạm vi sản phẩm: bot là HR bot của V-NOVA. Trước đây nhãn in_scope mâu thuẫn với chính comment internal_company_names ('tài liệu corporate policy thật chỉ là nguồn tham khảo'). Router (cả khi bật lẫn tắt thinking) đều chặn 3 câu này, tức nhãn eval sai chứ không phải classifier sai — sửa nhãn thay vì nới rule để pass eval.",
+      "previous_fields": {
+        "expected_answer": "Yêu nước, Kỷ luật, Văn minh.",
+        "ground_truth_context": "giới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng cuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế. 2. SỨ MỆNH: Vì một cuộc sống tốt đẹp hơn cho Người Việt. 3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN 4. VĂN HÓA NGƯỜI VINGROUP Yêu nước, Kỷ luật, Văn minh",
+        "category": "company_regulations",
+        "type": "in_scope",
+        "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+        "relevant_chunk_ids": [
+          "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
+        ],
+        "ground_truth_context_long": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng\ncuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế.\n2. SỨ MỆNH:\nVì một cuộc sống tốt đẹp hơn cho Người Việt.\n3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN\n4. VĂN HÓA NGƯỜI VINGROUP\nYêu nước, Kỷ luật, Văn minh\nVingroup là nơi hội tụ cùng phát triển của những con người có lý tưởng, có năng lực, có bản lĩnh,\nluôn chủ động tìm hướng đi riêng và khao khát chung tay tạo nên những kỳ tích để đóng góp cho\nsự phát triển của dân tộc. Môi trường làm việc của Vingroup là áp lực, hiệu quả; Văn hóa của\nVingroup là đề cao tinh thần yêu nước và tự tôn dân tộc, thượng tôn kỷ luật, coi trọng công bằng -\nvăn minh; đòi hỏi Người Vingroup phải luôn nỗ lực để nâng tầm và trở thành tấm gương truyền\ncảm hứng, lan tỏa giá trị tốt đẹp tới cộng đồng – xã hội bằng các hành động thiết thực.\n5. SLOGAN:\nMãi mãi tinh thần khởi nghiệp.",
+        "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
+        "evidence_source": "deterministic_fallback"
+      }
+    }
   },
   {
     "question": "Slogan của Vingroup là gì nhỉ?",
-    "expected_answer": "Mãi mãi tinh thần khởi nghiệp.",
-    "ground_truth_context": "Mãi mãi tinh thần khởi nghiệp.",
-    "category": "company_regulations",
-    "type": "in_scope",
+    "reason": "Câu hỏi về văn hoá/slogan/quy định nội bộ của Vingroup-VinFast. Chatbot phục vụ persona V-NOVA (xem internal_company_names trong src/config.py), nên đây là công ty khác — tài liệu VinFast/Vingroup trong corpus chỉ là NGUỒN THAM KHẢO, không phải chính sách đang áp dụng cho người hỏi. Hành vi đúng là từ chối lịch sự, không trả lời như thể đó là chính sách của họ.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
     "id": "qa_052",
-    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
-    "relevant_chunk_ids": [
-      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
-    ],
-    "ground_truth_context_long": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng\ncuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế.\n2. SỨ MỆNH:\nVì một cuộc sống tốt đẹp hơn cho Người Việt.\n3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN\n4. VĂN HÓA NGƯỜI VINGROUP\nYêu nước, Kỷ luật, Văn minh\nVingroup là nơi hội tụ cùng phát triển của những con người có lý tưởng, có năng lực, có bản lĩnh,\nluôn chủ động tìm hướng đi riêng và khao khát chung tay tạo nên những kỳ tích để đóng góp cho\nsự phát triển của dân tộc. Môi trường làm việc của Vingroup là áp lực, hiệu quả; Văn hóa của\nVingroup là đề cao tinh thần yêu nước và tự tôn dân tộc, thượng tôn kỷ luật, coi trọng công bằng -\nvăn minh; đòi hỏi Người Vingroup phải luôn nỗ lực để nâng tầm và trở thành tấm gương truyền\ncảm hứng, lan tỏa giá trị tốt đẹp tới cộng đồng – xã hội bằng các hành động thiết thực.\n5. SLOGAN:\nMãi mãi tinh thần khởi nghiệp.",
-    "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
-    "evidence_source": "llm_verbatim"
+    "label_history": {
+      "changed_at": "2026-08-12",
+      "from_type": "in_scope",
+      "to_type": "competitor_comparison",
+      "decided_by": "Ted",
+      "why": "Chốt phạm vi sản phẩm: bot là HR bot của V-NOVA. Trước đây nhãn in_scope mâu thuẫn với chính comment internal_company_names ('tài liệu corporate policy thật chỉ là nguồn tham khảo'). Router (cả khi bật lẫn tắt thinking) đều chặn 3 câu này, tức nhãn eval sai chứ không phải classifier sai — sửa nhãn thay vì nới rule để pass eval.",
+      "previous_fields": {
+        "expected_answer": "Mãi mãi tinh thần khởi nghiệp.",
+        "ground_truth_context": "Mãi mãi tinh thần khởi nghiệp.",
+        "category": "company_regulations",
+        "type": "in_scope",
+        "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+        "relevant_chunk_ids": [
+          "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001"
+        ],
+        "ground_truth_context_long": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp phần nâng cao chất lượng\ncuộc sống của người Việt và nâng tầm vị thế của người Việt trên trường quốc tế.\n2. SỨ MỆNH:\nVì một cuộc sống tốt đẹp hơn cho Người Việt.\n3. GIÁ TRỊ CỐT LÕI: TÍN – TÂM – TRÍ – TỐC – TINH - NHÂN\n4. VĂN HÓA NGƯỜI VINGROUP\nYêu nước, Kỷ luật, Văn minh\nVingroup là nơi hội tụ cùng phát triển của những con người có lý tưởng, có năng lực, có bản lĩnh,\nluôn chủ động tìm hướng đi riêng và khao khát chung tay tạo nên những kỳ tích để đóng góp cho\nsự phát triển của dân tộc. Môi trường làm việc của Vingroup là áp lực, hiệu quả; Văn hóa của\nVingroup là đề cao tinh thần yêu nước và tự tôn dân tộc, thượng tôn kỷ luật, coi trọng công bằng -\nvăn minh; đòi hỏi Người Vingroup phải luôn nỗ lực để nâng tầm và trở thành tấm gương truyền\ncảm hứng, lan tỏa giá trị tốt đẹp tới cộng đồng – xã hội bằng các hành động thiết thực.\n5. SLOGAN:\nMãi mãi tinh thần khởi nghiệp.",
+        "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
+        "evidence_source": "llm_verbatim"
+      }
+    }
   },
   {
     "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
-    "expected_answer": "Toàn bộ nhân viên Công ty VinFast.",
-    "ground_truth_context": "Bộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast",
-    "category": "company_regulations",
-    "type": "in_scope",
+    "reason": "Câu hỏi về văn hoá/slogan/quy định nội bộ của Vingroup-VinFast. Chatbot phục vụ persona V-NOVA (xem internal_company_names trong src/config.py), nên đây là công ty khác — tài liệu VinFast/Vingroup trong corpus chỉ là NGUỒN THAM KHẢO, không phải chính sách đang áp dụng cho người hỏi. Hành vi đúng là từ chối lịch sự, không trả lời như thể đó là chính sách của họ.",
+    "category": "out_of_scope",
+    "type": "competitor_comparison",
+    "expected_answer": null,
+    "expected_behavior": "decline_politely",
     "id": "qa_053",
-    "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
-    "relevant_chunk_ids": [
-      "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000"
-    ],
-    "ground_truth_context_long": "# 1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019\n\nQUY ĐỊNH NỘI BỘ CHUNG CÔNG TY VINFAST\nMã số : VF.I.4.1.001/V5\nĐơn vị phát hành : Phòng Nhân sự\nNgày phát hành : 08/08/2019\nBộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast\n_____________________________________________________________________________\nQuy định nội bộ chung là văn bản áp dụng chung cho CBNV trong Công ty và điều chỉnh các vấn đề\nlớn như tiêu chí môi trường làm việc, chính sách lương, thưởng, phúc lợi, đào tạo, nội quy. CBNV có\nnghĩa vụ tôn trọng, tuân thủ Quy định nội bộ chung.",
-    "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000",
-    "evidence_source": "llm_verbatim"
+    "label_history": {
+      "changed_at": "2026-08-12",
+      "from_type": "in_scope",
+      "to_type": "competitor_comparison",
+      "decided_by": "Ted",
+      "why": "Chốt phạm vi sản phẩm: bot là HR bot của V-NOVA. Trước đây nhãn in_scope mâu thuẫn với chính comment internal_company_names ('tài liệu corporate policy thật chỉ là nguồn tham khảo'). Router (cả khi bật lẫn tắt thinking) đều chặn 3 câu này, tức nhãn eval sai chứ không phải classifier sai — sửa nhãn thay vì nới rule để pass eval.",
+      "previous_fields": {
+        "expected_answer": "Toàn bộ nhân viên Công ty VinFast.",
+        "ground_truth_context": "Bộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast",
+        "category": "company_regulations",
+        "type": "in_scope",
+        "source_file": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+        "relevant_chunk_ids": [
+          "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000"
+        ],
+        "ground_truth_context_long": "# 1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019\n\nQUY ĐỊNH NỘI BỘ CHUNG CÔNG TY VINFAST\nMã số : VF.I.4.1.001/V5\nĐơn vị phát hành : Phòng Nhân sự\nNgày phát hành : 08/08/2019\nBộ phận áp dụng : Toàn bộ nhân viên Công ty VinFast\n_____________________________________________________________________________\nQuy định nội bộ chung là văn bản áp dụng chung cho CBNV trong Công ty và điều chỉnh các vấn đề\nlớn như tiêu chí môi trường làm việc, chính sách lương, thưởng, phúc lợi, đào tạo, nội quy. CBNV có\nnghĩa vụ tôn trọng, tuân thủ Quy định nội bộ chung.",
+        "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000",
+        "evidence_source": "llm_verbatim"
+      }
+    }
   },
   {
     "question": "Công ty rà soát đánh giá xếp bậc cán bộ lãnh đạo bao lâu một lần?",
@@ -1561,7 +1617,10 @@
     ],
     "ground_truth_context_long": "# amis_mau-thong-bao-quy-dinh-nghi-phep\n\nTHÔNG BÁO\nVv: Quy định nghỉ phép của công ty\n\nKính gửi: …………………………………..\n\n(Có thể là nhân viên trong công ty, ban lãnh đạo công ty…)\n\nCăn cứ quyết định số…/QĐ-BGĐ ngày….tháng….năm….của Ban giám đốc công ty…………. về việc ban hành quy định nghỉ phép trong nội bộ công ty……..\n\nPhòng …………..công ty…………thông báo đến toàn thể nhân viên trong công ty về quy định nghỉ phép và niêm yết quy định nghỉ phép trong công ty như sau:\n\n1. Quy định nghỉ phép\n\n– Nhân viên trong công ty được nghỉ phép tối đa…………ngày/năm\n\n– Thủ tục xin nghỉ phép:\n\n…………………………………………………………………………………………..\n\n– Sau khi quay trở lại làm việc, nhân viên phải …………………………………..……\n\n2. Quy định về niêm yết quy định nghỉ phép\n\n– Công ty…………bắt đầu niêm yết quy định nghỉ phép từ ngày………………..…….\n\n– Địa điểm niêm yết: ……………………………………………………………...……\n\n– Hình thức xử lý khi vi phạm:…………………………………………..……………..\n\n+ Khiển trách: ……………………………………………………………………….….\n\n+ Cảnh cáo:….……………………………………………………………………..……\n\nThông báo này sẽ được gửi đến các phòng ban của công ty. Các phòng ban trong công ty phối hợp thực hiện thông báo này.\n\nTrân trọng.\n\n### BẢNG BIỂU / DỮ LIỆU BẢNG\n\nTÊN CƠ QUAN | CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM Độc lập – Tự do – Hạnh phúc ------------\nSố:…./….-……. | ….., ngày…. tháng ……..năm……….\nNơi nhận: –         Như trên; –         Lưu:…………. | TM BAN GIÁM ĐỐC (Ký và ghi rõ họ tên)",
     "evidence_chunk_id": "amis_mau-thong-bao-quy-dinh-nghi-phep::0000",
-    "evidence_source": "llm_verbatim"
+    "evidence_source": "llm_verbatim",
+    "retired": true,
+    "retired_at": "2026-08-12",
+    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
   },
   {
     "id": "qa_118",
@@ -1578,7 +1637,10 @@
     ],
     "ground_truth_context_long": "# amis_mau-thong-bao-quy-dinh-nghi-phep\n\nTHÔNG BÁO\nVv: Quy định nghỉ phép của công ty\n\nKính gửi: …………………………………..\n\n(Có thể là nhân viên trong công ty, ban lãnh đạo công ty…)\n\nCăn cứ quyết định số…/QĐ-BGĐ ngày….tháng….năm….của Ban giám đốc công ty…………. về việc ban hành quy định nghỉ phép trong nội bộ công ty……..\n\nPhòng …………..công ty…………thông báo đến toàn thể nhân viên trong công ty về quy định nghỉ phép và niêm yết quy định nghỉ phép trong công ty như sau:\n\n1. Quy định nghỉ phép\n\n– Nhân viên trong công ty được nghỉ phép tối đa…………ngày/năm\n\n– Thủ tục xin nghỉ phép:\n\n…………………………………………………………………………………………..\n\n– Sau khi quay trở lại làm việc, nhân viên phải …………………………………..……\n\n2. Quy định về niêm yết quy định nghỉ phép\n\n– Công ty…………bắt đầu niêm yết quy định nghỉ phép từ ngày………………..…….\n\n– Địa điểm niêm yết: ……………………………………………………………...……\n\n– Hình thức xử lý khi vi phạm:…………………………………………..……………..\n\n+ Khiển trách: ……………………………………………………………………….….\n\n+ Cảnh cáo:….……………………………………………………………………..……\n\nThông báo này sẽ được gửi đến các phòng ban của công ty. Các phòng ban trong công ty phối hợp thực hiện thông báo này.\n\nTrân trọng.\n\n### BẢNG BIỂU / DỮ LIỆU BẢNG\n\nTÊN CƠ QUAN | CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM Độc lập – Tự do – Hạnh phúc ------------\nSố:…./….-……. | ….., ngày…. tháng ……..năm……….\nNơi nhận: –         Như trên; –         Lưu:…………. | TM BAN GIÁM ĐỐC (Ký và ghi rõ họ tên)",
     "evidence_chunk_id": "amis_mau-thong-bao-quy-dinh-nghi-phep::0000",
-    "evidence_source": "deterministic_fallback"
+    "evidence_source": "deterministic_fallback",
+    "retired": true,
+    "retired_at": "2026-08-12",
+    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
   },
   {
     "id": "qa_119",
@@ -1595,7 +1657,10 @@
     ],
     "ground_truth_context_long": "# amis_mau-thong-bao-quy-dinh-nghi-phep\n\nTHÔNG BÁO\nVv: Quy định nghỉ phép của công ty\n\nKính gửi: …………………………………..\n\n(Có thể là nhân viên trong công ty, ban lãnh đạo công ty…)\n\nCăn cứ quyết định số…/QĐ-BGĐ ngày….tháng….năm….của Ban giám đốc công ty…………. về việc ban hành quy định nghỉ phép trong nội bộ công ty……..\n\nPhòng …………..công ty…………thông báo đến toàn thể nhân viên trong công ty về quy định nghỉ phép và niêm yết quy định nghỉ phép trong công ty như sau:\n\n1. Quy định nghỉ phép\n\n– Nhân viên trong công ty được nghỉ phép tối đa…………ngày/năm\n\n– Thủ tục xin nghỉ phép:\n\n…………………………………………………………………………………………..\n\n– Sau khi quay trở lại làm việc, nhân viên phải …………………………………..……\n\n2. Quy định về niêm yết quy định nghỉ phép\n\n– Công ty…………bắt đầu niêm yết quy định nghỉ phép từ ngày………………..…….\n\n– Địa điểm niêm yết: ……………………………………………………………...……\n\n– Hình thức xử lý khi vi phạm:…………………………………………..……………..\n\n+ Khiển trách: ……………………………………………………………………….….\n\n+ Cảnh cáo:….……………………………………………………………………..……\n\nThông báo này sẽ được gửi đến các phòng ban của công ty. Các phòng ban trong công ty phối hợp thực hiện thông báo này.\n\nTrân trọng.\n\n### BẢNG BIỂU / DỮ LIỆU BẢNG\n\nTÊN CƠ QUAN | CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM Độc lập – Tự do – Hạnh phúc ------------\nSố:…./….-……. | ….., ngày…. tháng ……..năm……….\nNơi nhận: –         Như trên; –         Lưu:…………. | TM BAN GIÁM ĐỐC (Ký và ghi rõ họ tên)",
     "evidence_chunk_id": "amis_mau-thong-bao-quy-dinh-nghi-phep::0000",
-    "evidence_source": "llm_verbatim"
+    "evidence_source": "llm_verbatim",
+    "retired": true,
+    "retired_at": "2026-08-12",
+    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
   },
   {
     "id": "qa_120",

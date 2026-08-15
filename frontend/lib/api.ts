@@ -16,6 +16,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8
 const ACCESS_TOKEN_KEY = "hr_knowledge_access_token";
 const REFRESH_TOKEN_KEY = "hr_knowledge_refresh_token";
 
+export type ChatStreamEvent =
+  | { type: "request"; chat_request_id: string; conversation_id: string; state: string; poll_after_ms: number }
+  | { type: "heartbeat" }
+  | { type: "status"; value: string }
+  | { type: "tool_start" | "tool_end"; tool: string }
+  | { type: "answer_delta"; content: string }
+  | { type: "citation"; source: string; title: string; page_start: number | null; is_official_policy: boolean }
+  | { type: "done"; answer?: unknown }
+  | { type: "error"; code?: string; message: string; status?: number; retryable?: boolean }
+  | { type: "result"; data: ChatResult };
+
 export class ApiClientError extends Error {
   constructor(
     message: string,
@@ -106,6 +117,92 @@ function idempotencyHeaders() {
   return { "Idempotency-Key": crypto.randomUUID() };
 }
 
+async function streamRequest(
+  path: string,
+  body: unknown,
+  onEvent: (event: ChatStreamEvent) => void,
+  allowRefresh = true,
+): Promise<void> {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    Accept: "text/event-stream",
+    "X-Request-ID": crypto.randomUUID(),
+    ...idempotencyHeaders(),
+  });
+  const token = getStoredToken(ACCESS_TOKEN_KEY);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
+  }
+
+  if (response.status === 401 && allowRefresh && (await refreshSession())) {
+    return streamRequest(path, body, onEvent, false);
+  }
+  if (!response.ok) {
+    let payload: ApiResponse<unknown> | null = null;
+    try {
+      payload = (await response.json()) as ApiResponse<unknown>;
+    } catch {
+      // Một proxy có thể trả HTML khi endpoint streaming chưa được triển khai.
+    }
+    throw new ApiClientError(
+      payload?.error?.message ?? "Không thể bắt đầu câu trả lời trực tiếp.",
+      payload?.error?.code ?? `HTTP_${response.status}`,
+      response.status,
+      payload?.error?.retryable ?? response.status >= 500,
+    );
+  }
+  if (!response.body) {
+    throw new ApiClientError("Backend không trả về luồng dữ liệu.", "EMPTY_STREAM", response.status, true);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  function consume(block: string) {
+    const data = block
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n");
+    if (!data) return;
+    try {
+      const event = JSON.parse(data) as ChatStreamEvent;
+      if (event.type === "error") {
+        throw new ApiClientError(
+          event.message,
+          event.code ?? "STREAM_ERROR",
+          event.status ?? 0,
+          event.retryable ?? true,
+        );
+      }
+      onEvent(event);
+    } catch (error) {
+      if (error instanceof ApiClientError) throw error;
+      throw new ApiClientError("Luồng trả lời có dữ liệu không hợp lệ.", "INVALID_STREAM_EVENT", 0, true);
+    }
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const blocks = buffer.split(/\r?\n\r?\n/);
+    buffer = blocks.pop() ?? "";
+    blocks.forEach(consume);
+    if (done) break;
+  }
+  if (buffer.trim()) consume(buffer);
+}
+
 export const api = {
   register: (email: string, password: string, fullName: string, department: string) =>
     request<User>(
@@ -159,6 +256,11 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ conversation_id: conversationId, question }),
     }).then((response) => response.data!),
+  streamChatRequest: (
+    conversationId: string,
+    question: string,
+    onEvent: (event: ChatStreamEvent) => void,
+  ) => streamRequest("/chat/requests/stream", { conversation_id: conversationId, question }, onEvent),
   getChatRequest: (chatRequestId: string, signal?: AbortSignal) =>
     request<ChatResult>(`/chat/requests/${chatRequestId}`, { signal }).then((response) => response.data!),
   retryChatRequest: (chatRequestId: string) =>

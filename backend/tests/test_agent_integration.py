@@ -1,5 +1,7 @@
+import json
 import uuid
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
@@ -11,13 +13,17 @@ from app.domain.models.messages import MessageDB
 from app.domain.models.profile import ProfileDB
 from app.domain.models.ticket import TicketDB
 from app.domain.models.user import UserDB
-from app.schemas.agent import AgentAnswerDTO
+from app.schemas.agent import AgentAnswerDTO, AgentCitationDTO
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClientError
 from app.services.chat_service import ChatService
 from sqlalchemy import func, select
 
 from tests.conftest import TestingSessionLocal
+
+# Registry canonical nằm ở repo root; backend image chỉ COPY thư mục backend/
+# nên test đọc file này phải skip khi chạy trong container.
+SCENARIO_REGISTRY_PATH = Path(__file__).resolve().parents[2] / "src" / "agents" / "resources" / "scenario_registry.json"
 
 USER_ID = uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
 CONVERSATION_ID = uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
@@ -96,6 +102,27 @@ def test_adapter_generates_stable_citation_ids():
     assert first.citations[0]["citation_id"] == second.citations[0]["citation_id"]
     assert first.citations[0]["page"] == 2
     assert first.citations[0]["excerpt"] == "Employees receive 12 leave days per year."
+
+
+def test_adapter_groups_chunks_from_the_same_document():
+    answer = normal_answer()
+    answer.citations.append(
+        AgentCitationDTO(
+            chunk_id="leave-policy::0002",
+            source_file="leave-policy.pdf",
+            title="Leave Policy",
+            page_start=4,
+            page_end=5,
+            category="leave",
+            is_official_policy=True,
+        )
+    )
+
+    result = AgentAnswerAdapter.map(answer, uuid.uuid4())
+
+    assert len(result.citations) == 1
+    assert result.citations[0]["page_start"] == 2
+    assert result.citations[0]["page_end"] == 5
 
 
 @pytest.mark.asyncio
@@ -260,3 +287,194 @@ async def test_worker_maps_agent_timeout_to_failed(monkeypatch):
         assert chat_request.state == "FAILED"
         assert chat_request.failure["code"] == "AGENT_TIMEOUT"
         assert chat_request.retryable is True
+
+
+HUMAN_FIRST_BOUNDARY = {
+    "scenario_id": 52,
+    "scenario_name": "Harassment/discrimination concern",
+    "service_code": "EMPLOYEE_RELATIONS",
+    "service_name": "Quan hệ lao động",
+    "assistant_role": "HUMAN_FIRST",
+    "sensitivity": "Critical",
+    "runtime_source_status": "HUMAN",
+    "source_of_truth_label": "Người phụ trách",
+    "max_runtime_action": "LINK_ONLY",
+    "runtime_action": "LINK_ONLY",
+    "mvp_phase": "FUTURE",
+    "handoff_target": {"type": "department", "code": "ER", "name": "ER", "contact_label": "Bộ phận Employee Relations"},
+    "user_facing_action_label": "Hướng dẫn gửi",
+    "allowed_data_fields": [
+        {
+            "field_key": "urgency_level",
+            "label": "Mức khẩn cấp",
+            "required_for_prefill": False,
+            "pii_class": "High",
+            "storage_policy": "store_case_only",
+        }
+    ],
+    "runtime_behavior": "Hướng dẫn hotline/ER, không lấy lời khai chi tiết.",
+    "resolution": "registry",
+}
+
+
+def test_adapter_passes_boundary_decision_through_unchanged():
+    answer = AgentAnswerDTO(
+        response="Bạn liên hệ bộ phận Employee Relations nhé.",
+        intent="hr_question",
+        boundary=HUMAN_FIRST_BOUNDARY,
+    )
+    mapped = AgentAnswerAdapter.map(answer, uuid.uuid4())
+    assert mapped.boundary["scenario_id"] == 52
+    assert mapped.boundary["runtime_action"] == "LINK_ONLY"
+    assert mapped.boundary["max_runtime_action"] == "LINK_ONLY"
+
+
+def test_adapter_keeps_boundary_null_for_legacy_agent_payload():
+    answer = AgentAnswerDTO(response="Câu trả lời", intent="hr_question")
+    assert AgentAnswerAdapter.map(answer, uuid.uuid4()).boundary is None
+
+
+def test_adapter_blocks_workflow_creation_for_every_boundary_decision():
+    """MVP-1 không có action nào tạo workflow, kể cả nhánh hành chính ít nhạy cảm."""
+    for role in ("ANSWER", "GUIDE", "PREPARE_AND_HANDOFF", "HUMAN_FIRST"):
+        for action in ("NONE", "LINK_ONLY", "PREFILL_DRAFT"):
+            for sensitivity in ("Low", "Medium", "High", "Critical"):
+                answer = AgentAnswerDTO(
+                    response="x",
+                    intent="hr_question",
+                    boundary={
+                        **HUMAN_FIRST_BOUNDARY,
+                        "assistant_role": role,
+                        "runtime_action": action,
+                        "sensitivity": sensitivity,
+                    },
+                )
+                assert AgentAnswerAdapter.blocks_workflow_creation(answer) is True, (role, action, sensitivity)
+
+
+def test_adapter_keeps_legacy_ticket_path_when_agent_sends_no_boundary():
+    """Backward compatibility: agent bản cũ chưa gửi decision vẫn đi đường cũ."""
+    assert AgentAnswerAdapter.blocks_workflow_creation(AgentAnswerDTO(response="x", intent="hr_question")) is False
+
+
+@pytest.mark.skipif(not SCENARIO_REGISTRY_PATH.exists(), reason="canonical registry chỉ có ở repo, không có trong image backend")
+def test_no_mvp1_scenario_can_produce_a_workflow_record():
+    """Duyệt ĐÚNG registry canonical: 0/64 scenario được phép tạo ticket ở MVP-1."""
+    registry = json.loads(SCENARIO_REGISTRY_PATH.read_text(encoding="utf-8"))
+    ceiling = registry["mvp1_capability_ceiling"]
+    checked = 0
+    for scenario in registry["scenarios"]:
+        max_action = scenario["max_runtime_action"]
+        runtime_action = max_action if max_action in ceiling else ceiling[-1]
+        answer = AgentAnswerDTO(
+            response="x",
+            intent="hr_question",
+            boundary={
+                **HUMAN_FIRST_BOUNDARY,
+                "scenario_id": scenario["id"],
+                "scenario_name": scenario["name"],
+                "assistant_role": scenario["assistant_role"],
+                "sensitivity": scenario["sensitivity"],
+                "max_runtime_action": max_action,
+                "runtime_action": runtime_action,
+                "mvp_phase": scenario["mvp_phase"],
+            },
+        )
+        assert runtime_action != "CREATE_CASE", scenario["id"]
+        assert AgentAnswerAdapter.blocks_workflow_creation(answer) is True, scenario["id"]
+        checked += 1
+    assert checked == 64
+
+
+@pytest.mark.asyncio
+async def test_worker_does_not_create_ticket_when_boundary_is_human_first(monkeypatch):
+    request_id = await create_queued_request("Tôi bị quấy rối ở công ty")
+    answer = AgentAnswerDTO(
+        response="Nội dung này cần trao đổi trực tiếp với người có thẩm quyền.",
+        intent="out_of_scope_or_personal",
+        escalate=True,
+        escalate_reason="personal_data_required",
+        ticket_draft={
+            "employee_question": "Tôi bị quấy rối ở công ty",
+            "escalate_reason": "personal_data_required",
+            "confidence_score": None,
+            "category": None,
+            "target_department": "ER",
+            "priority": "High",
+        },
+        boundary=HUMAN_FIRST_BOUNDARY,
+    )
+    monkeypatch.setattr(
+        ChatService,
+        "agent_client",
+        type("Client", (), {"query_agent": AsyncMock(return_value=answer)})(),
+    )
+
+    await ChatService._process_chat_rag_request(
+        request_id, USER_ID, "Engineering", "Tôi bị quấy rối ở công ty", CONVERSATION_ID
+    )
+
+    async with TestingSessionLocal() as session:
+        chat_request = await session.get(ChatRequestDB, request_id)
+        message = await session.get(MessageDB, chat_request.assistant_message_id)
+        assert chat_request.state == "REFUSED"
+        assert message.ticket_id is None
+
+
+@pytest.mark.asyncio
+async def test_worker_creates_no_ticket_for_routine_boundary_escalation(monkeypatch):
+    """Nhánh escalate thường (không nhạy cảm) cũng không được sinh ticket.
+
+    Đây là ca hồi quy chính của corrective pass: trước đó chỉ HUMAN_FIRST/Critical
+    bị chặn, nên một câu hỏi chấm công đi vào nhánh escalate vẫn tạo ticket và
+    biến ticket thành outcome mặc định.
+    """
+    request_id = await create_queued_request("Quên chấm công hôm qua")
+    answer = AgentAnswerDTO(
+        response="Mình đã chuẩn bị nội dung yêu cầu để bạn chuyển tới người phụ trách.",
+        intent="out_of_scope_or_personal",
+        escalate=True,
+        escalate_reason="personal_data_required",
+        ticket_draft={
+            "employee_question": "Quên chấm công hôm qua",
+            "escalate_reason": "personal_data_required",
+            "confidence_score": None,
+            "category": None,
+            "target_department": "HRBP",
+            "priority": "Medium",
+        },
+        boundary={
+            **HUMAN_FIRST_BOUNDARY,
+            "scenario_id": 11,
+            "scenario_name": "Quên chấm công",
+            "assistant_role": "GUIDE",
+            "sensitivity": "Low",
+            "max_runtime_action": "PREFILL_DRAFT",
+            "runtime_action": "PREFILL_DRAFT",
+            "mvp_phase": "MVP_1",
+        },
+    )
+    monkeypatch.setattr(
+        ChatService,
+        "agent_client",
+        type("Client", (), {"query_agent": AsyncMock(return_value=answer)})(),
+    )
+
+    async with TestingSessionLocal() as session:
+        tickets_before = await session.scalar(select(func.count(TicketDB.id)))
+
+    await ChatService._process_chat_rag_request(
+        request_id, USER_ID, "Engineering", "Quên chấm công hôm qua", CONVERSATION_ID
+    )
+
+    async with TestingSessionLocal() as session:
+        chat_request = await session.get(ChatRequestDB, request_id)
+        message = await session.get(MessageDB, chat_request.assistant_message_id)
+        tickets_after = await session.scalar(select(func.count(TicketDB.id)))
+        assert chat_request.state == "REFUSED"
+        assert message.ticket_id is None
+        assert tickets_after == tickets_before
+        # Invariant ngữ nghĩa: escalated=True nghĩa là "cần người xử lý", KHÔNG
+        # phải "đã tạo ticket". Cặp (escalated=True, ticket_id=None) là trạng
+        # thái hợp lệ của boundary flow và không được coi là bug.
+        assert message.escalated is True

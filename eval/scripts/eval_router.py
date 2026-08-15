@@ -81,6 +81,10 @@ async def main() -> None:
 
     with open(EVAL_SET_PATH, encoding="utf-8") as f:
         items = json.load(f)
+    # Câu `retired` bị loại khỏi mọi phép tính metric: nguồn của chúng đã bị gỡ khỏi
+    # corpus có chủ đích nên không còn evidence để chấm (xem `retired_reason` trong
+    # dataset). Giữ trong file để truy vết, nhưng đếm vào mẫu số là làm loãng metric.
+    items = [it for it in items if not it.get("retired")]
     if args.limit:
         items = items[: args.limit]
 

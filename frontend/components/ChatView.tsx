@@ -1,9 +1,12 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { BookOpenCheck, Check, ChevronDown, CircleAlert, Copy, FileSearch, Link2, LoaderCircle, MessageCircleQuestion, RefreshCw, Send, ShieldAlert, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { api, ApiClientError } from "@/lib/api";
-import type { ChatResult, CitationDetail, CitationSummary, ConversationDetail, ConversationMessage } from "@/lib/types";
+import type { ChatStreamEvent } from "@/lib/api";
+import type { BoundaryDecision, ChatResult, CitationDetail, CitationSummary, ConversationDetail, ConversationMessage } from "@/lib/types";
 import { useSystemDialog } from "./SystemDialog";
 
 type UiMessage =
@@ -70,6 +73,27 @@ function processingLabel(state: string) {
     GENERATING: "Đang tổng hợp câu trả lời",
   };
   return labels[state] ?? state;
+}
+
+function formatElapsed(milliseconds: number) {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+// Khi hàng đợi kéo dài, nhãn "Đang xếp hàng" dễ khiến người dùng tưởng đứng máy.
+function processingStatus(label: string, elapsedMilliseconds: number) {
+  if (label === processingLabel("QUEUED") && elapsedMilliseconds >= 10_000) {
+    return "Cơ sở dữ liệu đang phản hồi chậm...";
+  }
+  return label;
+}
+
+// Đổi "[1]" / "[Nguồn 1]" thành inline link để ReactMarkdown giao lại cho
+// renderer bên dưới dựng nút mở nguồn, thay vì để markdown nuốt mất cặp ngoặc.
+function linkifyCitations(answer: string) {
+  return answer.replace(/\[(?:Nguồn\s*)?(\d+)\]/gi, (_match, index: string) => `[${index}](#citation-${index})`);
 }
 
 function historyToUi(message: ConversationMessage): UiMessage {
@@ -185,10 +209,15 @@ export function ChatView({
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(true);
   const [processingState, setProcessingState] = useState<string | null>(null);
+  const [processingStartedAt, setProcessingStartedAt] = useState<number | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const [streamedAnswer, setStreamedAnswer] = useState("");
   const [error, setError] = useState("");
   const [citation, setCitation] = useState<CitationDetail | null>(null);
   const [citationLoading, setCitationLoading] = useState(false);
   const mounted = useRef(true);
+  const streamEnd = useRef<HTMLDivElement | null>(null);
+  const composer = useRef<HTMLTextAreaElement | null>(null);
   const operationVersion = useRef(0);
   const newConversationSignalRef = useRef(newConversationSignal);
   const pollController = useRef<AbortController | null>(null);
@@ -208,6 +237,22 @@ export function ChatView({
       pollController.current?.abort();
     };
   }, []);
+
+  useEffect(() => {
+    streamEnd.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, processingState, streamedAnswer, error]);
+
+  useEffect(() => {
+    if (!busy && conversationState === "ACTIVE") composer.current?.focus();
+  }, [busy, conversationState]);
+
+  useEffect(() => {
+    if (processingStartedAt === null) return;
+    const updateElapsed = () => setElapsedMs(Date.now() - processingStartedAt);
+    updateElapsed();
+    const timer = window.setInterval(updateElapsed, 250);
+    return () => window.clearInterval(timer);
+  }, [processingStartedAt]);
 
   const poll = useCallback(async (pending: PendingChat, version: number) => {
     pollController.current?.abort();
@@ -375,45 +420,109 @@ export function ChatView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversationId, busy]);
 
+  const markConversationActivity = useCallback((targetConversationId: string, cleanQuestion: string) => {
+    const active = conversationsRef.current.find((item) => item.conversation_id === targetConversationId);
+    if (!active) return;
+    const updated = {
+      ...active,
+      title: active.title === "Hội thoại mới" ? titleFromQuestion(cleanQuestion) : active.title,
+      message_count: active.message_count + 1,
+      last_message_at: new Date().toISOString(),
+    };
+    onConversationsChangeRef.current([updated, ...conversationsRef.current.filter((item) => item.conversation_id !== targetConversationId)]);
+  }, []);
+
   async function sendQuestion(text: string) {
     const cleanQuestion = text.trim();
     if (!conversationId || !cleanQuestion || busy || conversationState !== "ACTIVE") return;
+    const activeConversationId = conversationId;
     const optimisticId = crypto.randomUUID();
     const version = operationVersion.current;
     let requestAccepted = false;
+    let receivedResult = false;
+    let streamRequestId: string | null = null;
     setMessages((current) => [...current, { id: optimisticId, kind: "user", content: cleanQuestion }]);
     setQuestion("");
     setBusy(true);
     setError("");
+    setStreamedAnswer("");
     setProcessingState(processingLabel("QUEUED"));
+    setElapsedMs(0);
+    setProcessingStartedAt(Date.now());
     try {
-      const created = await api.createChatRequest(conversationId, cleanQuestion);
-      requestAccepted = true;
-      const active = conversationsRef.current.find((item) => item.conversation_id === conversationId);
-      if (active) {
-        const updated = {
-          ...active,
-          title: active.title === "Hội thoại mới" ? titleFromQuestion(cleanQuestion) : active.title,
-          message_count: active.message_count + 1,
-          last_message_at: new Date().toISOString(),
-        };
-        onConversationsChangeRef.current([updated, ...conversationsRef.current.filter((item) => item.conversation_id !== conversationId)]);
+      await api.streamChatRequest(activeConversationId, cleanQuestion, (event: ChatStreamEvent) => {
+        if (!mounted.current || operationVersion.current !== version) return;
+        if (event.type === "request") {
+          requestAccepted = true;
+          streamRequestId = event.chat_request_id;
+          // Persist ngay để reload giữa chừng vẫn khôi phục được bằng polling.
+          window.localStorage.setItem(PENDING_CHAT_KEY, JSON.stringify({
+            conversationId: activeConversationId,
+            chatRequestId: event.chat_request_id,
+            pollAfterMs: event.poll_after_ms,
+          }));
+          markConversationActivity(activeConversationId, cleanQuestion);
+          setProcessingState(processingLabel(event.state));
+        } else if (event.type === "status") {
+          setProcessingState(event.value);
+        } else if (event.type === "tool_start") {
+          setProcessingState(processingLabel("RETRIEVING"));
+        } else if (event.type === "tool_end") {
+          setProcessingState(processingLabel("GENERATING"));
+        } else if (event.type === "answer_delta") {
+          setProcessingState("Đang hoàn thiện câu trả lời");
+          setStreamedAnswer((current) => current + event.content);
+        } else if (event.type === "result") {
+          receivedResult = true;
+          window.localStorage.removeItem(PENDING_CHAT_KEY);
+          setMessages((current) => {
+            const id = event.data.assistant_message_id ?? event.data.chat_request_id;
+            if (current.some((item) => item.id === id)) return current;
+            return [...current, { id, kind: "assistant", result: event.data }];
+          });
+          setStreamedAnswer("");
+          setProcessingState(null);
+        }
+      });
+      if (!receivedResult) {
+        throw new ApiClientError("Luồng trả lời bị ngắt trước khi hoàn tất.", "STREAM_INTERRUPTED", 0, true);
       }
-      const pending = { conversationId, chatRequestId: created.chat_request_id, pollAfterMs: created.poll_after_ms };
-      window.localStorage.setItem(PENDING_CHAT_KEY, JSON.stringify(pending));
-      await poll(pending, version);
     } catch (reason) {
       if (isAbortError(reason)) return;
-      if (!requestAccepted) {
-        setMessages((current) => current.filter((item) => item.id !== optimisticId));
-        setQuestion(cleanQuestion);
+      try {
+        setStreamedAnswer("");
+        const canResumeByPolling = reason instanceof ApiClientError
+          && ["NETWORK_ERROR", "EMPTY_STREAM", "INVALID_STREAM_EVENT", "STREAM_INTERRUPTED"].includes(reason.code);
+        if (streamRequestId && canResumeByPolling) {
+          setProcessingState("Đang nối lại câu trả lời");
+          await poll({ conversationId: activeConversationId, chatRequestId: streamRequestId, pollAfterMs: 500 }, version);
+        } else if (reason instanceof ApiClientError && [404, 405].includes(reason.status)) {
+          // Backend chưa bật endpoint stream: quay về luồng tạo request + poll.
+          const created = await api.createChatRequest(activeConversationId, cleanQuestion);
+          requestAccepted = true;
+          markConversationActivity(activeConversationId, cleanQuestion);
+          const pending = { conversationId: activeConversationId, chatRequestId: created.chat_request_id, pollAfterMs: created.poll_after_ms };
+          window.localStorage.setItem(PENDING_CHAT_KEY, JSON.stringify(pending));
+          await poll(pending, version);
+        } else {
+          throw reason;
+        }
+      } catch (fallbackReason) {
+        if (isAbortError(fallbackReason)) return;
+        if (!requestAccepted) {
+          setMessages((current) => current.filter((item) => item.id !== optimisticId));
+          setQuestion(cleanQuestion);
+        }
+        const suffix = requestAccepted ? " Yêu cầu đã được lưu; tải lại trang để tiếp tục nhận kết quả." : "";
+        setError((fallbackReason instanceof ApiClientError ? fallbackReason.message : "Không thể xử lý câu hỏi.") + suffix);
       }
-      const suffix = requestAccepted ? " Yêu cầu đã được lưu; tải lại trang để tiếp tục nhận kết quả." : "";
-      setError((reason instanceof ApiClientError ? reason.message : "Không thể xử lý câu hỏi.") + suffix);
     } finally {
       if (mounted.current && operationVersion.current === version) {
         setBusy(false);
         setProcessingState(null);
+        setProcessingStartedAt(null);
+        setElapsedMs(0);
+        setStreamedAnswer("");
       }
     }
   }
@@ -423,12 +532,20 @@ export function ChatView({
     await sendQuestion(question);
   }
 
+  function handleComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    void sendQuestion(question);
+  }
+
   async function retry(chatRequestId: string) {
     if (!conversationId || busy) return;
     const version = operationVersion.current;
     setBusy(true);
     setError("");
     setProcessingState(processingLabel("QUEUED"));
+    setElapsedMs(0);
+    setProcessingStartedAt(Date.now());
     try {
       const created = await api.retryChatRequest(chatRequestId);
       const pending = { conversationId, chatRequestId: created.chat_request_id, pollAfterMs: created.poll_after_ms };
@@ -441,6 +558,8 @@ export function ChatView({
       if (mounted.current && operationVersion.current === version) {
         setBusy(false);
         setProcessingState(null);
+        setProcessingStartedAt(null);
+        setElapsedMs(0);
       }
     }
   }
@@ -499,15 +618,22 @@ export function ChatView({
           {messages.map((message) => message.kind === "user"
             ? <div className="message user-message" key={message.id}><div className="message-body">{message.content}</div></div>
             : <AssistantMessage key={message.id} result={message.result} activeCitationId={citation?.citation_id ?? null} onCitation={openCitation} onRetry={retry} />)}
-          {processingState && (
-            <div className="message assistant-message"><div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div><div className="message-body processing"><strong>Đang xử lý</strong><span>{processingState}</span></div></div>
+          {(processingState || streamedAnswer) && (
+            <div className="message assistant-message streaming-message">
+              <div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div>
+              <div className="message-body">
+                {streamedAnswer && <AnswerMarkdown content={streamedAnswer} streaming />}
+                {processingState && <div className="processing"><span>{processingStatus(processingState, elapsedMs)}</span><time>{formatElapsed(elapsedMs)}</time></div>}
+              </div>
+            </div>
           )}
           {error && <div className="stream-error"><CircleAlert size={17} />{error}</div>}
+          <div ref={streamEnd} />
         </div>
 
         <form className="composer" onSubmit={submit}>
-          <textarea value={question} onChange={(event) => setQuestion(event.target.value)} disabled={busy || conversationState !== "ACTIVE"} placeholder="Hỏi về chính sách, quy trình hoặc quyền lợi nhân sự..." />
-          <div className="composer-footer"><span>AI chỉ trả lời dựa trên nguồn tìm thấy</span><button className="send-command" aria-label="Gửi câu hỏi" disabled={!question.trim() || busy}><Send size={18} /></button></div>
+          <textarea ref={composer} value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={handleComposerKeyDown} maxLength={2000} disabled={busy || conversationState !== "ACTIVE"} placeholder="Hỏi về chính sách, quy trình hoặc quyền lợi nhân sự..." />
+          <div className="composer-footer"><span>AI chỉ trả lời dựa trên nguồn tìm thấy · {question.length.toLocaleString()} / 2.000</span><button className="send-command" aria-label="Gửi câu hỏi" disabled={!question.trim() || busy}><Send size={18} /></button></div>
         </form>
       </section>
 
@@ -567,10 +693,55 @@ function AssistantMessage({ result, activeCitationId, onCitation, onRetry }: {
         <button className="citation-toggle" aria-expanded={sourcesOpen} onClick={() => setSourcesOpen((current) => !current)}><span><Link2 size={15} /> Link tham khảo <small>{listedCitations.length} tài liệu</small></span><ChevronDown size={16} /></button>
         {sourcesOpen && <div className="citation-items">{listedCitations.map((item) => <button className={`${item.is_official_policy ? "" : "unofficial"} ${activeCitationId === item.citation_id ? "active" : ""}`} key={item.citation_id} onClick={() => onCitation(item)}><Link2 className="citation-link-icon" size={16} /><span><strong>{item.title}</strong><small>{sourceLabel(item.source_type, item.is_official_policy)} · {item.section ?? "Không rõ mục"} · Trang {item.page ?? "—"}</small></span>{!item.is_official_policy && <ShieldAlert size={16} />}</button>)}</div>}
       </div>}
-      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Yêu cầu không đủ bằng chứng có thể đã được Backend chuyển thành ticket.</div>}
+      <BoundaryPanel boundary={result.boundary ?? null} />
+      {result.state === "REFUSED" && !result.boundary && <div className="escalation-note"><CircleAlert size={17} />Yêu cầu không đủ bằng chứng có thể cần người phụ trách hỗ trợ thêm.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
       {result.answer && <div className="answer-actions"><button onClick={() => void copyAnswer()}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? "Đã sao chép" : "Sao chép"}</button></div>}
     </div>
+  </div>;
+}
+
+/**
+ * Render theo runtime action của boundary decision, KHÔNG suy diễn từ nội dung
+ * câu trả lời. Ba quy tắc bắt buộc theo ranh giới đã chốt:
+ * - không hiển thị "đã gửi"/"đã tạo yêu cầu"/"HR đã nhận" vì hệ thống chưa gửi
+ *   gì tới bộ phận nào;
+ * - không hiển thị URL portal — chỉ nêu người phụ trách và kênh dạng nhãn;
+ * - không lộ nhãn kỹ thuật (simulated/synthetic/demo) của runtime source.
+ */
+function BoundaryPanel({ boundary }: { boundary: BoundaryDecision | null }) {
+  if (!boundary) return null;
+  const owner = boundary.handoff_target?.name ?? null;
+  const contact = boundary.handoff_target?.contact_label ?? null;
+  const humanFirst = boundary.assistant_role === "HUMAN_FIRST";
+  const isDraft = boundary.runtime_action === "PREFILL_DRAFT" || boundary.runtime_action === "CREATE_CASE";
+  const isGuide = boundary.runtime_action === "LINK_ONLY";
+  if (!humanFirst && !isDraft && !isGuide) return null;
+
+  const heading = humanFirst
+    ? "Cần trao đổi với người phụ trách"
+    : boundary.user_facing_action_label ?? "Hướng dẫn gửi";
+
+  return <div className="boundary-panel">
+    <div className="boundary-heading"><ShieldAlert size={16} /> {heading}</div>
+    {owner && <p className="boundary-owner">Người phụ trách: <strong>{owner}</strong></p>}
+    {contact && contact !== owner && <p className="boundary-channel">Kênh liên hệ: {contact}</p>}
+    {isDraft && !humanFirst && <>
+      <p className="boundary-note">Đây là bản nháp để bạn chuẩn bị yêu cầu. Trợ lý chưa gửi giúp bạn.</p>
+      {!!boundary.allowed_data_fields.length && <ul className="boundary-fields">
+        {boundary.allowed_data_fields.map((item) => <li key={item.field_key}>
+          {item.label}{item.required_for_prefill ? " (cần có)" : ""}
+        </li>)}
+      </ul>}
+    </>}
+    {isGuide && !humanFirst && <p className="boundary-note">Trợ lý chỉ hướng dẫn cách gửi; việc gửi vẫn do bạn thực hiện.</p>}
+    <p className="boundary-source">Nguồn xử lý: {boundary.source_of_truth_label}</p>
+  </div>;
+}
+
+function AnswerMarkdown({ content, streaming = false }: { content: string; streaming?: boolean }) {
+  return <div className={`answer-copy answer-markdown${streaming ? " streaming-copy" : ""}`}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
   </div>;
 }
 
@@ -579,14 +750,18 @@ function AnswerContent({ answer, citations, onCitation }: {
   citations: CitationSummary[];
   onCitation: (citation: CitationSummary) => void;
 }) {
-  const parts = answer.split(/(\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\])/gi);
-  return <p className="answer-copy">{parts.map((part, index) => {
-    if (!/^\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\]$/i.test(part)) return <span key={`${part}-${index}`}>{part}</span>;
-    const numbers = part.match(/\d+/g) ?? [];
-    return <span className="inline-citation-group" key={`${part}-${index}`}>{numbers.map((number) => {
-      const citation = citations[Number(number) - 1];
-      if (!citation) return <span key={number}>[{number}]</span>;
-      return <button className="inline-citation" key={number} title={`Mở nguồn ${number}`} onClick={() => onCitation(citation)}>[{number}]</button>;
-    })}</span>;
-  })}</p>;
+  return <div className="answer-copy answer-markdown">
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        a({ href, children }) {
+          const match = typeof href === "string" ? href.match(/^#citation-(\d+)$/) : null;
+          if (!match) return <a href={href}>{children}</a>;
+          const citation = citations[Number(match[1]) - 1];
+          if (!citation) return <>[{children}]</>;
+          return <button className="inline-citation" type="button" title={`Mở nguồn ${match[1]}`} onClick={() => onCitation(citation)}>[{children}]</button>;
+        },
+      }}
+    >{linkifyCitations(answer)}</ReactMarkdown>
+  </div>;
 }
