@@ -57,12 +57,26 @@ def registry_path(tmp_path):
 
 
 class TestLoadRegistry:
-    def test_parses_rows_and_bool_field(self, registry_path):
+    def test_derives_taxonomy_from_legacy_source_type(self, registry_path):
+        """Registry chưa có 3 cột mới vẫn phải nạp được — authority/provenance
+        suy từ source_type, để code chạy được cả trước và sau khi migrate CSV."""
         rows = load_registry(registry_path)
         assert len(rows) == 4
         assert isinstance(rows[0], RegistryRow)
-        assert rows[0].is_official_policy is True
-        assert rows[1].is_official_policy is False
+        law, synthetic = rows[0], rows[1]
+        assert (law.authority, law.provenance, law.tenant) == ("government_law", "government_source", "")
+        assert (synthetic.authority, synthetic.provenance) == ("tenant_official_policy", "synthetic_demo")
+        assert synthetic.tenant == "nexatech"
+
+    def test_is_official_policy_means_tenant_policy_only(self, registry_path):
+        """Sau khi tách taxonomy, "chính thức" chỉ còn MỘT nghĩa: chính sách của
+        tenant đang phục vụ. Văn bản luật là nguồn có thẩm quyền nhưng KHÔNG phải
+        chính sách doanh nghiệp, nên cờ này phải False — kể cả khi cột CSV ghi
+        "true" (cột đó nay chỉ còn giá trị lịch sử, không được đọc)."""
+        rows = load_registry(registry_path)
+        assert rows[0].source_type == "government_law"
+        assert rows[0].is_official_policy is False
+        assert rows[1].is_official_policy is True
         assert rows[2].is_official_policy is False
 
     def test_missing_optional_columns_default_empty(self, registry_path):
@@ -74,10 +88,15 @@ class TestLoadRegistry:
 
 class TestRagEligibleRows:
     def test_filters_non_rag_source_types_and_non_processed(self, registry_path):
+        """b.md là dòng processed + source_type RAG-eligible duy nhất. a.pdf và
+        raw_only.pdf đều bị loại vì source_type="government_law" — luật chỉ còn
+        là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent trích
+        dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES); raw_only.pdf còn bị loại thêm
+        vì status != "processed". eval.json bị loại vì source_type="eval_asset"."""
         rows = load_registry(registry_path)
         eligible = rag_eligible_rows(rows)
         eligible_files = {r.source_file for r in eligible}
-        assert eligible_files == {"a.pdf", "b.md"}
+        assert eligible_files == {"b.md"}
 
 
 class TestUpdateRegistryColumn:

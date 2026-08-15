@@ -1,0 +1,60 @@
+{
+  "purpose": "R0 snapshot - trang thai truoc moi remediation (F.1 va F.2). Moi ket qua sau nay phai so voi snapshot nay de tach bach delta_dataset (F.1) vs delta_product (F.2).",
+  "captured_at": "2026-08-15T09:30:00+00:00",
+  "git_commit_before": "4fc9ea791e69b056d3d3b0bdfd2b0cd955dca89c",
+  "git_commit_before_subject": "feat(agent): add agent workers and HR runtime boundary",
+  "note_on_commit": "Chua co commit nao duoc tao trong phien lam viec nay (F.1 dataset changes van dang o working tree, chua add/commit). git_commit_before = HEAD hien tai, cung la HEAD tai thoi diem R0 duoc do.",
+  "sha256_before_remediation": {
+    "eval/datasets/qa_eval_set.json": "6e739cf07d4e87327efaf500be29100123dad221a39669719554c6dbbf8a2af2",
+    "eval/datasets/retrieval_qrels.json": "07aa062c9106902206a8960c830be69c9053209841aa91e2ad38903c05862aa8",
+    "eval/datasets/retrieval_anchors.json": "03d06760f72f7f315a15b9a55c86bda554cfeceb652d150d88a84706690c262f"
+  },
+  "sha256_source": "git show 4fc9ea791e69b056d3d3b0bdfd2b0cd955dca89c:<path> | sha256sum (khong phai working tree hien tai, la ban HEAD truoc F.1)",
+  "chroma_index_at_r0": {
+    "collection_name": "hr_documents",
+    "chunk_count": 189,
+    "data_mode": "demo",
+    "note": "F.1 la dataset-only migration, KHONG re-index / KHONG doi Chroma - chunk_count nay van dung nguyen cho ca R0 va R1 (xac nhan boi chinh migration script khong goi bat ky ham indexer nao)."
+  },
+  "regression_r0": {
+    "source_file": "eval/results/agent_eval_report.json",
+    "run_at": "2026-08-15T07:50:31.452291+00:00",
+    "total": 125,
+    "total_passed": 86,
+    "rate": 0.688,
+    "note": "Day la lan chay regression CUOI CUNG truoc khi F.1 migration duoc ap dung - dung lam R0 co dinh."
+  },
+  "failed_eval_ids_r0_exact_39": [
+    "qa_003", "qa_013", "qa_026", "qa_036", "qa_047",
+    "qa_082", "qa_083", "qa_085", "qa_086",
+    "qa_102", "qa_107", "qa_109", "qa_110", "qa_111",
+    "qa_113", "qa_114", "qa_115", "qa_116",
+    "qa_120", "qa_121", "qa_122", "qa_123", "qa_124", "qa_125",
+    "qa_126", "qa_127", "qa_128", "qa_129", "qa_130", "qa_131",
+    "qa_132", "qa_133", "qa_134", "qa_135", "qa_136", "qa_137",
+    "qa_138", "qa_139", "qa_140"
+  ],
+  "failed_eval_ids_count": 39,
+  "root_cause_bucket_at_r0": {
+    "G1_GROUND_TRUTH_STALE": 24,
+    "G2_GROUNDING_VERIFIER": 0,
+    "G3_ROUTER_FALSE_OOS": 5,
+    "G4_HUMAN_FIRST_EXPECTED": 3,
+    "G5_RETRIEVAL_MISS": 1,
+    "G6_GENERATION_CONTENT_ERROR": 5,
+    "G7_EVAL_JUDGE_ERROR": 1,
+    "sum_check": "24+0+5+3+1+5+1 = 39 (verified)"
+  },
+  "reference_docs": {
+    "triage": "eval/results/phase_f_regression_triage_2026-08-15.md",
+    "acceptance_report_draft": "eval/results/phase_f1_acceptance_report_2026-08-15.md",
+    "r1_report": "eval/results/phase_f1_r0_r1_report_2026-08-15.md"
+  },
+  "sha256_after_f1_final": {
+    "eval/datasets/qa_eval_set.json": "42f562714029b3b22b73e30bbbc440bdeda760b599e8890ada2f4dd494a339dd",
+    "eval/datasets/retrieval_qrels.json": "599fc145114c80bb527bcad5b40b7dd97e8d56f79f8c2e74a0ceb7fc3813206e",
+    "eval/datasets/retrieval_anchors.json": "97d365a7669c2fd57398374f439bb9cf034162ca8a8010d6ae45e75d4bf97306",
+    "eval/datasets/type_c_pure_statutory_holdout.json": "d772cf114df373c71be96adb8f3eb2117b0c43d000a4307ef571e860bd091acf",
+    "note": "Hash sau khi migrate_phase_f_stale_qrels.py chay xong va idempotent (2 lan lien tiep = 0 changes). Day la trang thai F.1 CHINH THUC - moi F.2 phai xuat phat tu day, khong duoc doi them dataset trong F.2."
+  }
+}

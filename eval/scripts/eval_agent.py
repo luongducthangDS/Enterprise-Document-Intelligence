@@ -175,6 +175,10 @@ async def main() -> None:
 
     with open(args.dataset, encoding="utf-8") as f:
         items = json.load(f)
+    # Câu `retired` bị loại khỏi mọi phép tính metric: nguồn của chúng đã bị gỡ khỏi
+    # corpus có chủ đích nên không còn evidence để chấm (xem `retired_reason` trong
+    # dataset). Giữ trong file để truy vết, nhưng đếm vào mẫu số là làm loãng metric.
+    items = [it for it in items if not it.get("retired")]
     if args.types:
         items = [it for it in items if it["type"] in args.types]
         print(f"[types={','.join(args.types)}] {len(items)} câu")

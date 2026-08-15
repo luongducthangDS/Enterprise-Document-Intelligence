@@ -1,0 +1,692 @@
+{
+  "run_at": "2026-08-12T23:57:32.653278+00:00",
+  "status": "CONSUMED — bộ này không còn dùng làm bằng chứng không thiên lệch",
+  "brief": "eval/ROUTER_HOLDOUT_BRIEF.md",
+  "frozen_snapshot": {
+    "dataset_sha256": "f082436e1b901506",
+    "router_py_sha256": "1e48b3337315f48b",
+    "thinking_router": false,
+    "escalation_guard_enabled": true,
+    "router_model": "DeepSeek-V4-Flash"
+  },
+  "accuracy": 0.943,
+  "correct": 66,
+  "total": 70,
+  "note_on_accuracy": "Tham khảo, KHÔNG phải gate. n nhỏ nên một câu dịch ~1,5 điểm — xem gates.",
+  "gates": {
+    "hr_false_rejection": {
+      "ids": [],
+      "count": 0,
+      "denominator": 38,
+      "gate": "0, tối đa 1 nếu review được",
+      "passed": true,
+      "needs_review": false
+    },
+    "oos_leak": {
+      "ids": [],
+      "count": 0,
+      "denominator": 14,
+      "gate": "0",
+      "passed": true
+    },
+    "uar": {
+      "ids": [
+        "rh_055"
+      ],
+      "count": 1,
+      "denominator": 13,
+      "gate": "bot không trở nên liều"
+    },
+    "ucr": {
+      "ids": [
+        "rh_009",
+        "rh_029"
+      ],
+      "count": 2,
+      "denominator": 38,
+      "gate": "ở mức chấp nhận được"
+    },
+    "router_p50_ms": {
+      "value": 324,
+      "gate": "< 500 ms",
+      "passed": true
+    }
+  },
+  "confusion": {
+    "hr_question->ambiguous": 2,
+    "ambiguous->out_of_scope_or_personal": 1,
+    "ambiguous->hr_question": 1
+  },
+  "results": [
+    {
+      "id": "rh_001",
+      "question": "chào bạn",
+      "difficulty": "easy",
+      "expected_intent": "greeting",
+      "predicted_intent": "greeting",
+      "correct": true,
+      "latency_ms": 686
+    },
+    {
+      "id": "rh_002",
+      "question": "hello HR bot 👋",
+      "difficulty": "easy",
+      "expected_intent": "greeting",
+      "predicted_intent": "greeting",
+      "correct": true,
+      "latency_ms": 320
+    },
+    {
+      "id": "rh_003",
+      "question": "alo alo có ai ở đây ko",
+      "difficulty": "easy",
+      "expected_intent": "greeting",
+      "predicted_intent": "greeting",
+      "correct": true,
+      "latency_ms": 309
+    },
+    {
+      "id": "rh_004",
+      "question": "chúc buổi sáng nha",
+      "difficulty": "easy",
+      "expected_intent": "greeting",
+      "predicted_intent": "greeting",
+      "correct": true,
+      "latency_ms": 335
+    },
+    {
+      "id": "rh_005",
+      "question": "cảm ơn bạn nhiều nhé",
+      "difficulty": "borderline",
+      "expected_intent": "greeting",
+      "predicted_intent": "greeting",
+      "correct": true,
+      "latency_ms": 359
+    },
+    {
+      "id": "rh_006",
+      "question": "OT ngày thường thì tính lương thế nào vậy?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 361
+    },
+    {
+      "id": "rh_007",
+      "question": "làm thêm vào chủ nhật có được tính khác ngày thường không",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 321
+    },
+    {
+      "id": "rh_008",
+      "question": "cty có được bắt nhân viên OT liên tục không ạ",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 358
+    },
+    {
+      "id": "rh_009",
+      "question": "nếu tháng này có ngày lễ mà mình vẫn đi làm thì tiền công tính sao?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "ambiguous",
+      "correct": false,
+      "latency_ms": 324
+    },
+    {
+      "id": "rh_010",
+      "question": "công ty có được trừ lương vì đi muộn không?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 328
+    },
+    {
+      "id": "rh_011",
+      "question": "mình muốn biết cách tính lương thử việc",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 320
+    },
+    {
+      "id": "rh_012",
+      "question": "nghỉ phép năm được bao nhiêu ngày?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 325
+    },
+    {
+      "id": "rh_013",
+      "question": "phép năm chưa dùng hết có được chuyển sang năm sau ko",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_014",
+      "question": "em xin nghỉ 1 ngày vì nhà có việc thì cần báo trước bao lâu",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 344
+    },
+    {
+      "id": "rh_015",
+      "question": "nghỉ cưới có được hưởng nguyên lương không và mấy ngày vậy?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 336
+    },
+    {
+      "id": "rh_016",
+      "question": "ông bà mất thì nhân viên được nghỉ mấy ngày",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_017",
+      "question": "nghỉ không lương thì có giới hạn số ngày không?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 323
+    },
+    {
+      "id": "rh_018",
+      "question": "đang thử việc mà xin nghỉ thì có cần báo trước không",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 325
+    },
+    {
+      "id": "rh_019",
+      "question": "mang thai thì được nghỉ đi khám thai bao nhiêu lần?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_020",
+      "question": "chồng có được nghỉ khi vợ sinh con không?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 332
+    },
+    {
+      "id": "rh_021",
+      "question": "sau thai sản đi làm lại thì có được nghỉ thêm để chăm con nhỏ ko",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 330
+    },
+    {
+      "id": "rh_022",
+      "question": "đóng BHXH bao lâu thì mới đủ điều kiện hưởng thai sản?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 435
+    },
+    {
+      "id": "rh_023",
+      "question": "BHXH bắt buộc gồm những chế độ gì vậy",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 319
+    },
+    {
+      "id": "rh_024",
+      "question": "thẻ BHYT của nhân viên dùng khi đi khám trái tuyến có được thanh toán không?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 324
+    },
+    {
+      "id": "rh_025",
+      "question": "người lao động và công ty mỗi bên đóng BHXH theo mức nào?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_026",
+      "question": "mới vào công ty thì bao giờ bắt đầu được đóng BHXH",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 414
+    },
+    {
+      "id": "rh_027",
+      "question": "quy trình onboarding nhân viên mới thường cần hoàn thành những giấy tờ gì?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 324
+    },
+    {
+      "id": "rh_028",
+      "question": "trong thời gian thử việc mình có được tham gia các khóa đào tạo nội bộ không?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_029",
+      "question": "công ty có chính sách hỗ trợ chi phí học chứng chỉ chuyên môn không",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "ambiguous",
+      "correct": false,
+      "latency_ms": 296
+    },
+    {
+      "id": "rh_030",
+      "question": "đi công tác qua đêm thì tiền khách sạn và phụ cấp tính theo quy định nào?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 314
+    },
+    {
+      "id": "rh_031",
+      "question": "đặt vé máy bay đi công tác tự mua rồi hoàn ứng sau có được không ạ",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 315
+    },
+    {
+      "id": "rh_032",
+      "question": "đi công tác trong ngày có được tính phụ cấp ăn uống ko",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 324
+    },
+    {
+      "id": "rh_033",
+      "question": "nếu vi phạm nội quy thì các bước xử lý kỷ luật lao động gồm những gì?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 436
+    },
+    {
+      "id": "rh_034",
+      "question": "công ty có được phạt tiền nhân viên thay cho kỷ luật không?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_035",
+      "question": "trước khi sa thải nhân viên thì công ty phải làm những thủ tục gì?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 322
+    },
+    {
+      "id": "rh_036",
+      "question": "nhân viên muốn nghỉ việc thì thường phải báo trước bao nhiêu ngày?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 506
+    },
+    {
+      "id": "rh_037",
+      "question": "offboarding xong thì công ty phải trả sổ BHXH với giấy tờ cho nhân viên trong bao lâu",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 361
+    },
+    {
+      "id": "rh_038",
+      "question": "nghỉ việc rồi phép năm còn dư thì có được thanh toán không?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 318
+    },
+    {
+      "id": "rh_039",
+      "question": "cty có được giữ lương tháng cuối đến khi bàn giao xong hết ko?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 323
+    },
+    {
+      "id": "rh_040",
+      "question": "ứng viên nội bộ muốn chuyển sang team khác thì có quy trình gì không?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 369
+    },
+    {
+      "id": "rh_041",
+      "question": "nhân viên có được giới thiệu người quen vào ứng tuyển và có referral bonus không?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 320
+    },
+    {
+      "id": "rh_042",
+      "question": "offer đã ký rồi mà ngày onboard muốn dời lại thì quy trình xử lý thế nào?",
+      "difficulty": "borderline",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 323
+    },
+    {
+      "id": "rh_043",
+      "question": "hợp đồng lao động xác định thời hạn được ký tối đa bao lâu?",
+      "difficulty": "easy",
+      "expected_intent": "hr_question",
+      "predicted_intent": "hr_question",
+      "correct": true,
+      "latency_ms": 316
+    },
+    {
+      "id": "rh_044",
+      "question": "nghỉ thế nào vậy?",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 438
+    },
+    {
+      "id": "rh_045",
+      "question": "cái này có được tính không ạ",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 308
+    },
+    {
+      "id": "rh_046",
+      "question": "em làm vậy có sao không?",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 319
+    },
+    {
+      "id": "rh_047",
+      "question": "trường hợp của mình thì được bao nhiêu ngày",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 307
+    },
+    {
+      "id": "rh_048",
+      "question": "bên mình xử lý vụ này theo luật hay theo policy?",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 301
+    },
+    {
+      "id": "rh_049",
+      "question": "nếu quá hạn rồi thì giờ làm sao",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 313
+    },
+    {
+      "id": "rh_050",
+      "question": "có cần báo trước không nhỉ?",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 306
+    },
+    {
+      "id": "rh_051",
+      "question": "công ty có hỗ trợ khoản này ko",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 299
+    },
+    {
+      "id": "rh_052",
+      "question": "thế còn người đang thử việc thì sao?",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 304
+    },
+    {
+      "id": "rh_053",
+      "question": "mình ký rồi thì có đổi được nữa không",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": false,
+      "latency_ms": 359
+    },
+    {
+      "id": "rh_054",
+      "question": "case này có bị trừ không ạ?",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 305
+    },
+    {
+      "id": "rh_055",
+      "question": "em muốn làm thủ tục thì bắt đầu từ đâu",
+      "difficulty": "easy",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "hr_question",
+      "correct": false,
+      "latency_ms": 541
+    },
+    {
+      "id": "rh_056",
+      "question": "nếu chưa đủ thì có cách nào khác không?",
+      "difficulty": "borderline",
+      "expected_intent": "ambiguous",
+      "predicted_intent": "ambiguous",
+      "correct": true,
+      "latency_ms": 303
+    },
+    {
+      "id": "rh_057",
+      "question": "tháng này tôi còn chính xác bao nhiêu ngày phép?",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 548
+    },
+    {
+      "id": "rh_058",
+      "question": "lương net tháng này của mình là bao nhiêu sau khi trừ hết bảo hiểm với thuế?",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 646
+    },
+    {
+      "id": "rh_059",
+      "question": "check giúp mình hồ sơ BHXH đã được công ty đóng đến tháng mấy rồi",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 503
+    },
+    {
+      "id": "rh_060",
+      "question": "đơn nghỉ phép hôm qua của tôi đã được sếp duyệt chưa?",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 388
+    },
+    {
+      "id": "rh_061",
+      "question": "mình có đủ điều kiện tăng lương kỳ này không?",
+      "difficulty": "borderline",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 382
+    },
+    {
+      "id": "rh_062",
+      "question": "hợp đồng của tôi hết hạn ngày nào nhỉ",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 351
+    },
+    {
+      "id": "rh_063",
+      "question": "tôi nghỉ thai sản từ tháng trước, tính giúp ngày nào tôi phải đi làm lại",
+      "difficulty": "borderline",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 364
+    },
+    {
+      "id": "rh_064",
+      "question": "FPT cho nhân viên nghỉ phép năm bao nhiêu ngày?",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 1
+    },
+    {
+      "id": "rh_065",
+      "question": "bên Viettel có policy WFH mấy ngày một tuần vậy",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 1
+    },
+    {
+      "id": "rh_066",
+      "question": "so với Vinamilk thì trợ cấp công tác của V-NOVA bên nào cao hơn?",
+      "difficulty": "borderline",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 365
+    },
+    {
+      "id": "rh_067",
+      "question": "Shopee Việt Nam thử việc mấy tháng và lương bao nhiêu % vậy?",
+      "difficulty": "borderline",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 356
+    },
+    {
+      "id": "rh_068",
+      "question": "viết giúp mình email xin lỗi khách hàng vì giao hàng trễ",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 401
+    },
+    {
+      "id": "rh_069",
+      "question": "server production đang báo CPU 95%, xử lý sao?",
+      "difficulty": "easy",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 350
+    },
+    {
+      "id": "rh_070",
+      "question": "gợi ý quán ăn gần văn phòng để team đi ăn trưa với",
+      "difficulty": "borderline",
+      "expected_intent": "out_of_scope_or_personal",
+      "predicted_intent": "out_of_scope_or_personal",
+      "correct": true,
+      "latency_ms": 358
+    }
+  ]
+}

@@ -81,3 +81,30 @@ async def test_client_rejects_invalid_agent_response():
 
     assert error.value.code == "AGENT_INVALID_RESPONSE"
     assert error.value.retryable is False
+
+
+@pytest.mark.asyncio
+async def test_client_parses_agent_sse_stream():
+    async def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.path == "/query/stream"
+        body = "".join(
+            [
+                'event: status\ndata: {"type":"status","value":"Đang tìm..."}\n\n',
+                f"event: done\ndata: {json.dumps({'type': 'done', 'answer': agent_response()})}\n\n",
+            ]
+        )
+        return httpx.Response(200, text=body, headers={"Content-Type": "text/event-stream"})
+
+    client = AIAgentClient(base_url="http://agent", transport=httpx.MockTransport(handler))
+    events = [
+        event
+        async for event in client.stream_query_agent(
+            "user-1",
+            "Leave policy",
+            "Engineering",
+            "request-stream",
+        )
+    ]
+
+    assert [event["type"] for event in events] == ["status", "done"]
+    assert events[-1]["answer"]["response"] == "Policy answer"

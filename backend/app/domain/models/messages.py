@@ -60,6 +60,9 @@ class MessageDB(Base):
         nullable=True,
     )
 
+    # "Cần người phụ trách xử lý", KHÔNG phải "đã tạo ticket". Boundary flow
+    # MVP-1 ghi escalated=True cùng ticket_id=None và đó là trạng thái hợp lệ —
+    # xem AgentAnswerAdapter.blocks_workflow_creation.
     escalated: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

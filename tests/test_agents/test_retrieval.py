@@ -2,8 +2,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.agents.nodes.retrieval import _arerank, grade_node, retrieval_node, rewrite_node
-from src.config import get_settings
+from src.agents.nodes.retrieval import (
+    _arerank,
+    _expand_retrieval_query,
+    _provenance_filter,
+    grade_node,
+    retrieval_node,
+    rewrite_node,
+)
+from src.config import Settings, get_settings
 from src.retrieval.bm25 import BM25
 
 
@@ -23,6 +30,16 @@ def _chunk(chunk_id: str, distance: float = 0.1, score=None, text: str = "nội 
 
 
 class TestRetrievalNode:
+    def test_expands_hybrid_terms_for_mixed_language_documents(self):
+        expanded = _expand_retrieval_query("Chính sách Hybrid như thế nào?")
+        assert "WFH" in expanded
+        assert "làm việc từ xa" in expanded
+        assert "3-2" in expanded
+
+    def test_leaves_other_queries_unchanged(self):
+        query = "Tôi được nghỉ mấy ngày?"
+        assert _expand_retrieval_query(query) == query
+
     @pytest.mark.asyncio
     async def test_parses_chroma_query_result_into_chunks(self):
         chroma_result = {
@@ -201,7 +218,126 @@ class TestGradeNode:
 class TestRewriteNode:
     @pytest.mark.asyncio
     async def test_increments_rewrite_count_and_sets_rewritten_query(self):
-        with patch("src.agents.nodes.retrieval.acall_llm", new=AsyncMock(return_value="  câu hỏi rõ hơn  ")):
+        llm = AsyncMock(return_value="  câu hỏi rõ hơn  ")
+        with patch("src.agents.nodes.retrieval.acall_llm", new=llm):
             result = await rewrite_node({"query": "câu gốc", "rewrite_count": 1})
         assert result["rewritten_query"] == "câu hỏi rõ hơn"
         assert result["rewrite_count"] == 2
+        assert llm.await_args.kwargs["model"] == get_settings().router_model
+
+
+def _chunk_matches_condition(meta: dict, condition: dict) -> bool:
+    """Đánh giá 1 điều kiện Chroma `where` cục bộ trên 1 dict metadata — dùng để
+    test filter THẬT mà retrieval.py build ra, không phải một bản chép lại
+    logic. field vắng mặt trong `meta` không khớp bất kỳ toán tử nào (đúng
+    hành vi fail-closed của Chroma đã đo được với $eq/$ne trên field thiếu)."""
+    (field, spec), = condition.items()
+    if field not in meta:
+        return False
+    value = meta[field]
+    if not isinstance(spec, dict):
+        return value == spec
+    ops = {
+        "$eq": lambda v, target: v == target,
+        "$ne": lambda v, target: v != target,
+        "$lte": lambda v, target: v <= target,
+        "$gte": lambda v, target: v >= target,
+        "$nin": lambda v, target: v not in target,
+        "$in": lambda v, target: v in target,
+    }
+    return all(ops[op](value, target) for op, target in spec.items())
+
+
+def _chunk_matches_filter(meta: dict, where: dict) -> bool:
+    conditions = where["$and"] if "$and" in where else [where]
+    return all(_chunk_matches_condition(meta, c) for c in conditions)
+
+
+class TestProvenanceFilter:
+    """NexaTech Type-C contract v3.1.0 — filter bắt buộc cho 'frozen internal
+    corpus'. $eq allowlist (không $ne blocklist): xem docstring _provenance_filter
+    cho lý do — chunk index từ trước khi field tồn tại phải tự động bị loại."""
+
+    def _settings(self, data_mode: str = "demo") -> Settings:
+        return Settings(data_mode=data_mode)
+
+    def test_demo_mode_requires_tenant_policy_and_frozen_lifecycle(self):
+        where = _provenance_filter(self._settings("demo"))
+        conditions = where["$and"]
+        assert {"authority": "tenant_official_policy"} in conditions
+        assert {"publication_status": "active"} in conditions
+        assert {"artifact_state": "frozen"} in conditions
+        assert {"retrieval_enabled": True} in conditions
+        assert not any("provenance" in c for c in conditions)
+
+    def test_production_mode_adds_provenance_condition(self):
+        where = _provenance_filter(self._settings("production"))
+        conditions = where["$and"]
+        assert {"authority": "tenant_official_policy"} in conditions
+        assert {"publication_status": "active"} in conditions
+        assert {"artifact_state": "frozen"} in conditions
+        assert {"retrieval_enabled": True} in conditions
+
+    def test_temporal_conditions_present_and_numeric(self):
+        """Chroma $lte/$gte CHỈ nhận int/float — đã đo lỗi thật (ValueError)
+        khi thử chuỗi ISO trực tiếp. Field phải là *_ymd (int YYYYMMDD)."""
+        where = _provenance_filter(self._settings("demo"))
+        conditions = where["$and"]
+        eff = next(c for c in conditions if "effective_date_ymd" in c)
+        exp = next(c for c in conditions if "expiry_date_ymd" in c)
+        assert isinstance(eff["effective_date_ymd"]["$lte"], int)
+        assert isinstance(exp["expiry_date_ymd"]["$gte"], int)
+
+
+class TestProvenanceFilterScenarios:
+    """5 kịch bản fixture bắt buộc theo remediation NexaTech Type-C contract
+    (2026-08-15) — đánh giá TRỰC TIẾP trên `where` dict thật do
+    _provenance_filter() build ra (_chunk_matches_filter), không phải một bản
+    diễn giải logic riêng."""
+
+    QUERY_YMD = 20260815  # khớp currentDate phiên làm việc, không ảnh hưởng kết luận
+
+    def _base_meta(self, **overrides) -> dict:
+        meta = {
+            "authority": "tenant_official_policy",
+            "publication_status": "active",
+            "artifact_state": "frozen",
+            "retrieval_enabled": True,
+            "effective_date_ymd": 20250101,
+            "expiry_date_ymd": 99991231,
+            "provenance": "synthetic_demo",
+        }
+        meta.update(overrides)
+        return meta
+
+    def _where(self, data_mode: str = "demo") -> dict:
+        return _provenance_filter(Settings(data_mode=data_mode))
+
+    def test_future_effective_active_doc_not_retrieved(self):
+        meta = self._base_meta(effective_date_ymd=20990101)  # có hiệu lực trong tương lai
+        assert _chunk_matches_filter(meta, self._where()) is False
+
+    def test_expired_doc_not_retrieved(self):
+        meta = self._base_meta(expiry_date_ymd=20200101)  # đã hết hạn
+        assert _chunk_matches_filter(meta, self._where()) is False
+
+    def test_superseded_historical_doc_not_retrieved(self):
+        meta = self._base_meta(publication_status="superseded")
+        assert _chunk_matches_filter(meta, self._where()) is False
+
+    def test_active_frozen_effective_doc_retrieved(self):
+        meta = self._base_meta()
+        assert _chunk_matches_filter(meta, self._where()) is True
+
+    def test_law_authority_not_retrieved(self):
+        """authority ~ contract 'source_role': giá trị 'government_law' tương
+        đương source_role != internal_policy trong contract — LUÔN bị loại,
+        kể cả khi mọi field lifecycle khác đều 'sạch'."""
+        meta = self._base_meta(authority="government_law")
+        assert _chunk_matches_filter(meta, self._where()) is False
+
+    def test_missing_field_chunk_not_retrieved(self):
+        """Chunk index từ trước khi taxonomy/lifecycle tồn tại (không có field
+        nào cả) phải tự động bị loại — đây chính là bug đã đo được và sửa
+        bằng $eq allowlist thay vì $ne blocklist."""
+        assert _chunk_matches_filter({}, self._where()) is False

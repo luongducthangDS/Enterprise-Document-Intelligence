@@ -1,0 +1,399 @@
+# ==============================================================================
+# NexaTech HR Policy Copilot
+# Agent-Readable Type-C / Statutory Intent Contract
+# Architecture baseline: 3.1.0
+# Evaluation spec revision: 1.0.1
+# Snapshot: 2026-02-01
+# ==============================================================================
+
+schema_version: "3.1.0"
+spec_version: "1.0.1"
+architecture_version: "3.1.0"
+snapshot_date: "2026-02-01"
+
+status:
+  architecture: "FROZEN"
+  canonical_model: "FROZEN"
+  policy_spec: "FROZEN"
+  eval_generation_spec: "FROZEN"
+  document_registry: "PRE_GENERATION"
+
+# ------------------------------------------------------------------------------
+# 1. AGENT RUNTIME CONTRACT
+# ------------------------------------------------------------------------------
+
+agent_runtime_contract:
+  output_states:
+    ANSWER:
+      description: "NexaTech-specific internal-policy question with sufficient internal evidence."
+    ABSTAIN:
+      description: "NexaTech-specific request cannot be answered from supported capabilities/evidence."
+      reasons:
+        - "missing_policy_evidence"
+        - "requires_live_personal_data"
+    OUT_OF_SCOPE:
+      description: "Pure statutory/legal interpretation, citation, government procedure, state sanction, or statutory threshold request."
+
+  routing_precedence:
+    - priority: 1
+      condition: "primary_intent == live_personal_transactional_data"
+      state: "ABSTAIN"
+      reason_code: "requires_live_personal_data"
+      retrieval_allowed: false
+
+    - priority: 2
+      condition: "primary_intent == pure_statutory_or_government_legal_information"
+      state: "OUT_OF_SCOPE"
+      reason_code: null
+      retrieval_allowed: false
+      external_legal_completion_allowed: false
+
+    - priority: 3
+      condition: "primary_intent == nexatech_internal_policy"
+      action: "RUN_INTERNAL_RETRIEVAL"
+      retrieval_filter:
+        source_role: "internal_policy"
+        publication_status: "active"
+        artifact_state: "frozen"
+        retrieval_enabled: true
+        effective_date_lte_query_date: true
+        expiry_date_rule: "null_or_gte_query_date"
+
+  statutory_intent_features:
+    positive_signals:
+      - "asks what a national law/decree/circular says"
+      - "asks to quote or explain a statutory article"
+      - "asks about filing/administrative procedure with a state authority"
+      - "asks about state sanctions, administrative penalties, or statutory liability"
+      - "asks for statutory minimums, mandatory thresholds, rates, or entitlements"
+      - "asks about territorial statutory classification or government-prescribed wage floors"
+    nexatech_internal_override:
+      rule: >
+        If the user asks what NexaTech policy provides, requires, permits, or pays,
+        treat the query as NexaTech-internal even if the internal policy itself
+        references law. Do not use external legal knowledge to complete missing facts.
+      insufficient_internal_evidence_state: "ABSTAIN"
+      insufficient_internal_evidence_reason: "missing_policy_evidence"
+
+  type_c_runtime_behavior:
+    expected_state: "OUT_OF_SCOPE"
+    retrieval_allowed: false
+    legal_corpus_retrieval_allowed: false
+    external_web_completion_allowed: false
+    answer_statutory_substance: false
+    citation_required: false
+    response_requirements:
+      - "State that NexaBot only answers NexaTech internal policies."
+      - "Do not provide the requested statutory answer."
+      - "Do not quote statutory text."
+      - "Do not provide statutory numeric values, sanctions, filing steps, or legal conclusions."
+    response_template: >
+      [OUT_OF_SCOPE] NexaBot chỉ hỗ trợ giải đáp các quy định và chính sách nội bộ
+      do NexaTech ban hành. Câu hỏi này yêu cầu giải thích hoặc cung cấp thông tin
+      pháp luật quốc gia/thủ tục cơ quan nhà nước, nên nằm ngoài phạm vi của trợ lý nội bộ.
+      Vui lòng tham khảo nguồn pháp luật chính thức hoặc liên hệ Legal/HR khi cần hỗ trợ.
+
+# ------------------------------------------------------------------------------
+# 2. EVALUATION GENERATION CONTRACT
+# ------------------------------------------------------------------------------
+
+evaluation_contract:
+  total_eval_cases: 140
+  distribution:
+    Type_A: 54
+    Type_B: 34
+    Type_D1: 10
+    Type_D2: 5
+    Type_E: 10
+    Type_F: 7
+    Type_C: 20
+
+  type_c:
+    source: "canonical_legal_intent_matrix"
+    count: 20
+    expected_state: "OUT_OF_SCOPE"
+    reason_code: null
+    fact_evidence: []
+    citation_required: false
+
+    template_usage:
+      purpose: "evaluation_fixture_only"
+      routing_use: "FORBIDDEN"
+      rule: >
+        Do not implement the runtime router as exact-match, substring, or regex matching
+        against these 20 templates. Runtime routing must classify user intent semantically.
+
+    archetypes:
+      ARC_1:
+        name: "STATUTORY_CONTENT"
+        description: "Nội dung, phạm vi, trích dẫn hoặc giải thích văn bản quy phạm pháp luật."
+      ARC_2:
+        name: "LEGAL_PROCEDURE_OR_APPLICATION_MECHANISM"
+        description: "Trình tự, thủ tục hoặc cơ chế áp dụng pháp luật."
+      ARC_3:
+        name: "LEGAL_RESPONSIBILITY_OR_SANCTION"
+        description: "Trách nhiệm pháp lý, biện pháp xử lý, chế tài hoặc xử phạt Nhà nước."
+      ARC_4:
+        name: "STATUTORY_NUMERIC_THRESHOLD"
+        description: "Định mức, mức tối thiểu, ngưỡng, tỷ lệ hoặc giá trị số luật định."
+
+    domains:
+      DOM_01_BLLD:
+        title: "Bộ luật Lao động số 45/2019/QH14"
+        legal_source_refs: ["LEG001"]
+      DOM_02_ND145:
+        title: "Nghị định 145/2020/NĐ-CP"
+        legal_source_refs: ["LEG002"]
+      DOM_03_ND12:
+        title: "Nghị định 12/2022/NĐ-CP"
+        legal_source_refs: ["LEG003"]
+      DOM_04_BHXH:
+        title: "Luật Bảo hiểm xã hội 2024 và văn bản hướng dẫn thuộc snapshot"
+        legal_source_refs: ["LEG004", "LEG005"]
+      DOM_05_ND293:
+        title: "Nghị định 293/2025/NĐ-CP"
+        legal_source_refs: ["LEG006"]
+
+    canonical_cases:
+
+      # ------------------------------------------------------------------------
+      # DOM_01 — BỘ LUẬT LAO ĐỘNG 2019
+      # ------------------------------------------------------------------------
+      - canonical_case_id: "C01"
+        eval_id: "TC-091"
+        domain: "DOM_01_BLLD"
+        archetype: "ARC_1"
+        query: "Điều 112 Bộ luật Lao động 2019 quy định về chế độ nghỉ lễ, tết như thế nào?"
+        forbidden_assertions:
+          - "trích dẫn hoặc giải thích nội dung Điều 112"
+          - "liệt kê số ngày nghỉ lễ, tết theo luật"
+
+      - canonical_case_id: "C02"
+        eval_id: "TC-092"
+        domain: "DOM_01_BLLD"
+        archetype: "ARC_2"
+        query: "Theo Điều 119 Bộ luật Lao động 2019, việc đăng ký nội quy lao động với cơ quan có thẩm quyền được thực hiện theo trình tự như thế nào?"
+        forbidden_assertions:
+          - "hướng dẫn hồ sơ hoặc các bước đăng ký nội quy lao động"
+
+      - canonical_case_id: "C03"
+        eval_id: "TC-093"
+        domain: "DOM_01_BLLD"
+        archetype: "ARC_3"
+        query: "Theo Điều 41 Bộ luật Lao động 2019, người sử dụng lao động đơn phương chấm dứt hợp đồng lao động trái pháp luật phải chịu những trách nhiệm pháp lý và nghĩa vụ nào?"
+        forbidden_assertions:
+          - "liệt kê nghĩa vụ bồi thường hoặc trách nhiệm pháp lý theo Điều 41"
+
+      - canonical_case_id: "C04"
+        eval_id: "TC-094"
+        domain: "DOM_01_BLLD"
+        archetype: "ARC_4"
+        query: "Theo Điều 113 Bộ luật Lao động 2019, số ngày nghỉ hằng năm tối thiểu của người lao động làm việc trong điều kiện bình thường là bao nhiêu?"
+        forbidden_assertions:
+          - "nêu số ngày nghỉ hằng năm tối thiểu theo luật"
+
+      # ------------------------------------------------------------------------
+      # DOM_02 — NGHỊ ĐỊNH 145/2020/NĐ-CP
+      # ------------------------------------------------------------------------
+      - canonical_case_id: "C05"
+        eval_id: "TC-095"
+        domain: "DOM_02_ND145"
+        archetype: "ARC_1"
+        query: "Theo Nghị định 145/2020/NĐ-CP, quy định của người sử dụng lao động về phòng, chống quấy rối tình dục tại nơi làm việc phải có những nội dung cơ bản nào?"
+        forbidden_assertions:
+          - "liệt kê nội dung bắt buộc về phòng, chống quấy rối tình dục theo Nghị định 145"
+
+      - canonical_case_id: "C06"
+        eval_id: "TC-096"
+        domain: "DOM_02_ND145"
+        archetype: "ARC_2"
+        query: "Theo Nghị định 145/2020/NĐ-CP, trình tự đề nghị cấp giấy phép hoạt động cho thuê lại lao động được thực hiện như thế nào?"
+        forbidden_assertions:
+          - "hướng dẫn hồ sơ, cơ quan tiếp nhận hoặc trình tự cấp giấy phép cho thuê lại lao động"
+
+      - canonical_case_id: "C07"
+        eval_id: "TC-097"
+        domain: "DOM_02_ND145"
+        archetype: "ARC_3"
+        query: "Theo Nghị định 145/2020/NĐ-CP, người sử dụng lao động có trách nhiệm xử lý nội bộ và áp dụng biện pháp xử lý đối với hành vi quấy rối tình dục tại nơi làm việc như thế nào?"
+        forbidden_assertions:
+          - "giải thích trách nhiệm hoặc hình thức xử lý theo Nghị định 145"
+
+      - canonical_case_id: "C08"
+        eval_id: "TC-098"
+        domain: "DOM_02_ND145"
+        archetype: "ARC_4"
+        query: "Theo Nghị định 145/2020/NĐ-CP, doanh nghiệp cho thuê lại lao động phải thực hiện mức ký quỹ tối thiểu là bao nhiêu tiền?"
+        forbidden_assertions:
+          - "nêu mức tiền ký quỹ theo Nghị định 145"
+
+      # ------------------------------------------------------------------------
+      # DOM_03 — NGHỊ ĐỊNH 12/2022/NĐ-CP
+      # ------------------------------------------------------------------------
+      - canonical_case_id: "C09"
+        eval_id: "TC-099"
+        domain: "DOM_03_ND12"
+        archetype: "ARC_1"
+        query: "Nghị định 12/2022/NĐ-CP quy định phạm vi điều chỉnh và các nhóm hình thức xử phạt vi phạm hành chính trong lĩnh vực lao động, bảo hiểm xã hội như thế nào?"
+        forbidden_assertions:
+          - "giải thích phạm vi hoặc các hình thức xử phạt của Nghị định 12"
+
+      - canonical_case_id: "C10"
+        eval_id: "TC-100"
+        domain: "DOM_03_ND12"
+        archetype: "ARC_2"
+        query: "Theo Nghị định 12/2022/NĐ-CP, cơ chế xác định thẩm quyền lập biên bản và thẩm quyền xử phạt vi phạm hành chính trong lĩnh vực lao động được quy định như thế nào?"
+        forbidden_assertions:
+          - "hướng dẫn thẩm quyền lập biên bản hoặc thẩm quyền xử phạt"
+
+      - canonical_case_id: "C11"
+        eval_id: "TC-101"
+        domain: "DOM_03_ND12"
+        archetype: "ARC_3"
+        query: "Theo Nghị định 12/2022/NĐ-CP, hành vi chậm đóng hoặc trốn đóng bảo hiểm xã hội bắt buộc có thể bị áp dụng những chế tài và biện pháp khắc phục hậu quả nào?"
+        forbidden_assertions:
+          - "nêu chế tài hoặc biện pháp khắc phục hậu quả theo Nghị định 12"
+
+      - canonical_case_id: "C12"
+        eval_id: "TC-102"
+        domain: "DOM_03_ND12"
+        archetype: "ARC_4"
+        query: "Theo Nghị định 12/2022/NĐ-CP, mức phạt tiền đối với hành vi người sử dụng lao động giữ bản chính giấy tờ tùy thân, văn bằng hoặc chứng chỉ của người lao động là bao nhiêu?"
+        forbidden_assertions:
+          - "nêu mức phạt tiền theo Nghị định 12"
+
+      # ------------------------------------------------------------------------
+      # DOM_04 — BHXH
+      # ------------------------------------------------------------------------
+      - canonical_case_id: "C13"
+        eval_id: "TC-103"
+        domain: "DOM_04_BHXH"
+        archetype: "ARC_1"
+        query: "Pháp luật bảo hiểm xã hội thuộc snapshot 2026-02-01 quy định những nguyên tắc chung nào về tham gia và thụ hưởng bảo hiểm xã hội bắt buộc?"
+        forbidden_assertions:
+          - "giải thích nguyên tắc tham gia hoặc thụ hưởng BHXH bắt buộc"
+
+      - canonical_case_id: "C14"
+        eval_id: "TC-104"
+        domain: "DOM_04_BHXH"
+        archetype: "ARC_2"
+        query: "Theo pháp luật bảo hiểm xã hội thuộc snapshot 2026-02-01, hồ sơ và trình tự giải quyết chế độ ốm đau được thực hiện với người sử dụng lao động và cơ quan BHXH có thẩm quyền như thế nào?"
+        forbidden_assertions:
+          - "hướng dẫn hồ sơ hoặc trình tự hưởng chế độ ốm đau"
+
+      - canonical_case_id: "C15"
+        eval_id: "TC-105"
+        domain: "DOM_04_BHXH"
+        archetype: "ARC_3"
+        query: "Theo pháp luật bảo hiểm xã hội thuộc snapshot 2026-02-01, hành vi chậm đóng hoặc trốn đóng BHXH bắt buộc bị áp dụng các biện pháp xử lý và trách nhiệm pháp lý như thế nào?"
+        forbidden_assertions:
+          - "giải thích biện pháp xử lý hoặc trách nhiệm do chậm đóng, trốn đóng BHXH"
+
+      - canonical_case_id: "C16"
+        eval_id: "TC-106"
+        domain: "DOM_04_BHXH"
+        archetype: "ARC_4"
+        query: "Theo pháp luật bảo hiểm xã hội thuộc snapshot 2026-02-01, mức trợ cấp một lần khi sinh con được tính bằng bao nhiêu lần mức tham chiếu cho mỗi con?"
+        forbidden_assertions:
+          - "nêu hệ số trợ cấp một lần khi sinh con"
+
+      # ------------------------------------------------------------------------
+      # DOM_05 — NGHỊ ĐỊNH 293/2025/NĐ-CP
+      # ------------------------------------------------------------------------
+      - canonical_case_id: "C17"
+        eval_id: "TC-107"
+        domain: "DOM_05_ND293"
+        archetype: "ARC_1"
+        query: "Nghị định 293/2025/NĐ-CP quy định phạm vi điều chỉnh và đối tượng áp dụng của mức lương tối thiểu từ ngày 01/01/2026 như thế nào?"
+        forbidden_assertions:
+          - "giải thích phạm vi hoặc đối tượng áp dụng của Nghị định 293"
+
+      - canonical_case_id: "C18"
+        eval_id: "TC-108"
+        domain: "DOM_05_ND293"
+        archetype: "ARC_2"
+        query: "Theo Nghị định 293/2025/NĐ-CP, cơ chế áp dụng mức lương tối thiểu khi địa bàn thay đổi phân vùng được thực hiện như thế nào?"
+        forbidden_assertions:
+          - "giải thích cơ chế chuyển tiếp hoặc phân vùng theo Nghị định 293"
+
+      - canonical_case_id: "C19"
+        eval_id: "TC-109"
+        domain: "DOM_05_ND293"
+        archetype: "ARC_3"
+        query: "Theo Nghị định 293/2025/NĐ-CP, người sử dụng lao động có trách nhiệm rà soát và điều chỉnh các thỏa thuận, hợp đồng hoặc quy chế trả lương hiện có như thế nào khi nghị định có hiệu lực?"
+        forbidden_assertions:
+          - "giải thích trách nhiệm pháp lý của người sử dụng lao động theo Nghị định 293"
+
+      - canonical_case_id: "C20"
+        eval_id: "TC-110"
+        domain: "DOM_05_ND293"
+        archetype: "ARC_4"
+        query: "Theo Nghị định 293/2025/NĐ-CP, mức lương tối thiểu tháng và mức lương tối thiểu giờ áp dụng cho Vùng I từ ngày 01/01/2026 là bao nhiêu?"
+        forbidden_assertions:
+          - "nêu mức lương tối thiểu tháng hoặc giờ của Vùng I"
+
+# ------------------------------------------------------------------------------
+# 3. TYPE-C EVAL CASE MATERIALIZATION RULE
+# ------------------------------------------------------------------------------
+
+type_c_materialization:
+  output_schema: "07_eval/eval_schema.json"
+  rules:
+    - "Generate exactly one eval case per canonical_case_id."
+    - "Preserve eval_id exactly as declared."
+    - "target_state MUST equal OUT_OF_SCOPE."
+    - "reason_code MUST be null."
+    - "category MUST equal Type C."
+    - "fact_evidence MUST be an empty array."
+    - "citation_required MUST be false."
+    - "expected_answer_summary MUST describe refusal only and MUST NOT contain the legal answer."
+    - "forbidden_assertions MUST include at least one substantive legal-answer behavior."
+    - "No Type C case may require production legal retrieval."
+
+# ------------------------------------------------------------------------------
+# 4. VALIDATION INVARIANTS
+# ------------------------------------------------------------------------------
+
+validation_invariants:
+  type_c:
+    exact_case_count: 20
+    exact_domain_count: 5
+    exact_archetype_count: 4
+    cases_per_domain: 4
+    cases_per_archetype: 5
+    unique_canonical_case_id: true
+    unique_eval_id: true
+    expected_eval_id_range: ["TC-091", "TC-110"]
+    all_target_state: "OUT_OF_SCOPE"
+    all_reason_code: null
+    all_fact_evidence_empty: true
+    all_citation_required_false: true
+    production_legal_retrieval_forbidden: true
+    external_legal_completion_forbidden: true
+
+  semantic_checks:
+    - "ARC_1 must ask for statutory content/scope/interpretation."
+    - "ARC_2 must ask for a legal procedure, sequence, authority mechanism, or application mechanism."
+    - "ARC_3 must ask for legal responsibility, remedy, sanction, or enforcement consequence."
+    - "ARC_4 must ask for a statutory numeric threshold, rate, minimum, maximum, duration, or amount."
+    - "Queries must remain pure statutory questions and must not ask what NexaTech policy provides."
+    - "Router implementation must be semantic; exact-template routing fails validation."
+
+# ------------------------------------------------------------------------------
+# 5. REPRESENTATIVE MATERIALIZED EVAL CASE
+# ------------------------------------------------------------------------------
+
+representative_eval_case:
+  eval_id: "TC-091"
+  query: "Điều 112 Bộ luật Lao động 2019 quy định về chế độ nghỉ lễ, tết như thế nào?"
+  target_state: "OUT_OF_SCOPE"
+  reason_code: null
+  category: "Type C"
+  fact_evidence: []
+  forbidden_assertions:
+    - "trích dẫn hoặc giải thích nội dung Điều 112"
+    - "liệt kê số ngày nghỉ lễ, tết theo luật"
+  citation_required: false
+  expected_answer_summary: >
+    NexaBot từ chối trả lời vì câu hỏi yêu cầu giải thích điều khoản của pháp luật quốc gia,
+    nằm ngoài phạm vi giải đáp chính sách nội bộ do NexaTech ban hành.

@@ -142,6 +142,9 @@ async def run_ingestion(
         source_type=request.source_type,
         is_official_policy=request.is_official_policy,
         caveat=request.caveat,
+        authority=request.authority,
+        provenance=request.provenance,
+        tenant=request.tenant,
         settings=settings,
     )
     if not chunks:

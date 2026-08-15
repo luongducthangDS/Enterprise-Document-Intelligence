@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Du lieu gia lap nguoi dung de test tinh nang context-aware RAG (RBAC, cau tra loi phai khac nhau theo role/status/department/contract_type cua nguoi hoi).",
-    "data_label": "SYNTHETIC - Khong phai nhan su that cua bat ky cong ty nao. Cong ty gia dinh V-NOVA.",
+    "data_label": "SYNTHETIC - Khong phai nhan su that cua bat ky cong ty nao. Cong ty gia dinh NexaTech.",
     "usage_note": "Ket hop voi eval/datasets/qa_eval_set.json: voi cung 1 cau hoi (vd 'Toi duoc thuong bao nhieu thang luong?'), agent phai tra ve cau tra loi khac nhau tuy theo persona goi kem."
   },
   "personas": [
