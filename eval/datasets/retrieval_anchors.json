@@ -30,33 +30,33 @@
     }
   },
   "qa_006": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0002": {
+    "12_quy-che-cong-tac-phi::0008": {
       "score": 2,
-      "anchor": "## CHƯƠNG II: ĐỊNH MỨC CÔNG TÁC PHÍ TRONG NƯỚC\n\n### Điều 3. Chi phí Di chuyển (Phương tiện đi lại)\n1. **Máy bay**:\n   - Cấp Lãnh đạo (Giám đốc Khối trở lên): Hạng Thương gia (Business Class).\n   - Cấp Quản lý (Trưởng/Phó phòng): Hạng Phổ thông linh hoạt (Economy Flexible).\n   - Cấp Nhân viên: Hạng"
+      "anchor": "Được thanh toán tối đa 300.000 VNĐ/ngày (nếu không sử dụng xe công tác của công ty)."
     }
   },
   "qa_007": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0002": {
+    "12_quy-che-cong-tac-phi::0008": {
       "score": 2,
-      "anchor": "## CHƯƠNG II: ĐỊNH MỨC CÔNG TÁC PHÍ TRONG NƯỚC\n\n### Điều 3. Chi phí Di chuyển (Phương tiện đi lại)\n1. **Máy bay**:\n   - Cấp Lãnh đạo (Giám đốc Khối trở lên): Hạng Thương gia (Business Class).\n   - Cấp Quản lý (Trưởng/Phó phòng): Hạng Phổ thông linh hoạt (Economy Flexible).\n   - Cấp Nhân viên: Hạng"
+      "anchor": "Hạng Phổ thông tiết kiệm (Economy Saver) và phải đặt trước ít nhất 03 ngày (trừ trường hợp khẩn cấp)."
     }
   },
   "qa_008": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0004": {
+    "12_quy-che-cong-tac-phi::0008": {
       "score": 2,
-      "anchor": "### Điều 5. Định mức Chi phí Khách sạn / Lưu trú\n1. Tối đa theo hóa đơn tài chính hợp lệ:\n   - **Cấp Lãnh đạo**: Tối đa 2.000.000 VNĐ/phòng/đêm.\n   - **Cấp Quản lý**: Tối đa 1.200.000 VNĐ/phòng/đêm.\n   - **Cấp Nhân viên**: Tối đa 800.000 VNĐ/phòng/đêm (khuyến khích 02 nhân viên cùng giới ở chung 01"
+      "anchor": "Có, được hỗ trợ khoán 250.000 VNĐ/đêm."
     }
   },
   "qa_009": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0006": {
+    "12_quy-che-cong-tac-phi::0008": {
       "score": 2,
-      "anchor": "### Điều 7. Quy trình Hoàn ứng & Quyết toán\n1. Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác, CBNV phải hoàn tất **Báo cáo kết quả công tác** và hồ sơ quyết toán tài chính gửi Phòng Kế toán.\n2. Hồ sơ quyết toán bao gồm:\n   - Quyết định / Đơn phê duyệt đi công tác.\n   - Vé máy bay,"
+      "anchor": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác."
     }
   },
   "qa_010": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0006": {
+    "12_quy-che-cong-tac-phi::0008": {
       "score": 2,
-      "anchor": "### Điều 7. Quy trình Hoàn ứng & Quyết toán\n1. Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác, CBNV phải hoàn tất **Báo cáo kết quả công tác** và hồ sơ quyết toán tài chính gửi Phòng Kế toán.\n2. Hồ sơ quyết toán bao gồm:\n   - Quyết định / Đơn phê duyệt đi công tác.\n   - Vé máy bay,"
+      "anchor": "Công ty sẽ khấu trừ số tiền đã tạm ứng vào kỳ lương gần nhất (nếu không có lý do chính đáng)."
     }
   },
   "qa_011": {
@@ -87,36 +87,6 @@
     "02_quy-trinh-tuyen-dung::0003": {
       "score": 2,
       "anchor": "## 3. Nguyên tắc\n- Không phân biệt đối xử về giới tính, dân tộc, tôn giáo, tình trạng hôn nhân (phù hợp Điều 8 Bộ luật Lao động).\n- Ưu tiên nội bộ (internal transfer) trước khi tuyển ngoài đối với vị trí quản lý.\n- Mọi trao đổi lương thưởng chỉ được đưa ra ở bước Offer bởi Phòng Nhân sự."
-    }
-  },
-  "qa_016": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": {
-      "score": 2,
-      "anchor": "Trí - Tốc - Tinh - Nhân\", thể hiện tâm huyết, bản lĩnh vững vàng, dám\nnghĩ, dám làm, dám chịu trách nhiệm, có năng lực tổ chức và quản lý tốt.\n\nĐối với các\nvị trí quản lý cấp cao, các yêu cầu tuyển dụng khá khắt khe với các tiêu chuẩn bắt\nbuộc về kinh nghiệm công tác, khả năng tư duy logic, phán"
-    }
-  },
-  "qa_017": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": {
-      "score": 2,
-      "anchor": "Trí - Tốc - Tinh - Nhân\", thể hiện tâm huyết, bản lĩnh vững vàng, dám\nnghĩ, dám làm, dám chịu trách nhiệm, có năng lực tổ chức và quản lý tốt.\n\nĐối với các\nvị trí quản lý cấp cao, các yêu cầu tuyển dụng khá khắt khe với các tiêu chuẩn bắt\nbuộc về kinh nghiệm công tác, khả năng tư duy logic, phán"
-    }
-  },
-  "qa_018": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": {
-      "score": 2,
-      "anchor": "Trí - Tốc - Tinh - Nhân\", thể hiện tâm huyết, bản lĩnh vững vàng, dám\nnghĩ, dám làm, dám chịu trách nhiệm, có năng lực tổ chức và quản lý tốt.\n\nĐối với các\nvị trí quản lý cấp cao, các yêu cầu tuyển dụng khá khắt khe với các tiêu chuẩn bắt\nbuộc về kinh nghiệm công tác, khả năng tư duy logic, phán"
-    }
-  },
-  "qa_019": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": {
-      "score": 2,
-      "anchor": "đăng ký theo link có sẵn; hoặc gửi SMS theo cú pháp cho trước.\nHồ sơ dự tuyển bao gồm:\n- Hồ sơ bản mềm: Theo mẫu và hướng dẫn của Vingroup.\n\n- Hồ sơ bản cứng:\n+ Sơ yếu lý lịch có chứng nhận của phường/xã trong vòng 6 tháng gần\nnhất\n+ Giấy khai sinh công chứng\n+ Giấy khám sức khỏe có dấu tròn trong"
-    }
-  },
-  "qa_020": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": {
-      "score": 2,
-      "anchor": "đăng ký theo link có sẵn; hoặc gửi SMS theo cú pháp cho trước.\nHồ sơ dự tuyển bao gồm:\n- Hồ sơ bản mềm: Theo mẫu và hướng dẫn của Vingroup.\n\n- Hồ sơ bản cứng:\n+ Sơ yếu lý lịch có chứng nhận của phường/xã trong vòng 6 tháng gần\nnhất\n+ Giấy khai sinh công chứng\n+ Giấy khám sức khỏe có dấu tròn trong"
     }
   },
   "qa_021": {
@@ -239,64 +209,34 @@
       "anchor": "**H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?**\nĐ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.\n\n**H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế"
     }
   },
-  "qa_041": {
-    "bộ luật lao động::0161": {
-      "score": 2,
-      "anchor": "Điều 145. Sử dụng người chưa đủ 15 tuổi làm việc\n1. Khi sử dụng người chưa đủ 15 tuổi làm việc, người sử dụng lao động phải\ntuân theo quy định sau đây:\na) Phải giao kết hợp đồng lao động bằng văn bản với người chưa đủ 15 tuổi\nvà người đại diện theo pháp luật của người đó;\nb) Bố trí giờ làm việc"
-    }
-  },
-  "qa_042": {
-    "bộ luật lao động::0003": {
-      "score": 2,
-      "anchor": "Điều 3. Giải thích từ ngữ\nTrong Bộ luật này, các từ ngữ dưới đây được hiểu như sau:\n1 Luật Công nghiệp công nghệ số số 71/2025/QH15 có căn cứ ban hành như sau:\n“Căn cứ Hiến pháp nước Cộng hòa xã hội chủ nghĩa Việt Nam;\nQuốc hội ban hành Luật Công nghiệp công nghệ số.”.\n1. Người lao động là người"
-    }
-  },
-  "qa_043": {
-    "bộ luật lao động::0008": {
-      "score": 2,
-      "anchor": "Điều 5. Quyền và nghĩa vụ của người lao động\n1. Người lao động có các quyền sau đây:\na) Làm việc; tự do lựa chọn việc làm, nơi làm việc, nghề nghiệp, học nghề,\nnâng cao trình độ nghề nghiệp; không bị phân biệt đối xử, cưỡng bức lao động,\nquấy rối tình dục tại nơi làm việc;\nb) Hưởng lương phù hợp"
-    }
-  },
-  "qa_044": {
-    "bộ luật lao động::0005": {
-      "score": 2,
-      "anchor": "Phân biệt đối xử trong lao động là hành vi phân biệt, loại trừ hoặc ưu tiên\ndựa trên chủng tộc, màu da, nguồn gốc quốc gia hoặc nguồn gốc xã hội, dân tộc,\ngiới tính, độ tuổi, tình trạng thai sản, tình trạng hôn nhân, tôn giáo, tín ngưỡng,\nchính kiến, khuyết tật, trách nhiệm gia đình hoặc trên cơ sở"
-    }
-  },
-  "qa_045": {
-    "bộ luật lao động::0004": {
-      "score": 2,
-      "anchor": "Tổ chức đại diện người lao động tại cơ sở bao\ngồm công đoàn cơ sở và tổ chức của người lao động tại doanh nghiệp.\n4. Tổ chức đại diện người sử dụng lao động là tổ chức được thành lập hợp\npháp, đại diện và bảo vệ quyền, lợi ích hợp pháp của người sử dụng lao động trong\nquan hệ lao động.\n5. Quan hệ"
-    }
-  },
   "qa_046": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0002": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
       "score": 2,
-      "anchor": "Điều 2. Đối tượng tham gia bảo hiểm xã hội bắt buộc và bảo hiểm xã hội\ntự nguyện\n1. Người lao động là công dân Việt Nam thuộc đối tượng tham gia bảo hiểm\nxã hội bắt buộc bao gồm:\na) Người làm việc theo hợp đồng lao động không xác định thời hạn, hợp đồng\nlao động xác định thời hạn có thời hạn từ đủ"
+      "anchor": "HĐLĐ không xác định thời hạn hoặc HĐLĐ xác định thời hạn từ đủ 01 tháng trở lên đều thuộc diện tham gia BHXH bắt buộc (Điều 2.1.a Luật BHXH 41/2024)."
     }
   },
   "qa_047": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
       "score": 2,
-      "anchor": "l) Đối tượng quy định tại điểm a khoản này làm việc không trọn thời gian, có\ntiền lương trong tháng bằng hoặc cao hơn tiền lương làm căn cứ đóng bảo hiểm xã\nhội bắt buộc thấp nhất;\nm) Chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo\nquy định của Chính phủ;\nn) Người quản lý"
+      "anchor": "Có, nếu ký HĐLĐ xác định thời hạn từ đủ 12 tháng trở lên với NexaTech tại Việt Nam và có giấy phép lao động hợp lệ (Điều 2.2)."
     }
   },
   "qa_048": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
       "score": 2,
-      "anchor": "l) Đối tượng quy định tại điểm a khoản này làm việc không trọn thời gian, có\ntiền lương trong tháng bằng hoặc cao hơn tiền lương làm căn cứ đóng bảo hiểm xã\nhội bắt buộc thấp nhất;\nm) Chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo\nquy định của Chính phủ;\nn) Người quản lý"
+      "anchor": "Có, nếu tiền lương tháng bằng hoặc cao hơn mức lương làm căn cứ đóng BHXH bắt buộc thấp nhất (Điều 2.1.l)."
     }
   },
   "qa_049": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
       "score": 2,
-      "anchor": "l) Đối tượng quy định tại điểm a khoản này làm việc không trọn thời gian, có\ntiền lương trong tháng bằng hoặc cao hơn tiền lương làm căn cứ đóng bảo hiểm xã\nhội bắt buộc thấp nhất;\nm) Chủ hộ kinh doanh của hộ kinh doanh có đăng ký kinh doanh tham gia theo\nquy định của Chính phủ;\nn) Người quản lý"
+      "anchor": "Có, thuộc đối tượng tham gia BHXH bắt buộc theo quy định của Chính phủ (Điều 2.1.m)."
     }
   },
   "qa_050": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0003": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
       "score": 2,
-      "anchor": "đ) Hạ sĩ quan, binh sĩ quân đội nhân dân; hạ sĩ quan, chiến sĩ nghĩa vụ công an\nnhân dân; học viên quân đội, công an, cơ yếu đang theo học được hưởng sinh hoạt phí;\ne) Dân quân thường trực;\ng) Người lao động đi làm việc ở nước ngoài theo hợp đồng quy định tại Luật\nNgười lao động Việt Nam đi làm"
+      "anchor": "Có, đây là một trong các nhóm được liệt kê tại Điều 2.1 Luật BHXH 41/2024."
     }
   },
   "qa_051": {
@@ -317,46 +257,34 @@
       "anchor": "# 1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019\n\nQUY ĐỊNH NỘI BỘ CHUNG CÔNG TY VINFAST\nMã số : VF.I.4.1.001/V5\nĐơn vị phát hành : Phòng Nhân sự\nNgày phát hành : 08/08/2019\nBộ phận áp dụng : Toàn bộ nhân viên Công ty"
     }
   },
-  "qa_054": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0004": {
-      "score": 2,
-      "anchor": "2 Chuyên viên Chuyên viên\nĐơn giản\n3 Cấp C\n4 CBLĐ cấp cơ sở Cấp P2\n5 Cấp P1 Quản trị cơ bản\n6 Cấp T4\nCBLĐ cấp trung\n7 Cấp T3\n8 Cấp T2\n9 CBLĐ cấp cao Cấp T1\nQuản trị riêng theo từng nhóm\nchức danh hoặc từng chức danh\n10 CBLĐ cao cấp\n11 Chuyên gia trong nước\nChuyên gia\n12 Chuyên gia nước ngoài\n2. Mỗi"
-    }
-  },
-  "qa_055": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0005": {
-      "score": 2,
-      "anchor": "Quyền - CBLĐ chưa có khả năng độc lập đảm trách Hạ 01 bậc so với cấp bậc\ntất cả các mảng việc được giao, vẫn cần sự của chức danh\nhỗ trợ từ CBLĐ cấp trên và/hoặc CBLĐ Bộ\nphận khác.\n- Chất lượng công việc chưa ổn định, vẫn cần\nsự giám sát, đốc thúc, kèm cặp, sửa lỗi từ\nCBLĐ cấp trên.\n- Khả năng kết"
-    }
-  },
   "qa_056": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
       "score": 2,
-      "anchor": "### Điều 2. Chu kỳ Đánh giá\n1. **Đánh giá Hàng tháng / Hàng quý**: Áp dụng đối với Khối Kinh doanh, Dịch vụ và Sản xuất để tính thưởng doanh số/năng suất.\n2. **Đánh giá Hàng năm (Annual Performance Review - APR)**: Áp dụng cho toàn thể CBNV có thâm niên làm việc từ 03 tháng trở lên tính đến thời"
+      "anchor": "Khối Kinh doanh áp dụng đánh giá hàng tháng hoặc hàng quý để tính thưởng doanh số/năng suất."
     }
   },
   "qa_057": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
       "score": 2,
-      "anchor": "### Điều 2. Chu kỳ Đánh giá\n1. **Đánh giá Hàng tháng / Hàng quý**: Áp dụng đối với Khối Kinh doanh, Dịch vụ và Sản xuất để tính thưởng doanh số/năng suất.\n2. **Đánh giá Hàng năm (Annual Performance Review - APR)**: Áp dụng cho toàn thể CBNV có thâm niên làm việc từ 03 tháng trở lên tính đến thời"
+      "anchor": "Không. Đánh giá hàng năm chỉ áp dụng cho NLĐ có thâm niên làm việc từ 03 tháng trở lên tính đến thời điểm chốt đánh giá."
     }
   },
   "qa_058": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0003": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
       "score": 2,
-      "anchor": "### Điều 4. Thang điểm và Xếp loại Hiệu suất\n\n| Xếp loại | Điểm số đánh giá | Tỷ lệ phân bổ mục tiêu (Bell Curve) | Quy đổi mức thưởng định kỳ |\n| :--- | :--- | :--- | :--- |\n| **Xuất sắc (A+)** | 95 - 100 điểm | Tối đa 10% | 150% - 200% Mức thưởng chuẩn |\n| **Tốt (A)** | 80 - 94 điểm | Khuyến"
+      "anchor": "Không, nhân viên xếp loại C sẽ không được xem xét tăng lương."
     }
   },
   "qa_059": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0005": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
       "score": 2,
-      "anchor": "### Điều 6. Xử lý trường hợp Xếp loại C và D (Kế hoạch Cải thiện - PIP)\n1. CBNV bị xếp loại **D (Không đạt)** trong kỳ đánh giá năm hoặc **02 quý liên tiếp bị xếp loại C** sẽ phải tham gia **Kế hoạch Cải thiện Hiệu suất (Performance Improvement Plan - PIP)** trong thời gian 30 - 60 ngày.\n2. Nếu sau"
+      "anchor": "Nhân viên bị xếp loại D trong kỳ đánh giá năm hoặc 02 quý liên tiếp bị xếp loại C sẽ phải tham gia PIP."
     }
   },
   "qa_060": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0006": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
       "score": 2,
-      "anchor": "### Điều 7. Khái niệm và Quy trình Khiếu nại Kết quả\n1. CBNV có quyền gửi Đơn khiếu nại kết quả đánh giá trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR.\n2. Phòng Nhân sự phối hợp cùng Công đoàn cơ sở xem xét và trả lời bằng văn bản cho CBNV trong thời hạn 07 ngày làm việc."
+      "anchor": "Có, bạn có quyền gửi đơn khiếu nại trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR."
     }
   },
   "qa_101": {
@@ -366,9 +294,9 @@
     }
   },
   "qa_102": {
-    "05_chinh-sach-lam-viec-tu-xa::0010": {
+    "05_chinh-sach-lam-viec-tu-xa::0009": {
       "score": 2,
-      "anchor": "## 6. Quy trình đăng ký và phê duyệt WFH\n\n### 6.1. Đăng ký định kỳ\n1. NLĐ gửi **Phiếu đăng ký WFH định kỳ** (mẫu HR-FRM-WFH-01) qua hệ thống HRIS trước **17:00 ngày Thứ Sáu của tuần trước tuần kế tiếp**, nêu rõ ngày WFH dự kiến và địa điểm WFH.\n2. Trưởng bộ phận phê duyệt trên HRIS trong vòng **01"
+      "anchor": "### 5.3. Số ngày WFH tối đa trong tháng và năm\n- Không quá **08 ngày WFH/tháng**.\n- Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).\n- Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự p"
     }
   },
   "qa_103": {
@@ -398,7 +326,7 @@
   "qa_107": {
     "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 2,
-      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho V-NOVA sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
     }
   },
   "qa_108": {
@@ -410,13 +338,13 @@
   "qa_109": {
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": {
       "score": 2,
-      "anchor": "## 3. Định nghĩa\n- **BHYT bắt buộc**: Bảo hiểm y tế do người lao động và người sử dụng lao động đóng theo Luật BHYT số 51/2024/QH15, là nghĩa vụ pháp lý bắt buộc.\n- **Bảo hiểm Sức khỏe Tự nguyện (BHSTN)**: Gói bảo hiểm sức khỏe do V-NOVA tự nguyện mua thêm cho NLĐ thông qua đối tác bảo hiểm thương"
+      "anchor": "## 3. Định nghĩa\n- **BHYT bắt buộc**: Bảo hiểm y tế do người lao động và người sử dụng lao động đóng theo Luật BHYT số 51/2024/QH15, là nghĩa vụ pháp lý bắt buộc.\n- **Bảo hiểm Sức khỏe Tự nguyện (BHSTN)**: Gói bảo hiểm sức khỏe do NexaTech tự nguyện mua thêm cho NLĐ thông qua đối tác bảo hiểm thương"
     }
   },
   "qa_110": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": {
       "score": 2,
-      "anchor": "## 7. Quyền lợi chi tiết theo hạng mức\n\n### 7.1. Điều trị nội trú (năm tài chính bảo hiểm)\n\n| Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Mô tả |\n|---|---|---|---|\n| Standard | 30.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Phòng bệnh tiêu chuẩn, chi phí phẫu thuật, thuốc men, xét"
+      "anchor": "**H: Tôi nghỉ việc giữa kỳ thì gói BHSTN còn hiệu lực đến khi nào?**\nĐ: Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.\n\n**H: Quyền lợi thai sản có áp dụng ngay khi tham gia khôn"
     }
   },
   "qa_111": {
@@ -431,154 +359,78 @@
       "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi đang trong thời gian thử việc có được tham gia gói BHSTN không?**\nĐ: Không. NLĐ phải qua thời gian thử việc và ký HĐLĐ chính thức mới được tham gia. Gói có hiệu lực từ ngày 01 của tháng kế tiếp kể từ ngày ký hợp đồng chính thức.\n\n**H: Gói BHSTN có thay thế"
     }
   },
-  "qa_113": {
-    "161-ndcp.signed::0000": {
-      "score": 2,
-      "anchor": "# CHÍNH PHỦ\nCỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập - Tự do - Hạnh phúc\n\n**Số: 161/2026/NĐ-CP**\nHà Nội, ngày 15 tháng 5 năm 2026\n\n## NGHỊ ĐỊNH\nQuy định mức lương cơ sở và chế độ tiền thưởng đối với cán bộ, công chức, viên chức và lực lượng vũ trang\n\n**Căn cứ Luật Tổ chức Chính phủ số"
-    }
-  },
-  "qa_114": {
-    "161-ndcp.signed::0006": {
-      "score": 2,
-      "anchor": "Đối với các cơ quan, đơn vị đang bảo lưu phần chênh lệch giữa tiền lương và thu nhập tăng thêm tháng 6 năm 2024 với tiền lương từ ngày 01 tháng 7 năm 2024 do sửa đổi hoặc bãi bỏ cơ chế tài chính và thu nhập đặc thù thì thực hiện giảm phần chênh lệch bảo lưu tương ứng với tỷ lệ tăng lương cơ sở từ"
-    }
-  },
-  "qa_115": {
-    "161-ndcp.signed::0011": {
-      "score": 2,
-      "anchor": "|\n| c) Sử dụng 10% tiết kiệm chi thường xuyên (trừ các khoản tiền lương, phụ cấp, đóng góp theo lương, các khoản có tính chất lương và các khoản chi cho con người theo chế độ) dự toán năm 2026 đã được cấp có thẩm quyền giao, gồm: 10% dự toán chi thường xuyên năm 2023, 10% dự toán chi thường xuyên"
-    }
-  },
-  "qa_116": {
-    "161-ndcp.signed::0015": {
-      "score": 2,
-      "anchor": "c) Tổng hợp nhu cầu nguồn và trình cấp có thẩm quyền bổ sung kinh phí còn thiếu do thực hiện điều chỉnh mức lương cơ sở và chế độ tiền thưởng của các bộ, cơ quan ngang bộ, cơ quan khác ở trung ương và các tỉnh, thành phố trực thuộc trung ương theo quy định tại Nghị định này.\n\n4. Các Bộ trưởng, Thủ"
-    }
-  },
   "qa_120": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": {
+    "07_chinh-sach-nghi-phep::0014": {
       "score": 2,
-      "anchor": "# base_mau-quy-che-luong-thuong-phu-cap-xu-phat\n\nMẪU QUY CHẾ LƯƠNG THƯỞNG, PHỤ CẤP VÀ XỬ PHẠT ÁP DỤNG\n\nTRONG DOANH NGHIỆP\n\nI.   Quy chế đãi ngộ nhân viên:\n\nThăm hỏi:\n\nĐau ốm: Chế độ dành cho CBNV hoặc bố mẹ đẻ (bố mẹ vợ/chồng) bị bệnh / tai nạn phải nghỉ ở viện dài ngày ở bệnh viện theo chỉ định"
-    }
-  },
-  "qa_121": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": {
+      "anchor": "### 8.2. Mức hưởng\n- Bằng **100% mức bình quân tiền lương tháng đóng BHXH** của 6 tháng trước khi nghỉ (theo Điều 32 Luật BHXH).\n- Nếu đóng BHXH dưới 6 tháng: tính bình quân các tháng đã đóng.\n\n### 8.3. Nghỉ thai sản — quyền lợi bổ sung\n- NLĐ nữ sinh con được công ty hỗ trợ thêm **2 tháng lương** (t"
+    },
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": {
       "score": 2,
-      "anchor": "# base_mau-quy-che-luong-thuong-phu-cap-xu-phat\n\nMẪU QUY CHẾ LƯƠNG THƯỞNG, PHỤ CẤP VÀ XỬ PHẠT ÁP DỤNG\n\nTRONG DOANH NGHIỆP\n\nI.   Quy chế đãi ngộ nhân viên:\n\nThăm hỏi:\n\nĐau ốm: Chế độ dành cho CBNV hoặc bố mẹ đẻ (bố mẹ vợ/chồng) bị bệnh / tai nạn phải nghỉ ở viện dài ngày ở bệnh viện theo chỉ định"
+      "anchor": "### 7.4. Thai sản\n\n| Hạng mức | Hạn mức/lần sinh | Tỷ lệ chi trả | Phạm vi |\n|---|---|---|---|\n| Standard | 10.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Khám thai, sinh thường, sinh mổ (thời gian mang thai ≥ 10 tháng kể từ ngày tham gia gói) |\n| Premium | 25.000.000 VNĐ | 100% ("
     }
   },
   "qa_122": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001": {
+    "13_noi-quy-lao-dong-va-ky-luat::0007": {
       "score": 2,
-      "anchor": "II.  Các trường hợp thưởng cho nhân viên:\n\nThưởng ngày lễ & Nghỉ mát:\n\nThưởng ngày quốc tế phụ nữ 8/3: Mức đãi ngộ do doanh nghiệp quyết định.\n\nThưởng ngày phụ nữ Việt Nam 20/10: Mức đãi ngộ do doanh nghiệp quyết định.\n\nQuốc tế thiếu nhi 1/6: Mức đãi ngộ do doanh nghiệp quyết định.\n\nTết Trung thu:"
+      "anchor": "## 7. Hình thức xử lý kỷ luật lao động\nCăn cứ mức độ vi phạm, NexaTech áp dụng 04 hình thức kỷ luật (không áp dụng nhiều hình thức cho cùng 1 hành vi vi phạm):\n\n| Hình thức | Áp dụng khi |\n|---|---|\n| Khiển trách | Vi phạm lần đầu, mức độ nhẹ (đi trễ nhiều lần, vi phạm nội quy nhỏ, không gây hậu quả"
     }
   },
   "qa_123": {
-    "leanh_mau-noi-quy-lao-dong::0000": {
+    "13_noi-quy-lao-dong-va-ky-luat::0002": {
       "score": 2,
-      "anchor": "# leanh_mau-noi-quy-lao-dong\n\nNỘI QUY LAO ĐỘNG\n\nCăn cứ Bộ luật Lao động nước Cộng hòa xã hội chủ nghĩa Việt Nam ngày 20/11/2019;\n\nCăn cứ Nghị định 145/2020/NĐ-CP ngày 14/12/2020 của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về điều kiện lao động và quan hệ"
+      "anchor": "## 2. Thời giờ làm việc và nghỉ ngơi\n- Thời gian làm việc: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.\n- Giờ làm việc: sáng 8h30–12h00, chiều 13h00–17h30. Nghỉ trưa: 12h00–13h00.\n- Nghỉ hằng tuần: thứ Bảy và Chủ nhật.\n- NLĐ đến trễ, vắng mặt không báo trước phải thông báo ngay cho quản lý trực"
     }
   },
   "qa_124": {
-    "leanh_mau-noi-quy-lao-dong::0022": {
+    "13_noi-quy-lao-dong-va-ky-luat::0005": {
       "score": 2,
-      "anchor": "Điều 19. Trách nhiệm của người lao động\n\n- Chấp hành các quy định, quy trình, nội quy về an toàn lao động, vệ sinh lao động có liên quan đến công việc, nhiệm vụ được giao:\n\n+ Trước khi rời khỏi vị trí làm việc, phải vệ sinh nơi làm việc, kiểm tra thiết bị điện, nước tại chỗ. Bảo đảm các thiết bị đã"
-    }
-  },
-  "qa_125": {
-    "leanh_mau-noi-quy-lao-dong::0042": {
-      "score": 2,
-      "anchor": "CHƯƠNG X\n\nĐIỀU KHOẢN THI HÀNH\n\n- Nội quy lao động làm cơ sở để công ty quản lý nhân viên và xử lý các trường hợp vi phạm về kỷ luật lao động của doanh nghiệp.\n\n- Các đơn vị thành phần, tùy thuộc vào đặc điểm sản xuất, kinh doanh của đơn vị, cụ thể hóa nội quy lao động cho phù hợp với thực tế, nhưng"
+      "anchor": "## 5. Phòng, chống quấy rối tình dục tại nơi làm việc\n5.1. Hành vi quấy rối tình dục bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.\n5.2. NLĐ bị quấy rối hoặc chứng kiến h"
     }
   },
   "qa_126": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 2,
-      "anchor": "## CHƯƠNG II: ĐIỀU KIỆN CAM KẾT VÀ THỜI GIAN GẮN BÓ\n\n### Điều 3. Mức Chi phí và Thời gian Cam kết Phục vụ\nCBNV được Công ty cử đi đào tạo hoặc tài trợ kinh phí có tổng giá trị từ **5.000.000 VNĐ/khóa** trở lên phải ký **Bản Cam kết Đào tạo** với thời gian phục vụ bắt buộc sau khi hoàn thành khóa"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
     }
   },
   "qa_127": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 2,
-      "anchor": "### Điều 5. Công thức Tính Chi phí Bồi hoàn\nSố tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:\n\n$$\\text{Số tiền bồi hoàn} = \\text{Tổng chi phí đào tạo} \\times \\left(1 - \\frac{\\text{Số tháng đã làm việc sau đào tạo}}{\\text{Tổng số tháng cam kết}}\\right)$$\n\n*Trong"
-    }
-  },
-  "qa_128": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": {
-      "score": 2,
-      "anchor": "### Điều 5. Công thức Tính Chi phí Bồi hoàn\nSố tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:\n\n$$\\text{Số tiền bồi hoàn} = \\text{Tổng chi phí đào tạo} \\times \\left(1 - \\frac{\\text{Số tháng đã làm việc sau đào tạo}}{\\text{Tổng số tháng cam kết}}\\right)$$\n\n*Trong"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
     }
   },
   "qa_129": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
       "score": 2,
-      "anchor": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật\n- Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự:\n  1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ).\n  2. Đại diện Ban Chấp"
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
     }
   },
   "qa_130": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
       "score": 2,
-      "anchor": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật\n- Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự:\n  1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ).\n  2. Đại diện Ban Chấp"
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
     }
   },
   "qa_131": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
       "score": 2,
-      "anchor": "## CHƯƠNG III: BỒI THƯỜNG THIỆT HẠI TÀI SẢN & KHIẾU NẠI\n\n### Điều 3. Trách nhiệm Vật chất (Bồi thường Thiệt hại)\n1. NLĐ làm hư hỏng dụng cụ, thiết bị hoặc có hành vi khác gây thiệt hại tài sản của Công ty thì phải bồi thường theo quy định của pháp luật hoặc Nội quy công ty.\n2. Nếu gây thiệt hại"
-    }
-  },
-  "qa_132": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0033": {
-      "score": 2,
-      "anchor": "## Điều 13. Mức lương hưu hàng tháng\n\nMức lương hưu hàng tháng thực hiện theo quy định tại Điều 66 của Luật Bảo hiểm xã hội và được quy định chi tiết như sau:\n\n1. Mức lương hưu hàng tháng của người lao động được tính bằng tỷ lệ hưởng lương hưu hàng tháng nhân với mức bình quân tiền lương làm căn cứ"
-    }
-  },
-  "qa_133": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0077": {
-      "score": 2,
-      "anchor": "## Chương VI\n\n### QUY ĐỊNH CHUYỂN TIẾP\n\n# Điều 32. Phụ cấp khu vực đối với người hưởng bảo hiểm xã hội\n\n1. Đối tượng áp dụng\n\na) Người lao động đang tham gia hoặc đang bảo lưu thời gian đóng bảo hiểm xã hội mà có thời gian làm việc trước ngày 01 tháng 01 năm 1995 tại nơi có phụ cấp khu vực được"
-    }
-  },
-  "qa_134": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095": {
-      "score": 2,
-      "anchor": "# Điều 35. Tính thời gian công tác đối với người lao động đi hợp tác lao động trước ngày 01 tháng 01 năm 1995\n\n1. Người lao động thuộc biên chế của các cơ quan nhà nước, tổ chức chính trị, tổ chức chính trị - xã hội, doanh nghiệp nhà nước, đơn vị lực lượng vũ trang được cơ quan, đơn vị cử đi công"
-    }
-  },
-  "qa_135": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005": {
-      "score": 2,
-      "anchor": "## Điều 3. Mức lương tối thiểu\n1. Quy định mức lương tối thiểu tháng và mức lương tối thiểu giờ đối với người lao động làm việc cho người sử dụng lao động theo vùng như sau:\n\n| Vùng | Mức lương tối thiểu tháng | Mức lương tối thiểu giờ |\n|---|---|---|\n| Vùng 1 | 5.000.000 đồng | 20.000 đồng"
-    }
-  },
-  "qa_136": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0021": {
-      "score": 2,
-      "anchor": "|\n| - Vùng III, gồm các xã Hoàng Hoa Thám, Tiên Lữ, Tiên Hoa, Quang Hưng, Đoàn Đào, Tiên Tiến, Tống Trân, Lương Bằng, Nghĩa Dân, Hiệp Cường, Đức Hợp, Ân Thi, Xuân Trúc, Phạm Ngũ Lão, Nguyễn Trãi, Hồng Quang, Khoái Châu, Triệu Việt Vương, Việt Tiến, Chí Minh, Châu Ninh, Thái Thụy, Đông Thụy Anh, Bắc"
-    }
-  },
-  "qa_137": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0034": {
-      "score": 2,
-      "anchor": "- Vùng IV, gồm các xã, phường còn lại.\n32. Tỉnh An Giang\n- Vùng II, gồm các phường Long Xuyên, Bình Đức, Mỹ Thới, Châu Đốc, Vĩnh Tế, Vĩnh Thông, Rạch Giá, Hà Tiên, Tô Châu; các xã Mỹ Hòa Hưng, Tiên Hải và các đặc khu Phú Quốc, Thổ Châu.\n- Vùng III, gồm các phường Tân Châu, Long Phú; các xã Tân An,"
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
     }
   },
   "qa_138": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": {
+    "04_quy-trinh-offboarding::0004": {
       "score": 2,
-      "anchor": "nắm rõ các trường hợp có thể chấm dứt hợp đồng, quy trình và thủ tục liên quan, cùng với các nghĩa vụ tài chính và pháp lý, là điều cần thiết.\n\nNguyên nhân chấm dứt hợp đồng\nViệc chấm dứt hợp đồng lao động có thể phát sinh từ nhiều lý do, bao gồm cả yếu tố khách quan và chủ quan từ phía người sử"
-    }
-  },
-  "qa_139": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": {
-      "score": 2,
-      "anchor": "viên ban lãnh đạo của tổ chức đại diện người lao động đang tại vị, hợp đồng phải được gia hạn cho đến khi hết nhiệm kỳ của người lao động.\n\nĐơn phương chấm dứt hợp động lao động do Người lao động thường xuyên không hoàn thành công việc theo hợp đồng lao động\nTrong trường hợp chấm dứt hợp đồng do"
+      "anchor": "## 4. Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)\n- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.\n- Hợp đồng **xác định thời hạn 12–36 tháng**: báo trước ít nhất **30 ngày**.\n- Hợp đồng **dưới 12 tháng**: báo trước ít nhất **03 ngày làm việc**.\n- Một số ngành nghề đặc t"
     }
   },
   "qa_140": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": {
+    "04_quy-trinh-offboarding::0007": {
       "score": 2,
-      "anchor": "quy định, thì hành vi dẫn đến kỷ luật sa thải cần phải được quy định trongNội quy Lao độngđã được ban hành và đăng ký với cơ quan Lao động.\n\nNghĩa vụ tài chính và nghĩa vụ khác\nBất kể lý do chấm dứt hợp đồng, người sử dụng lao động phải hoàn tất các nghĩa vụ sau:\nThanh toán đầy đủ các khoản tiềncó"
+      "anchor": "### Bước 5 — Thanh toán & chốt chế độ (theo Điều 48)\n- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).\n- Thanh toán: lương những ngày làm việc c"
+    },
+    "04_quy-trinh-offboarding::0008": {
+      "score": 2,
+      "anchor": "### Bước 6 — Hoàn tất thủ tục & hồ sơ\n- Công ty hoàn thành thủ tục xác nhận và trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ của NLĐ (Điều 48).\n- Cấp giấy xác nhận thời gian làm việc nếu NLĐ yêu cầu."
     }
   },
   "heldout_001": {

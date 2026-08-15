@@ -456,7 +456,7 @@
   },
   {
     "id": "rh_066",
-    "question": "so với Vinamilk thì trợ cấp công tác của V-NOVA bên nào cao hơn?",
+    "question": "so với Vinamilk thì trợ cấp công tác của NexaTech bên nào cao hơn?",
     "type": "out_of_scope_or_personal",
     "difficulty": "borderline",
     "note": "Đòi hỏi dữ liệu chính sách của một công ty khác để so sánh."
@@ -466,7 +466,7 @@
     "question": "Shopee Việt Nam thử việc mấy tháng và lương bao nhiêu % vậy?",
     "type": "out_of_scope_or_personal",
     "difficulty": "borderline",
-    "note": "Hỏi chính sách cụ thể của doanh nghiệp khác, không phải chính sách chung của V-NOVA."
+    "note": "Hỏi chính sách cụ thể của doanh nghiệp khác, không phải chính sách chung của NexaTech."
   },
   {
     "id": "rh_068",
