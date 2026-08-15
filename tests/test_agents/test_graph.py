@@ -44,6 +44,22 @@ async def test_out_of_scope_flow_escalates_without_calling_retrieval():
 
 
 @pytest.mark.asyncio
+async def test_pure_statutory_flow_bypasses_retrieval_and_ticket():
+    """NexaTech Type-C contract v3.1.0, routing_precedence priority 2: câu hỏi
+    luật thuần tuý phải OUT_OF_SCOPE, KHÔNG retrieval, KHÔNG tạo ticket.
+    Không mock retrieval/embedding: nếu router lỡ route sai sang nhánh RAG,
+    node sẽ crash vì gọi FPT.AI/Chroma thật -> test tự fail thay vì âm thầm pass."""
+    with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="pure_statutory")):
+        result = await agent.ainvoke({"query": "Điều 112 Bộ luật Lao động 2019 quy định về chế độ nghỉ lễ, tết như thế nào?"})
+
+    assert "retrieved_chunks" not in result
+    assert result["escalate"] is False
+    assert result["citations"] == []
+    assert result["response"].startswith("[OUT_OF_SCOPE]")
+    assert "NexaTech" in result["response"]
+
+
+@pytest.mark.asyncio
 async def test_hr_question_flow_returns_grounded_answer_with_citations():
     chroma_result = {
         "ids": [["leave::0001"]],

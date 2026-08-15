@@ -1,0 +1,492 @@
+[
+  {
+    "id": "rh_001",
+    "question": "chào bạn",
+    "type": "greeting",
+    "difficulty": "easy",
+    "note": "Chỉ là lời chào, không có yêu cầu liên quan HR."
+  },
+  {
+    "id": "rh_002",
+    "question": "hello HR bot 👋",
+    "type": "greeting",
+    "difficulty": "easy",
+    "note": "Xã giao thuần túy, chưa có câu hỏi nghiệp vụ."
+  },
+  {
+    "id": "rh_003",
+    "question": "alo alo có ai ở đây ko",
+    "type": "greeting",
+    "difficulty": "easy",
+    "note": "Người dùng chỉ đang bắt chuyện, chưa nêu nhu cầu HR."
+  },
+  {
+    "id": "rh_004",
+    "question": "chúc buổi sáng nha",
+    "type": "greeting",
+    "difficulty": "easy",
+    "note": "Lời chúc xã giao, không cần tra cứu chính sách."
+  },
+  {
+    "id": "rh_005",
+    "question": "cảm ơn bạn nhiều nhé",
+    "type": "greeting",
+    "difficulty": "borderline",
+    "note": "Đây là phản hồi xã giao, không chứa câu hỏi HR dù không phải lời chào trực tiếp."
+  },
+  {
+    "id": "rh_006",
+    "question": "OT ngày thường thì tính lương thế nào vậy?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quy định chung về tiền lương làm thêm giờ, không cần hồ sơ cá nhân."
+  },
+  {
+    "id": "rh_007",
+    "question": "làm thêm vào chủ nhật có được tính khác ngày thường không",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Câu hỏi chung về cách tính OT theo thời điểm làm thêm."
+  },
+  {
+    "id": "rh_008",
+    "question": "cty có được bắt nhân viên OT liên tục không ạ",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi giới hạn và điều kiện làm thêm theo quy định chung, không hỏi một ca OT cá nhân cụ thể."
+  },
+  {
+    "id": "rh_009",
+    "question": "nếu tháng này có ngày lễ mà mình vẫn đi làm thì tiền công tính sao?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Có đại từ cá nhân nhưng thông tin cần là quy tắc chung về làm việc ngày lễ."
+  },
+  {
+    "id": "rh_010",
+    "question": "công ty có được trừ lương vì đi muộn không?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi tính hợp lệ của một cách xử lý lương/kỷ luật theo quy định chung."
+  },
+  {
+    "id": "rh_011",
+    "question": "mình muốn biết cách tính lương thử việc",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi nguyên tắc chung về lương thử việc, không cần dữ liệu hồ sơ riêng."
+  },
+  {
+    "id": "rh_012",
+    "question": "nghỉ phép năm được bao nhiêu ngày?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quyền nghỉ phép năm theo chính sách/luật chung."
+  },
+  {
+    "id": "rh_013",
+    "question": "phép năm chưa dùng hết có được chuyển sang năm sau ko",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi nguyên tắc xử lý ngày phép còn lại, có thể trả lời bằng chính sách chung."
+  },
+  {
+    "id": "rh_014",
+    "question": "em xin nghỉ 1 ngày vì nhà có việc thì cần báo trước bao lâu",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Dù dùng ngôi thứ nhất, người hỏi đang cần quy trình chung về xin nghỉ."
+  },
+  {
+    "id": "rh_015",
+    "question": "nghỉ cưới có được hưởng nguyên lương không và mấy ngày vậy?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chế độ nghỉ việc riêng theo quy định chung."
+  },
+  {
+    "id": "rh_016",
+    "question": "ông bà mất thì nhân viên được nghỉ mấy ngày",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chế độ nghỉ khi có tang theo quy định chung."
+  },
+  {
+    "id": "rh_017",
+    "question": "nghỉ không lương thì có giới hạn số ngày không?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi điều kiện nghỉ không hưởng lương nói chung, chưa cần xét hồ sơ cá nhân."
+  },
+  {
+    "id": "rh_018",
+    "question": "đang thử việc mà xin nghỉ thì có cần báo trước không",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi nghĩa vụ báo trước trong thời gian thử việc theo quy định chung."
+  },
+  {
+    "id": "rh_019",
+    "question": "mang thai thì được nghỉ đi khám thai bao nhiêu lần?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chế độ thai sản chung, không cần hồ sơ riêng để giải thích quyền lợi."
+  },
+  {
+    "id": "rh_020",
+    "question": "chồng có được nghỉ khi vợ sinh con không?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chế độ nghỉ dành cho lao động nam khi vợ sinh theo luật chung."
+  },
+  {
+    "id": "rh_021",
+    "question": "sau thai sản đi làm lại thì có được nghỉ thêm để chăm con nhỏ ko",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi quyền lợi chung sau thai sản, không yêu cầu tra cứu trường hợp cá nhân."
+  },
+  {
+    "id": "rh_022",
+    "question": "đóng BHXH bao lâu thì mới đủ điều kiện hưởng thai sản?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi điều kiện pháp lý chung về thời gian tham gia BHXH."
+  },
+  {
+    "id": "rh_023",
+    "question": "BHXH bắt buộc gồm những chế độ gì vậy",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi thông tin khái quát về chế độ BHXH bắt buộc."
+  },
+  {
+    "id": "rh_024",
+    "question": "thẻ BHYT của nhân viên dùng khi đi khám trái tuyến có được thanh toán không?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi quyền lợi BHYT theo quy định chung, không cần biết thẻ cụ thể của người hỏi."
+  },
+  {
+    "id": "rh_025",
+    "question": "người lao động và công ty mỗi bên đóng BHXH theo mức nào?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi cơ chế đóng góp BHXH chung giữa người lao động và doanh nghiệp."
+  },
+  {
+    "id": "rh_026",
+    "question": "mới vào công ty thì bao giờ bắt đầu được đóng BHXH",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi thời điểm áp dụng nghĩa vụ BHXH nói chung, không cần kiểm tra hồ sơ của người hỏi."
+  },
+  {
+    "id": "rh_027",
+    "question": "quy trình onboarding nhân viên mới thường cần hoàn thành những giấy tờ gì?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quy trình và hồ sơ onboarding ở mức chính sách chung."
+  },
+  {
+    "id": "rh_028",
+    "question": "trong thời gian thử việc mình có được tham gia các khóa đào tạo nội bộ không?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi điều kiện tham gia đào tạo theo chính sách chung dù có dùng 'mình'."
+  },
+  {
+    "id": "rh_029",
+    "question": "công ty có chính sách hỗ trợ chi phí học chứng chỉ chuyên môn không",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chính sách đào tạo/phát triển chung của công ty."
+  },
+  {
+    "id": "rh_030",
+    "question": "đi công tác qua đêm thì tiền khách sạn và phụ cấp tính theo quy định nào?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chính sách công tác phí chung, không cần dữ liệu cá nhân."
+  },
+  {
+    "id": "rh_031",
+    "question": "đặt vé máy bay đi công tác tự mua rồi hoàn ứng sau có được không ạ",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi quy trình thanh toán công tác phí nói chung, không yêu cầu kiểm tra một claim cụ thể."
+  },
+  {
+    "id": "rh_032",
+    "question": "đi công tác trong ngày có được tính phụ cấp ăn uống ko",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi điều kiện hưởng phụ cấp công tác theo chính sách chung."
+  },
+  {
+    "id": "rh_033",
+    "question": "nếu vi phạm nội quy thì các bước xử lý kỷ luật lao động gồm những gì?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quy trình kỷ luật chung theo chính sách và pháp luật."
+  },
+  {
+    "id": "rh_034",
+    "question": "công ty có được phạt tiền nhân viên thay cho kỷ luật không?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi tính hợp lệ của biện pháp kỷ luật ở mức quy định chung."
+  },
+  {
+    "id": "rh_035",
+    "question": "trước khi sa thải nhân viên thì công ty phải làm những thủ tục gì?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi trình tự pháp lý chung khi xử lý sa thải."
+  },
+  {
+    "id": "rh_036",
+    "question": "nhân viên muốn nghỉ việc thì thường phải báo trước bao nhiêu ngày?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi nghĩa vụ báo trước khi chấm dứt hợp đồng theo quy định chung."
+  },
+  {
+    "id": "rh_037",
+    "question": "offboarding xong thì công ty phải trả sổ BHXH với giấy tờ cho nhân viên trong bao lâu",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi nghĩa vụ chung khi chấm dứt quan hệ lao động."
+  },
+  {
+    "id": "rh_038",
+    "question": "nghỉ việc rồi phép năm còn dư thì có được thanh toán không?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi cách xử lý phép năm còn dư khi nghỉ việc theo quy định chung."
+  },
+  {
+    "id": "rh_039",
+    "question": "cty có được giữ lương tháng cuối đến khi bàn giao xong hết ko?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi nguyên tắc thanh toán lương khi nghỉ việc, không yêu cầu xử lý một hồ sơ cụ thể."
+  },
+  {
+    "id": "rh_040",
+    "question": "ứng viên nội bộ muốn chuyển sang team khác thì có quy trình gì không?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quy trình tuyển dụng/chuyển vị trí nội bộ ở mức chính sách chung."
+  },
+  {
+    "id": "rh_041",
+    "question": "nhân viên có được giới thiệu người quen vào ứng tuyển và có referral bonus không?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi chính sách tuyển dụng giới thiệu ứng viên nói chung."
+  },
+  {
+    "id": "rh_042",
+    "question": "offer đã ký rồi mà ngày onboard muốn dời lại thì quy trình xử lý thế nào?",
+    "type": "hr_question",
+    "difficulty": "borderline",
+    "note": "Hỏi quy trình onboarding/tuyển dụng chung, chưa yêu cầu kiểm tra offer cụ thể."
+  },
+  {
+    "id": "rh_043",
+    "question": "hợp đồng lao động xác định thời hạn được ký tối đa bao lâu?",
+    "type": "hr_question",
+    "difficulty": "easy",
+    "note": "Hỏi quy định pháp luật chung về loại hợp đồng lao động."
+  },
+  {
+    "id": "rh_044",
+    "question": "nghỉ thế nào vậy?",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không rõ người dùng hỏi nghỉ phép, nghỉ việc, nghỉ không lương hay loại nghỉ nào khác."
+  },
+  {
+    "id": "rh_045",
+    "question": "cái này có được tính không ạ",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Thiếu hoàn toàn đối tượng đang hỏi nên không thể xác định chính sách cần áp dụng."
+  },
+  {
+    "id": "rh_046",
+    "question": "em làm vậy có sao không?",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không biết 'làm vậy' là hành vi gì nên cần hỏi lại trước khi trả lời."
+  },
+  {
+    "id": "rh_047",
+    "question": "trường hợp của mình thì được bao nhiêu ngày",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Có nhắc đến số ngày nhưng không rõ đang hỏi chế độ nghỉ hoặc quyền lợi nào."
+  },
+  {
+    "id": "rh_048",
+    "question": "bên mình xử lý vụ này theo luật hay theo policy?",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Không có thông tin về 'vụ này', nên chưa xác định được nội dung HR cần tra cứu."
+  },
+  {
+    "id": "rh_049",
+    "question": "nếu quá hạn rồi thì giờ làm sao",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không biết loại hạn nào đã quá nên mọi câu trả lời cụ thể đều là đoán."
+  },
+  {
+    "id": "rh_050",
+    "question": "có cần báo trước không nhỉ?",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Thiếu hành động cần báo trước; có thể là nghỉ phép, nghỉ việc, đổi ca hoặc việc khác."
+  },
+  {
+    "id": "rh_051",
+    "question": "công ty có hỗ trợ khoản này ko",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không rõ 'khoản này' là chi phí gì nên HR cũng phải hỏi lại."
+  },
+  {
+    "id": "rh_052",
+    "question": "thế còn người đang thử việc thì sao?",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Có chủ thể là người thử việc nhưng thiếu vấn đề đang được so sánh hoặc hỏi tiếp."
+  },
+  {
+    "id": "rh_053",
+    "question": "mình ký rồi thì có đổi được nữa không",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Không biết đã ký hợp đồng, offer, đơn nghỉ, cam kết đào tạo hay tài liệu nào khác."
+  },
+  {
+    "id": "rh_054",
+    "question": "case này có bị trừ không ạ?",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không rõ bị trừ lương, phép, phụ cấp hay khoản nào nên cần làm rõ."
+  },
+  {
+    "id": "rh_055",
+    "question": "em muốn làm thủ tục thì bắt đầu từ đâu",
+    "type": "ambiguous",
+    "difficulty": "easy",
+    "note": "Không nêu loại thủ tục nên không xác định được quy trình cần hướng dẫn."
+  },
+  {
+    "id": "rh_056",
+    "question": "nếu chưa đủ thì có cách nào khác không?",
+    "type": "ambiguous",
+    "difficulty": "borderline",
+    "note": "Không rõ điều kiện nào 'chưa đủ', nên có nhiều hướng trả lời khác hẳn nhau."
+  },
+  {
+    "id": "rh_057",
+    "question": "tháng này tôi còn chính xác bao nhiêu ngày phép?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Muốn trả lời chính xác phải mở số dư phép trong hồ sơ riêng của người hỏi."
+  },
+  {
+    "id": "rh_058",
+    "question": "lương net tháng này của mình là bao nhiêu sau khi trừ hết bảo hiểm với thuế?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Cần dữ liệu lương, giảm trừ và khấu trừ cá nhân mới tính chính xác."
+  },
+  {
+    "id": "rh_059",
+    "question": "check giúp mình hồ sơ BHXH đã được công ty đóng đến tháng mấy rồi",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Yêu cầu kiểm tra lịch sử đóng BHXH cá nhân, không thể trả lời chỉ từ chính sách chung."
+  },
+  {
+    "id": "rh_060",
+    "question": "đơn nghỉ phép hôm qua của tôi đã được sếp duyệt chưa?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Cần truy cập trạng thái workflow cá nhân của người hỏi."
+  },
+  {
+    "id": "rh_061",
+    "question": "mình có đủ điều kiện tăng lương kỳ này không?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "borderline",
+    "note": "Kết luận cá nhân cần dữ liệu hiệu suất, thâm niên hoặc hồ sơ xét tăng lương riêng."
+  },
+  {
+    "id": "rh_062",
+    "question": "hợp đồng của tôi hết hạn ngày nào nhỉ",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Ngày hết hạn nằm trong hợp đồng/hồ sơ riêng của người hỏi."
+  },
+  {
+    "id": "rh_063",
+    "question": "tôi nghỉ thai sản từ tháng trước, tính giúp ngày nào tôi phải đi làm lại",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "borderline",
+    "note": "Muốn ra ngày chính xác cần biết mốc nghỉ, ngày sinh và dữ liệu trường hợp cá nhân."
+  },
+  {
+    "id": "rh_064",
+    "question": "FPT cho nhân viên nghỉ phép năm bao nhiêu ngày?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Hỏi chính sách của một công ty khác có tên cụ thể, ngoài corpus công ty demo."
+  },
+  {
+    "id": "rh_065",
+    "question": "bên Viettel có policy WFH mấy ngày một tuần vậy",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Yêu cầu chính sách nội bộ của một doanh nghiệp khác."
+  },
+  {
+    "id": "rh_066",
+    "question": "so với Vinamilk thì trợ cấp công tác của NexaTech bên nào cao hơn?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "borderline",
+    "note": "Đòi hỏi dữ liệu chính sách của một công ty khác để so sánh."
+  },
+  {
+    "id": "rh_067",
+    "question": "Shopee Việt Nam thử việc mấy tháng và lương bao nhiêu % vậy?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "borderline",
+    "note": "Hỏi chính sách cụ thể của doanh nghiệp khác, không phải chính sách chung của NexaTech."
+  },
+  {
+    "id": "rh_068",
+    "question": "viết giúp mình email xin lỗi khách hàng vì giao hàng trễ",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Đây là yêu cầu soạn email chăm sóc khách hàng, không thuộc phạm vi HR."
+  },
+  {
+    "id": "rh_069",
+    "question": "server production đang báo CPU 95%, xử lý sao?",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "easy",
+    "note": "Câu hỏi vận hành hạ tầng kỹ thuật, hoàn toàn ngoài phạm vi HR."
+  },
+  {
+    "id": "rh_070",
+    "question": "gợi ý quán ăn gần văn phòng để team đi ăn trưa với",
+    "type": "out_of_scope_or_personal",
+    "difficulty": "borderline",
+    "note": "Yêu cầu gợi ý địa điểm ăn uống, không phải nội dung chính sách hay nghiệp vụ HR."
+  }
+]

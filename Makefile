@@ -57,6 +57,15 @@ eval-retrieval:
 eval-router:
 	python eval/scripts/eval_router.py
 
+# Boundary engine là deterministic nên target này KHÔNG gọi LLM và chạy được
+# trong CI: exit code khác 0 khi có invariant runtime bị vi phạm.
+eval-boundary:
+	python eval/scripts/eval_boundary.py
+
+# Sinh lại seed SQL cho config tables từ canonical scenario registry.
+seed-registry:
+	python scripts/hr_registry/generate_seed_sql.py
+
 eval-agent:
 	python eval/scripts/eval_agent.py
 

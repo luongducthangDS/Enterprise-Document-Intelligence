@@ -1,16 +1,32 @@
 import asyncio
-from functools import lru_cache
+import re
+from datetime import datetime, timezone
+from functools import lru_cache, partial
 
-from src.agents.llm import acall_llm
+from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import get_chroma_client, get_collection
+from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
+from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+
+
+def _expand_retrieval_query(query: str) -> str:
+    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+
+    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
+    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    """
+    if not _HYBRID_QUERY_PATTERN.search(query):
+        return query
+    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
 
 
 @lru_cache
@@ -22,6 +38,70 @@ def _collection():
     return get_collection(client, settings.chroma_collection_name)
 
 
+def _provenance_filter(settings: Settings) -> dict | None:
+    """Chặn dữ liệu ở TẦNG TRUY VẤN, không phụ thuộc LLM tuân thủ prompt.
+
+    Lọc ở đây chứ không phải trong prompt là có chủ đích: prompt chỉ là lời dặn,
+    còn `where` là ràng buộc — chunk bị lọc không bao giờ tồn tại trong ngữ cảnh
+    nên không có đường nào để model lỡ trích dẫn nó.
+
+    Bốn điều kiện LUÔN áp dụng (demo lẫn production) + 1 điều kiện chỉ production:
+    - authority=tenant_official_policy: sản phẩm chỉ trả lời bằng dữ liệu nội bộ
+      doanh nghiệp (thật hoặc synthetic đóng vai nội bộ) — luật, chính sách THẬT
+      của doanh nghiệp khác, template công khai không gắn công ty nào đều KHÔNG
+      được trích dẫn trực tiếp. Cố tình dùng allowlist ($eq) thay vì liệt kê
+      từng `$ne` (government_law, public_reference, public_template...): chunk
+      index từ TRƯỚC KHI taxonomy authority/provenance tồn tại không có field
+      `authority` trong metadata Chroma — `$ne` với field vắng mặt vẫn khớp
+      (tức KHÔNG lọc được), đã đo được lỗi này thật khi luật vẫn lọt vào
+      retrieved_chunks dù filter `$ne government_law` đã có. `$eq` fail-closed:
+      chunk thiếu/khác field tự động bị loại, không cần nhớ liệt kê hết mọi giá
+      trị cần chặn.
+    - publication_status=active, artifact_state=frozen, retrieval_enabled=True:
+      contract "frozen internal corpus" (NexaTech Type-C contract v3.1.0) — một
+      tài liệu tenant_official_policy vẫn có thể bị loại khỏi truy vấn khi bị
+      supersede (publication_status khác "active") hoặc tạm khoá RAG
+      (retrieval_enabled=False) mà không cần đổi authority. Cùng $eq allowlist
+      logic như trên — fail-closed với chunk thiếu field.
+
+    Rào chắn tại tầng `where` là rào chắn thứ hai — phòng khi chunk cũ còn sót
+    trong Chroma Cloud dù ingestion đã ngừng coi các nguồn đó là RAG-eligible
+    (xem NON_RAG_SOURCE_TYPES, rag_eligible_rows trong src/ingestion/metadata.py).
+
+    - effective_date_ymd<=query_date_ymd VÀ expiry_date_ymd>=query_date_ymd:
+      contract yêu cầu "effective_date <= query_date AND (expiry_date IS NULL
+      OR expiry_date >= query_date)". HAI lỗi thật đã đo được khi implement:
+      (1) Chroma `$lte`/`$gte` CHỈ nhận operand int/float — thử filter bằng
+      chuỗi ISO "2026-08-15" trực tiếp bị Chroma raise ValueError ngay tại
+      query time (không phải lỗi âm thầm, nhưng vẫn phải sửa trước khi launch).
+      Khắc phục bằng field riêng `effective_date_ymd`/`expiry_date_ymd` (int
+      YYYYMMDD, xem date_to_ymd_int() trong metadata.py) — CHỈ dùng để filter,
+      field chuỗi effective_date/expiry_date vẫn giữ để hiển thị/audit.
+      (2) "IS NULL" (không có hạn) không thể biểu diễn bằng field vắng mặt vì
+      Chroma bỏ hẳn field None khỏi metadata khi ghi, và field vắng mặt lại
+      KHÔNG khớp `$gte` — khắc phục bằng NO_EXPIRY_SENTINEL (99991231, luôn
+      >= mọi query_date thật) ở tầng ingestion thay vì để trống.
+
+    - provenance=synthetic_demo chỉ bị loại thêm khi production: ở demo, dữ
+      liệu mô phỏng ĐƯỢC dùng như chính sách nội bộ chính thức của tenant giả
+      lập. Hệ quả đã lường trước: ở production mà KB chưa có policy thật,
+      `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
+      đó là hành vi ĐÚNG, không phải lỗi.
+    """
+    query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
+    conditions: list[dict] = [
+        {"authority": "tenant_official_policy"},
+        {"publication_status": "active"},
+        {"artifact_state": "frozen"},
+        {"retrieval_enabled": True},
+        {"effective_date_ymd": {"$lte": query_date_ymd}},
+        {"expiry_date_ymd": {"$gte": query_date_ymd}},
+    ]
+    if settings.data_mode == "production":
+        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
+    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
+
 @lru_cache
 def _bm25_index() -> BM25 | None:
     """Corpus BM25 tải MỘT LẦN từ Chroma Cloud (không phải data/chunks/*.json —
@@ -29,7 +109,10 @@ def _bm25_index() -> BM25 | None:
     _collection(). Trả None nếu tải lỗi/collection rỗng để hybrid tự tắt an
     toàn (xem fuse_candidate_ids) thay vì làm chết cả request retrieval."""
     try:
-        result = _collection().get(include=["documents"])
+        # Cùng bộ lọc với truy vấn dense — nếu không, ứng viên synthetic vẫn lọt
+        # vào context qua ngả RRF ở production dù dense đã chặn.
+        where = _provenance_filter(get_settings())
+        result = _collection().get(include=["documents"], **({"where": where} if where else {}))
     except Exception as e:  # noqa: BLE001 — lỗi tải corpus phụ không được chặn retrieval chính
         print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
         return None
@@ -68,6 +151,15 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         category=meta.get("category", ""),
         is_official_policy=bool(meta.get("is_official_policy", False)),
         source_type=str(meta.get("source_type") or ""),
+        # Chunk index từ trước đợt migrate taxonomy chưa có 3 khoá này. Mặc định
+        # về nhóm THẤP quyền nhất thay vì đoán cao lên: một chunk chưa phân loại
+        # không được thừa hưởng thẩm quyền của chính sách nội bộ.
+        authority=str(meta.get("authority") or "public_reference"),
+        provenance=str(meta.get("provenance") or "public_web"),
+        tenant=str(meta.get("tenant") or ""),
+        caveat=str(meta.get("caveat") or ""),
+        heading_path=str(meta.get("heading_path") or ""),
+        policy_status=str(meta.get("publication_status") or ""),
         page_start=meta.get("page_start"),
         page_end=meta.get("page_end"),
         distance=distance,
@@ -77,13 +169,26 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
 
 async def retrieval_node(state: AgentState) -> dict:
     settings = get_settings()
-    query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    query = _expand_retrieval_query(raw_query)
     embedding = await _aembed_query(query)
 
-    collection = _collection()
-    result = await asyncio.to_thread(
-        collection.query, query_embeddings=[embedding], n_results=settings.retrieval_top_k
-    )
+    # Đo riêng hai phần, vì chúng có bản chất khác hẳn nhau và trước đây cùng
+    # nằm trong một khối "retrieve" không bóc được:
+    #   - `_collection()` chỉ tốn thời gian ở lần gọi ĐẦU TIÊN mỗi tiến trình
+    #     (dựng CloudClient + bắt tay xác thực), sau đó lru_cache trả ngay.
+    #     Đo thực tế: request đầu của một lần profiling tốn ~18,8s cho riêng
+    #     bước này, đủ để bóp méo mọi thống kê nếu bị trộn vào latency truy vấn.
+    #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
+    with llm_trace.Timer("chroma_init", "chroma_cloud"):
+        collection = _collection()
+    where = _provenance_filter(settings)
+    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+        result = await asyncio.to_thread(
+            partial(collection.query, where=where) if where else collection.query,
+            query_embeddings=[embedding],
+            n_results=settings.retrieval_top_k,
+        )
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
@@ -202,9 +307,21 @@ def grade_node(state: AgentState) -> dict:
 
 
 async def rewrite_node(state: AgentState) -> dict:
+    from src.config import get_settings
+
     query = state.get("condensed_query") or state.get("query", "")
     # temperature=0.0: cùng lý do như condense_node — đây là node quyết định query
     # đưa vào retrieval lần thử lại, không phải node sinh văn phong tự nhiên.
-    rewritten = (await acall_llm(_REWRITE_SYSTEM, query, temperature=0.0)).strip()
+    settings = get_settings()
+    model = settings.router_model or None
+    rewritten = (
+        await acall_llm(
+            _REWRITE_SYSTEM,
+            query,
+            temperature=0.0,
+            model=model,
+            enable_thinking=thinking_arg(settings.thinking_router),
+        )
+    ).strip()
     rewrite_count = state.get("rewrite_count", 0) + 1
     return {"rewritten_query": rewritten, "rewrite_count": rewrite_count}

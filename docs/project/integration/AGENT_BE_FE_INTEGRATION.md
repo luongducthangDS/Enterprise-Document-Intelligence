@@ -7,7 +7,7 @@ Next.js FE -> FastAPI BE -> FastAPI Agent/LangGraph -> ChromaDB + FPT.AI
                          -> PostgreSQL
 ```
 
-- FE chỉ gọi BE bằng REST và polling.
+- FE chỉ gọi BE; chat ưu tiên SSE và tự quay về polling khi stream bị ngắt.
 - PostgreSQL của Supabase lưu `public.users`/`public.profiles`; BE xác minh mật khẩu đã hash, phát JWT và quản lý RBAC, conversation, persistence, citation, ticket.
 - Agent stateless, phụ trách intent, RAG, generation, confidence, clarification và escalation draft.
 - BE và Agent là hai service riêng; giao tiếp qua internal REST API.
@@ -15,14 +15,15 @@ Next.js FE -> FastAPI BE -> FastAPI Agent/LangGraph -> ChromaDB + FPT.AI
 ## Luồng chat
 
 ```text
-FE POST /chat/requests
+FE POST /chat/requests/stream
 -> BE lưu user Message + ChatRequest=QUEUED
 -> BE lấy tối đa 8 message gần nhất trong conversation
--> background task POST /agent/query với query + optional history
+-> BE stream POST /agent/query/stream với query + optional history
 -> Agent condense follow-up thành câu hỏi độc lập
--> Agent trả AgentAnswer
+-> Agent phát status/tool event, rồi answer_delta đã qua guardrail
 -> BE adapter map state và lưu Message/Citation/Ticket
--> FE poll GET /chat/requests/{id}
+-> BE phát result sau khi commit; FE hiển thị câu trả lời cuối
+-> nếu SSE đứt: FE poll GET /chat/requests/{id}
 ```
 
 Agent trả các field chính:
@@ -55,6 +56,7 @@ escalate, escalate_reason, ticket_draft
 - Thêm RBAC server-side cho document, index và evaluation.
 - Citation chỉ được mở bởi chủ conversation và vẫn kiểm tra confidentiality.
 - Retry giữ `parent_chat_request_id`; duplicate worker không tạo message/ticket lần hai.
+- Streaming SSE đã nối Agent → Backend → Frontend; có heartbeat, tiến trình thân thiện và polling fallback.
 - Cập nhật bốn diagram theo code hiện tại; node nét đứt là Future.
 
 ## Chưa hoàn thành - Future
@@ -63,14 +65,13 @@ escalate, escalate_reason, ticket_draft
 - Retrieval filter theo role/department ngay trong Agent.
 - Durable queue/worker, idempotency, timeout recovery và rate limit.
 - Public Ticket API, ticket dashboard, assignment, resolution và notification.
-- Khôi phục active conversation ổn định trên FE và timeout polling.
+- Khôi phục active conversation ổn định trên FE.
 - Monitoring, feedback, 2FA/SSO và citation metadata đầy đủ.
-- SSE/streaming transport. MVP tiếp tục dùng background task + polling; `astream_answer()` mới là capability nội bộ của Agent.
 
 ## Kiểm thử
 
-- Backend: **63 passed**.
-- Agent/RAG pipeline: **214 passed**.
+- Backend: **70 passed**.
+- Agent/RAG pipeline: **215 passed**.
 - FE Next.js: lint, typecheck và build đã pass.
 
 ## Tài liệu liên quan

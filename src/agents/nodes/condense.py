@@ -1,5 +1,5 @@
 from src.agents.guardrails import strip_injection
-from src.agents.llm import acall_llm
+from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState
 
 _CONDENSE_SYSTEM = """Bạn giúp viết lại câu hỏi HIỆN TẠI của người dùng dựa trên lịch sử hội thoại phía trên, để câu hỏi trở nên ĐỘC LẬP — hiểu được đầy đủ mà không cần đọc lại lịch sử.
@@ -58,7 +58,15 @@ async def condense_node(state: AgentState) -> dict:
     # escalate ở một số lần chạy mà lần khác không (xem guardrail pilot,
     # context_drift_001 turn 8: cùng history, có lần trả lời đúng có lần escalate
     # "chưa đủ căn cứ").
-    rewritten = (await acall_llm(_CONDENSE_SYSTEM, user_prompt, temperature=0.0, model=model)).strip()
+    rewritten = (
+        await acall_llm(
+            _CONDENSE_SYSTEM,
+            user_prompt,
+            temperature=0.0,
+            model=model,
+            enable_thinking=thinking_arg(settings.thinking_condense),
+        )
+    ).strip()
     return {
         "condensed_query": rewritten or query,
         "guardrail_injection_detected": bool(injection_hits),

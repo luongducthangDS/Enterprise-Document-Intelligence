@@ -15,19 +15,24 @@
     "01_chinh-sach-lam-them-gio-OT::0004": 2
   },
   "qa_006": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0002": 2
+    "12_quy-che-cong-tac-phi::0003": 1,
+    "12_quy-che-cong-tac-phi::0008": 2
   },
   "qa_007": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0002": 2
+    "12_quy-che-cong-tac-phi::0003": 1,
+    "12_quy-che-cong-tac-phi::0008": 2
   },
   "qa_008": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0004": 2
+    "12_quy-che-cong-tac-phi::0005": 1,
+    "12_quy-che-cong-tac-phi::0008": 2
   },
   "qa_009": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0006": 2
+    "12_quy-che-cong-tac-phi::0006": 1,
+    "12_quy-che-cong-tac-phi::0008": 2
   },
   "qa_010": {
-    "base_quy-che-cong-tac-phi-va-phu-cap::0006": 2
+    "12_quy-che-cong-tac-phi::0006": 1,
+    "12_quy-che-cong-tac-phi::0008": 2
   },
   "qa_011": {
     "02_quy-trinh-tuyen-dung::0004": 2
@@ -43,21 +48,6 @@
   },
   "qa_015": {
     "02_quy-trinh-tuyen-dung::0003": 2
-  },
-  "qa_016": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
-  },
-  "qa_017": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
-  },
-  "qa_018": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0001": 2
-  },
-  "qa_019": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": 2
-  },
-  "qa_020": {
-    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": 2
   },
   "qa_021": {
     "03_quy-trinh-onboarding::0003": 2
@@ -119,35 +109,25 @@
   "qa_040": {
     "07_chinh-sach-nghi-phep::0024": 2
   },
-  "qa_041": {
-    "bộ luật lao động::0161": 2
-  },
-  "qa_042": {
-    "bộ luật lao động::0003": 2
-  },
-  "qa_043": {
-    "bộ luật lao động::0008": 2
-  },
-  "qa_044": {
-    "bộ luật lao động::0005": 2
-  },
-  "qa_045": {
-    "bộ luật lao động::0004": 2
-  },
   "qa_046": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0002": 2
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
   },
   "qa_047": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
   },
   "qa_048": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
   },
   "qa_049": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
   },
   "qa_050": {
-    "luat_bao_hiem_xa_hoi_41_2024_qh15::0003": 2
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
   },
   "qa_051": {
     "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": 2
@@ -158,32 +138,31 @@
   "qa_053": {
     "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000": 2
   },
-  "qa_054": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0004": 2
-  },
-  "qa_055": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0005": 2
-  },
   "qa_056": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": 2
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0002": 1,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
   },
   "qa_057": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": 2
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0002": 1,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
   },
   "qa_058": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0003": 2
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0004": 1,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
   },
   "qa_059": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0005": 2
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0006": 1,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
   },
   "qa_060": {
-    "mau_quy-che-danh-gia-hieu-suat-kpi::0006": 2
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0007": 1,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
   },
   "qa_101": {
     "05_chinh-sach-lam-viec-tu-xa::0003": 2
   },
   "qa_102": {
-    "05_chinh-sach-lam-viec-tu-xa::0010": 2
+    "05_chinh-sach-lam-viec-tu-xa::0009": 2
   },
   "qa_103": {
     "05_chinh-sach-lam-viec-tu-xa::0021": 2
@@ -207,7 +186,7 @@
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": 2
   },
   "qa_110": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": 2
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 2
   },
   "qa_111": {
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0014": 2
@@ -215,89 +194,40 @@
   "qa_112": {
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0018": 2
   },
-  "qa_113": {
-    "161-ndcp.signed::0000": 2
-  },
-  "qa_114": {
-    "161-ndcp.signed::0006": 2
-  },
-  "qa_115": {
-    "161-ndcp.signed::0011": 2
-  },
-  "qa_116": {
-    "161-ndcp.signed::0015": 2
-  },
-  "qa_117": {
-    "amis_mau-thong-bao-quy-dinh-nghi-phep::0000": 2
-  },
-  "qa_118": {
-    "amis_mau-thong-bao-quy-dinh-nghi-phep::0000": 2
-  },
-  "qa_119": {
-    "amis_mau-thong-bao-quy-dinh-nghi-phep::0000": 2
-  },
   "qa_120": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 2
-  },
-  "qa_121": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 2
+    "07_chinh-sach-nghi-phep::0014": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": 2
   },
   "qa_122": {
-    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0007": 2
   },
   "qa_123": {
-    "leanh_mau-noi-quy-lao-dong::0000": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0002": 2
   },
   "qa_124": {
-    "leanh_mau-noi-quy-lao-dong::0022": 2
-  },
-  "qa_125": {
-    "leanh_mau-noi-quy-lao-dong::0042": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0005": 2
   },
   "qa_126": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002": 2
+    "06_chinh-sach-dao-tao-phat-trien::0006": 2
   },
   "qa_127": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": 2
-  },
-  "qa_128": {
-    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": 2
+    "06_chinh-sach-dao-tao-phat-trien::0006": 2
   },
   "qa_129": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
   },
   "qa_130": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
   },
   "qa_131": {
-    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006": 2
-  },
-  "qa_132": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0033": 2
-  },
-  "qa_133": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0077": 2
-  },
-  "qa_134": {
-    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095": 2
-  },
-  "qa_135": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005": 2
-  },
-  "qa_136": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0021": 2
-  },
-  "qa_137": {
-    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0034": 2
+    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
   },
   "qa_138": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": 2
-  },
-  "qa_139": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": 2
+    "04_quy-trinh-offboarding::0004": 2
   },
   "qa_140": {
-    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": 2
+    "04_quy-trinh-offboarding::0007": 2,
+    "04_quy-trinh-offboarding::0008": 2
   },
   "heldout_001": {
     "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0014": 2
