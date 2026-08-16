@@ -30,8 +30,13 @@ Thumbs.db
 
 # Data (never commit large data)
 data/
+!data/metadata/document_registry.csv
 *.db
 *.sqlite3
+*.zip
+
+# Local vector store
+storage/
 
 # Logs
 logs/
@@ -48,8 +53,12 @@ docker-compose.override.yml
 # Node (frontend)
 node_modules/
 .next/
+.next-dev/
+.next-hover/
 out/
 .nuxt/
+.pnpm-store/
+*.tsbuildinfo
 
 # Build
 *.pyc
@@ -58,3 +67,47 @@ out/
 # AI logs — tracked structure, ignored content
 .ai-log/*.jsonl
 .ai-log/archive/
+
+# Backup / scratch files (vd eval set backup trước khi regenerate, file debug lỡ tạo ở root)
+*.bak
+*.bak.*
+scratch_*
+.aider*
+
+# Cache của build_retrieval_eval_set.py (kết quả LLM judgment tốn API để sinh
+# lại) — cache để resume/debug, không phải nguồn dữ liệu cần track.
+eval/.cache/
+
+# Tài liệu review/audit nội bộ — chỉ giữ ở máy, KHÔNG đưa lên GitHub.
+# (eval/results/report.md là deliverable bắt buộc của BTC nên vẫn được track,
+# và nằm ngoài docs/reports/ nên không bị ảnh hưởng bởi rule này.)
+docs/reports/
+*review*.md
+*REVIEW*.md
+*_review.md
+ISSUES.md
+
+# Bằng chứng eval chạy tay — output thật của agent kèm trích dẫn nội dung tài
+# liệu nội bộ, và script sinh ra chúng. Chỉ giữ ở máy.
+# Pattern có wildcard để bắt cả các bản đo lại về sau (hậu tố ngày, vd _20260813).
+eval/MANUAL_EVAL_EVIDENCE.md
+eval/MANUAL_EVAL_EVIDENCE_*.md
+eval/EVAL_EVIDENCES.md
+eval/results/manual_eval_*.json
+scripts/run_manual_eval.py
+scripts/build_eval_evidence_docx.py
+scripts/build_eval_evidence_docx_*.py
+
+# Tài liệu Word binary — không đưa vào repo code. Cần commit thì force-add.
+*.docx
+
+# Tool-specific local/private configuration
+.codex/*.local.*
+.gemini/*.local.*
+.claude/*.local.*
+.cursor/*.local.*
+.agents/*.local.*
+
+# Local agent/UI verification artifacts
+.markiii/
+.omo/

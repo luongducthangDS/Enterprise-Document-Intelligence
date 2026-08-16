@@ -1,0 +1,242 @@
+[
+  {
+    "id": "cd_001",
+    "category": "ellipsis",
+    "history": [
+      {"role": "user", "content": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?"},
+      {"role": "assistant", "content": "Làm thêm giờ vào ngày nghỉ lễ, tết được trả ít nhất 300% đơn giá tiền lương, chưa kể tiền lương ngày lễ."}
+    ],
+    "query": "Vậy ngày thường thì sao?",
+    "must_keep": ["làm thêm", "thêm giờ", "ot", "tăng ca"],
+    "must_not_contain": ["thử việc", "thai sản", "nghỉ phép năm"],
+    "expected_answer_keywords": ["150"],
+    "expected_source_contains": ["bộ luật lao động", "nghi_dinh_145"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_002",
+    "category": "ellipsis",
+    "history": [
+      {"role": "user", "content": "Thời gian thử việc tối đa với vị trí quản lý doanh nghiệp là bao lâu?"},
+      {"role": "assistant", "content": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày."}
+    ],
+    "query": "Còn công việc cần trình độ cao đẳng thì sao?",
+    "must_keep": ["thử việc"],
+    "must_not_contain": ["làm thêm giờ", "nghỉ phép"],
+    "expected_answer_keywords": ["60", "30"],
+    "expected_source_contains": ["bộ luật lao động"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_003",
+    "category": "ellipsis",
+    "history": [
+      {"role": "user", "content": "Nghỉ phép năm được bao nhiêu ngày với người làm đủ 12 tháng?"},
+      {"role": "assistant", "content": "Người làm việc đủ 12 tháng được nghỉ hằng năm 12 ngày làm việc trong điều kiện bình thường."}
+    ],
+    "query": "Thế còn người làm nghề nặng nhọc độc hại?",
+    "must_keep": ["nghỉ", "phép"],
+    "must_not_contain": ["thử việc", "làm thêm giờ"],
+    "expected_answer_keywords": ["14", "16"],
+    "expected_source_contains": ["bộ luật lao động"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_004",
+    "category": "ellipsis",
+    "history": [
+      {"role": "user", "content": "Giới hạn làm thêm giờ trong một tháng là bao nhiêu?"},
+      {"role": "assistant", "content": "Không quá 40 giờ trong một tháng."}
+    ],
+    "query": "Trong một năm thì sao?",
+    "must_keep": ["làm thêm", "thêm giờ", "ot", "tăng ca"],
+    "must_not_contain": ["nghỉ phép", "thai sản"],
+    "expected_answer_keywords": ["200", "300"],
+    "expected_source_contains": ["bộ luật lao động"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_005",
+    "category": "pronoun_reference",
+    "history": [
+      {"role": "user", "content": "Công ty có chính sách làm việc từ xa không?"},
+      {"role": "assistant", "content": "Có, chính sách làm việc từ xa cho phép nhân viên làm việc hybrid theo mô hình 3 ngày onsite và 2 ngày từ xa."}
+    ],
+    "query": "Cái đó áp dụng cho nhân viên thử việc không?",
+    "must_keep": ["từ xa", "hybrid", "wfh"],
+    "must_not_contain": ["làm thêm giờ", "thai sản"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["05_chinh-sach-lam-viec-tu-xa"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_006",
+    "category": "pronoun_reference",
+    "history": [
+      {"role": "user", "content": "Trợ cấp thôi việc được tính thế nào?"},
+      {"role": "assistant", "content": "Mỗi năm làm việc được trợ cấp một nửa tháng tiền lương, áp dụng cho người làm việc thường xuyên từ đủ 12 tháng trở lên."}
+    ],
+    "query": "Khoản đó có bị trừ thuế thu nhập cá nhân không?",
+    "must_keep": ["trợ cấp", "thôi việc"],
+    "must_not_contain": ["làm thêm giờ", "nghỉ phép năm"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["thue_tncn", "bộ luật lao động", "04_quy-trinh-offboarding"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_007",
+    "category": "pronoun_reference",
+    "history": [
+      {"role": "user", "content": "Quy trình onboarding cho nhân viên mới gồm những bước nào?"},
+      {"role": "assistant", "content": "Quy trình onboarding gồm chuẩn bị trước ngày đầu, ngày đầu tiên nhận việc, và giai đoạn hội nhập trong tháng đầu."}
+    ],
+    "query": "Bước đầu tiên trong đó cần chuẩn bị giấy tờ gì?",
+    "must_keep": ["onboarding", "nhận việc", "nhân viên mới"],
+    "must_not_contain": ["offboarding", "thôi việc", "làm thêm giờ"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["03_quy-trinh-onboarding"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_008",
+    "category": "pronoun_reference",
+    "history": [
+      {"role": "user", "content": "Mức lương tối thiểu vùng I hiện nay là bao nhiêu?"},
+      {"role": "assistant", "content": "Mức lương tối thiểu tháng vùng I theo Nghị định 293/2025 là 5.310.000 đồng."}
+    ],
+    "query": "Con số này áp dụng từ khi nào?",
+    "must_keep": ["lương tối thiểu", "vùng"],
+    "must_not_contain": ["làm thêm giờ", "nghỉ phép"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["nghi_dinh_293_2025"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_009",
+    "category": "topic_continuation",
+    "history": [
+      {"role": "user", "content": "Làm thêm giờ vào ngày nghỉ hằng tuần được tính lương thế nào?"},
+      {"role": "assistant", "content": "Làm thêm vào ngày nghỉ hằng tuần được trả ít nhất 200% đơn giá tiền lương."}
+    ],
+    "query": "Nếu ngày lễ thì sao?",
+    "must_keep": ["làm thêm", "thêm giờ", "ot", "tăng ca"],
+    "must_not_contain": ["nghỉ phép năm", "thử việc"],
+    "expected_answer_keywords": ["300"],
+    "expected_source_contains": ["bộ luật lao động", "nghi_dinh_145"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_010",
+    "category": "topic_continuation",
+    "history": [
+      {"role": "user", "content": "Nghỉ thai sản được bao nhiêu tháng?"},
+      {"role": "assistant", "content": "Lao động nữ được nghỉ thai sản trước và sau khi sinh con là 06 tháng."}
+    ],
+    "query": "Sinh đôi thì được cộng thêm không?",
+    "must_keep": ["thai sản", "sinh con", "sinh đôi"],
+    "must_not_contain": ["làm thêm giờ", "thử việc"],
+    "expected_answer_keywords": ["01", "1 tháng", "một tháng"],
+    "expected_source_contains": ["bộ luật lao động", "luat_bao_hiem_xa_hoi"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_011",
+    "category": "topic_continuation",
+    "history": [
+      {"role": "user", "content": "Đi công tác trong ngày thì được thanh toán những khoản gì?"},
+      {"role": "assistant", "content": "Công tác trong ngày được thanh toán chi phí đi lại và phụ cấp công tác theo quy chế công tác phí."}
+    ],
+    "query": "Nếu phải ở lại qua đêm thì có thêm khoản nào?",
+    "must_keep": ["công tác"],
+    "must_not_contain": ["nghỉ phép năm", "thai sản"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["base_quy-che-cong-tac-phi"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_012",
+    "category": "topic_continuation",
+    "history": [
+      {"role": "user", "content": "Nhân viên vi phạm kỷ luật lao động thì có những hình thức xử lý nào?"},
+      {"role": "assistant", "content": "Các hình thức xử lý kỷ luật gồm khiển trách, kéo dài thời hạn nâng lương, cách chức và sa thải."}
+    ],
+    "query": "Mức nặng nhất áp dụng trong trường hợp nào?",
+    "must_keep": ["kỷ luật", "sa thải"],
+    "must_not_contain": ["làm thêm giờ", "thai sản"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["bộ luật lao động", "mau_quy-trinh-ky-luat", "leanh_mau-noi-quy-lao-dong"],
+    "expected_escalate": false,
+    "critical": true
+  },
+  {
+    "id": "cd_013",
+    "category": "topic_switch",
+    "history": [
+      {"role": "user", "content": "Làm thêm giờ cuối tuần được tính lương thế nào?"},
+      {"role": "assistant", "content": "Làm thêm vào ngày nghỉ hằng tuần được trả ít nhất 200% đơn giá tiền lương."}
+    ],
+    "query": "Quy định nghỉ thai sản là bao nhiêu tháng?",
+    "must_keep": ["thai sản"],
+    "must_not_contain": ["làm thêm", "thêm giờ", "cuối tuần", "200%"],
+    "expected_answer_keywords": ["06", "6 tháng", "sáu tháng"],
+    "expected_source_contains": ["bộ luật lao động", "luat_bao_hiem_xa_hoi"],
+    "expected_escalate": false,
+    "critical": false
+  },
+  {
+    "id": "cd_014",
+    "category": "topic_switch",
+    "history": [
+      {"role": "user", "content": "Quy trình tuyển dụng của công ty có mấy vòng?"},
+      {"role": "assistant", "content": "Quy trình tuyển dụng gồm sàng lọc hồ sơ, phỏng vấn chuyên môn và phỏng vấn với quản lý."}
+    ],
+    "query": "Mức lương tối thiểu vùng I là bao nhiêu?",
+    "must_keep": ["lương tối thiểu"],
+    "must_not_contain": ["tuyển dụng", "phỏng vấn", "hồ sơ"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["nghi_dinh_293_2025"],
+    "expected_escalate": false,
+    "critical": false
+  },
+  {
+    "id": "cd_015",
+    "category": "topic_switch",
+    "history": [
+      {"role": "user", "content": "Chính sách đào tạo của công ty hỗ trợ những gì?"},
+      {"role": "assistant", "content": "Công ty hỗ trợ đào tạo nội bộ và một phần chi phí cho khóa học bên ngoài có cam kết làm việc."}
+    ],
+    "query": "Người lao động được nghỉ mấy ngày lễ trong năm?",
+    "must_keep": ["nghỉ lễ", "ngày lễ"],
+    "must_not_contain": ["đào tạo", "khóa học", "cam kết"],
+    "expected_answer_keywords": ["11"],
+    "expected_source_contains": ["bộ luật lao động"],
+    "expected_escalate": false,
+    "critical": false
+  },
+  {
+    "id": "cd_016",
+    "category": "topic_switch",
+    "history": [
+      {"role": "user", "content": "Nghỉ phép năm chưa dùng hết thì xử lý thế nào?"},
+      {"role": "assistant", "content": "Phép năm chưa nghỉ hết có thể được thanh toán hoặc chuyển sang năm sau tùy quy định công ty."}
+    ],
+    "query": "Công ty đóng bảo hiểm xã hội bắt buộc theo tỷ lệ nào?",
+    "must_keep": ["bảo hiểm xã hội", "bhxh"],
+    "must_not_contain": ["phép năm", "nghỉ phép chưa"],
+    "expected_answer_keywords": [],
+    "expected_source_contains": ["luat_bao_hiem_xa_hoi", "nghi_dinh_158_2025"],
+    "expected_escalate": false,
+    "critical": false
+  }
+]

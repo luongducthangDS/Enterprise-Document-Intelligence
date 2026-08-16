@@ -1,181 +1,78 @@
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#2d2d2d',
-    'primaryTextColor': '#ffffff',
-    'primaryBorderColor': '#555555',
-    'lineColor': '#a0a0a0',
-    'secondaryColor': '#1a1a2e',
-    'tertiaryColor': '#16213e',
-    'background': '#0f0f0f',
-    'mainBkg': '#1e1e1e',
-    'nodeBorder': '#555555',
-    'clusterBkg': '#1a1a1a',
-    'titleColor': '#ffffff',
-    'edgeLabelBackground': '#2a2a2a',
-    'attributeBackgroundColorEven': '#1e1e1e',
-    'attributeBackgroundColorOdd': '#2d2d2d'
-  }
-}}%%
-
+%% Current implementation is solid. Dashed nodes and edges are future scope.
 flowchart TD
-
-    subgraph LEGEND ["Scope Legend"]
-        direction LR
-        LEG_MVP["MVP Scope\nQuestion -> RAG -> cited answer/refusal"]
-        LEG_TARGET["Target / Future Scope\nAuth limits, ticket automation, RBAC escalation"]
+    subgraph LEGEND["Legend"]
+        CURRENT["Implemented"]
+        FUTURE["Future"]
     end
 
-    %% ─────────────────────────────────────────
-    %% START & AUTH
-    %% ─────────────────────────────────────────
-    START(["🟢 User Question"])
-    AUTH["🔐 Check Auth\n& Usage Limit"]
+    USER["Employee / HR Admin"]
 
-    %% ─────────────────────────────────────────
-    %% ROUTING LAYER
-    %% ─────────────────────────────────────────
-    ROUTER["🧠 Intent Router\n& Planner"]
+    subgraph BE_IN["Backend boundary - FastAPI"]
+        AUTH["Validate JWT and role"]
+        CHAT_REQ["Create ChatRequest and user Message"]
+        ASYNC["Run background chat task"]
+        HISTORY["Load up to 8 recent messages\nMap USER/ASSISTANT roles"]
+    end
 
-    %% ─────────────────────────────────────────
-    %% BRANCH A — Direct / Greeting
-    %% ─────────────────────────────────────────
-    DIRECT["💬 Direct Response"]
+    subgraph AGENT["Agent service - FastAPI and LangGraph"]
+        AGENT_API["POST /api/v1/agent/query\nService token + trace context"]
+        CONDENSE["Condense follow-up with history\nStrip injection from prior turns"]
+        ROUTER{"Intent router"}
+        DIRECT["Direct response"]
+        CLARIFY["Clarification question"]
+        RETRIEVE["Dense retrieval - ChromaDB\nOptional BM25 + RRF"]
+        RERANK["Cross-encoder rerank - FPT.AI"]
+        GRADE{"Relevant chunks?"}
+        REWRITE["Rewrite query\nMax 1 retry"]
+        GENERATE["Generate grounded answer\nBuild citations"]
+        ANSWERABLE{"Enough information?"}
+        HALLUC["Hallucination check"]
+        HALLUC_ROUTE{"Grounded or max 2 retries?"}
+        CONFIDENCE["Evaluate confidence"]
+        FINAL_ROUTE{"Escalate?"}
+        FINALIZE["Finalize cited answer"]
+        PII["Redact PII in response\nand citation metadata"]
+        DRAFT["Create TicketDraft or refusal result"]
+        AGENT_RESULT["AgentAnswer"]
+        ACL_FILTER["Retrieval ACL filter\nRole + department"]
+    end
 
-    %% ─────────────────────────────────────────
-    %% BRANCH B — HR Policy RAG
-    %% ─────────────────────────────────────────
-    PLANNER["📋 Multi-Doc\nQuery Planner"]
-    RAG["🔍 RAG Retrieval\n& Cohere Reranker"]
-    GRADE["⚖️ Grade Documents\n(Check Relevance)"]
-    REWRITE["✏️ Rewrite Query"]
+    subgraph BE_OUT["Backend mapping and persistence"]
+        ADAPTER["AgentAnswerAdapter"]
+        STATE["Map polling state\nCOMPLETED / REFUSED /\nCLARIFICATION_REQUIRED / FAILED"]
+        PERSIST["Persist ChatRequest, assistant Message and citations"]
+        TICKET["Create TicketDB when escalate=true"]
+        TICKET_API["Ticket assignment, resolution and notification"]
+    end
 
-    %% ─────────────────────────────────────────
-    %% BRANCH C — Create Ticket
-    %% ─────────────────────────────────────────
-    TICKET_TOOL["🎫 Create HR\nTicket Tool"]
+    RESULT["FE polls and renders result"]
 
-    %% ─────────────────────────────────────────
-    %% GENERATION
-    %% ─────────────────────────────────────────
-    GENERATE["✨ Generate Answer\n(with Citations)"]
-    SIMPLE_GENERATE["✨ Generate Answer"]
+    USER --> AUTH --> CHAT_REQ --> ASYNC --> HISTORY --> AGENT_API --> CONDENSE --> ROUTER
+    ROUTER -->|"greeting"| DIRECT --> PII
+    ROUTER -->|"ambiguous"| CLARIFY --> PII
+    ROUTER -->|"out_of_scope_or_personal"| DRAFT
+    ROUTER -->|"hr_question"| RETRIEVE --> RERANK --> GRADE
+    GRADE -->|"No"| REWRITE --> RETRIEVE
+    GRADE -->|"Yes or retry exhausted"| GENERATE --> ANSWERABLE
+    ANSWERABLE -->|"No"| CONFIDENCE
+    ANSWERABLE -->|"Yes"| HALLUC --> HALLUC_ROUTE
+    HALLUC_ROUTE -->|"Retry"| GENERATE
+    HALLUC_ROUTE -->|"Pass or retry exhausted"| CONFIDENCE
+    CONFIDENCE --> FINAL_ROUTE
+    FINAL_ROUTE -->|"No"| FINALIZE --> PII --> AGENT_RESULT
+    FINAL_ROUTE -->|"Yes"| DRAFT
+    DRAFT --> PII
 
-    %% ─────────────────────────────────────────
-    %% EVALUATION LOOP
-    %% ─────────────────────────────────────────
-    HALLUC["🔬 Hallucination\n& Citation Check"]
-    EVAL["📊 Evaluate Confidence\n& RBAC"]
+    AGENT_RESULT --> ADAPTER --> STATE --> PERSIST --> RESULT
+    ADAPTER -->|"escalate=true"| TICKET --> PERSIST
+    RESULT -->|"Clarification answer in same conversation"| CHAT_REQ
 
-    %% ─────────────────────────────────────────
-    %% ESCALATION
-    %% ─────────────────────────────────────────
-    ESCALATE["🚨 Auto Escalation\n→ Create HR Ticket"]
+    ACL_FILTER -.-> RETRIEVE
+    TICKET -.-> TICKET_API
 
-    %% ─────────────────────────────────────────
-    %% END NODES
-    %% ─────────────────────────────────────────
-    END_OK(["✅ Final Answer"])
-    END_ESC(["⚠️ Final Answer\n(Kèm mã Ticket & Cảnh báo)"])
-
-    %% ═════════════════════════════════════════
-    %% EDGES — START & AUTH
-    %% ═════════════════════════════════════════
-    START --> AUTH
-    AUTH -->|"✅ Authorized"| ROUTER
-    AUTH -->|"❌ Unauthorized\n/ Limit Exceeded"| END_ESC
-
-    %% ═════════════════════════════════════════
-    %% EDGES — ROUTING
-    %% ═════════════════════════════════════════
-    ROUTER -->|"Greeting / General"| DIRECT
-    ROUTER -->|"HR Policy Q&A"| PLANNER
-    ROUTER -->|"Create Ticket"| TICKET_TOOL
-
-    %% ═════════════════════════════════════════
-    %% EDGES — BRANCH A: Direct
-    %% ═════════════════════════════════════════
-    DIRECT --> SIMPLE_GENERATE
-    SIMPLE_GENERATE --> END_OK
-
-    %% ═════════════════════════════════════════
-    %% EDGES — BRANCH C: Ticket Tool
-    %% ═════════════════════════════════════════
-    TICKET_TOOL --> SIMPLE_GENERATE
-
-    %% ═════════════════════════════════════════
-    %% EDGES — BRANCH B: RAG RETRIEVAL LOOP
-    %% ═════════════════════════════════════════
-    PLANNER --> RAG
-    RAG --> GRADE
-    GRADE -->|"✅ Relevant"| GENERATE
-    GRADE -->|"❌ Not Relevant\n(Rewrite & Retry)"| REWRITE
-    REWRITE -->|"🔄 Retry Retrieval"| RAG
-
-    %% ═════════════════════════════════════════
-    %% EDGES — EVALUATION LOOP
-    %% ═════════════════════════════════════════
-    GENERATE --> HALLUC
-    HALLUC -->|"❌ Fail / Ungrounded\n(Max 2 retries)"| GENERATE
-    HALLUC -->|"✅ Pass"| EVAL
-
-    %% ═════════════════════════════════════════
-    %% EDGES — FINAL BRANCHING
-    %% ═════════════════════════════════════════
-    EVAL -->|"🟢 High Confidence"| END_OK
-    EVAL -->|"🔴 Low Confidence /\nMax Retries Exceeded"| ESCALATE
-    ESCALATE --> END_ESC
-
-    %% ═════════════════════════════════════════
-    %% STYLES — DARK MODE
-    %% ═════════════════════════════════════════
-
-    %% Start / End — Oval, accent colors
-    style START fill:#1a472a,stroke:#2ecc71,stroke-width:2px,color:#ffffff
-    style END_OK fill:#1a472a,stroke:#2ecc71,stroke-width:2px,color:#ffffff
-    style END_ESC fill:#4a1a1a,stroke:#e74c3c,stroke-width:2px,color:#ffffff
-
-    %% Auth & Router — Blue-gray
-    style AUTH fill:#1c2b3a,stroke:#3498db,stroke-width:1.5px,color:#cce7ff
-    style ROUTER fill:#1c2b3a,stroke:#3498db,stroke-width:1.5px,color:#cce7ff
-
-    %% Branch A & C — Neutral dark gray
-    style DIRECT fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
-    style TICKET_TOOL fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
-    style SIMPLE_GENERATE fill:#2d2d2d,stroke:#666666,stroke-width:1.5px,color:#ffffff
-
-    %% Branch B — RAG nodes, teal accent
-    style PLANNER fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
-    style RAG fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
-    style GRADE fill:#1a3a3a,stroke:#1abc9c,stroke-width:1.5px,color:#aaffee
-    style REWRITE fill:#3a2a1a,stroke:#e67e22,stroke-width:2px,color:#ffd9a0
-
-    %% Generation & Evaluation — Purple accent
-    style GENERATE fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
-    style HALLUC fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
-    style EVAL fill:#2a1a3a,stroke:#9b59b6,stroke-width:1.5px,color:#e8c8ff
-
-    %% Escalation — Red warning
-    style ESCALATE fill:#4a1a1a,stroke:#e74c3c,stroke-width:2px,color:#ffcccc
-
-    %% Scope overlay: keep all nodes, but separate MVP from target/future scope.
-    style LEG_MVP fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style LEG_TARGET fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
-
-    style START fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style ROUTER fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style DIRECT fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style PLANNER fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style RAG fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style GRADE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style REWRITE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style GENERATE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style SIMPLE_GENERATE fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style HALLUC fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-    style END_OK fill:#102a24,stroke:#2dd4bf,stroke-width:3px,color:#d9fff8
-
-    style AUTH fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
-    style TICKET_TOOL fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
-    style EVAL fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
-    style ESCALATE fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
-    style END_ESC fill:#2b2111,stroke:#f59e0b,stroke-width:3px,color:#fff4d6,stroke-dasharray: 6 4
+    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
+    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
+    classDef decision fill:#172554,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+    class USER,AUTH,CHAT_REQ,ASYNC,HISTORY,AGENT_API,CONDENSE,DIRECT,CLARIFY,RETRIEVE,RERANK,REWRITE,GENERATE,HALLUC,CONFIDENCE,FINALIZE,PII,DRAFT,AGENT_RESULT,ADAPTER,STATE,PERSIST,TICKET,RESULT,CURRENT current;
+    class ROUTER,GRADE,ANSWERABLE,HALLUC_ROUTE,FINAL_ROUTE decision;
+    class ACL_FILTER,TICKET_API,FUTURE future;

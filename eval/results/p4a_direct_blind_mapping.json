@@ -1,0 +1,143 @@
+{
+  "note": "KHÔNG đưa file này cho người chấm. Dùng để giải mã sau khi nhận phiếu.",
+  "seed": 20260813,
+  "source": "eval\\results\\p4a_direct_v2.json",
+  "mapping": {
+    "sample_001": {
+      "variant": "A_default_llm",
+      "id": "dr_09"
+    },
+    "sample_002": {
+      "variant": "A_default_llm",
+      "id": "dr_08"
+    },
+    "sample_003": {
+      "variant": "A_default_llm",
+      "id": "dr_03"
+    },
+    "sample_004": {
+      "variant": "A_default_llm",
+      "id": "dr_13"
+    },
+    "sample_005": {
+      "variant": "A_default_llm",
+      "id": "dr_11"
+    },
+    "sample_006": {
+      "variant": "A_default_llm",
+      "id": "dr_15"
+    },
+    "sample_007": {
+      "variant": "C_fast_llm",
+      "id": "dr_14"
+    },
+    "sample_008": {
+      "variant": "C_fast_llm",
+      "id": "dr_13"
+    },
+    "sample_009": {
+      "variant": "C_fast_llm",
+      "id": "dr_03"
+    },
+    "sample_010": {
+      "variant": "A_default_llm",
+      "id": "dr_01"
+    },
+    "sample_011": {
+      "variant": "A_default_llm",
+      "id": "dr_16"
+    },
+    "sample_012": {
+      "variant": "A_default_llm",
+      "id": "dr_17"
+    },
+    "sample_013": {
+      "variant": "C_fast_llm",
+      "id": "dr_08"
+    },
+    "sample_014": {
+      "variant": "C_fast_llm",
+      "id": "dr_06"
+    },
+    "sample_015": {
+      "variant": "C_fast_llm",
+      "id": "dr_09"
+    },
+    "sample_016": {
+      "variant": "C_fast_llm",
+      "id": "dr_15"
+    },
+    "sample_017": {
+      "variant": "C_fast_llm",
+      "id": "dr_07"
+    },
+    "sample_018": {
+      "variant": "C_fast_llm",
+      "id": "dr_11"
+    },
+    "sample_019": {
+      "variant": "A_default_llm",
+      "id": "dr_10"
+    },
+    "sample_020": {
+      "variant": "C_fast_llm",
+      "id": "dr_05"
+    },
+    "sample_021": {
+      "variant": "C_fast_llm",
+      "id": "dr_10"
+    },
+    "sample_022": {
+      "variant": "A_default_llm",
+      "id": "dr_06"
+    },
+    "sample_023": {
+      "variant": "C_fast_llm",
+      "id": "dr_16"
+    },
+    "sample_024": {
+      "variant": "A_default_llm",
+      "id": "dr_14"
+    },
+    "sample_025": {
+      "variant": "C_fast_llm",
+      "id": "dr_02"
+    },
+    "sample_026": {
+      "variant": "C_fast_llm",
+      "id": "dr_04"
+    },
+    "sample_027": {
+      "variant": "A_default_llm",
+      "id": "dr_07"
+    },
+    "sample_028": {
+      "variant": "A_default_llm",
+      "id": "dr_05"
+    },
+    "sample_029": {
+      "variant": "A_default_llm",
+      "id": "dr_02"
+    },
+    "sample_030": {
+      "variant": "C_fast_llm",
+      "id": "dr_12"
+    },
+    "sample_031": {
+      "variant": "C_fast_llm",
+      "id": "dr_01"
+    },
+    "sample_032": {
+      "variant": "A_default_llm",
+      "id": "dr_12"
+    },
+    "sample_033": {
+      "variant": "C_fast_llm",
+      "id": "dr_17"
+    },
+    "sample_034": {
+      "variant": "A_default_llm",
+      "id": "dr_04"
+    }
+  }
+}

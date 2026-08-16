@@ -1,0 +1,46 @@
+{
+  "departments": {
+    "CB": "Compensation & Benefits",
+    "ER": "Employee Relations",
+    "TA": "Talent Acquisition",
+    "LD": "Learning & Development",
+    "HRBP": "HR Business Partner"
+  },
+  "routing_rules": [
+    {
+      "category": "compensation_policies",
+      "target_department": "CB",
+      "ticket_priority": "Medium",
+      "routing_priority": 20,
+      "trigger_keywords": ["luong", "thuong", "phu cap", "thue", "bhxh", "bhyt", "bao hiem"]
+    },
+    {
+      "category": "employee_relations",
+      "target_department": "ER",
+      "ticket_priority": "High",
+      "routing_priority": 100,
+      "trigger_keywords": ["khieu nai", "ky luat", "quay roi", "tranh chap", "doi xu"]
+    },
+    {
+      "category": "recruitment",
+      "target_department": "TA",
+      "ticket_priority": "Medium",
+      "routing_priority": 30,
+      "trigger_keywords": ["tuyen dung", "ung vien", "phong van", "thu viec"]
+    },
+    {
+      "category": "learning_development",
+      "target_department": "LD",
+      "ticket_priority": "Medium",
+      "routing_priority": 30,
+      "trigger_keywords": ["dao tao", "hoc tap", "phat trien", "chung chi"]
+    },
+    {
+      "category": "unmatched",
+      "target_department": "HRBP",
+      "ticket_priority": "Medium",
+      "routing_priority": 0,
+      "trigger_keywords": []
+    }
+  ]
+}

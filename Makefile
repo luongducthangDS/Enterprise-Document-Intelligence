@@ -1,13 +1,37 @@
-.PHONY: run test lint format typecheck check clean
+.PHONY: run run-agent run-backend compose-up compose-down test test-agent test-backend test-all lint lint-agent lint-backend format typecheck check clean eval-check eval-retrieval eval-agent eval-router remap-qrels eval-heldout
 
 run:
 	uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
-test:
+run-agent:
+	uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+
+run-backend:
+	cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+compose-up:
+	docker compose up --build
+
+compose-down:
+	docker compose down
+
+test: test-agent
+
+test-agent:
 	pytest tests/ -v
 
-lint:
+test-backend:
+	cd backend && pytest tests/ -v
+
+test-all: test-agent test-backend
+
+lint: lint-agent
+
+lint-agent:
 	ruff check src/ tests/
+
+lint-backend:
+	cd backend && ruff check app/ tests/
 
 format:
 	ruff format src/ tests/
@@ -15,7 +39,41 @@ format:
 typecheck:
 	mypy src/
 
-check: lint format test
+check: lint format test eval-check
+
+# Kiểm tra bộ eval còn khớp với chunk hiện tại (không gọi API).
+# Chạy sau MỌI lần đổi cấu hình chunker hoặc rebuild data/chunks.
+eval-check:
+	python eval/scripts/check_dataset_integrity.py
+
+# Map lại qrel theo chunk mới sau khi re-chunk (dùng anchor text, không LLM).
+remap-qrels:
+	python scripts/rag_pipeline/remap_qrels.py
+
+# Eval mặc định chạy trên split dev — held-out phải giữ sạch, chỉ chạy khi cần số cuối.
+eval-retrieval:
+	python eval/scripts/eval_retrieval.py --dataset eval/datasets/retrieval_eval_set.json 		--qrels eval/datasets/retrieval_eval_qrels.json --min-relevance 2 --split dev --top-k 25 --rerank
+
+eval-router:
+	python eval/scripts/eval_router.py
+
+# Boundary engine là deterministic nên target này KHÔNG gọi LLM và chạy được
+# trong CI: exit code khác 0 khi có invariant runtime bị vi phạm.
+eval-boundary:
+	python eval/scripts/eval_boundary.py
+
+# Sinh lại seed SQL cho config tables từ canonical scenario registry.
+seed-registry:
+	python scripts/hr_registry/generate_seed_sql.py
+
+eval-agent:
+	python eval/scripts/eval_agent.py
+
+# Chạy ĐÚNG MỘT LẦN sau khi Phase A đã chốt — tập held-out chỉ có giá trị nếu
+# không bị dùng để tune. Không chạy lại rồi chỉnh code dựa trên kết quả này.
+eval-heldout:
+	python eval/scripts/eval_agent.py --dataset eval/datasets/qa_heldout_set.json --out eval/results/heldout_agent_report.json
+	python eval/scripts/eval_retrieval.py --dataset eval/datasets/retrieval_eval_set.json 		--qrels eval/datasets/retrieval_eval_qrels.json --min-relevance 2 --split heldout --top-k 25 --rerank 		--out eval/results/heldout_retrieval_report.json
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +

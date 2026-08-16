@@ -5,7 +5,7 @@
 
 | File | Nội dung |
 |---|---|
-| [`PIPELINE.md`](PIPELINE.md) | Kiến trúc chi tiết 2 luồng chính: Data Ingestion Pipeline và Agentic RAG Pipeline — cơ chế hoạt động, cấu trúc dữ liệu, quyết định thiết kế. |
+| [`PIPELINE.md`](PIPELINE.md) | Kiến trúc chi tiết toàn bộ hành trình: thu thập & quản trị dữ liệu thô, Data Ingestion Pipeline, Agentic RAG Pipeline, Evaluation Pipeline — cơ chế hoạt động, cấu trúc dữ liệu, quyết định thiết kế, kết quả đo được, sơ đồ luồng đầy đủ. |
 | [`AGENT_API.md`](AGENT_API.md) | Contract API của agent cho backend: điểm vào duy nhất `src/agents/service.py::answer()`, schema `AgentAnswer`. |
 | [`folder_structure.md`](folder_structure.md) | Cấu trúc thư mục cho pipeline ingestion (`data/`, `src/ingestion/`, `scripts/`) và vị trí trong project. |
 

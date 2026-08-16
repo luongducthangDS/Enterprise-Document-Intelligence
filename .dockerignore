@@ -2,13 +2,21 @@
 .gitignore
 .env
 .venv
+.worktrees/
+.pnpm-store/
+backend/
+frontend/
 __pycache__
 *.pyc
 .pytest_cache
 .ruff_cache
 docs/
 presentation/
+# eval/ không cần trong image, TRỪ dataset: evaluation worker
+# (src/workers/evaluation.py) đọc eval/datasets khi Backend gọi job đánh giá.
 eval/
+!eval/datasets
+!eval/datasets/**
 *.md
 !requirements.txt
 .dockerignore

@@ -1,0 +1,93 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
+import { api, ApiClientError } from "@/lib/api";
+import type { User } from "@/lib/types";
+
+const DEPARTMENTS = ["HR", "Engineering", "IT", "Finance", "Sales", "Marketing", "Operations", "Legal"];
+
+export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [department, setDepartment] = useState("Engineering");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setNotice("");
+    try {
+      if (mode === "register") {
+        await api.register(email.trim(), password, fullName.trim(), department.trim());
+        setMode("login");
+        setNotice("Tài khoản đã được tạo. Bạn có thể đăng nhập ngay.");
+      } else {
+        await api.login(email.trim(), password);
+        onAuthenticated(await api.me());
+      }
+    } catch (reason) {
+      setError(reason instanceof ApiClientError ? reason.message : "Không thể xác thực tài khoản.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function changeMode(nextMode: "login" | "register") {
+    setMode(nextMode);
+    setError("");
+    setNotice("");
+  }
+
+  return (
+    <main className="current-login-scene" data-ui="cusion-shell">
+      <a className="skip-to-login" href="#login-form">Chuyển tới biểu mẫu đăng nhập</a>
+      <div className="login-ambient login-ambient-primary" aria-hidden="true" />
+      <div className="login-ambient login-ambient-gold" aria-hidden="true" />
+      <section className="current-login-layout">
+        <article className="current-login-hero" data-ui="hero">
+          <div className="current-login-brand"><span className="brand-mark"><BookOpen size={20} /></span><span><strong>HR Knowledge</strong><small>Trợ lý AI HR</small></span></div>
+          <div className="current-login-copy">
+            <p className="eyebrow">TRỢ LÝ AI HR DỰA TRÊN BẰNG CHỨNG</p>
+            <h1>Tri thức nhân sự,<br />sẵn sàng khi bạn cần.</h1>
+            <p>Tra cứu chính sách nội bộ, nhận câu trả lời rõ ràng và kiểm chứng từng nguồn đối soát.</p>
+          </div>
+          <div className="current-login-trust">
+            <span><ShieldCheck size={18} /><span><strong>Nguồn tin cậy</strong><small>Chính sách được phê duyệt</small></span></span>
+            <span><LockKeyhole size={18} /><span><strong>Truy cập an toàn</strong><small>Backend kiểm soát phân quyền</small></span></span>
+          </div>
+        </article>
+
+        <section className="current-login-card" data-ui="membership-card">
+          <div className="login-mode-switch" role="tablist" aria-label="Chọn hình thức xác thực">
+            <button className={mode === "login" ? "active" : ""} role="tab" aria-selected={mode === "login"} type="button" onClick={() => changeMode("login")}>Đăng nhập</button>
+            <button className={mode === "register" ? "active" : ""} role="tab" aria-selected={mode === "register"} type="button" onClick={() => changeMode("register")}>Đăng ký</button>
+          </div>
+          <form id="login-form" className="login-form current-login-form" onSubmit={submit}>
+            <div>
+              <p className="eyebrow">{mode === "login" ? "CHÀO MỪNG TRỞ LẠI" : "TẠO HỒ SƠ MỚI"}</p>
+              <h2>{mode === "login" ? "Đăng nhập hệ thống" : "Tạo tài khoản"}</h2>
+              <p>{mode === "login" ? "Tiếp tục tới không gian HR Knowledge của bạn." : "Tài khoản mới được Backend quản lý và bảo vệ."}</p>
+            </div>
+            {mode === "register" && <label>Họ và tên<input autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
+            {mode === "register" && <label>Phòng ban<select autoComplete="organization" value={department} onChange={(event) => setDepartment(event.target.value)} required>{DEPARTMENTS.map((item) => <option key={item}>{item}</option>)}</select></label>}
+            <label>Email công việc<input autoComplete="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+            <label>Mật khẩu<input autoComplete={mode === "login" ? "current-password" : "new-password"} type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            {error && <div className="inline-error animate__animated animate__shakeX motion-fast" role="alert">{error}</div>}
+            {notice && <div className="inline-success animate__animated animate__fadeIn motion-fast" role="status">{notice}</div>}
+            <button className="primary-command current-login-submit" disabled={loading} type="submit" data-ui="primary-action">
+              {loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}
+              {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
+            </button>
+            <p className="form-note">Phiên đăng nhập dùng JWT do Backend phát hành.</p>
+          </form>
+        </section>
+      </section>
+    </main>
+  );
+}

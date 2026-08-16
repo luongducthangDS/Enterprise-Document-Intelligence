@@ -1,0 +1,783 @@
+{
+  "rq_001": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0147": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0182": 1
+  },
+  "rq_002": {
+    "02_quy-trinh-tuyen-dung::0006": 2,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0005": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0006": 1
+  },
+  "rq_003": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0013": 1,
+    "161-ndcp.signed::0007": 1,
+    "161-ndcp.signed::0008": 1,
+    "161-ndcp.signed::0009": 2,
+    "161-ndcp.signed::0010": 2,
+    "161-ndcp.signed::0011": 2,
+    "161-ndcp.signed::0012": 2,
+    "161-ndcp.signed::0013": 2,
+    "161-ndcp.signed::0015": 2,
+    "bộ luật lao động::0118": 1
+  },
+  "rq_004": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0128": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0227": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0097": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0098": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0099": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0100": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0121": 2
+  },
+  "rq_005": {
+    "bộ luật lao động::0081": 1,
+    "bộ luật lao động::0089": 1,
+    "bộ luật lao động::0090": 1,
+    "bộ luật lao động::0092": 1,
+    "bộ luật lao động::0093": 1,
+    "bộ luật lao động::0098": 2
+  },
+  "rq_006": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0090": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0091": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0099": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0103": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0105": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0106": 1
+  },
+  "rq_007": {
+    "03_quy-trinh-onboarding::0009": 2,
+    "03_quy-trinh-onboarding::0012": 1,
+    "bộ luật lao động::0032": 2,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0003": 1
+  },
+  "rq_008": {
+    "bộ luật lao động::0106": 1,
+    "nghi_dinh_145_2020_nd_cp::0095": 2,
+    "nghi_dinh_145_2020_nd_cp::0096": 1,
+    "nghi_dinh_145_2020_nd_cp::0097": 1,
+    "nghi_dinh_145_2020_nd_cp::0099": 1,
+    "nghi_dinh_145_2020_nd_cp::0100": 1
+  },
+  "rq_009": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0090": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0046": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0047": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0061": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0063": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0066": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0067": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0085": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0119": 1
+  },
+  "rq_010": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0003": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0061": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0012": 1
+  },
+  "rq_011": {
+    "bộ luật lao động::0141": 2,
+    "leanh_mau-noi-quy-lao-dong::0036": 2
+  },
+  "rq_012": {
+    "04_quy-trinh-offboarding::0001": 1,
+    "04_quy-trinh-offboarding::0006": 1,
+    "04_quy-trinh-offboarding::0008": 1,
+    "04_quy-trinh-offboarding::0009": 1,
+    "04_quy-trinh-offboarding::0010": 1,
+    "05_chinh-sach-lam-viec-tu-xa::0013": 1
+  },
+  "rq_014": {
+    "02_quy-trinh-tuyen-dung::0002": 1,
+    "02_quy-trinh-tuyen-dung::0004": 1,
+    "02_quy-trinh-tuyen-dung::0006": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0000": 2,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0001": 2,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0002": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0003": 1
+  },
+  "rq_015": {
+    "bộ luật lao động::0137": 1,
+    "bộ luật lao động::0138": 1,
+    "bộ luật lao động::0140": 2,
+    "bộ luật lao động::0142": 1,
+    "leanh_mau-noi-quy-lao-dong::0030": 1,
+    "leanh_mau-noi-quy-lao-dong::0031": 1,
+    "leanh_mau-noi-quy-lao-dong::0033": 2,
+    "leanh_mau-noi-quy-lao-dong::0034": 2,
+    "leanh_mau-noi-quy-lao-dong::0036": 1,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0001": 2,
+    "nghi_dinh_145_2020_nd_cp::0128": 1,
+    "nghi_dinh_145_2020_nd_cp::0130": 1,
+    "nghi_dinh_145_2020_nd_cp::0164": 2,
+    "nghi_dinh_145_2020_nd_cp::0165": 1,
+    "nghi_dinh_145_2020_nd_cp::0273": 1
+  },
+  "rq_016": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0005": 2
+  },
+  "rq_017": {
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0022": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0026": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0027": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0028": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0029": 2
+  },
+  "rq_018": {
+    "07_chinh-sach-nghi-phep::0019": 2,
+    "07_chinh-sach-nghi-phep::0020": 1,
+    "07_chinh-sach-nghi-phep::0021": 1,
+    "07_chinh-sach-nghi-phep::0023": 2,
+    "07_chinh-sach-nghi-phep::0024": 2,
+    "leanh_mau-noi-quy-lao-dong::0009": 1
+  },
+  "rq_019": {
+    "nghi_dinh_145_2020_nd_cp::0046": 2
+  },
+  "rq_021": {
+    "luat51::0012": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0044": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0045": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0046": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0061": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0063": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0065": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0066": 1
+  },
+  "rq_022": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0018": 2,
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0076": 1
+  },
+  "rq_023": {
+    "nghi_dinh_145_2020_nd_cp::0281": 2
+  },
+  "rq_024": {
+    "bộ luật lao động::0150": 1,
+    "nghi_dinh_145_2020_nd_cp::0137": 2,
+    "nghi_dinh_145_2020_nd_cp::0140": 1,
+    "nghi_dinh_145_2020_nd_cp::0144": 1
+  },
+  "rq_025": {
+    "bộ luật lao động::0123": 1,
+    "leanh_mau-noi-quy-lao-dong::0022": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0006": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0007": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0011": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0021": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0036": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0059": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0114": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0117": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0122": 1
+  },
+  "rq_026": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0036": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0037": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0039": 2,
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0002": 2,
+    "bộ luật lao động::0142": 2,
+    "leanh_mau-noi-quy-lao-dong::0018": 1,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0003": 1,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0005": 1
+  },
+  "rq_027": {
+    "05_chinh-sach-lam-viec-tu-xa::0016": 1,
+    "bộ luật lao động::0005": 1,
+    "bộ luật lao động::0013": 2,
+    "bộ luật lao động::0142": 1,
+    "bộ luật lao động::0175": 1,
+    "bộ luật lao động::0180": 1,
+    "bộ luật lao động::0191": 1,
+    "bộ luật lao động::0231": 1,
+    "leanh_mau-noi-quy-lao-dong::0023": 2,
+    "leanh_mau-noi-quy-lao-dong::0029": 1,
+    "leanh_mau-noi-quy-lao-dong::0034": 1,
+    "nghi_dinh_145_2020_nd_cp::0151": 2,
+    "nghi_dinh_145_2020_nd_cp::0153": 1
+  },
+  "rq_028": {
+    "bộ luật lao động::0049": 1,
+    "bộ luật lao động::0058": 2
+  },
+  "rq_029": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0005": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 2
+  },
+  "rq_030": {
+    "luat51::0002": 1,
+    "luat51::0003": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0041": 1
+  },
+  "rq_031": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0137": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0139": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0140": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0038": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0041": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0042": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0043": 2
+  },
+  "rq_032": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0028": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0033": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0037": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0038": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0039": 1
+  },
+  "rq_033": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0015": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0055": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0056": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0058": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0059": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0061": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0064": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0019": 1
+  },
+  "rq_034": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0080": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0090": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0145": 1
+  },
+  "rq_035": {
+    "07_chinh-sach-nghi-phep::0016": 1,
+    "leanh_mau-noi-quy-lao-dong::0008": 2
+  },
+  "rq_036": {
+    "01_chinh-sach-lam-them-gio-OT::0004": 1,
+    "01_chinh-sach-lam-them-gio-OT::0007": 2,
+    "bộ luật lao động::0121": 1,
+    "bộ luật lao động::0122": 1,
+    "leanh_mau-noi-quy-lao-dong::0015": 1,
+    "nghi_dinh_145_2020_nd_cp::0115": 1,
+    "nghi_dinh_145_2020_nd_cp::0265": 1
+  },
+  "rq_037": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0119": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0121": 2
+  },
+  "rq_038": {
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0018": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0070": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0072": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0073": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0108": 1
+  },
+  "rq_039": {
+    "06_chinh-sach-dao-tao-phat-trien::0001": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0003": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0004": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0007": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0008": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0009": 1,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0001": 2
+  },
+  "rq_040": {
+    "07_chinh-sach-nghi-phep::0008": 1,
+    "07_chinh-sach-nghi-phep::0011": 1,
+    "07_chinh-sach-nghi-phep::0016": 2,
+    "07_chinh-sach-nghi-phep::0017": 2,
+    "leanh_mau-noi-quy-lao-dong::0007": 1,
+    "leanh_mau-noi-quy-lao-dong::0008": 2
+  },
+  "rq_041": {
+    "04_quy-trinh-offboarding::0004": 2,
+    "04_quy-trinh-offboarding::0011": 1,
+    "bộ luật lao động::0043": 2,
+    "bộ luật lao động::0047": 1,
+    "nghi_dinh_145_2020_nd_cp::0012": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": 1
+  },
+  "rq_042": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0082": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0096": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0097": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0221": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0053": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0060": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0002": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0003": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0005": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0006": 2,
+    "thong-tu-60-2025-TT-BHYT-2026::0009": 2,
+    "thong-tu-60-2025-TT-BHYT-2026::0013": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0014": 1
+  },
+  "rq_043": {
+    "bộ luật lao động::0178": 2,
+    "nghi_dinh_145_2020_nd_cp::0162": 2
+  },
+  "rq_044": {
+    "bộ luật lao động::0209": 1,
+    "bộ luật lao động::0210": 2,
+    "bộ luật lao động::0214": 1,
+    "bộ luật lao động::0215": 1,
+    "bộ luật lao động::0219": 1,
+    "bộ luật lao động::0220": 1,
+    "bộ luật lao động::0223": 1,
+    "nghi_dinh_145_2020_nd_cp::0205": 1
+  },
+  "rq_045": {
+    "02_quy-trinh-tuyen-dung::0006": 2,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0004": 2,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0007": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0005": 1
+  },
+  "rq_046": {
+    "06_chinh-sach-dao-tao-phat-trien::0000": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0001": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0002": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0003": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0004": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0005": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0006": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0007": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0009": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0007": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0008": 1
+  },
+  "rq_047": {
+    "112-vbhn-vpqh_luat_thue_tncn::0024": 1,
+    "112-vbhn-vpqh_luat_thue_tncn::0027": 1,
+    "112-vbhn-vpqh_luat_thue_tncn::0036": 2
+  },
+  "rq_049": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0061": 2
+  },
+  "rq_050": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0137": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0138": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0040": 2
+  },
+  "rq_051": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0066": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0067": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0070": 1
+  },
+  "rq_052": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0075": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0086": 2
+  },
+  "rq_053": {
+    "luat51::0017": 1,
+    "luat51::0020": 2
+  },
+  "rq_054": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0006": 2
+  },
+  "rq_055": {
+    "nghi_dinh_145_2020_nd_cp::0036": 1,
+    "nghi_dinh_145_2020_nd_cp::0037": 1,
+    "nghi_dinh_145_2020_nd_cp::0040": 1,
+    "nghi_dinh_145_2020_nd_cp::0041": 1,
+    "nghi_dinh_145_2020_nd_cp::0042": 2,
+    "nghi_dinh_145_2020_nd_cp::0043": 1,
+    "nghi_dinh_145_2020_nd_cp::0044": 2
+  },
+  "rq_056": {
+    "03_quy-trinh-onboarding::0009": 1,
+    "04_quy-trinh-offboarding::0001": 1,
+    "bộ luật lao động::0052": 1,
+    "nghi_dinh_145_2020_nd_cp::0013": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0000": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0002": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0003": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0005": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0007": 1
+  },
+  "rq_057": {
+    "bộ luật lao động::0013": 2,
+    "bộ luật lao động::0022": 2,
+    "bộ luật lao động::0142": 2,
+    "bộ luật lao động::0163": 2,
+    "bộ luật lao động::0175": 2,
+    "bộ luật lao động::0180": 2,
+    "bộ luật lao động::0191": 2,
+    "bộ luật lao động::0231": 1,
+    "nghi_dinh_145_2020_nd_cp::0151": 1
+  },
+  "rq_058": {
+    "05_chinh-sach-lam-viec-tu-xa::0000": 2
+  },
+  "rq_059": {
+    "bộ luật lao động::0068": 2
+  },
+  "rq_060": {
+    "bộ luật lao động::0203": 1,
+    "bộ luật lao động::0204": 1,
+    "bộ luật lao động::0205": 1,
+    "bộ luật lao động::0215": 1,
+    "bộ luật lao động::0220": 1,
+    "nghi_dinh_145_2020_nd_cp::0191": 2,
+    "nghi_dinh_145_2020_nd_cp::0192": 1,
+    "nghi_dinh_145_2020_nd_cp::0193": 1,
+    "nghi_dinh_145_2020_nd_cp::0194": 1
+  },
+  "rq_061": {
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0085": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0086": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0093": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0094": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0112": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0117": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0118": 1
+  },
+  "rq_062": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0052": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0060": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0011": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0132": 1
+  },
+  "rq_063": {
+    "bộ luật lao động::0228": 1,
+    "bộ luật lao động::0234": 2,
+    "bộ luật lao động::0240": 1,
+    "nghi_dinh_145_2020_nd_cp::0204": 1,
+    "nghi_dinh_145_2020_nd_cp::0208": 2,
+    "nghi_dinh_145_2020_nd_cp::0209": 1,
+    "nghi_dinh_145_2020_nd_cp::0214": 1,
+    "nghi_dinh_145_2020_nd_cp::0215": 1,
+    "nghi_dinh_145_2020_nd_cp::0217": 1
+  },
+  "rq_064": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0046": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0047": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0136": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0045": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0061": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0065": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0067": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0120": 1
+  },
+  "rq_065": {
+    "02_quy-trinh-tuyen-dung::0006": 1,
+    "02_quy-trinh-tuyen-dung::0008": 2,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002": 1,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": 2,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0004": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0005": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0006": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0007": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0008": 1
+  },
+  "rq_066": {
+    "112-vbhn-vpqh_luat_thue_tncn::0001": 2,
+    "112-vbhn-vpqh_luat_thue_tncn::0028": 2,
+    "112-vbhn-vpqh_luat_thue_tncn::0037": 1
+  },
+  "rq_067": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0030": 1,
+    "leanh_mau-noi-quy-lao-dong::0031": 1,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0002": 2,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": 2,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0004": 2,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0005": 1,
+    "nghi_dinh_145_2020_nd_cp::0130": 1,
+    "nghi_dinh_145_2020_nd_cp::0131": 1,
+    "nghi_dinh_145_2020_nd_cp::0132": 1
+  },
+  "rq_068": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0001": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0002": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0031": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0033": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0044": 1,
+    "thong-tu-60-2025-TT-BHYT-2026::0004": 2,
+    "thong-tu-60-2025-TT-BHYT-2026::0014": 1
+  },
+  "rq_069": {
+    "07_chinh-sach-nghi-phep::0008": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0062": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0064": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0026": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0027": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0028": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0029": 1
+  },
+  "rq_070": {
+    "base_quy-che-cong-tac-phi-va-phu-cap::0000": 1,
+    "base_quy-che-cong-tac-phi-va-phu-cap::0002": 1,
+    "base_quy-che-cong-tac-phi-va-phu-cap::0003": 1,
+    "base_quy-che-cong-tac-phi-va-phu-cap::0005": 1,
+    "base_quy-che-cong-tac-phi-va-phu-cap::0006": 2
+  },
+  "rq_071": {
+    "03_quy-trinh-onboarding::0003": 2,
+    "03_quy-trinh-onboarding::0005": 1,
+    "03_quy-trinh-onboarding::0006": 2,
+    "03_quy-trinh-onboarding::0007": 1
+  },
+  "rq_072": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0082": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0083": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0094": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0095": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0096": 1
+  },
+  "rq_073": {
+    "02_quy-trinh-tuyen-dung::0006": 1,
+    "02_quy-trinh-tuyen-dung::0008": 1,
+    "02_quy-trinh-tuyen-dung::0010": 1,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003": 2,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0004": 1,
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0005": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0005": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0006": 1
+  },
+  "rq_074": {
+    "161-ndcp.signed::0000": 2,
+    "161-ndcp.signed::0001": 2,
+    "161-ndcp.signed::0013": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0141": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0228": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0001": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0002": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0123": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0125": 1
+  },
+  "rq_075": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0059": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0060": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0063": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0071": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0072": 1
+  },
+  "rq_076": {
+    "01_chinh-sach-lam-them-gio-OT::0003": 1,
+    "01_chinh-sach-lam-them-gio-OT::0005": 2,
+    "bộ luật lao động::0125": 1,
+    "leanh_mau-noi-quy-lao-dong::0015": 1,
+    "nghi_dinh_145_2020_nd_cp::0115": 1,
+    "nghi_dinh_145_2020_nd_cp::0116": 2
+  },
+  "rq_077": {
+    "bộ luật lao động::0002": 1,
+    "bộ luật lao động::0003": 2,
+    "nghi_dinh_145_2020_nd_cp::0002": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0002": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0003": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0004": 2,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0006": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0008": 1,
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0011": 1
+  },
+  "rq_078": {
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0003": 1,
+    "bộ luật lao động::0045": 2,
+    "bộ luật lao động::0047": 1,
+    "bộ luật lao động::0061": 2,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0000": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0003": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": 1,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0005": 2,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": 2
+  },
+  "rq_079": {
+    "luat51::0045": 2,
+    "luat51::0046": 2,
+    "luat51::0047": 1
+  },
+  "rq_080": {
+    "05_chinh-sach-lam-viec-tu-xa::0021": 1,
+    "05_chinh-sach-lam-viec-tu-xa::0024": 2,
+    "05_chinh-sach-lam-viec-tu-xa::0031": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0033": 1,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0001": 1
+  },
+  "rq_081": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0105": 2,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0108": 2,
+    "nghi_dinh_145_2020_nd_cp::0163": 1
+  },
+  "rq_082": {
+    "bộ luật lao động::0079": 1,
+    "bộ luật lao động::0080": 2,
+    "bộ luật lao động::0081": 2,
+    "bộ luật lao động::0082": 2,
+    "bộ luật lao động::0083": 1,
+    "bộ luật lao động::0085": 1,
+    "bộ luật lao động::0086": 1,
+    "bộ luật lao động::0087": 1,
+    "bộ luật lao động::0089": 1,
+    "bộ luật lao động::0090": 1
+  },
+  "rq_083": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0011": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0055": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0056": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0058": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0059": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0061": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0064": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0014": 1
+  },
+  "rq_084": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": 1,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": 1,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0008": 1,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0011": 1,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0013": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0014": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0015": 2
+  },
+  "rq_085": {
+    "bộ luật lao động::0211": 2,
+    "bộ luật lao động::0216": 1,
+    "nghi_dinh_145_2020_nd_cp::0194": 1,
+    "nghi_dinh_145_2020_nd_cp::0196": 1
+  },
+  "rq_086": {
+    "bộ luật lao động::0076": 2,
+    "bộ luật lao động::0133": 2,
+    "nghi_dinh_145_2020_nd_cp::0075": 1,
+    "nghi_dinh_145_2020_nd_cp::0076": 1,
+    "nghi_dinh_145_2020_nd_cp::0079": 1,
+    "nghi_dinh_145_2020_nd_cp::0080": 1,
+    "nghi_dinh_145_2020_nd_cp::0082": 1,
+    "nghi_dinh_145_2020_nd_cp::0085": 1,
+    "nghi_dinh_145_2020_nd_cp::0086": 2,
+    "nghi_dinh_145_2020_nd_cp::0087": 2,
+    "nghi_dinh_145_2020_nd_cp::0088": 1,
+    "nghi_dinh_145_2020_nd_cp::0092": 1
+  },
+  "rq_087": {
+    "bộ luật lao động::0188": 2,
+    "bộ luật lao động::0203": 1,
+    "bộ luật lao động::0204": 1,
+    "bộ luật lao động::0205": 1,
+    "nghi_dinh_145_2020_nd_cp::0185": 2,
+    "nghi_dinh_145_2020_nd_cp::0186": 2
+  },
+  "rq_088": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0002": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0003": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0004": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0005": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0010": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0051": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0054": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0003": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0056": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0091": 1
+  },
+  "rq_089": {
+    "bộ luật lao động::0023": 2,
+    "bộ luật lao động::0024": 2,
+    "leanh_mau-noi-quy-lao-dong::0041": 2,
+    "luat51::0004": 1,
+    "luat51::0006": 1,
+    "luat51::0046": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0032": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0035": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0036": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0041": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0042": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0043": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0215": 1
+  },
+  "rq_090": {
+    "04_quy-trinh-offboarding::0004": 2,
+    "bộ luật lao động::0043": 1,
+    "bộ luật lao động::0044": 2,
+    "nghi_dinh_145_2020_nd_cp::0158": 2,
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": 2
+  },
+  "rq_091": {
+    "06_chinh-sach-dao-tao-phat-trien::0001": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0003": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0004": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0005": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0006": 1,
+    "06_chinh-sach-dao-tao-phat-trien::0008": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0009": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0007": 1,
+    "bộ luật lao động::0074": 1,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0001": 1
+  },
+  "rq_092": {
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0129": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0063": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0064": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0065": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0066": 1,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0067": 2,
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0122": 1
+  },
+  "rq_093": {
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0000": 2,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0001": 1,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0002": 2,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0003": 2,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0004": 2,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0005": 1,
+    "mau_quy-che-danh-gia-hieu-suat-kpi::0006": 1
+  },
+  "rq_094": {
+    "07_chinh-sach-nghi-phep::0013": 2,
+    "07_chinh-sach-nghi-phep::0014": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 1,
+    "leanh_mau-noi-quy-lao-dong::0011": 2,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0091": 1,
+    "luat_bao_hiem_xa_hoi_41_2024_qh15::0108": 2
+  },
+  "rq_095": {
+    "02_quy-trinh-tuyen-dung::0004": 2,
+    "02_quy-trinh-tuyen-dung::0009": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0001": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0002": 1,
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0003": 2
+  },
+  "rq_096": {
+    "07_chinh-sach-nghi-phep::0023": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0010": 1,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0011": 2,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0012": 2,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0013": 2,
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0018": 2,
+    "161-ndcp.signed::0008": 1,
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 2,
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001": 2,
+    "bộ luật lao động::0118": 1
+  },
+  "rq_097": {
+    "bộ luật lao động::0124": 1,
+    "bộ luật lao động::0131": 1,
+    "bộ luật lao động::0133": 2,
+    "leanh_mau-noi-quy-lao-dong::0005": 2,
+    "leanh_mau-noi-quy-lao-dong::0015": 1,
+    "leanh_mau-noi-quy-lao-dong::0017": 1,
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0044": 1,
+    "nghi_dinh_145_2020_nd_cp::0125": 2,
+    "nghi_dinh_145_2020_nd_cp::0126": 2
+  },
+  "rq_099": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0009": 2,
+    "bộ luật lao động::0074": 1,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002": 1,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0003": 2,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": 2,
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0005": 1
+  },
+  "rq_100": {
+    "bộ luật lao động::0137": 2,
+    "bộ luật lao động::0138": 1,
+    "bộ luật lao động::0139": 1,
+    "leanh_mau-noi-quy-lao-dong::0030": 1,
+    "leanh_mau-noi-quy-lao-dong::0031": 2,
+    "leanh_mau-noi-quy-lao-dong::0035": 1,
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0005": 2,
+    "nghi_dinh_145_2020_nd_cp::0130": 2,
+    "nghi_dinh_145_2020_nd_cp::0132": 2,
+    "nghi_dinh_145_2020_nd_cp::0156": 1,
+    "nghi_dinh_145_2020_nd_cp::0164": 1,
+    "nghi_dinh_145_2020_nd_cp::0165": 1
+  }
+}

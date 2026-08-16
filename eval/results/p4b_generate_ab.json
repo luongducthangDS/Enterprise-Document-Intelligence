@@ -1,0 +1,1316 @@
+{
+  "run_at": "2026-08-13T05:49:27.898580+00:00",
+  "design": "Tier 2A isolate generate (replay cùng chunks) + Tier 2B downstream hallucination veto. Paired, randomize thứ tự trong cặp.",
+  "seed": 20260813,
+  "summary": {
+    "n": 23,
+    "paired_delta_ms": {
+      "median": -5045,
+      "p25": -9150,
+      "p75": -2556,
+      "mean": -6754,
+      "off_faster_n": 23
+    },
+    "ON": {
+      "latency_p50_ms": 6553,
+      "latency_p95_ms": 18296,
+      "all_quality_pass": 16,
+      "per_check": {
+        "has_citation": 21,
+        "citations_valid": 23,
+        "no_ungrounded_number": 18,
+        "answer_keywords_hit": 23,
+        "sentinel_consistent": 23,
+        "non_empty": 23
+      },
+      "hallucination_pass": 20,
+      "hallucination_latency_p50_ms": 5445,
+      "ungrounded_numbers": 8,
+      "sentinel_used": 0
+    },
+    "OFF": {
+      "latency_p50_ms": 1779,
+      "latency_p95_ms": 3456,
+      "all_quality_pass": 21,
+      "per_check": {
+        "has_citation": 23,
+        "citations_valid": 23,
+        "no_ungrounded_number": 21,
+        "answer_keywords_hit": 23,
+        "sentinel_consistent": 23,
+        "non_empty": 23
+      },
+      "hallucination_pass": 23,
+      "hallucination_latency_p50_ms": 4631,
+      "ungrounded_numbers": 4,
+      "sentinel_used": 0
+    }
+  },
+  "results": [
+    {
+      "id": "wl_01",
+      "category": "hr_single_turn",
+      "query": "Tháng này mình làm OT tối đa được bao nhiêu giờ?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [
+        "40 giờ"
+      ],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Tối đa **40 giờ/tháng** [Nguồn 1] [Nguồn 5] [Nguồn 10]. Giới hạn này áp dụng cho cả trường hợp làm OT khi WFH [Nguồn 2] [Nguồn 9].",
+        "answerable": true,
+        "citations": 5,
+        "latency_ms": 2794,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4270
+        }
+      },
+      "OFF": {
+        "answer": "Bạn được làm thêm tối đa **40 giờ/tháng** [Nguồn 1][Nguồn 5][Nguồn 10]. Đây là tài liệu tham khảo (template/synthetic), không phải quy định chính thức của công ty.",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 1678,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2694
+        }
+      },
+      "paired_delta_ms": -1116
+    },
+    {
+      "id": "wl_02",
+      "category": "hr_single_turn",
+      "query": "Làm thêm giờ vào ngày lễ được trả lương bao nhiêu phần trăm?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [
+        "300%"
+      ],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Theo pháp luật, làm thêm giờ vào ngày nghỉ lễ, tết được trả ít nhất **300%** tiền lương thực trả, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3, 5]. Tuy nhiên, template nội quy mẫu (không phải quy định công ty) quy định mức **400%** [Nguồn 1].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 25473,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2123
+        }
+      },
+      "OFF": {
+        "answer": "Làm thêm giờ vào ngày lễ được trả ít nhất **300%** tiền lương, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3][Nguồn 5]. Nếu làm thêm vào ban đêm, cộng thêm ít nhất 30% [Nguồn 3]. Lưu ý: một mẫu nội quy quy định mức 400% [Nguồn 1], nhưng đây chỉ là tài liệu tham khảo, pháp luật quy định mức tối thiểu 300%.",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 2397,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 9280
+        }
+      },
+      "paired_delta_ms": -23076
+    },
+    {
+      "id": "wl_03",
+      "category": "hr_single_turn",
+      "query": "Nghỉ phép năm được bao nhiêu ngày với người làm đủ 12 tháng?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Người làm đủ 12 tháng được nghỉ **12 ngày phép năm** nếu làm công việc trong điều kiện bình thường [Nguồn 2]. Mức này thay đổi tuỳ điều kiện làm việc:\n- 14 ngày đối với lao động chưa thành niên, người khuyết tật, hoặc làm nghề/công việc nặng nhọc, độc hại, nguy hiểm [Nguồn 2].\n- 16 ngày đối với công việc đặc biệt nặng nhọc, độc hại, nguy hiểm [Nguồn 2].\n\nTemplate nội quy lao động cũng quy định 12 ngày cho trường hợp bình thường [Nguồn 1].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 8236,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5999
+        }
+      },
+      "OFF": {
+        "answer": "Người làm đủ 12 tháng được nghỉ 12 ngày phép năm (nếu làm công việc bình thường) [Nguồn 1][Nguồn 2]. Số ngày này có thể cao hơn tùy điều kiện làm việc: 14 ngày đối với lao động chưa thành niên, người khuyết tật hoặc công việc nặng nhọc, độc hại, nguy hiểm; 16 ngày đối với công việc đặc biệt nặng nhọc, độc hại, nguy hiểm [Nguồn 2].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 1941,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5502
+        }
+      },
+      "paired_delta_ms": -6295
+    },
+    {
+      "id": "wl_04",
+      "category": "hr_single_turn",
+      "query": "Thời gian thử việc tối đa với vị trí quản lý doanh nghiệp là bao lâu?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 7,
+      "ON": {
+        "answer": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 9631,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2106
+        }
+      },
+      "OFF": {
+        "answer": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày [Nguồn 1]. Lưu ý, một số tài liệu mẫu nội bộ chỉ nhắc mức tối đa 60 ngày nhưng đó áp dụng cho công việc cần trình độ cao đẳng trở lên, không phải vị trí quản lý doanh nghiệp [Nguồn 3][Nguồn 4].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 2353,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 9514
+        }
+      },
+      "paired_delta_ms": -7278
+    },
+    {
+      "id": "wl_05",
+      "category": "hr_single_turn",
+      "query": "Nghỉ thai sản được bao nhiêu tháng?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Lao động nữ được nghỉ thai sản **06 tháng** trước và sau khi sinh; nếu sinh đôi trở lên thì từ con thứ 2 trở đi, mỗi con nghỉ thêm **01 tháng** [Nguồn 1][Nguồn 2].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 5140,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4558
+        }
+      },
+      "OFF": {
+        "answer": "Lao động nữ được nghỉ thai sản 06 tháng trước và sau khi sinh; thời gian nghỉ trước khi sinh không quá 02 tháng [Nguồn 1]. Nếu sinh đôi trở lên, tính từ con thứ 02 trở đi, cứ mỗi con người mẹ được nghỉ thêm 01 tháng [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 1303,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2373
+        }
+      },
+      "paired_delta_ms": -3837
+    },
+    {
+      "id": "wl_06",
+      "category": "hr_single_turn",
+      "query": "Mức lương tối thiểu vùng I hiện nay là bao nhiêu?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 1,
+      "ON": {
+        "answer": "Mức lương tối thiểu vùng I hiện nay là **5.310.000 đồng/tháng** (tương đương 25.500 đồng/giờ) [Nguồn 1].\n\nLưu ý: Cùng nguồn cũng ghi mức 5.000.000 đồng/tháng (20.000 đồng/giờ) cho vùng 1, có thể đây là mức cũ trước khi điều chỉnh [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 3506,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "310.000 đồng",
+            "25.500 đồng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": false,
+          "latency_ms": 9069
+        }
+      },
+      "OFF": {
+        "answer": "Mức lương tối thiểu vùng I hiện nay là 5.310.000 đồng/tháng và 25.500 đồng/giờ [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 1010,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "310.000 đồng",
+            "25.500 đồng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4397
+        }
+      },
+      "paired_delta_ms": -2496
+    },
+    {
+      "id": "wl_07",
+      "category": "hr_single_turn",
+      "query": "Quy trình onboarding cho nhân viên mới gồm những bước nào?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Quy trình onboarding (tài liệu tham khảo, không phải quy định chính thức) gồm các bước:\n\n- **Pre-boarding**: Gửi email chào mừng; IT chuẩn bị thiết bị/tài khoản; phân công buddy, lập kế hoạch 30-60-90 ngày [Nguồn 6].\n- **Ngày 1**: Nhận thiết bị, ký giấy tờ; đào tạo định hướng (văn hóa, nội quy, bảo mật); buddy dẫn tham quan [Nguồn 5].\n- **Tuần 1**: Trao đổi mục tiêu 90 ngày; đào tạo công cụ; hoàn tất e-learning bắt buộc [Nguồn 10].\n- **30 ngày đầu**: Nắm quy trình cốt lõi; check-in tuần với quản lý; buddy hỗ trợ [Nguồn 9].\n- **Ngày 45**: Đánh giá giữa kỳ [Nguồn 2].\n- **Ngày 90**: Đánh giá kết thúc thử việc [Nguồn 2].",
+        "answerable": true,
+        "citations": 5,
+        "latency_ms": 10295,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5477
+        }
+      },
+      "OFF": {
+        "answer": "Quy trình onboarding gồm các bước chính sau (tài liệu mẫu/synthetic, không phải quy định chính thức của công ty):\n\n- **Trước ngày đầu (Pre-boarding):** Phòng NS gửi email chào mừng; IT chuẩn bị thiết bị, tài khoản; quản lý phân công buddy và lập kế hoạch 30-60-90 ngày [Nguồn 6].\n- **Ngày đầu tiên (Day 1):** Nhận thiết bị, ký giấy tờ; đào tạo định hướng về công ty, nội quy, chính sách bảo mật; buddy dẫn tham quan [Nguồn 5].\n- **Tuần đầu tiên:** Quản lý trao đổi mục tiêu 90 ngày; đào tạo công cụ/hệ thống; hoàn tất e-learning bắt buộc [Nguồn 10].\n- **30 ngày đầu:** Nhân viên nắm quy trình cốt lõi; check-in tuần với quản lý; buddy hỗ trợ hằng ngày [Nguồn 9].\n- **Đánh giá:** Giữa kỳ (ngày 45) và kết thúc thử việc (ngày 90) [Nguồn 2].",
+        "answerable": true,
+        "citations": 5,
+        "latency_ms": 2850,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 7464
+        }
+      },
+      "paired_delta_ms": -7445
+    },
+    {
+      "id": "wl_08",
+      "category": "hr_single_turn",
+      "query": "Người lao động được nghỉ mấy ngày lễ trong năm?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Người lao động được nghỉ **11 ngày lễ** trong năm theo Bộ luật Lao động [Nguồn 2], gồm: Tết Dương lịch 1 ngày, Tết Âm lịch 5 ngày, Chiến thắng 1 ngày, Quốc tế Lao động 1 ngày, Quốc khánh 2 ngày, Giỗ Tổ Hùng Vương 1 ngày. Lưu ý: nguồn template nội quy mẫu ghi \"10 ngày\" nhưng khi cộng các ngày cụ thể lại thành 11 ngày [Nguồn 1]. Lao động người nước ngoài thêm 2 ngày (Tết cổ truyền và Quốc khánh nước họ) [Nguồn 2].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 12237,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "11 ngày",
+            "11 ngày"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 6956
+        }
+      },
+      "OFF": {
+        "answer": "Người lao động được nghỉ 10 ngày lễ trong năm, bao gồm: Tết Dương lịch (1 ngày), Tết Âm lịch (5 ngày), Giỗ Tổ Hùng Vương (1 ngày), Chiến thắng (1 ngày), Quốc tế Lao động (1 ngày) và Quốc khánh (2 ngày) [Nguồn 1][Nguồn 2]. Nếu ngày lễ trùng ngày nghỉ hàng tuần, người lao động được nghỉ bù vào ngày làm việc kế tiếp [Nguồn 2][Nguồn 7].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 1689,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 60735
+        }
+      },
+      "paired_delta_ms": -10548
+    },
+    {
+      "id": "wl_09",
+      "category": "hr_single_turn",
+      "query": "Trợ cấp thôi việc được tính thế nào?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Trợ cấp thôi việc được tính bằng **1/2 tháng tiền lương cho mỗi năm làm việc**, với tiền lương là bình quân 06 tháng liền kề theo hợp đồng lao động trước khi thôi việc [Nguồn 1][Nguồn 2].\n\n- Thời gian làm việc để tính = tổng thời gian làm việc thực tế trừ thời gian đã tham gia bảo hiểm thất nghiệp và thời gian đã được chi trả trợ cấp thôi việc/mất việc làm [Nguồn 1].\n- Thời gian tính theo năm (đủ 12 tháng); tháng lẻ ≤ 06 tháng tính 1/2 năm, > 06 tháng tính 01 năm [Nguồn 6].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 12562,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 7694
+        }
+      },
+      "OFF": {
+        "answer": "Trợ cấp thôi việc được tính mỗi năm làm việc bằng một nửa tháng tiền lương, áp dụng khi hợp đồng chấm dứt theo các trường hợp luật định và người lao động đã làm việc từ đủ 12 tháng trở lên [Nguồn 1].\n\n- Tiền lương tính trợ cấp là tiền lương bình quân 06 tháng liền kề trước khi thôi việc [Nguồn 1, 2].\n- Thời gian làm việc tính trợ cấp = tổng thời gian làm việc thực tế trừ thời gian đã tham gia bảo hiểm thất nghiệp và thời gian đã nhận trợ cấp thôi việc/mất việc làm; tính theo năm (đủ 12 tháng), tháng lẻ ≤ 06 tháng tính 1/2 năm, trên 06 tháng tính 01 năm [Nguồn 1, 5, 6].",
+        "answerable": true,
+        "citations": 4,
+        "latency_ms": 3924,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 8656
+        }
+      },
+      "paired_delta_ms": -8638
+    },
+    {
+      "id": "wl_10",
+      "category": "hr_single_turn",
+      "query": "Công ty có chính sách làm việc từ xa không?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Có, tài liệu mô tả chính sách làm việc từ xa theo mô hình Hybrid 3-2 (tối đa 02 ngày WFH và tối thiểu 03 ngày onsite/tuần), với Thứ Ba và Thứ Năm là Core Onsite Days bắt buộc [Nguồn 1, 2]. Tuy nhiên, đây là tài liệu mẫu/synthetic, không phải quy định chính thức của công ty [Nguồn 4].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 4528,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2985
+        }
+      },
+      "OFF": {
+        "answer": "Có, công ty áp dụng chính sách làm việc từ xa theo mô hình Hybrid (3-2): tối đa 02 ngày WFH và tối thiểu 03 ngày onsite/tuần [Nguồn 1, Nguồn 2]. Tuy nhiên, đây là tài liệu mẫu/synthetic, không phải quy định chính thức của công ty [Nguồn 4].\n\nViệc áp dụng phụ thuộc vào vị trí công việc — một số nhóm như Sản xuất, Kho vận, Thực tập sinh không được áp dụng [Nguồn 6].",
+        "answerable": true,
+        "citations": 4,
+        "latency_ms": 3462,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 11269
+        }
+      },
+      "paired_delta_ms": -1066
+    },
+    {
+      "id": "wl_11",
+      "category": "multi_turn_condense",
+      "query": "Vậy ngày thường thì sao?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Làm thêm giờ vào ngày thường được trả lương **ít nhất bằng 150%** so với tiền lương giờ thực trả (hoặc đơn giá tiền lương sản phẩm) của công việc đang làm vào ngày làm việc bình thường [Nguồn 1][Nguồn 2][Nguồn 7].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 4698,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 9113
+        }
+      },
+      "OFF": {
+        "answer": "Làm thêm giờ vào ngày thường được trả lương ít nhất bằng **150%** so với đơn giá tiền lương hoặc tiền lương thực trả của công việc đang làm [Nguồn 1], [Nguồn 2].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 3220,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2268
+        }
+      },
+      "paired_delta_ms": -1478
+    },
+    {
+      "id": "wl_12",
+      "category": "multi_turn_condense",
+      "query": "Cái đó áp dụng cho nhân viên thử việc không?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Không, chính sách Hybrid 3-2 không áp dụng cho nhân viên thử việc. Nhân viên thử việc yêu cầu onsite toàn thời gian để đào tạo [Nguồn 2], và phải hoàn thành thời gian thử việc cộng thêm ít nhất 03 tháng làm việc onsite liên tục mới đủ điều kiện áp dụng Hybrid [Nguồn 5, Nguồn 1].\n\n_Lưu ý: Các đoạn trích trên là tài liệu mẫu/synthetic, không phải quy định chính thức của công ty._",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 4797,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3456
+        }
+      },
+      "OFF": {
+        "answer": "Không, nhân viên thử việc không được áp dụng mô hình Hybrid 3-2 mà phải làm việc onsite toàn thời gian để đào tạo [Nguồn 2]. Để đủ điều kiện áp dụng Hybrid, NLĐ phải đã hoàn thành thời gian thử việc và có ít nhất 03 tháng làm việc onsite liên tục [Nguồn 5]. (Lưu ý: tài liệu này là dữ liệu mô phỏng, không phải quy định chính thức của công ty.)",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 2180,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 6961
+        }
+      },
+      "paired_delta_ms": -2617
+    },
+    {
+      "id": "wl_13",
+      "category": "multi_turn_condense",
+      "query": "Nếu ngày lễ thì sao?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Làm thêm giờ vào ngày lễ, tết được trả lương ít nhất bằng **300%** so với tiền lương giờ thực trả của công việc đang làm vào ngày làm việc bình thường, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3][Nguồn 6]. Nếu làm thêm ban đêm, được cộng thêm ít nhất 30% (lương ban đêm) và 20% (tiền lương giờ ban ngày của ngày lễ) [Nguồn 3].\n\nLưu ý: Một mẫu nội quy (template, không phải quy định công ty) quy định mức 400% cho ngày nghỉ lễ [Nguồn 2] — khác với mức tối thiểu 300% theo luật.",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 15466,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 7396
+        }
+      },
+      "OFF": {
+        "answer": "Làm thêm giờ vào ngày lễ được trả ít nhất bằng **300%** tiền lương thực trả, chưa kể tiền lương ngày lễ đối với người hưởng lương ngày [Nguồn 3]. Nếu làm thêm vào ban đêm, cộng thêm ít nhất 30% và 20% tiền lương giờ ban ngày [Nguồn 3].\n\nLưu ý: Một template nội quy mẫu quy định mức **400%** cho ngày nghỉ lễ [Nguồn 2], cao hơn mức pháp luật tối thiểu — đây chỉ là tài liệu tham khảo, không phải quy định chính thức của công ty.",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 2181,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4825
+        }
+      },
+      "paired_delta_ms": -13285
+    },
+    {
+      "id": "wl_14",
+      "category": "multi_turn_condense",
+      "query": "Sinh đôi thì được cộng thêm không?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Có. Nếu sinh đôi, lao động nữ được nghỉ thêm 01 tháng tính từ con thứ 2 trở đi, tức tổng cộng 07 tháng thay vì 06 tháng [Nguồn 1][Nguồn 2].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 3118,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "07 tháng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5252
+        }
+      },
+      "OFF": {
+        "answer": "Có, lao động nữ sinh đôi được nghỉ thêm 01 tháng (tính từ con thứ hai trở đi, cứ mỗi con thêm 01 tháng) ngoài 06 tháng nghỉ thai sản cơ bản [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 1217,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 1290
+        }
+      },
+      "paired_delta_ms": -1901
+    },
+    {
+      "id": "wl_15",
+      "category": "multi_turn_condense",
+      "query": "Quy định nghỉ thai sản là bao nhiêu tháng?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Lao động nữ được nghỉ thai sản **06 tháng** trước và sau khi sinh; thời gian nghỉ trước khi sinh không quá 02 tháng. Nếu sinh đôi trở lên, từ con thứ 02 trở đi cứ mỗi con người mẹ được nghỉ thêm 01 tháng [Nguồn 1].\n\nNgoài ra, theo tài liệu tham khảo (không phải quy định công ty): trường hợp sinh mổ (sản khoa) có thể nghỉ 07 tháng, con chết sau sinh nghỉ 4–6 tháng tùy tuổi thai [Nguồn 3].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 3443,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "07 tháng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5812
+        }
+      },
+      "OFF": {
+        "answer": "Lao động nữ được nghỉ thai sản 06 tháng trước và sau khi sinh; thời gian nghỉ trước khi sinh không quá 02 tháng [Nguồn 1]. Nếu sinh đôi trở lên, từ con thứ 02 trở đi cứ mỗi con người mẹ được nghỉ thêm 01 tháng [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 1308,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3048
+        }
+      },
+      "paired_delta_ms": -2135
+    },
+    {
+      "id": "wl_27",
+      "category": "retrieval_hard",
+      "query": "Cơ sở y tế công lập được sử dụng bao nhiêu phần trăm quỹ khám chữa bệnh bảo hiểm y tế?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Theo quy định, 92% số tiền đóng bảo hiểm y tế được dành cho khám bệnh, chữa bệnh [Nguồn 1]. Đây là tỷ lệ phân bổ chung của quỹ bảo hiểm y tế cho hoạt động khám chữa bệnh, áp dụng cho các cơ sở khám chữa bệnh bảo hiểm y tế nói chung, không có quy định riêng về tỷ lệ sử dụng cho cơ sở y tế công lập.",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 15647,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": false,
+          "latency_ms": 8690
+        }
+      },
+      "OFF": {
+        "answer": "Cơ sở y tế công lập sử dụng **tối thiểu 35%** số thu từ việc cung cấp các dịch vụ khám bệnh, chữa bệnh, y tế dự phòng và dịch vụ y tế khác, sau khi trừ các chi phí liên quan trực tiếp đến hoạt động cung cấp dịch vụ, thu phí [Nguồn 4][Nguồn 5].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 1534,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2500
+        }
+      },
+      "paired_delta_ms": -14113
+    },
+    {
+      "id": "wl_28",
+      "category": "retrieval_hard",
+      "query": "Chủ hộ kinh doanh có thuộc đối tượng tham gia bảo hiểm xã hội bắt buộc không?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Có, chủ hộ kinh doanh có đăng ký kinh doanh thuộc đối tượng tham gia BHXH bắt buộc. Cụ thể:\n- Chủ hộ nộp thuế theo phương pháp kê khai: tham gia ngay [Nguồn 1].\n- Chủ hộ không thuộc diện trên: tham gia BHXH bắt buộc từ ngày 01/07/2029 [Nguồn 1].\n\nLuật BHXH 2024 cũng quy định chủ hộ kinh doanh tham gia theo quy định của Chính phủ [Nguồn 3], và Nghị định 158/2025 đã quy định chi tiết như trên [Nguồn 1].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 5531,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5445
+        }
+      },
+      "OFF": {
+        "answer": "Có, chủ hộ kinh doanh có đăng ký kinh doanh thuộc đối tượng tham gia BHXH bắt buộc [Nguồn 2, Nguồn 3]. Cụ thể:\n- Nếu nộp thuế theo phương pháp kê khai: thuộc đối tượng tham gia BHXH bắt buộc [Nguồn 1].\n- Nếu không thuộc trường hợp trên: thuộc đối tượng tham gia BHXH bắt buộc **từ ngày 01/07/2029** [Nguồn 1].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 1743,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4631
+        }
+      },
+      "paired_delta_ms": -3788
+    },
+    {
+      "id": "wl_29",
+      "category": "retrieval_hard",
+      "query": "Mức lương tối thiểu vùng IV theo Nghị định 293/2025 là bao nhiêu và áp dụng cho địa bàn nào?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 6,
+      "ON": {
+        "answer": "Mức lương tối thiểu vùng IV theo Nghị định 293/2025 là **3.700.000 đồng/tháng** (17.800 đồng/giờ) [Nguồn 1]. Địa bàn áp dụng được quy định tại Phụ lục kèm theo Nghị định [Nguồn 1], [Nguồn 4]; cụ thể, vùng IV gồm các xã, phường còn lại không thuộc vùng I, II, III của từng tỉnh/thành phố [Nguồn 5], [Nguồn 6]. Người sử dụng lao động hoạt động trên địa bàn vùng nào thì áp dụng mức lương tối thiểu của vùng đó [Nguồn 1].",
+        "answerable": true,
+        "citations": 4,
+        "latency_ms": 4202,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "700.000 đồng",
+            "17.800 đồng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3383
+        }
+      },
+      "OFF": {
+        "answer": "Theo Nghị định 293/2025/NĐ-CP, mức lương tối thiểu vùng IV là 3.700.000 đồng/tháng và 17.800 đồng/giờ [Nguồn 1]. Danh mục địa bàn áp dụng được quy định tại Phụ lục ban hành kèm theo Nghị định, trong đó vùng IV gồm các xã, phường còn lại của từng tỉnh/thành phố [Nguồn 1][Nguồn 5].",
+        "answerable": true,
+        "citations": 2,
+        "latency_ms": 1585,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": false,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [
+            "700.000 đồng",
+            "17.800 đồng"
+          ],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2366
+        }
+      },
+      "paired_delta_ms": -2617
+    },
+    {
+      "id": "wl_30",
+      "category": "retrieval_hard",
+      "query": "Danh mục bệnh nghề nghiệp được hưởng bảo hiểm xã hội gồm những bệnh nào?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 10,
+      "ON": {
+        "answer": "Các đoạn trích chỉ cho biết Danh mục bệnh nghề nghiệp được hưởng bảo hiểm xã hội được quy định tại Điều 3 Thông tư 60/2025/TT-BYT [Nguồn 4, Nguồn 5] và do Bộ trưởng Bộ Y tế ban hành [Nguồn 3], nhưng không liệt kê cụ thể tên từng bệnh trong danh mục. Nguồn 1 chỉ nhắc đến một số khoản (1, 2, 4, 5, 11, 18, 20, 21, 34) thuộc Điều 3 là nhóm bệnh không có khả năng điều trị ổn định cần chuyển khám giám định ngay, không phải toàn bộ danh mục.",
+        "answerable": false,
+        "citations": 3,
+        "latency_ms": 10079,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": false,
+          "latency_ms": 7158
+        }
+      },
+      "OFF": {
+        "answer": "Danh mục bệnh nghề nghiệp được hưởng bảo hiểm xã hội do Bộ trưởng Bộ Y tế ban hành theo quy định tại khoản 1 Điều 37 Luật An toàn, vệ sinh lao động [Nguồn 3], cụ thể được quy định tại Điều 3 Thông tư này [Nguồn 4]. Tuy nhiên, các đoạn trích cung cấp không liệt kê chi tiết từng bệnh trong danh mục mà chỉ nhắc đến một số bệnh cụ thể như: bệnh bụi phổi, bệnh nghề nghiệp do rung cục bộ và rung toàn thân [Nguồn 2], bệnh nhiễm độc nghề nghiệp [Nguồn 1], và ung thư do bệnh nghề nghiệp [Nguồn 1].",
+        "answerable": true,
+        "citations": 4,
+        "latency_ms": 3401,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4203
+        }
+      },
+      "paired_delta_ms": -6678
+    },
+    {
+      "id": "wl_31",
+      "category": "escalate_low_confidence",
+      "query": "Chính sách xe đưa đón nhân viên của công ty quy định thế nào?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 1,
+      "ON": {
+        "answer": "Các đoạn trích chỉ đề cập đến quy chế công tác phí và phụ cấp di chuyển trong chuyến công tác (vé máy bay, tàu hỏa, taxi/xe công nghệ khi đi công tác), không có nội dung nào quy định về chính sách xe đưa đón nhân viên đi làm hàng ngày.",
+        "answerable": false,
+        "citations": 1,
+        "latency_ms": 6553,
+        "quality": {
+          "has_citation": false,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 7581
+        }
+      },
+      "OFF": {
+        "answer": "Các đoạn trích được cung cấp không có nội dung về chính sách xe đưa đón nhân viên. [Nguồn 1] chỉ quy định về chi phí di chuyển khi đi công tác (máy bay, tàu hỏa, taxi/xe công nghệ) chứ không đề cập đến việc xe đưa đón nhân viên đi làm hàng ngày.",
+        "answerable": false,
+        "citations": 1,
+        "latency_ms": 1508,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5661
+        }
+      },
+      "paired_delta_ms": -5045
+    },
+    {
+      "id": "wl_32",
+      "category": "escalate_low_confidence",
+      "query": "Công ty có trợ cấp tiền thuê nhà cho nhân viên ngoại tỉnh không, mức bao nhiêu?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 1,
+      "ON": {
+        "answer": "Đoạn trích được cung cấp chỉ đề cập đến phụ cấp lưu trú (tiền ăn và chi tiêu cá nhân) khi đi công tác, không có thông tin về trợ cấp tiền thuê nhà cho nhân viên ngoại tỉnh. Lưu ý, tài liệu này chỉ là template tham khảo, không phải quy định chính thức của công ty [Nguồn 1].",
+        "answerable": false,
+        "citations": 1,
+        "latency_ms": 18590,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3572
+        }
+      },
+      "OFF": {
+        "answer": "Các đoạn trích được cung cấp không nhắc tới trợ cấp tiền thuê nhà cho nhân viên ngoại tỉnh. [Nguồn 1] chỉ quy định về phụ cấp lưu trú (tiền ăn & chi tiêu cá nhân) cho nhân viên đi công tác, không phải trợ cấp thuê nhà cho nhân viên ngoại tỉnh.",
+        "answerable": false,
+        "citations": 1,
+        "latency_ms": 1779,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 2880
+        }
+      },
+      "paired_delta_ms": -16811
+    },
+    {
+      "id": "wl_33",
+      "category": "escalate_low_confidence",
+      "query": "Quy định về cấp phát đồng phục cho nhân viên mới thế nào?",
+      "order": [
+        "OFF",
+        "ON"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 1,
+      "ON": {
+        "answer": "Đoạn trích chỉ nêu quy định về trang phục/đồng phục sử dụng cho các nhóm CBNV (văn phòng, nhà máy, xưởng sản xuất) nhưng không đề cập đến quy trình, thời điểm hay điều kiện cấp phát đồng phục cho nhân viên mới.",
+        "answerable": false,
+        "citations": 1,
+        "latency_ms": 4969,
+        "quality": {
+          "has_citation": false,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3956
+        }
+      },
+      "OFF": {
+        "answer": "Đoạn trích cung cấp chỉ nêu việc CBNV làm việc tại các xưởng sản xuất, nhân viên bảo vệ, nhân viên tạp vụ và học viên Trung tâm đào tạo sử dụng đồng phục do VinFast cấp phát [Nguồn 1]. Tuy nhiên, đoạn trích không có quy định cụ thể về thủ tục, thời điểm hay điều kiện cấp phát đồng phục cho nhân viên mới.",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 1557,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 4416
+        }
+      },
+      "paired_delta_ms": -3412
+    },
+    {
+      "id": "wl_35",
+      "category": "guardrail_pii",
+      "query": "Email của tôi là thang.luong@vinai.io, số điện thoại 0912345678. Cho tôi hỏi thời gian thử việc tối đa với vị trí quản lý là bao lâu?",
+      "order": [
+        "ON",
+        "OFF"
+      ],
+      "expected_keywords": [],
+      "n_chunks": 6,
+      "ON": {
+        "answer": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày [Nguồn 1].",
+        "answerable": true,
+        "citations": 1,
+        "latency_ms": 11491,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 3522
+        }
+      },
+      "OFF": {
+        "answer": "Thời gian thử việc tối đa đối với công việc của người quản lý doanh nghiệp là không quá 180 ngày [Nguồn 1]. Lưu ý: các tài liệu mẫu/synthetic khác ghi mức tối đa 60 ngày nhưng đó áp dụng cho công việc cần trình độ cao đẳng trở lên, không phải vị trí quản lý [Nguồn 2][Nguồn 4].",
+        "answerable": true,
+        "citations": 3,
+        "latency_ms": 1830,
+        "quality": {
+          "has_citation": true,
+          "citations_valid": true,
+          "no_ungrounded_number": true,
+          "answer_keywords_hit": true,
+          "sentinel_consistent": true,
+          "non_empty": true,
+          "_ungrounded": [],
+          "_invalid_citations": [],
+          "_has_sentinel": false
+        },
+        "hallucination": {
+          "passed": true,
+          "latency_ms": 5374
+        }
+      },
+      "paired_delta_ms": -9661
+    }
+  ]
+}

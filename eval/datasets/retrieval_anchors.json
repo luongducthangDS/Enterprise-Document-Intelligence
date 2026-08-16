@@ -1,0 +1,616 @@
+{
+  "qa_001": {
+    "01_chinh-sach-lam-them-gio-OT::0005": {
+      "score": 2,
+      "anchor": "## 5. Giới hạn số giờ làm thêm (theo Điều 107)\n- Không quá **50%** số giờ làm việc bình thường trong 1 ngày.\n- Không quá **40 giờ/tháng**.\n- Không quá **200 giờ/năm**; trường hợp đặc biệt theo quy định pháp luật có thể lên **300 giờ/năm** (phải thông báo cho cơ quan quản lý lao động).\n- Vào ngày"
+    }
+  },
+  "qa_002": {
+    "01_chinh-sach-lam-them-gio-OT::0006": {
+      "score": 2,
+      "anchor": "## 6. Mức chi trả tiền lương làm thêm giờ (theo Điều 98)\nTính trên đơn giá tiền lương thực trả của công việc đang làm:\n\n| Thời điểm làm thêm | Mức tối thiểu |\n|---|---|\n| Ngày thường | **150%** |\n| Ngày nghỉ hằng tuần (Chủ nhật) | **200%** |\n| Ngày lễ, Tết, ngày nghỉ có hưởng lương | **300%** (chưa"
+    }
+  },
+  "qa_003": {
+    "01_chinh-sach-lam-them-gio-OT::0010": {
+      "score": 2,
+      "anchor": "## 10. Câu hỏi thường gặp (FAQ)\n**H: Làm thêm tối đa bao nhiêu giờ một tháng?**\nĐ: Tối đa 40 giờ/tháng theo Điều 107 Bộ luật Lao động 2019.\n\n**H: Làm OT vào Chủ nhật được trả bao nhiêu?**\nĐ: Tối thiểu 200% đơn giá tiền lương ngày thường (Điều 98).\n\n**H: Tôi tự ở lại làm mà không đăng ký thì có được"
+    }
+  },
+  "qa_004": {
+    "01_chinh-sach-lam-them-gio-OT::0006": {
+      "score": 2,
+      "anchor": "## 6. Mức chi trả tiền lương làm thêm giờ (theo Điều 98)\nTính trên đơn giá tiền lương thực trả của công việc đang làm:\n\n| Thời điểm làm thêm | Mức tối thiểu |\n|---|---|\n| Ngày thường | **150%** |\n| Ngày nghỉ hằng tuần (Chủ nhật) | **200%** |\n| Ngày lễ, Tết, ngày nghỉ có hưởng lương | **300%** (chưa"
+    }
+  },
+  "qa_005": {
+    "01_chinh-sach-lam-them-gio-OT::0004": {
+      "score": 2,
+      "anchor": "## 4. Nguyên tắc\n4.1. Làm thêm giờ chỉ thực hiện khi có **sự đồng ý của NLĐ** và **phê duyệt trước** của quản lý trực tiếp (căn cứ Điều 107).\n4.2. Công ty không ép buộc NLĐ làm thêm giờ, trừ các trường hợp đặc biệt theo Điều 108 (ví dụ: thực hiện lệnh động viên, khắc phục sự cố, thiên tai, hỏa"
+    }
+  },
+  "qa_006": {
+    "12_quy-che-cong-tac-phi::0008": {
+      "score": 2,
+      "anchor": "Được thanh toán tối đa 300.000 VNĐ/ngày (nếu không sử dụng xe công tác của công ty)."
+    }
+  },
+  "qa_007": {
+    "12_quy-che-cong-tac-phi::0008": {
+      "score": 2,
+      "anchor": "Hạng Phổ thông tiết kiệm (Economy Saver) và phải đặt trước ít nhất 03 ngày (trừ trường hợp khẩn cấp)."
+    }
+  },
+  "qa_008": {
+    "12_quy-che-cong-tac-phi::0008": {
+      "score": 2,
+      "anchor": "Có, được hỗ trợ khoán 250.000 VNĐ/đêm."
+    }
+  },
+  "qa_009": {
+    "12_quy-che-cong-tac-phi::0008": {
+      "score": 2,
+      "anchor": "Trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác."
+    }
+  },
+  "qa_010": {
+    "12_quy-che-cong-tac-phi::0008": {
+      "score": 2,
+      "anchor": "Công ty sẽ khấu trừ số tiền đã tạm ứng vào kỳ lương gần nhất (nếu không có lý do chính đáng)."
+    }
+  },
+  "qa_011": {
+    "02_quy-trinh-tuyen-dung::0004": {
+      "score": 2,
+      "anchor": "## 4. Các bước quy trình\n\n### Bước 1 — Đề xuất nhu cầu tuyển dụng (Hiring Request)\n- Trưởng bộ phận điền **Phiếu yêu cầu tuyển dụng** (HR-FRM-REC-01): vị trí, số lượng, JD, mức lương dự kiến, thời điểm cần.\n- Phê duyệt: Trưởng bộ phận → Giám đốc khối → Phòng Nhân sự xác nhận ngân sách headcount."
+    }
+  },
+  "qa_012": {
+    "02_quy-trinh-tuyen-dung::0006": {
+      "score": 2,
+      "anchor": "### Bước 3 — Sàng lọc hồ sơ (CV Screening)\n- Bộ phận Tuyển dụng lọc CV theo tiêu chí bắt buộc trong JD.\n- SLA: phản hồi ứng viên trong vòng **5 ngày làm việc** kể từ khi nhận hồ sơ.\n\n### Bước 4 — Phỏng vấn\n- **Vòng 1 (HR)**: đánh giá sơ bộ động lực, kỳ vọng lương, tính phù hợp văn hóa.\n- **Vòng 2"
+    }
+  },
+  "qa_013": {
+    "02_quy-trinh-tuyen-dung::0005": {
+      "score": 2,
+      "anchor": "### Bước 2 — Xây dựng JD & đăng tin\n- Bộ phận Tuyển dụng chuẩn hóa JD (yêu cầu, quyền lợi, dải lương).\n- Kênh đăng: website tuyển dụng nội bộ, các trang việc làm (VietnamWorks, TopCV, LinkedIn), giới thiệu nội bộ (referral)."
+    }
+  },
+  "qa_014": {
+    "02_quy-trinh-tuyen-dung::0012": {
+      "score": 2,
+      "anchor": "## 8. Quy trình rút gọn (thực tập/CTV)\nBỏ Vòng 3; không áp dụng thử việc; ký thỏa thuận thực tập thay vì hợp đồng lao động."
+    }
+  },
+  "qa_015": {
+    "02_quy-trinh-tuyen-dung::0003": {
+      "score": 2,
+      "anchor": "## 3. Nguyên tắc\n- Không phân biệt đối xử về giới tính, dân tộc, tôn giáo, tình trạng hôn nhân (phù hợp Điều 8 Bộ luật Lao động).\n- Ưu tiên nội bộ (internal transfer) trước khi tuyển ngoài đối với vị trí quản lý.\n- Mọi trao đổi lương thưởng chỉ được đưa ra ở bước Offer bởi Phòng Nhân sự."
+    }
+  },
+  "qa_021": {
+    "03_quy-trinh-onboarding::0003": {
+      "score": 2,
+      "anchor": "## 3. Vai trò\n- **Phòng Nhân sự**: điều phối tổng thể, chuẩn bị giấy tờ, đào tạo định hướng.\n- **Quản lý trực tiếp**: giao mục tiêu, kèm cặp chuyên môn.\n- **Buddy (người đồng hành)**: đồng nghiệp hỗ trợ hòa nhập trong 30 ngày đầu.\n- **IT**: cấp tài khoản, thiết bị."
+    }
+  },
+  "qa_022": {
+    "03_quy-trinh-onboarding::0012": {
+      "score": 2,
+      "anchor": "## 12. FAQ\n**H: Sau thử việc bao lâu thì biết kết quả?**\nĐ: Công ty phải thông báo kết quả thử việc khi kết thúc thời gian thử việc (Điều 27 Bộ luật Lao động 2019).\n\n**H: Buddy hỗ trợ trong bao lâu?**\nĐ: 30 ngày đầu tiên."
+    }
+  },
+  "qa_023": {
+    "03_quy-trinh-onboarding::0005": {
+      "score": 2,
+      "anchor": "## 5. Ngày đầu tiên (Day 1)\n- Nhận thiết bị, tài khoản; ký các giấy tờ còn lại.\n- Đào tạo định hướng: giới thiệu công ty, cơ cấu tổ chức, nội quy lao động, quy tắc ứng xử, an toàn lao động, chính sách bảo mật.\n- Giới thiệu với bộ phận; buddy dẫn tham quan."
+    }
+  },
+  "qa_024": {
+    "03_quy-trinh-onboarding::0006": {
+      "score": 2,
+      "anchor": "## 6. Tuần đầu tiên (Week 1)\n- Quản lý trao đổi mục tiêu 90 ngày, kỳ vọng vai trò.\n- Đào tạo công cụ/hệ thống phục vụ công việc.\n- Hoàn tất các khóa e-learning bắt buộc (bảo mật thông tin, phòng chống quấy rối)."
+    }
+  },
+  "qa_025": {
+    "03_quy-trinh-onboarding::0008": {
+      "score": 2,
+      "anchor": "## 8. 60 ngày\n- Nhân viên thực hiện công việc độc lập ở mức cơ bản.\n- Đánh giá giữa kỳ thử việc; quản lý phản hồi điểm mạnh/cần cải thiện."
+    }
+  },
+  "qa_026": {
+    "04_quy-trinh-offboarding::0004": {
+      "score": 2,
+      "anchor": "## 4. Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)\n- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.\n- Hợp đồng **xác định thời hạn 12–36 tháng**: báo trước ít nhất **30 ngày**.\n- Hợp đồng **dưới 12 tháng**: báo trước ít nhất **03 ngày làm việc**.\n- Một số ngành nghề đặc"
+    }
+  },
+  "qa_027": {
+    "04_quy-trinh-offboarding::0006": {
+      "score": 2,
+      "anchor": "### Bước 3 — Phỏng vấn thôi việc (Exit Interview)\n- Phòng NS thực hiện exit interview: lý do nghỉ, phản hồi về công ty.\n\n### Bước 4 — Bàn giao công việc & tài sản\n- NLĐ bàn giao công việc theo **Biên bản bàn giao** (HR-FRM-OFF-02).\n- Trả lại tài sản: laptop, thẻ nhân viên, tài liệu, tài khoản.\n- IT"
+    }
+  },
+  "qa_028": {
+    "04_quy-trinh-offboarding::0011": {
+      "score": 2,
+      "anchor": "## 8. FAQ\n**H: Hợp đồng không xác định thời hạn thì phải báo trước bao lâu?**\nĐ: Ít nhất 45 ngày (Điều 35 Bộ luật Lao động 2019).\n\n**H: Bao lâu sau khi nghỉ thì được thanh toán hết chế độ?**\nĐ: Trong 14 ngày làm việc kể từ ngày chấm dứt, một số trường hợp có thể tới 30 ngày (Điều 48).\n\n**H: Khi nào"
+    }
+  },
+  "qa_029": {
+    "04_quy-trinh-offboarding::0007": {
+      "score": 2,
+      "anchor": "### Bước 5 — Thanh toán & chốt chế độ (theo Điều 48)\n- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).\n- Thanh toán: lương những ngày làm việc"
+    }
+  },
+  "qa_030": {
+    "04_quy-trinh-offboarding::0006": {
+      "score": 2,
+      "anchor": "### Bước 3 — Phỏng vấn thôi việc (Exit Interview)\n- Phòng NS thực hiện exit interview: lý do nghỉ, phản hồi về công ty.\n\n### Bước 4 — Bàn giao công việc & tài sản\n- NLĐ bàn giao công việc theo **Biên bản bàn giao** (HR-FRM-OFF-02).\n- Trả lại tài sản: laptop, thẻ nhân viên, tài liệu, tài khoản.\n- IT"
+    }
+  },
+  "qa_031": {
+    "07_chinh-sach-nghi-phep::0023": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi có bao nhiêu ngày phép năm nếu mới vào công ty?**\nĐ: Bạn có 12 ngày phép năm/năm nếu làm công việc bình thường (Điều 113). Nếu làm việc nặng nhọc, độc hại, bạn có 14 hoặc 16 ngày tùy mức độ. Sau 5 năm làm việc, bạn được tăng thêm 1 ngày (Điều 114).\n\n**H:"
+    }
+  },
+  "qa_032": {
+    "07_chinh-sach-nghi-phep::0005": {
+      "score": 2,
+      "anchor": "### 4.2. Ngày nghỉ tăng thêm theo thâm niên (theo Điều 114)\nCứ mỗi **5 năm làm việc** tại một doanh nghiệp hoặc cùng một ngành nghề, NLĐ được tăng thêm **1 ngày** nghỉ phép năm.\n\n| Thâm niên làm việc | Số ngày nghỉ/năm (công việc bình thường) |\n|---|---|\n| Dưới 5 năm | 12 ngày |\n| Từ 5 năm đến dưới"
+    }
+  },
+  "qa_033": {
+    "07_chinh-sach-nghi-phep::0023": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi có bao nhiêu ngày phép năm nếu mới vào công ty?**\nĐ: Bạn có 12 ngày phép năm/năm nếu làm công việc bình thường (Điều 113). Nếu làm việc nặng nhọc, độc hại, bạn có 14 hoặc 16 ngày tùy mức độ. Sau 5 năm làm việc, bạn được tăng thêm 1 ngày (Điều 114).\n\n**H:"
+    }
+  },
+  "qa_034": {
+    "07_chinh-sach-nghi-phep::0007": {
+      "score": 2,
+      "anchor": "## 5. Nghỉ việc riêng có hưởng lương (theo Điều 115 BLLĐ 2019)\n\nNLĐ được nghỉ việc riêng có hưởng nguyên lương trong các trường hợp sau:\n\n| Lý do nghỉ | Số ngày nghỉ | Ghi chú |\n|---|---|---|\n| Kết hôn | **3 ngày** |  |\n| Kết hôn của con | **1 ngày** |  |\n| Cha/mẹ, vợ/chồng, con chết | **3 ngày"
+    }
+  },
+  "qa_035": {
+    "07_chinh-sach-nghi-phep::0006": {
+      "score": 2,
+      "anchor": "### 4.3. Tiền lương trong kỳ nghỉ phép năm\n- NLĐ được hưởng **100% tiền lương** theo HĐLĐ tại thời điểm nghỉ.\n- Trường hợp NLĐ nghỉ phép năm chưa hưởng đủ và chấm dứt HĐLĐ, công ty thanh toán phần chưa nghỉ (Điều 113.3)."
+    }
+  },
+  "qa_036": {
+    "07_chinh-sach-nghi-phep::0017": {
+      "score": 2,
+      "anchor": "### 9.2. Trường hợp nghỉ khẩn cấp\n- NLĐ có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp **trong ngày** nếu lý do đột xuất (ốm đột xuất, tang sự, tai nạn).\n- Phải bổ sung yêu cầu trên HRIS trong vòng **24 giờ** kể từ khi có thể truy cập hệ thống.\n- Giấy tờ chứng minh (giấy ốm,"
+    }
+  },
+  "qa_037": {
+    "07_chinh-sach-nghi-phep::0024": {
+      "score": 2,
+      "anchor": "**H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?**\nĐ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.\n\n**H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế"
+    }
+  },
+  "qa_038": {
+    "07_chinh-sach-nghi-phep::0023": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi có bao nhiêu ngày phép năm nếu mới vào công ty?**\nĐ: Bạn có 12 ngày phép năm/năm nếu làm công việc bình thường (Điều 113). Nếu làm việc nặng nhọc, độc hại, bạn có 14 hoặc 16 ngày tùy mức độ. Sau 5 năm làm việc, bạn được tăng thêm 1 ngày (Điều 114).\n\n**H:"
+    }
+  },
+  "qa_039": {
+    "07_chinh-sach-nghi-phep::0023": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi có bao nhiêu ngày phép năm nếu mới vào công ty?**\nĐ: Bạn có 12 ngày phép năm/năm nếu làm công việc bình thường (Điều 113). Nếu làm việc nặng nhọc, độc hại, bạn có 14 hoặc 16 ngày tùy mức độ. Sau 5 năm làm việc, bạn được tăng thêm 1 ngày (Điều 114).\n\n**H:"
+    }
+  },
+  "qa_040": {
+    "07_chinh-sach-nghi-phep::0024": {
+      "score": 2,
+      "anchor": "**H: Nếu tôi nghỉ không lương 1 tháng thì có ảnh hưởng phép năm không?**\nĐ: Thời gian nghỉ không lương không được tính là ngày làm việc để tích lũy phép năm, trừ khi có thỏa thuận khác. Bạn nên tham khảo Phòng Nhân sự trước khi quyết định.\n\n**H: Cuối năm tôi còn 8 ngày phép chưa dùng, xử lý thế"
+    }
+  },
+  "qa_046": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
+      "score": 2,
+      "anchor": "HĐLĐ không xác định thời hạn hoặc HĐLĐ xác định thời hạn từ đủ 01 tháng trở lên đều thuộc diện tham gia BHXH bắt buộc (Điều 2.1.a Luật BHXH 41/2024)."
+    }
+  },
+  "qa_047": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
+      "score": 2,
+      "anchor": "Có, nếu ký HĐLĐ xác định thời hạn từ đủ 12 tháng trở lên với NexaTech tại Việt Nam và có giấy phép lao động hợp lệ (Điều 2.2)."
+    }
+  },
+  "qa_048": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
+      "score": 2,
+      "anchor": "Có, nếu tiền lương tháng bằng hoặc cao hơn mức lương làm căn cứ đóng BHXH bắt buộc thấp nhất (Điều 2.1.l)."
+    }
+  },
+  "qa_049": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
+      "score": 2,
+      "anchor": "Có, thuộc đối tượng tham gia BHXH bắt buộc theo quy định của Chính phủ (Điều 2.1.m)."
+    }
+  },
+  "qa_050": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": {
+      "score": 2,
+      "anchor": "Có, đây là một trong các nhóm được liệt kê tại Điều 2.1 Luật BHXH 41/2024."
+    }
+  },
+  "qa_051": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": {
+      "score": 2,
+      "anchor": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp"
+    }
+  },
+  "qa_052": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": {
+      "score": 2,
+      "anchor": "I. TUYÊN NGÔN VĂN HÓA VINGROUP\n1. TẦM NHÌN:\nBằng khát vọng tiên phong cùng chiến lược đầu tư – phát triển bền vững, Vingroup phấn đấu trở\nthành Tập đoàn kinh tế đa ngành hàng đầu Việt Nam, có uy tín và vị thế trên bản đồ kinh tế thế\ngiới; xây dựng thành công chuỗi sản phẩm và dịch vụ đẳng cấp, góp"
+    }
+  },
+  "qa_053": {
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000": {
+      "score": 2,
+      "anchor": "# 1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019\n\nQUY ĐỊNH NỘI BỘ CHUNG CÔNG TY VINFAST\nMã số : VF.I.4.1.001/V5\nĐơn vị phát hành : Phòng Nhân sự\nNgày phát hành : 08/08/2019\nBộ phận áp dụng : Toàn bộ nhân viên Công ty"
+    }
+  },
+  "qa_056": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
+      "score": 2,
+      "anchor": "Khối Kinh doanh áp dụng đánh giá hàng tháng hoặc hàng quý để tính thưởng doanh số/năng suất."
+    }
+  },
+  "qa_057": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
+      "score": 2,
+      "anchor": "Không. Đánh giá hàng năm chỉ áp dụng cho NLĐ có thâm niên làm việc từ 03 tháng trở lên tính đến thời điểm chốt đánh giá."
+    }
+  },
+  "qa_058": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
+      "score": 2,
+      "anchor": "Không, nhân viên xếp loại C sẽ không được xem xét tăng lương."
+    }
+  },
+  "qa_059": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
+      "score": 2,
+      "anchor": "Nhân viên bị xếp loại D trong kỳ đánh giá năm hoặc 02 quý liên tiếp bị xếp loại C sẽ phải tham gia PIP."
+    }
+  },
+  "qa_060": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": {
+      "score": 2,
+      "anchor": "Có, bạn có quyền gửi đơn khiếu nại trong vòng 05 ngày làm việc kể từ khi nhận được thông báo từ HR."
+    }
+  },
+  "qa_101": {
+    "05_chinh-sach-lam-viec-tu-xa::0003": {
+      "score": 2,
+      "anchor": "## 3. Định nghĩa\n- **Làm việc từ xa (Work From Home — WFH)**: hình thức tổ chức lao động mà NLĐ thực hiện công việc tại địa điểm ngoài văn phòng công ty (tại nhà, không gian làm việc chung, hoặc địa điểm được phê duyệt) nhưng vẫn nằm trong thời giờ làm việc bình thường theo Điều 105 Bộ luật Lao"
+    }
+  },
+  "qa_102": {
+    "05_chinh-sach-lam-viec-tu-xa::0009": {
+      "score": 2,
+      "anchor": "### 5.3. Số ngày WFH tối đa trong tháng và năm\n- Không quá **08 ngày WFH/tháng**.\n- Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).\n- Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự p"
+    }
+  },
+  "qa_103": {
+    "05_chinh-sach-lam-viec-tu-xa::0021": {
+      "score": 2,
+      "anchor": "## 9. Chấm công và theo dõi hiệu suất khi WFH\n\n### 9.1. Chấm công\n- NLĐ WFH phải **check-in và check-out** trên hệ thống HRIS điện tử vào đầu ngày và cuối ngày làm việc, cùng khung giờ với onsite (08:30 – 17:30).\n- Hệ thống HRIS ghi nhận địa điểm (GPS/IP) khi check-in/check-out. NLĐ phải bật định"
+    }
+  },
+  "qa_104": {
+    "05_chinh-sach-lam-viec-tu-xa::0031": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi mới nhận việc được 2 tháng, có được đăng ký WFH không?**\nĐ: Chưa được. Theo Điều 4.1, NLĐ phải qua thời gian thử việc và có ít nhất 03 tháng làm việc onsite liên tục mới đủ điều kiện áp dụng Hybrid.\n\n**H: Tôi có thể WFH 3 ngày/tuần được không?**\nĐ: Không."
+    }
+  },
+  "qa_105": {
+    "06_chinh-sach-dao-tao-phat-trien::0003": {
+      "score": 2,
+      "anchor": "## 3. Định nghĩa và các loại hình đào tạo\n- **Đào tạo hội nhập (Onboarding)**: Đào tạo về văn hóa, nội quy, quy trình cơ bản cho NLĐ mới trong 02 tháng thử việc.\n- **Đào tạo chuyên môn (Technical/Professional)**: Nâng cao kiến thức, kỹ năng nghiệp vụ chuyên môn trực tiếp phục vụ công việc hiện"
+    }
+  },
+  "qa_106": {
+    "06_chinh-sach-dao-tao-phat-trien::0005": {
+      "score": 2,
+      "anchor": "## 5. Quy trình đề xuất và phê duyệt khóa học\n5.1. **Đề xuất**: Hàng năm (tháng 10), Quản lý trực tiếp và NLĐ cùng đánh giá nhu cầu đào tạo (TNA) và gửi **Phiếu đề xuất đào tạo** (Mẫu HR-FRM-TR-01) cho Phòng Nhân sự.\n5.2. **Phê duyệt**:\n- Kế hoạch đào tạo hằng năm do Trưởng phòng Nhân sự tổng hợp,"
+    }
+  },
+  "qa_107": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": {
+      "score": 2,
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
+    }
+  },
+  "qa_108": {
+    "06_chinh-sach-dao-tao-phat-trien::0009": {
+      "score": 2,
+      "anchor": "## 9. Câu hỏi thường gặp (FAQ)\n**H: Nếu tôi nghỉ việc sau khi tham gia khóa học chi phí cao, tôi có phải đền bù toàn bộ chi phí không?**\nĐ: Không. Theo Khoản 3 Điều 62 Bộ luật Lao động 2019 và Chính sách này, chi phí đền bù sẽ được tính giảm dần theo thời gian bạn đã làm việc sau đào tạo.\n\n**H: Ai"
+    }
+  },
+  "qa_109": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": {
+      "score": 2,
+      "anchor": "## 3. Định nghĩa\n- **BHYT bắt buộc**: Bảo hiểm y tế do người lao động và người sử dụng lao động đóng theo Luật BHYT số 51/2024/QH15, là nghĩa vụ pháp lý bắt buộc.\n- **Bảo hiểm Sức khỏe Tự nguyện (BHSTN)**: Gói bảo hiểm sức khỏe do NexaTech tự nguyện mua thêm cho NLĐ thông qua đối tác bảo hiểm thương"
+    }
+  },
+  "qa_110": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": {
+      "score": 2,
+      "anchor": "**H: Tôi nghỉ việc giữa kỳ thì gói BHSTN còn hiệu lực đến khi nào?**\nĐ: Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.\n\n**H: Quyền lợi thai sản có áp dụng ngay khi tham gia khôn"
+    }
+  },
+  "qa_111": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0014": {
+      "score": 2,
+      "anchor": "### 9.2. Trường hợp yêu cầu bồi thường (ứng tiền trước, hoàn lại)\n1. NLĐ thanh toán viện phí tự túc tại bệnh viện (trong hoặc ngoài mạng lưới).\n2. Trong vòng **30 ngày** kể từ ngày xuất viện, NLĐ gửi hồ sơ yêu cầu bồi thường cho Đối tác BH, gồm:\n   - Giấy yêu cầu bồi thường (mẫu HR-FRM-HEALTH-01);"
+    }
+  },
+  "qa_112": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0018": {
+      "score": 2,
+      "anchor": "## 12. Câu hỏi thường gặp (FAQ)\n\n**H: Tôi đang trong thời gian thử việc có được tham gia gói BHSTN không?**\nĐ: Không. NLĐ phải qua thời gian thử việc và ký HĐLĐ chính thức mới được tham gia. Gói có hiệu lực từ ngày 01 của tháng kế tiếp kể từ ngày ký hợp đồng chính thức.\n\n**H: Gói BHSTN có thay thế"
+    }
+  },
+  "qa_120": {
+    "07_chinh-sach-nghi-phep::0014": {
+      "score": 2,
+      "anchor": "### 8.2. Mức hưởng\n- Bằng **100% mức bình quân tiền lương tháng đóng BHXH** của 6 tháng trước khi nghỉ (theo Điều 32 Luật BHXH).\n- Nếu đóng BHXH dưới 6 tháng: tính bình quân các tháng đã đóng.\n\n### 8.3. Nghỉ thai sản — quyền lợi bổ sung\n- NLĐ nữ sinh con được công ty hỗ trợ thêm **2 tháng lương** (t"
+    },
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": {
+      "score": 2,
+      "anchor": "### 7.4. Thai sản\n\n| Hạng mức | Hạn mức/lần sinh | Tỷ lệ chi trả | Phạm vi |\n|---|---|---|---|\n| Standard | 10.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Khám thai, sinh thường, sinh mổ (thời gian mang thai ≥ 10 tháng kể từ ngày tham gia gói) |\n| Premium | 25.000.000 VNĐ | 100% ("
+    }
+  },
+  "qa_122": {
+    "13_noi-quy-lao-dong-va-ky-luat::0007": {
+      "score": 2,
+      "anchor": "## 7. Hình thức xử lý kỷ luật lao động\nCăn cứ mức độ vi phạm, NexaTech áp dụng 04 hình thức kỷ luật (không áp dụng nhiều hình thức cho cùng 1 hành vi vi phạm):\n\n| Hình thức | Áp dụng khi |\n|---|---|\n| Khiển trách | Vi phạm lần đầu, mức độ nhẹ (đi trễ nhiều lần, vi phạm nội quy nhỏ, không gây hậu quả"
+    }
+  },
+  "qa_123": {
+    "13_noi-quy-lao-dong-va-ky-luat::0002": {
+      "score": 2,
+      "anchor": "## 2. Thời giờ làm việc và nghỉ ngơi\n- Thời gian làm việc: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.\n- Giờ làm việc: sáng 8h30–12h00, chiều 13h00–17h30. Nghỉ trưa: 12h00–13h00.\n- Nghỉ hằng tuần: thứ Bảy và Chủ nhật.\n- NLĐ đến trễ, vắng mặt không báo trước phải thông báo ngay cho quản lý trực"
+    }
+  },
+  "qa_124": {
+    "13_noi-quy-lao-dong-va-ky-luat::0005": {
+      "score": 2,
+      "anchor": "## 5. Phòng, chống quấy rối tình dục tại nơi làm việc\n5.1. Hành vi quấy rối tình dục bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.\n5.2. NLĐ bị quấy rối hoặc chứng kiến h"
+    }
+  },
+  "qa_126": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": {
+      "score": 2,
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
+    }
+  },
+  "qa_127": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": {
+      "score": 2,
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
+    }
+  },
+  "qa_129": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
+      "score": 2,
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+    }
+  },
+  "qa_130": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
+      "score": 2,
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+    }
+  },
+  "qa_131": {
+    "13_noi-quy-lao-dong-va-ky-luat::0009": {
+      "score": 2,
+      "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+    }
+  },
+  "qa_138": {
+    "04_quy-trinh-offboarding::0004": {
+      "score": 2,
+      "anchor": "## 4. Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)\n- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.\n- Hợp đồng **xác định thời hạn 12–36 tháng**: báo trước ít nhất **30 ngày**.\n- Hợp đồng **dưới 12 tháng**: báo trước ít nhất **03 ngày làm việc**.\n- Một số ngành nghề đặc t"
+    }
+  },
+  "qa_140": {
+    "04_quy-trinh-offboarding::0007": {
+      "score": 2,
+      "anchor": "### Bước 5 — Thanh toán & chốt chế độ (theo Điều 48)\n- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).\n- Thanh toán: lương những ngày làm việc c"
+    },
+    "04_quy-trinh-offboarding::0008": {
+      "score": 2,
+      "anchor": "### Bước 6 — Hoàn tất thủ tục & hồ sơ\n- Công ty hoàn thành thủ tục xác nhận và trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ của NLĐ (Điều 48).\n- Cấp giấy xác nhận thời gian làm việc nếu NLĐ yêu cầu."
+    }
+  },
+  "heldout_001": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0014": {
+      "score": 2,
+      "anchor": "# Điều 9. Quyền, trách nhiệm của tổ chức công đoàn trong công tác an toàn, vệ sinh lao động\n\n1. Tham gia với cơ quan nhà nước xây dựng chính sách, pháp luật về an toàn, vệ sinh lao động. Kiến nghị cơ quan nhà nước có thẩm quyền xây dựng, sửa đổi, bổ sung chính sách, pháp luật có liên quan đến"
+    }
+  },
+  "heldout_002": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0039": {
+      "score": 2,
+      "anchor": "# Mục 3\n\n## CHẾ ĐỘ BẢO HỘ LAO ĐỘNG, CHĂM SÓC SỨC KHỎE NGƯỜI LAO ĐỘNG\n\n### Điều 21. Khám sức khỏe và điều trị bệnh nghề nghiệp cho người lao động\n\n1. Hằng năm, người sử dụng lao động phải tổ chức khám sức khỏe ít nhất một lần cho người lao động; đối với người lao động làm nghề, công việc nặng nhọc,"
+    }
+  },
+  "heldout_003": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0047": {
+      "score": 2,
+      "anchor": "# Mục 4\n\n## Quản lý máy, thiết bị, vật tư, chất có yêu cầu nghiêm ngặt về an toàn, vệ sinh lao động\n\n# Điều 28. Máy, thiết bị, vật tư, chất có yêu cầu nghiêm ngặt về an toàn, vệ sinh lao động\n\n1. Máy, thiết bị, vật tư, chất có yêu cầu nghiêm ngặt về an toàn, vệ sinh lao động là máy, thiết bị, vật"
+    }
+  },
+  "heldout_004": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0051": {
+      "score": 2,
+      "anchor": "# Điều 32. Quyền và nghĩa vụ của tổ chức hoạt động kiểm định kỹ thuật an toàn lao động\n\n1. Tổ chức hoạt động kiểm định kỹ thuật an toàn lao động là đơn vị sự nghiệp công lập hoặc doanh nghiệp cung ứng dịch vụ kiểm định kỹ thuật an toàn lao động.\n\n2. Tổ chức hoạt động kiểm định kỹ thuật an toàn lao"
+    }
+  },
+  "heldout_005": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0082": {
+      "score": 2,
+      "anchor": "### Mục 3\n\n#### CHẾ ĐỘ BẢO HIỂM\n\n#### TAI NẠN LAO ĐỘNG, BỆNH NGHỀ NGHIỆP\n\n### Điều 41. Nguyên tắc thực hiện chế độ đối với người bị tai nạn lao động, bệnh nghề nghiệp từ Quỹ bảo hiểm tai nạn lao động, bệnh nghề nghiệp\n\n1. Quỹ bảo hiểm tai nạn lao động, bệnh nghề nghiệp là quỹ thành phần của Quỹ bảo"
+    }
+  },
+  "heldout_006": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0092": {
+      "score": 2,
+      "anchor": "Hồ sơ hưởng chế độ tử tuất trong trường hợp người lao động bị chết do tai nạn lao động, bệnh nghề nghiệp thực hiện theo quy định tại khoản 1 Điều 111 của Luật bảo hiểm xã hội.\n\n**Điều 54. Dưỡng sức, phục hồi sức khỏe sau khi điều trị thương tật, bệnh tật**\n\n1. Người lao động sau khi điều trị ổn"
+    }
+  },
+  "heldout_007": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0101": {
+      "score": 2,
+      "anchor": "### Điều 64. Điều kiện sử dụng người lao động cao tuổi làm nghề, công việc nặng nhọc, độc hại, nguy hiểm\n\n1. Chỉ sử dụng người lao động cao tuổi làm nghề, công việc nặng nhọc, độc hại, nguy hiểm, đặc biệt nặng nhọc, độc hại, nguy hiểm có ảnh hưởng xấu tới sức khỏe người lao động cao tuổi khi có đủ"
+    }
+  },
+  "heldout_008": {
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0109": {
+      "score": 2,
+      "anchor": "# Điều 69. An toàn, vệ sinh lao động đối với người lao động nhận công việc về làm tại nhà\n\n1. Người lao động khi thỏa thuận bằng văn bản với người sử dụng lao động về việc giao công việc về làm tại nhà trên cơ sở căn cứ vào việc người lao động bảo đảm được yêu cầu về an toàn, vệ sinh lao động đối"
+    }
+  },
+  "heldout_009": {
+    "luat51::0001": {
+      "score": 2,
+      "anchor": "Điều 1. Sửa đổi, bổ sung một số điều của Luật Bảo hiểm y tế\n1. Bổ sung khoản 9 vào sau khoản 8 Điều 2 như sau:\n“9. Mức tham chiếu là mức tiền do Chính phủ quyết định dùng để tính mức đóng,\nmức hưởng của một số trường hợp tham gia bảo hiểm y tế quy định tại Luật này.”.\n2. Sửa đổi, bổ sung khoản 2"
+    }
+  },
+  "heldout_010": {
+    "luat51::0007": {
+      "score": 2,
+      "anchor": "c) Người lao động là công dân nước ngoài làm việc tại Việt Nam khi làm việc\ntheo hợp đồng lao động xác định thời hạn có thời hạn từ đủ 12 tháng trở lên với\nngười sử dụng lao động tại Việt Nam, trừ trường hợp là người di chuyển trong nội\nbộ doanh nghiệp theo quy định của pháp luật về người lao động"
+    }
+  },
+  "heldout_011": {
+    "luat51::0015": {
+      "score": 2,
+      "anchor": "a) Mức đóng hằng tháng của đối tượng quy định tại các điểm a, c, d và e\nkhoản 1 Điều 12 của Luật này tối đa bằng 6% tiền lương tháng, trong đó người sử\ndụng lao động đóng hai phần ba và người lao động đóng một phần ba;\nb) Mức đóng hằng tháng của đối tượng quy định tại điểm b khoản 1 Điều 12\ncủa"
+    }
+  },
+  "heldout_012": {
+    "luat51::0022": {
+      "score": 2,
+      "anchor": "5. Hằng quý, ngân sách nhà nước chuyển số tiền đóng, hỗ trợ đóng bảo hiểm y\ntế theo quy định tại các điểm a, b và d khoản 3 Điều 13 của Luật này vào quỹ bảo\nhiểm y tế.”;\nb) Bổ sung khoản 7 và khoản 8 vào sau khoản 6 như sau:\n“7. Đối tượng quy định tại điểm b và điểm đ khoản 1 Điều 12 của Luật"
+    }
+  },
+  "heldout_013": {
+    "luat51::0031": {
+      "score": 2,
+      "anchor": "4. Người tham gia bảo hiểm y tế tự đi khám bệnh, chữa bệnh không đúng cơ sở\nđăng ký khám bệnh, chữa bệnh bảo hiểm y tế ban đầu, không đúng quy định về\nchuyển người bệnh quy định tại Điều 26 và Điều 27 của Luật này, trừ trường hợp\nquy định tại khoản 3 và khoản 5 Điều này, được quỹ bảo hiểm y tế"
+    }
+  },
+  "heldout_014": {
+    "luat51::0037": {
+      "score": 2,
+      "anchor": "3. Trường hợp chuyển cơ sở khám bệnh, chữa bệnh bảo hiểm y tế theo yêu cầu\nchuyên môn khi đang điều trị nội trú cho người bệnh, cơ sở khám bệnh, chữa bệnh\nnơi chuyển người bệnh phải có hồ sơ chuyển cơ sở khám bệnh, chữa bệnh theo quy\nđịnh của Bộ trưởng Bộ Y tế.”.\n24. Sửa đổi, bổ sung Điều 30 như"
+    }
+  },
+  "heldout_015": {
+    "luat51::0044": {
+      "score": 2,
+      "anchor": "Giao thẻ hoặc thông báo về kết quả cấp thẻ bảo hiểm y tế cho người\ntham gia bảo hiểm y tế trong thời hạn 03 ngày làm việc kể từ ngày nhận được\nthẻ hoặc nhận được thông báo về kết quả cấp thẻ bảo hiểm y tế từ cơ quan bảo\nhiểm xã hội.”.\n30. Sửa đổi, bổ sung khoản 2 Điều 40 như sau:\n“2. Kiểm tra việc"
+    }
+  },
+  "heldout_016": {
+    "luat51::0053": {
+      "score": 2,
+      "anchor": "c) Hợp đồng khám bệnh, chữa bệnh bảo hiểm y tế được ký trước ngày 01\ntháng 7 năm 2025 mà còn hiệu lực sau ngày 01 tháng 7 năm 2025 được thực hiện\ntheo quy định của Chính phủ;\nd) Đối với số tiền bảo hiểm y tế mà người sử dụng lao động có trách nhiệm\nđóng theo quy định của Luật Bảo hiểm y tế số"
+    }
+  },
+  "heldout_017": {
+    "112-vbhn-vpqh_luat_thue_tncn::0013": {
+      "score": 2,
+      "anchor": "| a) Thu nhập tính thuế được xác định bằng doanh thu của hàng hóa, dịch vụ bán ra trừ (-) đi chi phí liên quan đến hoạt động sản xuất, kinh doanh trong kỳ tính thuế; |\n|---|\n| b) Cá nhân kinh doanh có doanh thu năm trên mức quy định tại khoản 1 Điều này đến 03 tỷ đồng: thuế suất 15%; |\n| c) Cá nhân"
+    }
+  },
+  "heldout_018": {
+    "112-vbhn-vpqh_luat_thue_tncn::0022": {
+      "score": 2,
+      "anchor": "## 4. Chính phủ quy định chi tiết Điều này.\n\n# Điều 13. Thuế thu nhập cá nhân đối với thu nhập từ chuyển nhượng vốn\n\n1. Thuế thu nhập cá nhân đối với thu nhập từ chuyển nhượng vốn của cá nhân cư trú được xác định bằng thu nhập tính thuế nhân (x) với thuế suất 20% theo từng lần chuyển nhượng. Trong"
+    }
+  },
+  "heldout_019": {
+    "112-vbhn-vpqh_luat_thue_tncn::0027": {
+      "score": 2,
+      "anchor": "## Điều 18. Thuế thu nhập cá nhân đối với thu nhập từ nhận thừa kế, quà tặng\n\n1. Thuế thu nhập cá nhân đối với thu nhập từ nhận thừa kế, quà tặng của cá nhân cư trú được xác định bằng thu nhập tính thuế nhân (x) với thuế suất 10%.\n\n2. Thu nhập tính thuế từ nhận thừa kế, quà tặng là phần giá trị tài"
+    }
+  },
+  "heldout_020": {
+    "112-vbhn-vpqh_luat_thue_tncn::0029": {
+      "score": 2,
+      "anchor": "# Chương III\n\n## Căn cứ tính thuế đối với cá nhân không cư trú\n\n### Điều 20. Thuế thu nhập cá nhân đối với thu nhập từ kinh doanh\n\n1. Thuế thu nhập cá nhân đối với thu nhập từ kinh doanh của cá nhân không cư trú được xác định bằng doanh thu từ hoạt động kinh doanh quy định tại khoản 2 Điều này nhân"
+    }
+  },
+  "heldout_021": {
+    "112-vbhn-vpqh_luat_thue_tncn::0033": {
+      "score": 2,
+      "anchor": "# Điều 23. Thuế thu nhập cá nhân đối với thu nhập từ chuyển nhượng vốn\n\n1. Vốn được xác định bằng giá chuyển nhượng trừ (-) đi giá mua và các khoản chi phí hợp lý liên quan đến việc tạo ra thu nhập từ chuyển nhượng phần vốn tại tổ chức, cá nhân Việt Nam.\n\n2. Trường hợp không xác định được giá mua"
+    }
+  },
+  "heldout_022": {
+    "112-vbhn-vpqh_luat_thue_tncn::0035": {
+      "score": 2,
+      "anchor": "## Điều 25. Thuế thu nhập cá nhân đối với thu nhập từ tiền bản quyền, nhượng quyền thương mại\n\n1. Thuế thu nhập cá nhân đối với thu nhập từ tiền bản quyền của cá nhân không cư trú được xác định bằng phần thu nhập vượt trên 20 triệu đồng theo từng hợp đồng chuyển giao, chuyển quyền sử dụng các đối"
+    }
+  },
+  "heldout_023": {
+    "112-vbhn-vpqh_luat_thue_tncn::0028": {
+      "score": 2,
+      "anchor": "## Điều 19. Thuế thu nhập cá nhân đối với thu nhập khác\n\n1. Thuế thu nhập cá nhân đối với thu nhập khác của cá nhân cư trú quy định tại các điểm a, b và c khoản 10 Điều 3 của Luật này được xác định bằng thu nhập tính thuế nhân (x) với thuế suất 5%. Trong đó, thu nhập tính thuế là phần thu nhập vượt"
+    }
+  },
+  "heldout_024": {
+    "thong-tu-60-2025-TT-BHYT-2026::0004": {
+      "score": 2,
+      "anchor": "### Điều 2. Giải thích từ ngữ\nTrong Thông tư này, những từ ngữ dưới đây được hiểu như sau:\n1. Giới hạn tiếp xúc tối thiểu là mức tiếp xúc thấp nhất với yếu tố có hại trong quá trình lao động để có thể gây nên bệnh nghề nghiệp.\n2. Thời gian tiếp xúc tối thiểu là thời gian tiếp xúc ngắn nhất với yếu"
+    }
+  },
+  "heldout_025": {
+    "thong-tu-60-2025-TT-BHYT-2026::0007": {
+      "score": 2,
+      "anchor": "Bệnh nhiễm độc chì nghề nghiệp và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục VIII ban hành kèm theo Thông tư này. |\n| 9. Bệnh nhiễm độc nghề nghiệp do benzen và đồng đẳng và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục IX"
+    }
+  },
+  "heldout_026": {
+    "thong-tu-60-2025-TT-BHYT-2026::0009": {
+      "score": 2,
+      "anchor": "Bệnh điếc nghề nghiệp do tiếng ồn và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục XVIII ban hành kèm theo Thông tư này. |\n| 19. Bệnh giảm áp nghề nghiệp và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục XIX ban hành kèm theo"
+    }
+  },
+  "heldout_027": {
+    "thong-tu-60-2025-TT-BHYT-2026::0011": {
+      "score": 2,
+      "anchor": "Bệnh lao nghề nghiệp và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục XXXI ban hành kèm theo Thông tư này. |\n| 32. Nhiễm HIV do tai nạn rủi ro nghề nghiệp và hướng dẫn chẩn đoán, giám định mức suy giảm khả năng lao động quy định tại Phụ lục XXXII ban hành kèm"
+    }
+  },
+  "heldout_028": {
+    "thong-tu-60-2025-TT-BHYT-2026::0014": {
+      "score": 2,
+      "anchor": "1. Xác định được mối liên hệ giữa việc tiếp xúc với yếu tố có hại trong quá trình lao động với một bệnh cụ thể. Một số bệnh có thể xuất hiện sau nhiều năm tiếp xúc lần đầu với yếu tố có hại trong quá trình lao động, người lao động có thể đã nghỉ hưu hoặc chuyển sang công việc khác.\n\n2. Bệnh xảy ra"
+    }
+  },
+  "heldout_029": {
+    "thong-tu-60-2025-TT-BHYT-2026::0016": {
+      "score": 2,
+      "anchor": "Chủ trì, phối hợp với Cục Phòng bệnh trong việc xây dựng mới hoặc sửa đổi, bổ sung phác đồ điều trị các bệnh nghề nghiệp trong Danh mục bệnh nghề nghiệp được hưởng bảo hiểm xã hội.\n\n3. Trách nhiệm của cơ quan chuyên môn được Ủy ban nhân dân tỉnh, thành phố trực thuộc Trung ương phân cấp:\n\na) Chủ"
+    }
+  },
+  "heldout_030": {
+    "thong-tu-60-2025-TT-BHYT-2026::0018": {
+      "score": 2,
+      "anchor": "# Điều khoản tham chiếu\n\nTrường hợp các văn bản được dẫn chiếu trong Thông tư này bị thay thế hoặc sửa đổi, bổ sung thì áp dụng theo các văn bản thay thế hoặc sửa đổi bổ sung.\n\n# Hiệu lực thi hành\n\n1. Thông tư này có hiệu lực kể từ ngày 15 tháng 02 năm 2026.\n2. Các văn bản quy phạm pháp luật sau"
+    }
+  }
+}

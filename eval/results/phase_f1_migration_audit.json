@@ -1,0 +1,1615 @@
+[
+  {
+    "eval_id": "qa_102",
+    "old_value": [
+      "05_chinh-sach-lam-viec-tu-xa::0010"
+    ],
+    "new_value": [
+      "05_chinh-sach-lam-viec-tu-xa::0009"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_102",
+    "old_value": "05_chinh-sach-lam-viec-tu-xa::0010",
+    "new_value": "05_chinh-sach-lam-viec-tu-xa::0009",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_102",
+    "old_value": "## 6. Quy trình đăng ký và phê duyệt WFH ### 6.1. Đăng ký định kỳ 1. NLĐ gửi **Phiếu đăng ký WFH định kỳ** (mẫu HR-FRM-WFH-01) qua hệ thống HRIS trước **17:00 ngày Thứ Sáu của tuần trước tuần kế tiếp**, nêu rõ ngày WFH dự kiến và địa điểm WFH. 2. Trưởng bộ phận phê duyệt trên HRIS trong vòng **01 ngày làm việc**. 3. Phòng Nhân sự ghi nhận và tổng hợp danh sách WFH toàn công ty.",
+    "new_value": "Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).",
+    "field_changed": "ground_truth_context",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_102",
+    "old_value": " đó, tùy theo đặc thù bộ phận và được Trưởng bộ phận phê duyệt.\n\n### 5.2. Giới hạn thời giờ làm việc khi WFH\n- Thời giờ làm việc bình thường áp dụng theo Điều 105 Bộ luật Lao động 2019: **không quá 08 giờ/ngày** và **không quá 48 giờ/tuần**.\n- Giờ làm việc tiêu chuẩn khi WFH: **08:30 – 17:30** (nghỉ trưa 12:00 – 13:30), cùng khung giờ với làm việc onsite.\n- NLĐ làm thêm giờ khi WFH vẫn phải tuân thủ Chính sách Làm thêm giờ (HR-POL-OT-2025), bao gồm giới hạn và mức chi trả theo Điều 107 và Điều 98 Bộ luật Lao động 2019.\n\n### 5.3. Số ngày WFH tối đa trong tháng và năm\n- Không quá **08 ngày WFH/tháng**.\n- Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).\n- Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự phê duyệt bằng văn bản.\n\n## 6. Quy trình đăng ký và phê duyệt WFH\n\n### 6.1. Đăng ký định kỳ\n1. NLĐ gửi **Phiếu đăng ký WFH định kỳ** (mẫu HR-FRM-WFH-01) qua hệ thống HRIS trước **17:00 ngày Thứ Sáu của tuần trước tuần kế tiếp**, nêu rõ ngày WFH dự kiến và địa điểm WFH.\n2. Trưởng bộ phận phê duyệt trên HRIS trong vòng **01 ngày làm việc**.\n3. Phòng Nhân sự ghi nhận và tổng hợp danh sách WFH toàn công ty.\n\n### 6.2. Đăng ký đột xuất\n- Trường hợp phát sinh WFH đột xuất (sự cố cá nhân, sức khỏe, thời tiết), NLĐ phải thông báo cho quản lý trực tiếp qua email hoặc tin nhắn nội bộ **trước 08:30 sáng** ngày WFH và bổ sung Phiếu đăng ký trên HRIS trong vòng **24 giờ**.\n- Quản lý trực tiếp có quyền chấp thuận hoặc từ chối dựa trên khối lượng công việc và mức độ cấp bách.\n\n### 6.3. Hủy/thay đổi ngày WFH\n- NLĐ có thể hủy hoặc đổi ngày WFH trước **16:00 ngày làm việc trước đó** và thông báo quản lý trực tiếp.\n- Nếu hủy sau thời hạn trên mà không có lý do chính đáng, ngày đó được xử lý như ngày onsite bình thường.\n\n## 7. Yêu cầu về thiết bị khi làm việc từ xa\n\n### 7.1. Thiết bị do công ty cấp\n- Laptop công ty (đã cài đặt phần mềm quản lý thiết bị di động — MDM) và các tài",
+    "new_value": "### 5.3. Số ngày WFH tối đa trong tháng và năm\n- Không quá **08 ngày WFH/tháng**.\n- Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).\n- Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự phê duyệt bằng văn bản.",
+    "field_changed": "ground_truth_context_long",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007"
+    ],
+    "new_value": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007",
+    "new_value": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": "## 7. Quyền lợi chi tiết theo hạng mức ### 7.1. Điều trị nội trú (năm tài chính bảo hiểm) | Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Mô tả | |---|---|---|---| | Standard | 30.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Phòng bệnh tiêu chuẩn, chi phí phẫu thuật, thuốc men, xét nghiệm, giường bệnh |",
+    "new_value": "Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.",
+    "field_changed": "ground_truth_context",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": "g kế tiếp** kể từ ngày ký hợp đồng chính thức.\n5.3. NLĐ nghỉ việc: gói BHSTN sẽ chấm dứt vào **ngày cuối cùng của tháng** mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí theo quy định của Đối tác BH (nếu muốn).\n\n## 6. Hạng mức gói bảo hiểm theo cấp bậc\nV-NOVA phân hạng gói BHSTN theo cấp bậc công việc, với các mức quyền lợi khác nhau:\n\n| Hạng mức | Đối tượng áp dụng | Tổng hạn mức/năm |\n|---|---|---|\n| **Standard** | Nhân viên chuyên viên, kỹ sư, chuyên viên nghiệp vụ | 50.000.000 VNĐ |\n| **Premium** | Trưởng phòng, Phó phòng, Quản lý dự án cấp cao | 100.000.000 VNĐ |\n| **Executive** | Cấp Giám đốc trở lên (Giám đốc, Phó GĐ, Tổng GĐ, Thành viên HĐQT điều hành) | 200.000.000 VNĐ |\n\n## 7. Quyền lợi chi tiết theo hạng mức\n\n### 7.1. Điều trị nội trú (năm tài chính bảo hiểm)\n\n| Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Mô tả |\n|---|---|---|---|\n| Standard | 30.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Phòng bệnh tiêu chuẩn, chi phí phẫu thuật, thuốc men, xét nghiệm, giường bệnh |\n| Premium | 60.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Phòng bệnh tiêu chuẩn trở lên, phẫu thuật, ICU/ICCU, thuốc men |\n| Executive | 120.000.000 VNĐ | 100% (trong mạng lưới) / 90% (ngoài mạng lưới) | Phòng bệnh VIP, phẫu thuật phức tạp, ICU/ICCU, thuốc men, dịch vụ cao cấp |\n\n### 7.2. Điều trị ngoại trú\n\n| Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Mô tả |\n|---|---|---|---|\n| Standard | 5.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Khám chuyên khoa, xét nghiệm, thuốc theo đơn |\n| Premium | 10.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Khám chuyên khoa, xét nghiệm, thuốc, vật lý trị liệu |\n| Executive | 20.000.000 VNĐ | 100% (trong mạng lưới) / 90% (ngoài mạng lưới) | Khám chuyên khoa, xét nghiệm, thuốc, vật lý trị liệu, y học cổ truyền |\n\n### 7.3. Nha khoa\n\n| Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Phạm vi |\n|---|---|---|---|\n| Standard | 3.000.000 VNĐ | 80%",
+    "new_value": "**H: Tôi nghỉ việc giữa kỳ thì gói BHSTN còn hiệu lực đến khi nào?**\nĐ: Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.",
+    "field_changed": "ground_truth_context_long",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": "data/processed/base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md",
+    "new_value": "data/processed/07_chinh-sach-nghi-phep.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": [
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000"
+    ],
+    "new_value": [
+      "07_chinh-sach-nghi-phep::0014",
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000",
+    "new_value": "07_chinh-sach-nghi-phep::0014",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": "Công ty có chế độ đãi ngộ riêng cho sản phụ và thường sẽ được gửi cùng lương tháng tiếp theo của bạn. Ngoài ra, bạn vẫn được nghỉ sinh theo quy định của pháp luật. Mức đãi ngộ cụ thể do doanh nghiệp quyết định.",
+    "new_value": "Có hai chế độ liên quan: (1) Nếu có HĐLĐ xác định thời hạn từ 12 tháng trở lên và đóng BHXH liên tục, bạn được công ty hỗ trợ thêm 2 tháng lương ngoài chế độ BHXH. (2) Nếu đã tham gia gói Bảo hiểm Sức khỏe Tự nguyện (BHSTN) ít nhất 10 tháng tính đến ngày dự sinh, bạn còn được hưởng thêm quyền lợi thai sản của gói BHSTN. Tài liệu nội bộ hiện có không nêu rõ thời điểm chi trả cụ thể của khoản hỗ trợ 2 tháng lương.",
+    "field_changed": "expected_answer",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": "Công ty sẽ có chế độ riêng cho sản phụ và thường sẽ được gửi cùng lương tháng tiếp theo của nhân viên nữ. Ngoài ra, nhân viên nữ sẽ được nghỉ sinh theo quy định của pháp luật. Mức đãi ngộ do doanh nghiệp quyết định.",
+    "new_value": "NLĐ nữ sinh con được công ty hỗ trợ thêm **2 tháng lương** (trợ cấp riêng từ công ty) ngoài chế độ BHXH, nếu có HĐLĐ xác định thời hạn từ 12 tháng trở lên và đóng BHXH liên tục.",
+    "field_changed": "ground_truth_context",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": "data/processed/base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": [
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0007"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0007",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": "Theo quy định, nếu bạn tự ý nghỉ làm 5 ngày cộng dồn trong một tháng hoặc 15 ngày cộng dồn trong 1 năm mà không có lý do chính đáng, bạn sẽ bị sa thải.",
+    "new_value": "Theo Nội quy Lao động NexaTech, nếu bạn tự ý bỏ việc 05 ngày cộng dồn trong thời hạn 30 ngày mà không có lý do chính đáng, bạn sẽ bị sa thải.",
+    "field_changed": "expected_answer",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": "Thưởng Tết: Mức đãi ngộ do doanh nghiệp quyết định. Thưởng ngày Quốc tế Lao động: Mức đãi ngộ do doanh nghiệp quyết định. Nghỉ mát: Mức đãi ngộ do doanh nghiệp quyết định. Thưởng thâm niên: Dành cho những người có thâm niên làm việc tại công ty. Càng làm việc lâu nhân viên sẽ được hưởng chế độ tốt tương ứng. Thưởng theo hiệu quả làm việc: Tuỳ thuộc vào quy định của doanh nghiệp.",
+    "new_value": "Sa thải | Trộm cắp, tham ô, tiết lộ bí mật kinh doanh/công nghệ, quấy rối tình dục, tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày mà không có lý do chính đáng",
+    "field_changed": "ground_truth_context",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": "data/processed/leanh_mau-noi-quy-lao-dong.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": [
+      "leanh_mau-noi-quy-lao-dong::0000"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0002"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": "leanh_mau-noi-quy-lao-dong::0000",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0002",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": "Căn cứ Nghị định 145/2020/NĐ-CP ngày 14/12/2020 của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về điều kiện lao động và quan hệ lao động; Căn cứ tổ chức sản xuất kinh doanh và tổ chức lao động trong doanh nghiệp; Sau khi trao đổi và thống nhất với Ban chấp hành Công đoàn Công ty; Giám đốc Công ty ban hành Nội quy lao động trong Công ty gồm các quy định sau:",
+    "new_value": "Thời gian làm việc: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.",
+    "field_changed": "ground_truth_context",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": "data/processed/leanh_mau-noi-quy-lao-dong.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": [
+      "leanh_mau-noi-quy-lao-dong::0022"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0005"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": "leanh_mau-noi-quy-lao-dong::0022",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0005",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": "Các hành vi được xem là quấy rối tình dục tại nơi làm việc bao gồm: hành động, cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu trực quan đề cập, miêu tả hoạt động tình dục; và đề nghị, gợi ý đổi quan hệ tình dục để lấy sự đánh giá ưu ái hoặc hứa hẹn công việc, lương, thưởng.",
+    "new_value": "Các hành vi được xem là quấy rối tình dục tại nơi làm việc bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; và đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.",
+    "field_changed": "expected_answer",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": "Trách nhiệm của người lao động - Chấp hành các quy định, quy trình, nội quy về an toàn lao động, vệ sinh lao động có liên quan đến công việc, nhiệm vụ được giao: + Trước khi rời khỏi vị trí làm việc, phải vệ sinh nơi làm việc, kiểm tra thiết bị điện, nước tại chỗ. Bảo đảm các thiết bị đã được tắt, khóa cẩn thận; + Chịu trách nhiệm bảo dưỡng, vệ sinh các thiết bị tại vị trí làm việc luôn sạch sẽ;",
+    "new_value": "Hành vi quấy rối tình dục bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.",
+    "field_changed": "ground_truth_context",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": "data/processed/mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md",
+    "new_value": "data/processed/06_chinh-sach-dao-tao-phat-trien.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": [
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002"
+    ],
+    "new_value": [
+      "06_chinh-sach-dao-tao-phat-trien::0006"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002",
+    "new_value": "06_chinh-sach-dao-tao-phat-trien::0006",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": "Với mức kinh phí tài trợ từ 15.000.000 VNĐ đến dưới 30.000.000 VNĐ/khóa, bạn phải cam kết làm việc bắt buộc tại công ty trong thời gian 12 tháng sau khi hoàn thành khóa học.",
+    "new_value": "Với chi phí đào tạo 20 triệu đồng (thuộc mức từ 20.000.000 đến dưới 50.000.000 VNĐ), bạn phải cam kết làm việc tối thiểu 02 năm sau khi hoàn thành khóa học.",
+    "field_changed": "expected_answer",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": "| Từ 15.000.000 VNĐ đến dưới 30.000.000 VNĐ | 12 tháng |",
+    "new_value": "Từ 20.000.000 VNĐ - 50.000.000 VNĐ hoặc thời gian đào tạo từ 06 - 12 tháng | 02 năm",
+    "field_changed": "ground_truth_context",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": "data/processed/mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md",
+    "new_value": "data/processed/06_chinh-sach-dao-tao-phat-trien.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": [
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004"
+    ],
+    "new_value": [
+      "06_chinh-sach-dao-tao-phat-trien::0006"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004",
+    "new_value": "06_chinh-sach-dao-tao-phat-trien::0006",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": "Với chi phí 20 triệu đồng (từ 15 đến dưới 30 triệu), bạn phải cam kết làm việc 12 tháng. Nếu nghỉ việc trước thời hạn, số tiền bồi hoàn = Tổng chi phí đào tạo x (1 - Số tháng đã làm việc sau đào tạo / Tổng số tháng cam kết).",
+    "new_value": "Với chi phí đào tạo 20 triệu đồng (thuộc mức 20.000.000 - 50.000.000 VNĐ), bạn phải cam kết làm việc tối thiểu 02 năm. Nếu nghỉ việc trước thời hạn, chi phí đền bù = Tổng chi phí đào tạo × (Số tháng chưa làm đủ cam kết / Tổng số tháng cam kết).",
+    "field_changed": "expected_answer",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": "Số tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:\n\n$$\\text{Số tiền bồi hoàn} = \\text{Tổng chi phí đào tạo} \\times \\left(1 - \\frac{\\text{Số tháng đã làm việc sau đào tạo}}{\\text{Tổng số tháng cam kết}}\\right)$$",
+    "new_value": "Chi phí đền bù = Tổng chi phí đào tạo × (Số tháng chưa làm đủ cam kết / Tổng số tháng cam kết)",
+    "field_changed": "ground_truth_context",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": "data/processed/mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0009",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật - Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự: 1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ). 2. Đại diện Ban Chấp hành Công đoàn cơ sở. 3. Quản lý trực tiếp và Người làm chứng (nếu có).",
+    "new_value": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "field_changed": "ground_truth_context",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": "data/processed/mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0009",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật - Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự: 1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ). 2. Đại diện Ban Chấp hành Công đoàn cơ sở. 3. Quản lý trực tiếp và Người làm chứng (nếu có).",
+    "new_value": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "field_changed": "ground_truth_context",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": "data/processed/mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+    "new_value": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006"
+    ],
+    "new_value": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006",
+    "new_value": "13_noi-quy-lao-dong-va-ky-luat::0009",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": "2. Nếu gây thiệt hại không nghiêm trọng (dưới 10 tháng lương tối thiểu vùng): Mức bồi thường tối đa là **03 tháng lương** của NLĐ và được khấu trừ dần vào lương hàng tháng (tối đa không quá 30% lương thực nhận hàng tháng).",
+    "new_value": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "field_changed": "ground_truth_context",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": "data/processed/talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md",
+    "new_value": "data/processed/04_quy-trinh-offboarding.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": [
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001"
+    ],
+    "new_value": [
+      "04_quy-trinh-offboarding::0004"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001",
+    "new_value": "04_quy-trinh-offboarding::0004",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": "Người lao động có quyền chấm dứt hợp đồng lao động mà không cần thông báo trước trong các trường hợp: bị ngược đãi, đánh đập; lao động nữ mang thai phải nghỉ việc theo quy định; người sử dụng lao động không trả đủ lương hoặc trả lương không đúng hạn.",
+    "new_value": "Theo Điều 35 khoản 2 (được Quy trình Offboarding NexaTech dẫn chiếu), người lao động có quyền chấm dứt hợp đồng mà không cần báo trước trong một số trường hợp, ví dụ: không được bố trí đúng công việc, không được trả đủ lương hoặc trả lương không đúng hạn, bị ngược đãi, hoặc bị quấy rối tình dục.",
+    "field_changed": "expected_answer",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": "Người lao động có quyền chấm dứt hợp đồng mà không cần thông báo nếu họ bị ngược đãi, đánh đập; Lao động nữ mang thai phải nghỉ việc theo quy định; người sử dụng lao động không trả đủ lương hoặc trả lương không đúng hạn; Không được bố trí theo đúng công việc, địa điểm làm việc hoặc không được bảo đảm điều kiện làm việc theo thỏa thuận; Đủ tuổi nghỉ hưu theo quy định; Người sử dụng lao động cung cấp thông tin không trung thực theo quy định làm ảnh hưởng đến việc thực hiện hợp đồng lao động.",
+    "new_value": "Các trường hợp NLĐ được quyền nghỉ không cần báo trước: theo khoản 2 Điều 35 (ví dụ không được bố trí đúng công việc, không được trả đủ lương/đúng hạn, bị ngược đãi, bị quấy rối tình dục...).",
+    "field_changed": "ground_truth_context",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": "data/processed/talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md",
+    "new_value": "data/processed/04_quy-trinh-offboarding.md",
+    "field_changed": "metadata.source_file",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": [
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006"
+    ],
+    "new_value": [
+      "04_quy-trinh-offboarding::0007",
+      "04_quy-trinh-offboarding::0008"
+    ],
+    "field_changed": "relevant_chunk_ids",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006",
+    "new_value": "04_quy-trinh-offboarding::0007",
+    "field_changed": "evidence_chunk_id",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": "Công ty phải thanh toán đầy đủ các khoản quyền lợi cho người lao động trong vòng 14 ngày làm việc kể từ ngày chấm dứt hợp đồng (có thể kéo dài nhưng không quá 30 ngày). Ngoài ra, công ty cần thực hiện theo Điều 48 Bộ luật Lao động 2019, bao gồm: cấp giấy chứng nhận việc làm nếu người lao động yêu cầu, xác nhận thời gian đóng bảo hiểm xã hội và bảo hiểm thất nghiệp, đồng thời trả lại bản chính các giấy tờ mà công ty đang giữ.",
+    "new_value": "Công ty phải thanh toán đầy đủ các khoản quyền lợi cho người lao động trong vòng 14 ngày làm việc kể từ ngày chấm dứt hợp đồng (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48). Ngoài ra, công ty hoàn thành thủ tục xác nhận và trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ của người lao động, đồng thời cấp giấy xác nhận thời gian làm việc nếu người lao động yêu cầu.",
+    "field_changed": "expected_answer",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": "Thanh toán đầy đủ các khoản tiềncó liên quan đến quyền lợi của Người lao động trong vòng 14 ngày làm việc kể từ ngày chấm dứt hợp đồng. Trừ một số trường hợp có thể kéo dài nhưng không được quá 30 ngày.\nThực hiện các yêu cầu theo Điều 48 của Bộ luật Lao động năm 2019, bao gồm cấp giấy chứng nhận việc làm cho người lao động khi có yêu cầu; hoàn thành thủ tục xác nhậnthời gian đóng bảo hiểm xã hội, bảo hiểm thất nghiệpvà trả lại cùng với bản chính giấy tờ khác nếu người sử dụng lao động đã giữ của người lao động.",
+    "new_value": "Trong thời hạn 14 ngày làm việc kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).",
+    "field_changed": "ground_truth_context",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_121",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Nguồn duy nhất hỗ trợ khoản 'mừng cưới hỏi' bằng tiền là base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Không tài liệu nội bộ sống nào (07/08/11/12/13) đề cập chế độ này bằng tiền — 07 chỉ có 'nghỉ phép cưới 3 ngày có lương' (khác chủ đề: ngày nghỉ, không phải tiền mừng). Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md: chunks_path/indexed_at rỗng) + rà soát data/processed/07,08,11,12,13 (không tìm thấy)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_121",
+    "old_value": null,
+    "new_value": "Nguồn duy nhất hỗ trợ khoản 'mừng cưới hỏi' bằng tiền là base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Không tài liệu nội bộ sống nào (07/08/11/12/13) đề cập chế độ này bằng tiền — 07 chỉ có 'nghỉ phép cưới 3 ngày có lương' (khác chủ đề: ngày nghỉ, không phải tiền mừng). Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "field_changed": "retired_reason",
+    "reason": "Nguồn duy nhất hỗ trợ khoản 'mừng cưới hỏi' bằng tiền là base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Không tài liệu nội bộ sống nào (07/08/11/12/13) đề cập chế độ này bằng tiền — 07 chỉ có 'nghỉ phép cưới 3 ngày có lương' (khác chủ đề: ngày nghỉ, không phải tiền mừng). Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md: chunks_path/indexed_at rỗng) + rà soát data/processed/07,08,11,12,13 (không tìm thấy)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_125",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Nguồn duy nhất hỗ trợ 'chi nhánh/đơn vị thành viên được tự cụ thể hóa nội quy riêng' là leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu 13_noi-quy-lao-dong-va-ky-luat.md (thay thế sống) không có điều khoản phân quyền cho đơn vị thành viên. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (leanh_mau-noi-quy-lao-dong.md: chunks_path/indexed_at rỗng) + đọc toàn văn data/processed/13_noi-quy-lao-dong-va-ky-luat.md (không có điều khoản tương ứng)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_125",
+    "old_value": null,
+    "new_value": "Nguồn duy nhất hỗ trợ 'chi nhánh/đơn vị thành viên được tự cụ thể hóa nội quy riêng' là leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu 13_noi-quy-lao-dong-va-ky-luat.md (thay thế sống) không có điều khoản phân quyền cho đơn vị thành viên. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "field_changed": "retired_reason",
+    "reason": "Nguồn duy nhất hỗ trợ 'chi nhánh/đơn vị thành viên được tự cụ thể hóa nội quy riêng' là leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu 13_noi-quy-lao-dong-va-ky-luat.md (thay thế sống) không có điều khoản phân quyền cho đơn vị thành viên. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (leanh_mau-noi-quy-lao-dong.md: chunks_path/indexed_at rỗng) + đọc toàn văn data/processed/13_noi-quy-lao-dong-va-ky-luat.md (không có điều khoản tương ứng)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_139",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "TỰ SỬA SAI SÓT của lần remap F.1 đầu tiên: em từng giả định các mốc 45/30/3 ngày (Điều 35, áp dụng khi NLĐ xin nghỉ) cũng áp dụng đối xứng cho trường hợp CÔNG TY đơn phương chấm dứt vì NLĐ không hoàn thành công việc (Điều 36) — giả định này KHÔNG có căn cứ trong tài liệu sống. Phát hiện qua chính response thật của agent (chạy live sau khi remap): agent trả lời trung thực rằng 'các đoạn trích chỉ nêu thời hạn áp dụng khi NLĐ tự xin nghỉ, không nêu thời hạn khi công ty đơn phương chấm dứt' — đúng, vì doc 04 không có câu đó. Không invent qrel — loại khỏi current benchmark. Đây không phải product bug, là lỗi authoring của chính migration F.1, đã tự phát hiện và sửa qua live regression run.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md — legal_basis frontmatter chỉ dẫn chiếu Điều 35 (thời hạn báo trước của NLĐ xin nghỉ); §4 tiêu đề đúng là 'Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)' — không đề cập Điều 36 (chấm dứt do công ty đơn phương)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_139",
+    "old_value": null,
+    "new_value": "TỰ SỬA SAI SÓT của lần remap F.1 đầu tiên: em từng giả định các mốc 45/30/3 ngày (Điều 35, áp dụng khi NLĐ xin nghỉ) cũng áp dụng đối xứng cho trường hợp CÔNG TY đơn phương chấm dứt vì NLĐ không hoàn thành công việc (Điều 36) — giả định này KHÔNG có căn cứ trong tài liệu sống. Phát hiện qua chính response thật của agent (chạy live sau khi remap): agent trả lời trung thực rằng 'các đoạn trích chỉ nêu thời hạn áp dụng khi NLĐ tự xin nghỉ, không nêu thời hạn khi công ty đơn phương chấm dứt' — đúng, vì doc 04 không có câu đó. Không invent qrel — loại khỏi current benchmark. Đây không phải product bug, là lỗi authoring của chính migration F.1, đã tự phát hiện và sửa qua live regression run.",
+    "field_changed": "retired_reason",
+    "reason": "TỰ SỬA SAI SÓT của lần remap F.1 đầu tiên: em từng giả định các mốc 45/30/3 ngày (Điều 35, áp dụng khi NLĐ xin nghỉ) cũng áp dụng đối xứng cho trường hợp CÔNG TY đơn phương chấm dứt vì NLĐ không hoàn thành công việc (Điều 36) — giả định này KHÔNG có căn cứ trong tài liệu sống. Phát hiện qua chính response thật của agent (chạy live sau khi remap): agent trả lời trung thực rằng 'các đoạn trích chỉ nêu thời hạn áp dụng khi NLĐ tự xin nghỉ, không nêu thời hạn khi công ty đơn phương chấm dứt' — đúng, vì doc 04 không có câu đó. Không invent qrel — loại khỏi current benchmark. Đây không phải product bug, là lỗi authoring của chính migration F.1, đã tự phát hiện và sửa qua live regression run.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md — legal_basis frontmatter chỉ dẫn chiếu Điều 35 (thời hạn báo trước của NLĐ xin nghỉ); §4 tiêu đề đúng là 'Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)' — không đề cập Điều 36 (chấm dứt do công ty đơn phương)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_128",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi yêu cầu breakdown cụ thể của 'tổng chi phí đào tạo' (học phí/tài liệu/lệ phí thi/di chuyển) và thứ tự ưu tiên khấu trừ (lương/phụ cấp/trợ cấp) — chi tiết này chỉ có trong mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md Điều 5-6 (public_template, đã loại khỏi RAG index). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.2 chỉ có công thức 'Chi phí đền bù = Tổng chi phí đào tạo × (...)', không itemize, không nêu thứ tự khấu trừ. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md: chunks_path/indexed_at rỗng) + đọc toàn văn data/processed/06_chinh-sach-dao-tao-phat-trien.md §6.2 (chỉ có công thức tổng quát)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_128",
+    "old_value": null,
+    "new_value": "Câu hỏi yêu cầu breakdown cụ thể của 'tổng chi phí đào tạo' (học phí/tài liệu/lệ phí thi/di chuyển) và thứ tự ưu tiên khấu trừ (lương/phụ cấp/trợ cấp) — chi tiết này chỉ có trong mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md Điều 5-6 (public_template, đã loại khỏi RAG index). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.2 chỉ có công thức 'Chi phí đền bù = Tổng chi phí đào tạo × (...)', không itemize, không nêu thứ tự khấu trừ. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi yêu cầu breakdown cụ thể của 'tổng chi phí đào tạo' (học phí/tài liệu/lệ phí thi/di chuyển) và thứ tự ưu tiên khấu trừ (lương/phụ cấp/trợ cấp) — chi tiết này chỉ có trong mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md Điều 5-6 (public_template, đã loại khỏi RAG index). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.2 chỉ có công thức 'Chi phí đền bù = Tổng chi phí đào tạo × (...)', không itemize, không nêu thứ tự khấu trừ. Không invent qrel — loại khỏi current benchmark theo Phase F.1.",
+    "source_of_truth": "document_registry.csv (mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md: chunks_path/indexed_at rỗng) + đọc toàn văn data/processed/06_chinh-sach-dao-tao-phat-trien.md §6.2 (chỉ có công thức tổng quát)",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_113",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_113",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_114",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_114",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_115",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_115",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_116",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_116",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_132",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_132",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_133",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_133",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_134",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_134",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_135",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_135",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_136",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_136",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_137",
+    "old_value": null,
+    "new_value": true,
+    "field_changed": "retired",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_137",
+    "old_value": null,
+    "new_value": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "field_changed": "retired_reason",
+    "reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính.",
+    "source_of_truth": "Type-C contract v3.1 (da duoc Ted chap nhan) + phase_f_regression_triage_2026-08-15.md",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_102",
+    "old_value": {
+      "05_chinh-sach-lam-viec-tu-xa::0010": 2
+    },
+    "new_value": {
+      "05_chinh-sach-lam-viec-tu-xa::0009": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_102",
+    "old_value": {
+      "05_chinh-sach-lam-viec-tu-xa::0010": {
+        "score": 2,
+        "anchor": "## 6. Quy trình đăng ký và phê duyệt WFH\n\n### 6.1. Đăng ký định kỳ\n1. NLĐ gửi **Phiếu đăng ký WFH định kỳ** (mẫu HR-FRM-WFH-01) qua hệ thống HRIS trước **17:00 ngày Thứ Sáu của tuần trước tuần kế tiếp**, nêu rõ ngày WFH dự kiến và địa điểm WFH.\n2. Trưởng bộ phận phê duyệt trên HRIS trong vòng **01"
+      }
+    },
+    "new_value": {
+      "05_chinh-sach-lam-viec-tu-xa::0009": {
+        "score": 2,
+        "anchor": "### 5.3. Số ngày WFH tối đa trong tháng và năm\n- Không quá **08 ngày WFH/tháng**.\n- Không quá **96 ngày WFH/năm** (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế).\n- Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự p"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Nội dung '08 ngày/tháng, 96 ngày/năm' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0010) đã lệch khỏi vị trí thật sau re-chunk hậu đổi tên. Xác nhận vị trí đúng hiện tại bằng tìm kiếm text trực tiếp trong chunk manifest.",
+    "source_of_truth": "current chunk manifest (data/chunks/05_chinh-sach-lam-viec-tu-xa.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": {
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": 2
+    },
+    "new_value": {
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_110",
+    "old_value": {
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": {
+        "score": 2,
+        "anchor": "## 7. Quyền lợi chi tiết theo hạng mức\n\n### 7.1. Điều trị nội trú (năm tài chính bảo hiểm)\n\n| Hạng mức | Hạn mức/năm | Tỷ lệ chi trả | Mô tả |\n|---|---|---|---|\n| Standard | 30.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Phòng bệnh tiêu chuẩn, chi phí phẫu thuật, thuốc men, xét"
+      }
+    },
+    "new_value": {
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": {
+        "score": 2,
+        "anchor": "**H: Tôi nghỉ việc giữa kỳ thì gói BHSTN còn hiệu lực đến khi nào?**\nĐ: Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.\n\n**H: Quyền lợi thai sản có áp dụng ngay khi tham gia khôn"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Nội dung 'chấm dứt vào ngày cuối cùng của tháng nghỉ việc' vẫn đúng và agent trả lời đúng 100%; chunk_id trong qrel (::0007) hiện trỏ sang nội dung khác (§7.1 bảng điều trị nội trú) sau re-chunk. Vị trí đúng hiện tại xác nhận bằng tìm kiếm text trực tiếp.",
+    "source_of_truth": "current chunk manifest (data/chunks/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.json) + tenant rename V-NOVA->NexaTech",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 2
+    },
+    "new_value": {
+      "07_chinh-sach-nghi-phep::0014": 2,
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_120",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": {
+        "score": 2,
+        "anchor": "# base_mau-quy-che-luong-thuong-phu-cap-xu-phat\n\nMẪU QUY CHẾ LƯƠNG THƯỞNG, PHỤ CẤP VÀ XỬ PHẠT ÁP DỤNG\n\nTRONG DOANH NGHIỆP\n\nI.   Quy chế đãi ngộ nhân viên:\n\nThăm hỏi:\n\nĐau ốm: Chế độ dành cho CBNV hoặc bố mẹ đẻ (bố mẹ vợ/chồng) bị bệnh / tai nạn phải nghỉ ở viện dài ngày ở bệnh viện theo chỉ định"
+      }
+    },
+    "new_value": {
+      "07_chinh-sach-nghi-phep::0014": {
+        "score": 2,
+        "anchor": "### 8.2. Mức hưởng\n- Bằng **100% mức bình quân tiền lương tháng đóng BHXH** của 6 tháng trước khi nghỉ (theo Điều 32 Luật BHXH).\n- Nếu đóng BHXH dưới 6 tháng: tính bình quân các tháng đã đóng.\n\n### 8.3. Nghỉ thai sản — quyền lợi bổ sung\n- NLĐ nữ sinh con được công ty hỗ trợ thêm **2 tháng lương** (t"
+      },
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": {
+        "score": 2,
+        "anchor": "### 7.4. Thai sản\n\n| Hạng mức | Hạn mức/lần sinh | Tỷ lệ chi trả | Phạm vi |\n|---|---|---|---|\n| Standard | 10.000.000 VNĐ | 100% (trong mạng lưới) / 80% (ngoài mạng lưới) | Khám thai, sinh thường, sinh mổ (thời gian mang thai ≥ 10 tháng kể từ ngày tham gia gói) |\n| Premium | 25.000.000 VNĐ | 100% ("
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã bị loại khỏi RAG index — chunks_path/indexed_at rỗng trong document_registry.csv). Nội dung 'chế độ đãi ngộ thai sản' KHÔNG có trong bất kỳ tài liệu sống nào ở dạng chung chung như cũ, nhưng có 2 nguồn sống cụ thể hơn: (1) 07§8.3 — hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng và đóng BHXH liên tục; (2) 08§7.4 — quyền lợi thai sản BHSTN chỉ áp dụng nếu đã tham gia gói ít nhất 10 tháng tính đến ngày dự sinh. Không có nguồn nào nêu THỜI ĐIỂM chi trả cụ thể — bỏ chi tiết đó khỏi expected_answer, không invent.",
+    "source_of_truth": "data/processed/07_chinh-sach-nghi-phep.md (§8.3, chunk ::0014) + data/processed/08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md (§7.4, chunk ::0010) — cả hai là tenant_official_policy, artifact_state=frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0007": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_122",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001": {
+        "score": 2,
+        "anchor": "II.  Các trường hợp thưởng cho nhân viên:\n\nThưởng ngày lễ & Nghỉ mát:\n\nThưởng ngày quốc tế phụ nữ 8/3: Mức đãi ngộ do doanh nghiệp quyết định.\n\nThưởng ngày phụ nữ Việt Nam 20/10: Mức đãi ngộ do doanh nghiệp quyết định.\n\nQuốc tế thiếu nhi 1/6: Mức đãi ngộ do doanh nghiệp quyết định.\n\nTết Trung thu:"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0007": {
+        "score": 2,
+        "anchor": "## 7. Hình thức xử lý kỷ luật lao động\nCăn cứ mức độ vi phạm, NexaTech áp dụng 04 hình thức kỷ luật (không áp dụng nhiều hình thức cho cùng 1 hành vi vi phạm):\n\n| Hình thức | Áp dụng khi |\n|---|---|\n| Khiển trách | Vi phạm lần đầu, mức độ nhẹ (đi trễ nhiều lần, vi phạm nội quy nhỏ, không gây hậu quả"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Qrel cũ trỏ base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §7 CHỈ xác nhận ngưỡng '05 ngày cộng dồn trong 30 ngày' dẫn tới sa thải — KHÔNG có ngưỡng '15 ngày cộng dồn trong 1 năm' mà expected_answer cũ khẳng định. Bỏ vế không có nguồn hỗ trợ, không invent.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§7, chunk ::0007) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0000": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0002": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_123",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0000": {
+        "score": 2,
+        "anchor": "# leanh_mau-noi-quy-lao-dong\n\nNỘI QUY LAO ĐỘNG\n\nCăn cứ Bộ luật Lao động nước Cộng hòa xã hội chủ nghĩa Việt Nam ngày 20/11/2019;\n\nCăn cứ Nghị định 145/2020/NĐ-CP ngày 14/12/2020 của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Bộ luật Lao động về điều kiện lao động và quan hệ"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0002": {
+        "score": 2,
+        "anchor": "## 2. Thời giờ làm việc và nghỉ ngơi\n- Thời gian làm việc: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.\n- Giờ làm việc: sáng 8h30–12h00, chiều 13h00–17h30. Nghỉ trưa: 12h00–13h00.\n- Nghỉ hằng tuần: thứ Bảy và Chủ nhật.\n- NLĐ đến trễ, vắng mặt không báo trước phải thông báo ngay cho quản lý trực"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Sửa qrel phụ (case này primary root-cause là G6 confidence-collapse, không phải G1 — xem phase_f_regression_triage). Nhưng qrel vẫn trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index) nên vẫn cần sửa để không gây context_found=False giả khi P1 (F.2) sửa xong confidence bug. Nội dung '40 giờ/tuần, 05 ngày, T2-T6' khớp nguyên văn tài liệu sống thay thế.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§2, chunk ::0002) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0022": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0005": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_124",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0022": {
+        "score": 2,
+        "anchor": "Điều 19. Trách nhiệm của người lao động\n\n- Chấp hành các quy định, quy trình, nội quy về an toàn lao động, vệ sinh lao động có liên quan đến công việc, nhiệm vụ được giao:\n\n+ Trước khi rời khỏi vị trí làm việc, phải vệ sinh nơi làm việc, kiểm tra thiết bị điện, nước tại chỗ. Bảo đảm các thiết bị đã"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0005": {
+        "score": 2,
+        "anchor": "## 5. Phòng, chống quấy rối tình dục tại nơi làm việc\n5.1. Hành vi quấy rối tình dục bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.\n5.2. NLĐ bị quấy rối hoặc chứng kiến h"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Sửa qrel phụ (primary root-cause là G4 human_first-over-trigger). Qrel cũ trỏ leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu sống 13_noi-quy-lao-dong-va-ky-luat.md §5.1 nêu đúng 3 nhóm hành vi quấy rối tình dục, khớp gần như nguyên văn expected_answer cũ.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§5.1, chunk ::0005) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002": 2
+    },
+    "new_value": {
+      "06_chinh-sach-dao-tao-phat-trien::0006": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_126",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002": {
+        "score": 2,
+        "anchor": "## CHƯƠNG II: ĐIỀU KIỆN CAM KẾT VÀ THỜI GIAN GẮN BÓ\n\n### Điều 3. Mức Chi phí và Thời gian Cam kết Phục vụ\nCBNV được Công ty cử đi đào tạo hoặc tài trợ kinh phí có tổng giá trị từ **5.000.000 VNĐ/khóa** trở lên phải ký **Bản Cam kết Đào tạo** với thời gian phục vụ bắt buộc sau khi hoàn thành khóa"
+      }
+    },
+    "new_value": {
+      "06_chinh-sach-dao-tao-phat-trien::0006": {
+        "score": 2,
+        "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Qrel cũ trỏ mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md (public_template, đã loại khỏi RAG index) với bảng SỐ KHÁC (20tr -> 12 tháng). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.1 có bảng cam kết riêng, mốc 20tr rơi vào khoảng '20.000.000-50.000.000 VNĐ' -> 02 năm, KHÔNG phải 12 tháng. Dùng đúng số của tài liệu sống, không giữ số của template đã loại.",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6.1, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": 2
+    },
+    "new_value": {
+      "06_chinh-sach-dao-tao-phat-trien::0006": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_127",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": {
+        "score": 2,
+        "anchor": "### Điều 5. Công thức Tính Chi phí Bồi hoàn\nSố tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:\n\n$$\\text{Số tiền bồi hoàn} = \\text{Tổng chi phí đào tạo} \\times \\left(1 - \\frac{\\text{Số tháng đã làm việc sau đào tạo}}{\\text{Tổng số tháng cam kết}}\\right)$$\n\n*Trong"
+      }
+    },
+    "new_value": {
+      "06_chinh-sach-dao-tao-phat-trien::0006": {
+        "score": 2,
+        "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.00"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Cùng lý do qa_126: qrel cũ trỏ template đã loại (12 tháng); tài liệu sống ghi 02 năm cho mốc 20tr. Công thức đền bù §6.2 khớp nguyên văn (viết lại tương đương toán học, dùng đúng cách diễn đạt của tài liệu sống thay vì template).",
+    "source_of_truth": "data/processed/06_chinh-sach-dao-tao-phat-trien.md (§6, chunk ::0006) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_129",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": {
+        "score": 2,
+        "anchor": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật\n- Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự:\n  1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ).\n  2. Đại diện Ban Chấp"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": {
+        "score": 2,
+        "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Qrel cũ trỏ mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md (public_template, đã loại khỏi RAG index). Agent đã trả lời ĐÚNG 100% từ tài liệu sống thay thế (03 tháng lương, khấu trừ <=30%) — chỉ chunk_id trong qrel sai, nội dung không đổi.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_130",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003": {
+        "score": 2,
+        "anchor": "### Step 2: Thông báo Mời họp Xử lý Kỷ luật\n- Trước khi tiến hành cuộc họp xử lý kỷ luật ít nhất **05 ngày làm việc**, Phòng HR phải gửi **Thông báo mời họp** bằng văn bản/email đến các thành phần bắt buộc tham dự:\n  1. Người lao động vi phạm (hoặc đại diện hợp pháp của họ).\n  2. Đại diện Ban Chấp"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": {
+        "score": 2,
+        "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Giống qa_129 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006": 2
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_131",
+    "old_value": {
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006": {
+        "score": 2,
+        "anchor": "## CHƯƠNG III: BỒI THƯỜNG THIỆT HẠI TÀI SẢN & KHIẾU NẠI\n\n### Điều 3. Trách nhiệm Vật chất (Bồi thường Thiệt hại)\n1. NLĐ làm hư hỏng dụng cụ, thiết bị hoặc có hành vi khác gây thiệt hại tài sản của Công ty thì phải bồi thường theo quy định của pháp luật hoặc Nội quy công ty.\n2. Nếu gây thiệt hại"
+      }
+    },
+    "new_value": {
+      "13_noi-quy-lao-dong-va-ky-luat::0009": {
+        "score": 2,
+        "anchor": "## 9. Trách nhiệm vật chất (bồi thường thiệt hại tài sản)\n9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại **dưới 10 tháng lương tối thiểu vùng**: bồi thường tối đa **03 tháng lương**, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).\n9.2. Làm mất dụng c"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Giống qa_129/130 — cùng qrel gốc, cùng fix.",
+    "source_of_truth": "data/processed/13_noi-quy-lao-dong-va-ky-luat.md (§9.1, chunk ::0009) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": 2
+    },
+    "new_value": {
+      "04_quy-trinh-offboarding::0004": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_138",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001": {
+        "score": 2,
+        "anchor": "nắm rõ các trường hợp có thể chấm dứt hợp đồng, quy trình và thủ tục liên quan, cùng với các nghĩa vụ tài chính và pháp lý, là điều cần thiết.\n\nNguyên nhân chấm dứt hợp đồng\nViệc chấm dứt hợp đồng lao động có thể phát sinh từ nhiều lý do, bao gồm cả yếu tố khách quan và chủ quan từ phía người sử"
+      }
+    },
+    "new_value": {
+      "04_quy-trinh-offboarding::0004": {
+        "score": 2,
+        "anchor": "## 4. Thời hạn báo trước khi NLĐ xin nghỉ (theo Điều 35)\n- Hợp đồng **không xác định thời hạn**: báo trước ít nhất **45 ngày**.\n- Hợp đồng **xác định thời hạn 12–36 tháng**: báo trước ít nhất **30 ngày**.\n- Hợp đồng **dưới 12 tháng**: báo trước ít nhất **03 ngày làm việc**.\n- Một số ngành nghề đặc t"
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Sửa qrel phụ (primary root-cause là G4). Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Tài liệu sống 04_quy-trinh-offboarding.md §4 chỉ liệt kê 4 ví dụ (không được bố trí đúng công việc; không trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục) theo khoản 2 Điều 35 — KHÔNG có 'đánh đập' và 'lao động nữ mang thai' như expected_answer cũ (những vế đó chỉ có trong bài viết Talentnet, không có trong tài liệu nội bộ sống). Dùng đúng 4 ví dụ tài liệu sống nêu, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (§4, chunk ::0004) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": 2
+    },
+    "new_value": {
+      "04_quy-trinh-offboarding::0007": 2,
+      "04_quy-trinh-offboarding::0008": 2
+    },
+    "field_changed": "retrieval_qrels.json",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_140",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006": {
+        "score": 2,
+        "anchor": "quy định, thì hành vi dẫn đến kỷ luật sa thải cần phải được quy định trongNội quy Lao độngđã được ban hành và đăng ký với cơ quan Lao động.\n\nNghĩa vụ tài chính và nghĩa vụ khác\nBất kể lý do chấm dứt hợp đồng, người sử dụng lao động phải hoàn tất các nghĩa vụ sau:\nThanh toán đầy đủ các khoản tiềncó"
+      }
+    },
+    "new_value": {
+      "04_quy-trinh-offboarding::0007": {
+        "score": 2,
+        "anchor": "### Bước 5 — Thanh toán & chốt chế độ (theo Điều 48)\n- Trong thời hạn **14 ngày làm việc** kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48).\n- Thanh toán: lương những ngày làm việc c"
+      },
+      "04_quy-trinh-offboarding::0008": {
+        "score": 2,
+        "anchor": "### Bước 6 — Hoàn tất thủ tục & hồ sơ\n- Công ty hoàn thành thủ tục xác nhận và trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ của NLĐ (Điều 48).\n- Cấp giấy xác nhận thời gian làm việc nếu NLĐ yêu cầu."
+      }
+    },
+    "field_changed": "retrieval_anchors.json",
+    "reason": "Qrel cũ trỏ bài viết public_article của Talentnet (đã loại khỏi RAG index). Agent đã trả lời ĐÚNG từ tài liệu sống thay thế. Trim chi tiết 'xác nhận bảo hiểm thất nghiệp' (chỉ có ở bài Talentnet, tài liệu sống chỉ nói 'trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ') để khớp đúng nguồn sống, không invent.",
+    "source_of_truth": "data/processed/04_quy-trinh-offboarding.md (Bước 5+6, chunk ::0007 + ::0008) — tenant_official_policy, frozen",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_135",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_135",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005": {
+        "score": 2,
+        "anchor": "## Điều 3. Mức lương tối thiểu\n1. Quy định mức lương tối thiểu tháng và mức lương tối thiểu giờ đối với người lao động làm việc cho người sử dụng lao động theo vùng như sau:\n\n| Vùng | Mức lương tối thiểu tháng | Mức lương tối thiểu giờ |\n|---|---|---|\n| Vùng 1 | 5.000.000 đồng | 20.000 đồng"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_116",
+    "old_value": {
+      "161-ndcp.signed::0015": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_116",
+    "old_value": {
+      "161-ndcp.signed::0015": {
+        "score": 2,
+        "anchor": "c) Tổng hợp nhu cầu nguồn và trình cấp có thẩm quyền bổ sung kinh phí còn thiếu do thực hiện điều chỉnh mức lương cơ sở và chế độ tiền thưởng của các bộ, cơ quan ngang bộ, cơ quan khác ở trung ương và các tỉnh, thành phố trực thuộc trung ương theo quy định tại Nghị định này.\n\n4. Các Bộ trưởng, Thủ"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_128",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_128",
+    "old_value": {
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004": {
+        "score": 2,
+        "anchor": "### Điều 5. Công thức Tính Chi phí Bồi hoàn\nSố tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:\n\n$$\\text{Số tiền bồi hoàn} = \\text{Tổng chi phí đào tạo} \\times \\left(1 - \\frac{\\text{Số tháng đã làm việc sau đào tạo}}{\\text{Tổng số tháng cam kết}}\\right)$$\n\n*Trong"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_136",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0021": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_136",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0021": {
+        "score": 2,
+        "anchor": "|\n| - Vùng III, gồm các xã Hoàng Hoa Thám, Tiên Lữ, Tiên Hoa, Quang Hưng, Đoàn Đào, Tiên Tiến, Tống Trân, Lương Bằng, Nghĩa Dân, Hiệp Cường, Đức Hợp, Ân Thi, Xuân Trúc, Phạm Ngũ Lão, Nguyễn Trãi, Hồng Quang, Khoái Châu, Triệu Việt Vương, Việt Tiến, Chí Minh, Châu Ninh, Thái Thụy, Đông Thụy Anh, Bắc"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_114",
+    "old_value": {
+      "161-ndcp.signed::0006": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_114",
+    "old_value": {
+      "161-ndcp.signed::0006": {
+        "score": 2,
+        "anchor": "Đối với các cơ quan, đơn vị đang bảo lưu phần chênh lệch giữa tiền lương và thu nhập tăng thêm tháng 6 năm 2024 với tiền lương từ ngày 01 tháng 7 năm 2024 do sửa đổi hoặc bãi bỏ cơ chế tài chính và thu nhập đặc thù thì thực hiện giảm phần chênh lệch bảo lưu tương ứng với tỷ lệ tăng lương cơ sở từ"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_125",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0042": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_125",
+    "old_value": {
+      "leanh_mau-noi-quy-lao-dong::0042": {
+        "score": 2,
+        "anchor": "CHƯƠNG X\n\nĐIỀU KHOẢN THI HÀNH\n\n- Nội quy lao động làm cơ sở để công ty quản lý nhân viên và xử lý các trường hợp vi phạm về kỷ luật lao động của doanh nghiệp.\n\n- Các đơn vị thành phần, tùy thuộc vào đặc điểm sản xuất, kinh doanh của đơn vị, cụ thể hóa nội quy lao động cho phù hợp với thực tế, nhưng"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_139",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_139",
+    "old_value": {
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0004": {
+        "score": 2,
+        "anchor": "viên ban lãnh đạo của tổ chức đại diện người lao động đang tại vị, hợp đồng phải được gia hạn cho đến khi hết nhiệm kỳ của người lao động.\n\nĐơn phương chấm dứt hợp động lao động do Người lao động thường xuyên không hoàn thành công việc theo hợp đồng lao động\nTrong trường hợp chấm dứt hợp đồng do"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_115",
+    "old_value": {
+      "161-ndcp.signed::0011": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_115",
+    "old_value": {
+      "161-ndcp.signed::0011": {
+        "score": 2,
+        "anchor": "|\n| c) Sử dụng 10% tiết kiệm chi thường xuyên (trừ các khoản tiền lương, phụ cấp, đóng góp theo lương, các khoản có tính chất lương và các khoản chi cho con người theo chế độ) dự toán năm 2026 đã được cấp có thẩm quyền giao, gồm: 10% dự toán chi thường xuyên năm 2023, 10% dự toán chi thường xuyên"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_133",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0077": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_133",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0077": {
+        "score": 2,
+        "anchor": "## Chương VI\n\n### QUY ĐỊNH CHUYỂN TIẾP\n\n# Điều 32. Phụ cấp khu vực đối với người hưởng bảo hiểm xã hội\n\n1. Đối tượng áp dụng\n\na) Người lao động đang tham gia hoặc đang bảo lưu thời gian đóng bảo hiểm xã hội mà có thời gian làm việc trước ngày 01 tháng 01 năm 1995 tại nơi có phụ cấp khu vực được"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_134",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_134",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095": {
+        "score": 2,
+        "anchor": "# Điều 35. Tính thời gian công tác đối với người lao động đi hợp tác lao động trước ngày 01 tháng 01 năm 1995\n\n1. Người lao động thuộc biên chế của các cơ quan nhà nước, tổ chức chính trị, tổ chức chính trị - xã hội, doanh nghiệp nhà nước, đơn vị lực lượng vũ trang được cơ quan, đơn vị cử đi công"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_132",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0033": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_132",
+    "old_value": {
+      "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0033": {
+        "score": 2,
+        "anchor": "## Điều 13. Mức lương hưu hàng tháng\n\nMức lương hưu hàng tháng thực hiện theo quy định tại Điều 66 của Luật Bảo hiểm xã hội và được quy định chi tiết như sau:\n\n1. Mức lương hưu hàng tháng của người lao động được tính bằng tỷ lệ hưởng lương hưu hàng tháng nhân với mức bình quân tiền lương làm căn cứ"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_137",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0034": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_137",
+    "old_value": {
+      "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0034": {
+        "score": 2,
+        "anchor": "- Vùng IV, gồm các xã, phường còn lại.\n32. Tỉnh An Giang\n- Vùng II, gồm các phường Long Xuyên, Bình Đức, Mỹ Thới, Châu Đốc, Vĩnh Tế, Vĩnh Thông, Rạch Giá, Hà Tiên, Tô Châu; các xã Mỹ Hòa Hưng, Tiên Hải và các đặc khu Phú Quốc, Thổ Châu.\n- Vùng III, gồm các phường Tân Châu, Long Phú; các xã Tân An,"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_121",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_121",
+    "old_value": {
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000": {
+        "score": 2,
+        "anchor": "# base_mau-quy-che-luong-thuong-phu-cap-xu-phat\n\nMẪU QUY CHẾ LƯƠNG THƯỞNG, PHỤ CẤP VÀ XỬ PHẠT ÁP DỤNG\n\nTRONG DOANH NGHIỆP\n\nI.   Quy chế đãi ngộ nhân viên:\n\nThăm hỏi:\n\nĐau ốm: Chế độ dành cho CBNV hoặc bố mẹ đẻ (bố mẹ vợ/chồng) bị bệnh / tai nạn phải nghỉ ở viện dài ngày ở bệnh viện theo chỉ định"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_113",
+    "old_value": {
+      "161-ndcp.signed::0000": 2
+    },
+    "new_value": null,
+    "field_changed": "retrieval_qrels.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  },
+  {
+    "eval_id": "qa_113",
+    "old_value": {
+      "161-ndcp.signed::0000": {
+        "score": 2,
+        "anchor": "# CHÍNH PHỦ\nCỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập - Tự do - Hạnh phúc\n\n**Số: 161/2026/NĐ-CP**\nHà Nội, ngày 15 tháng 5 năm 2026\n\n## NGHỊ ĐỊNH\nQuy định mức lương cơ sở và chế độ tiền thưởng đối với cán bộ, công chức, viên chức và lực lượng vũ trang\n\n**Căn cứ Luật Tổ chức Chính phủ số"
+      }
+    },
+    "new_value": null,
+    "field_changed": "retrieval_anchors.json (removed)",
+    "reason": "Cau da retired/chuyen holdout - khong con trong current benchmark.",
+    "source_of_truth": "Phase F.1 retire/holdout rules",
+    "product_code_changed": false
+  }
+]
