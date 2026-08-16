@@ -22,7 +22,6 @@ services:
       - "8000"
     volumes:
       - ./data:/app/data
-      - ./storage:/app/storage
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
