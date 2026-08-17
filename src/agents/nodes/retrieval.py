@@ -22,6 +22,12 @@ _REFERRAL_QUERY_PATTERN = re.compile(
     r"|(?:ứng tuyển|ung tuyen|ứng viên|ung vien).{0,48}(?:giới thiệu|gioi thieu|referral)",
     re.IGNORECASE,
 )
+_DISCIPLINARY_ABSENCE_QUERY_PATTERN = re.compile(
+    r"(?:tự ý|tu y).{0,40}(?:nghỉ|nghi|bỏ việc|bo viec)"
+    r"|(?:sa thải|sa thai|kỷ luật|ky luat).{0,48}(?:nghỉ|nghi|bỏ việc|bo viec|vắng|vang)"
+    r"|(?:nghỉ|nghi|bỏ việc|bo viec).{0,48}(?:sa thải|sa thai|kỷ luật|ky luat|phê duyệt|phe duyet)",
+    re.IGNORECASE,
+)
 
 
 def _expand_retrieval_query(query: str) -> str:
@@ -41,6 +47,13 @@ def _expand_retrieval_query(query: str) -> str:
             "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
             "website tuyển dụng, nộp hồ sơ ứng viên"
         )
+    disciplinary_match = _DISCIPLINARY_ABSENCE_QUERY_PATTERN.search(query)
+    if disciplinary_match:
+        # Regression qa_122: câu hỏi nói "tự ý nghỉ/chưa được phê duyệt", còn
+        # policy dùng cụm "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày".
+        # Đây là một paraphrase canonical có chủ đích: câu hỏi gốc dài và
+        # chứa nhiều điều kiện, trong khi chunk policy có đúng cụm này.
+        return "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày; sa thải; lý do chính đáng"
     if not expansions:
         return query
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"

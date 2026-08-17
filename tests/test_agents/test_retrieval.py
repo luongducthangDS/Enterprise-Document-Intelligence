@@ -54,6 +54,15 @@ class TestRetrievalNode:
         query = "Giới thiệu giúp em chính sách nghỉ phép"
         assert _expand_retrieval_query(query) == query
 
+    def test_expands_disciplinary_absence_query_for_qa_122(self):
+        query = "Nếu em tự ý nghỉ làm nhưng chưa được phê duyệt thì sau bao nhiêu ngày bị sa thải?"
+        expanded = _expand_retrieval_query(query)
+
+        assert "tự ý bỏ việc" in expanded
+        assert "05 ngày cộng dồn" in expanded
+        assert "30 ngày" in expanded
+        assert "lý do chính đáng" in expanded
+
     @pytest.mark.asyncio
     async def test_parses_chroma_query_result_into_chunks(self):
         chroma_result = {
