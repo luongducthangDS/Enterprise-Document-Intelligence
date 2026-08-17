@@ -1,0 +1,116 @@
+flowchart LR
+    subgraph ONLINE["A. Online Chat / RAG Flow"]
+        FE_CHAT["1. Frontend submits question<br/>conversation_id + question + JWT"]
+        BE_ACCEPT["2. Backend validates user<br/>and conversation ownership"]
+        DB_QUEUE[("3. Persist user Message<br/>and ChatRequest = QUEUED")]
+        BE_HISTORY["4. Load recent conversation history<br/>Claim request = GENERATING"]
+        AGENT_QUERY["5. Agent condenses follow-up<br/>and classifies intent"]
+        INTENT{"Intent"}
+        EMBED["6. Embed normalized query"]
+        VECTOR_SEARCH["7. Retrieve candidate chunks"]
+        RERANK_FLOW["8. Rerank and grade evidence"]
+        GENERATE["9. Generate grounded answer<br/>with citations"]
+        VERIFY["10. Hallucination check,<br/>confidence gate and PII redaction"]
+        DIRECT["Direct response"]
+        CLARIFY["Clarifying question"]
+        ESCALATE["Escalation decision<br/>and TicketDraft"]
+        AGENT_ANSWER["11. AgentAnswer"]
+        BE_MAP["12. Backend maps public result"]
+        DB_RESULT[("13. Persist assistant Message,<br/>citations, terminal request state")]
+        DB_TICKET[("Create Ticket when escalate = true")]
+        FE_POLL["14. Frontend polls Backend"]
+        FE_RENDER["15. Render answer, citations,<br/>clarification, ticket or retry"]
+    end
+
+    subgraph KNOWLEDGE["B. Knowledge Base / Admin Job Flow"]
+        FE_UPLOAD["1. Frontend uploads document<br/>and metadata"]
+        BE_VALIDATE["2. Backend validates RBAC,<br/>file type, size and metadata"]
+        OBJECT[("3. Persist immutable source file")]
+        DB_JOB[("4. Persist Document<br/>and IngestionJob = QUEUED")]
+        DISPATCH["5. Backend dispatches Agent job<br/>job_id + file content + metadata"]
+        EXTRACT["6. Extract and clean text"]
+        PROCESSED[("7. Persist processed Markdown")]
+        CHUNK["8. Build semantic chunks<br/>and lineage metadata"]
+        CHUNK_STORE[("9. Persist chunk JSON")]
+        EMBED_CHUNKS["10. Create chunk embeddings"]
+        UPSERT[("11. Delete obsolete vectors<br/>and upsert Chroma collection")]
+        AGENT_JOB_STATE[("12. Agent execution state<br/>stage + progress + result/error")]
+        MIRROR["13. Backend polls Agent<br/>and mirrors job state"]
+        DB_COMPLETE[("14. Update PostgreSQL job,<br/>document and index metadata")]
+        FE_JOB_POLL["15. Frontend polls Backend"]
+        READY["16. Document available to RAG"]
+    end
+
+    USER["Employee / HR Admin"]
+    HR_ADMIN["HR Admin"]
+    POSTGRES[("Supabase PostgreSQL")]
+    OBJECT_STORAGE[("Object Storage")]
+    AGENT_VOLUME[("Persistent Agent Volume")]
+    CHROMA[("Chroma Cloud")]
+    FPT["FPT.AI Marketplace"]
+
+    FE_CHAT --> BE_ACCEPT
+    BE_ACCEPT --> DB_QUEUE
+    DB_QUEUE --> BE_HISTORY
+    BE_HISTORY --> AGENT_QUERY
+    AGENT_QUERY --> INTENT
+    INTENT -- "hr_question" --> EMBED
+    EMBED --> VECTOR_SEARCH
+    VECTOR_SEARCH --> RERANK_FLOW
+    RERANK_FLOW -- "Relevant evidence" --> GENERATE
+    GENERATE --> VERIFY
+    VERIFY --> AGENT_ANSWER
+    RERANK_FLOW -- "No evidence, retry remains" --> EMBED
+    INTENT -- "greeting" --> DIRECT
+    DIRECT --> AGENT_ANSWER
+    INTENT -- "ambiguous" --> CLARIFY
+    CLARIFY --> AGENT_ANSWER
+    INTENT -- "out_of_scope_or_personal" --> ESCALATE
+    ESCALATE --> AGENT_ANSWER
+    AGENT_ANSWER --> BE_MAP
+    BE_MAP --> DB_RESULT
+    BE_MAP -- "escalate = true" --> DB_TICKET
+    DB_QUEUE -. "poll while processing" .-> FE_POLL
+    DB_RESULT --> FE_POLL
+    FE_POLL --> FE_RENDER
+
+    FE_UPLOAD --> BE_VALIDATE
+    BE_VALIDATE --> OBJECT
+    BE_VALIDATE --> DB_JOB
+    OBJECT --> DISPATCH
+    DB_JOB --> DISPATCH
+    DISPATCH --> EXTRACT
+    EXTRACT --> PROCESSED
+    PROCESSED --> CHUNK
+    CHUNK --> CHUNK_STORE
+    CHUNK_STORE --> EMBED_CHUNKS
+    EMBED_CHUNKS --> UPSERT
+    EXTRACT --> AGENT_JOB_STATE
+    CHUNK --> AGENT_JOB_STATE
+    EMBED_CHUNKS --> AGENT_JOB_STATE
+    UPSERT --> AGENT_JOB_STATE
+    AGENT_JOB_STATE --> MIRROR
+    MIRROR --> DB_COMPLETE
+    DB_JOB -. "poll while processing" .-> FE_JOB_POLL
+    DB_COMPLETE --> FE_JOB_POLL
+    FE_JOB_POLL --> READY
+
+    USER --> FE_CHAT
+    HR_ADMIN --> FE_UPLOAD
+    DB_QUEUE --> POSTGRES
+    BE_HISTORY --> POSTGRES
+    EMBED --> FPT
+    VECTOR_SEARCH --> CHROMA
+    RERANK_FLOW --> FPT
+    GENERATE --> FPT
+    VERIFY --> FPT
+    DB_RESULT --> POSTGRES
+    DB_TICKET --> POSTGRES
+    OBJECT --> OBJECT_STORAGE
+    DB_JOB --> POSTGRES
+    PROCESSED --> AGENT_VOLUME
+    CHUNK_STORE --> AGENT_VOLUME
+    EMBED_CHUNKS --> FPT
+    UPSERT --> CHROMA
+    AGENT_JOB_STATE --> AGENT_VOLUME
+    DB_COMPLETE --> POSTGRES
