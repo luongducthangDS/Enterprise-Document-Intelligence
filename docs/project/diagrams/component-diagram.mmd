@@ -1,0 +1,95 @@
+flowchart LR
+    subgraph FRONTEND["Frontend Service — Next.js"]
+        UI["HR Knowledge Web App"]
+        AUTH_UI["Authentication & Session"]
+        CHAT_UI["Chat, Conversation & Citations"]
+        TICKET_UI["Ticket Management"]
+        ADMIN_UI["Document, Index & Evaluation Admin"]
+        API_CLIENT["Typed REST Client<br/>JWT refresh + polling"]
+    end
+
+    subgraph BACKEND["Backend Service — FastAPI"]
+        PUBLIC_API["Public REST API /api/v1"]
+        AUTH["JWT Authentication & RBAC"]
+        CONVERSATION["Conversation & Message Service"]
+        CHAT["Chat Orchestrator"]
+        CITATION["Citation Access Control"]
+        TICKET["Ticket Service"]
+        DOCUMENT["Document Service"]
+        JOBS["Admin Job Orchestrator"]
+        AGENT_CLIENT["Internal Agent Client"]
+    end
+
+    subgraph AGENT["AI Agent Service — FastAPI + LangGraph"]
+        INTERNAL_API["Internal API /api/v1/agent"]
+        QUERY["Agent Query Service"]
+        GRAPH["LangGraph Workflow"]
+        RETRIEVAL["Dense / Hybrid Retrieval"]
+        RERANK["Cross-encoder Rerank"]
+        GUARDRAILS["Groundedness, Confidence,<br/>Injection & PII Guardrails"]
+        WORKER_API["Worker Job API"]
+        INGESTION["Ingestion Worker"]
+        INDEXER["Index Rebuild Worker"]
+        EVALUATOR["Evaluation Worker"]
+    end
+
+    USER["Employee / HR Admin"]
+    POSTGRES[("Supabase PostgreSQL<br/>Users, profiles, conversations, messages,<br/>chat requests, tickets, documents & jobs")]
+    OBJECT_STORAGE[("Object Storage<br/>Uploaded source documents")]
+    AGENT_VOLUME[("Persistent Agent Volume<br/>Raw files, processed text, chunks & job state")]
+    CHROMA[("Chroma Cloud<br/>Chunks, metadata & vector embeddings")]
+    FPT["FPT.AI Marketplace<br/>Chat LLM, embedding, reranker & judge"]
+
+    UI --> AUTH_UI
+    UI --> CHAT_UI
+    UI --> TICKET_UI
+    UI --> ADMIN_UI
+    AUTH_UI --> API_CLIENT
+    CHAT_UI --> API_CLIENT
+    TICKET_UI --> API_CLIENT
+    ADMIN_UI --> API_CLIENT
+
+    PUBLIC_API --> AUTH
+    PUBLIC_API --> CONVERSATION
+    PUBLIC_API --> CHAT
+    PUBLIC_API --> CITATION
+    PUBLIC_API --> TICKET
+    PUBLIC_API --> DOCUMENT
+    PUBLIC_API --> JOBS
+
+    CHAT --> AGENT_CLIENT
+    JOBS --> AGENT_CLIENT
+
+    INTERNAL_API --> QUERY
+    QUERY --> GRAPH
+    GRAPH --> RETRIEVAL
+    RETRIEVAL --> RERANK
+    GRAPH --> GUARDRAILS
+    INTERNAL_API --> WORKER_API
+    WORKER_API --> INGESTION
+    WORKER_API --> INDEXER
+    WORKER_API --> EVALUATOR
+
+    USER -- "HTTPS" --> UI
+    API_CLIENT -- "REST + JWT + polling" --> PUBLIC_API
+    AUTH -- "SQL" --> POSTGRES
+    CONVERSATION -- "SQL" --> POSTGRES
+    CHAT -- "SQL" --> POSTGRES
+    CITATION -- "SQL" --> POSTGRES
+    TICKET -- "SQL" --> POSTGRES
+    DOCUMENT -- "Metadata + object reference" --> POSTGRES
+    DOCUMENT -- "Source file" --> OBJECT_STORAGE
+    JOBS -- "Job state, progress & result" --> POSTGRES
+    AGENT_CLIENT -- "Internal REST + X-Service-Token" --> INTERNAL_API
+    RETRIEVAL -- "Vector search" --> CHROMA
+    GRAPH -- "Condense, route, generate & verify" --> FPT
+    RERANK -- "Rerank candidates" --> FPT
+    INGESTION -- "Read source" --> OBJECT_STORAGE
+    INGESTION -- "Raw, processed & chunks" --> AGENT_VOLUME
+    INGESTION -- "Create embeddings" --> FPT
+    INGESTION -- "Replace source vectors" --> CHROMA
+    INDEXER -- "Read chunks" --> AGENT_VOLUME
+    INDEXER -- "Create embeddings" --> FPT
+    INDEXER -- "Rebuild vectors" --> CHROMA
+    EVALUATOR -- "Run production graph" --> GRAPH
+    EVALUATOR -- "Judge answers" --> FPT
