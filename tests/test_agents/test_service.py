@@ -298,3 +298,52 @@ class TestAstreamAnswer:
         assert events[-1] == {"type": "error", "message": "RuntimeError: gateway timeout"}
         # Không có answer_delta/done nào lọt qua sau lỗi.
         assert not any(e["type"] in ("answer_delta", "done") for e in events)
+
+    @pytest.mark.asyncio
+    async def test_multiturn_clarification_flow_qa_085(self):
+        """Kiểm thử luồng hội thoại 2 lượt cho qa_085:
+        Lượt 1: Hỏi câu mơ hồ -> Trợ lý hỏi lại làm rõ (intent = ambiguous).
+        Lượt 2: Người dùng chọn nhánh 'sau khi sinh' -> Trợ lý chuyển sang RAG (intent = hr_question) và trả về kết quả.
+        """
+        # Lượt 1: Câu hỏi mơ hồ
+        state_turn1 = {
+            "query": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?",
+            "intent": "ambiguous",
+            "needs_clarification": True,
+            "clarifying_question": "Bạn muốn hỏi thủ tục nghỉ thai sản trước khi sinh hay sau khi sinh?",
+            "response": "Bạn muốn hỏi thủ tục nghỉ thai sản trước khi sinh hay sau khi sinh?",
+            "citations": [],
+            "escalate": False,
+        }
+        with patch("src.agents.service.agent.ainvoke", new=AsyncMock(return_value=state_turn1)):
+            res_turn1 = await answer("Tôi muốn nghỉ thai sản thì làm thủ tục gì?", history=[])
+
+        assert res_turn1.needs_clarification is True
+        assert res_turn1.intent == "ambiguous"
+        assert res_turn1.response == "Bạn muốn hỏi thủ tục nghỉ thai sản trước khi sinh hay sau khi sinh?"
+
+        # Lượt 2: Người dùng trả lời làm rõ kèm history Lượt 1
+        history = [
+            {"role": "user", "content": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?"},
+            {"role": "assistant", "content": "Bạn muốn hỏi thủ tục nghỉ thai sản trước khi sinh hay sau khi sinh?"},
+        ]
+        state_turn2 = {
+            "query": "sau khi sinh",
+            "condensed_query": "Thủ tục nghỉ thai sản sau khi sinh gồm những giấy tờ gì và quy trình thế nào?",
+            "intent": "hr_question",
+            "needs_clarification": False,
+            "confidence_score": 0.92,
+            "response": "Hồ sơ hưởng chế độ thai sản sau khi sinh gồm: Giấy khai sinh/trích lục khai sinh, đơn đề nghị hưởng chế độ nộp cho phòng Nhân sự trong vòng 45 ngày kể từ ngày trở lại làm việc.",
+            "citations": [_citation(title="Chính sách thai sản & nghỉ phép", source_file="07_chinh-sach-nghi-phep.md")],
+            "escalate": False,
+        }
+        with patch("src.agents.service.agent.ainvoke", new=AsyncMock(return_value=state_turn2)):
+            res_turn2 = await answer("sau khi sinh", history=history)
+
+        assert res_turn2.needs_clarification is False
+        assert res_turn2.intent == "hr_question"
+        assert "Giấy khai sinh" in res_turn2.response
+        assert len(res_turn2.citations) == 1
+        assert res_turn2.citations[0].source_file == "07_chinh-sach-nghi-phep.md"
+        assert res_turn2.confidence_score == 0.92
+
