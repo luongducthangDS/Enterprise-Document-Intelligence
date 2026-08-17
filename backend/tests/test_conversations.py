@@ -79,58 +79,53 @@ def test_create_conversation_default_title():
     assert res_data["data"]["title"] == "Hội thoại mới"
 
 
-def test_list_conversations_only_returns_current_user_items():
+def test_list_conversations_only_returns_current_users_conversations():
     user1_headers = get_auth_header("11111111-1111-1111-1111-111111111111", "user1@company.com")
     user2_headers = get_auth_header("22222222-2222-2222-2222-222222222222", "user2@company.com")
-
-    user1_response = client.post(
-        "/api/v1/conversations",
-        json={"title": "Conversation history user 1"},
-        headers=user1_headers,
-    )
-    user2_response = client.post(
-        "/api/v1/conversations",
-        json={"title": "Conversation history user 2"},
-        headers=user2_headers,
-    )
+    user1_title = f"User 1 list {uuid.uuid4()}"
+    user2_title = f"User 2 list {uuid.uuid4()}"
+    user1_response = client.post("/api/v1/conversations", json={"title": user1_title}, headers=user1_headers)
+    user2_response = client.post("/api/v1/conversations", json={"title": user2_title}, headers=user2_headers)
+    user1_conversation_id = user1_response.json()["data"]["conversation_id"]
 
     response = client.get("/api/v1/conversations", headers=user1_headers)
+
     assert response.status_code == 200
     items = response.json()["data"]
     item_ids = {item["conversation_id"] for item in items}
-    assert user1_response.json()["data"]["conversation_id"] in item_ids
+    assert user1_conversation_id in item_ids
     assert user2_response.json()["data"]["conversation_id"] not in item_ids
-    assert all("message_count" in item and "last_message_at" in item for item in items)
+    assert {"updated_at", "message_count", "last_message_at"} <= items[0].keys()
 
 
 def test_rename_conversation_endpoint():
     headers = get_auth_header()
-    create_resp = client.post("/api/v1/conversations", json={"title": None}, headers=headers)
-    conv_id = create_resp.json()["data"]["conversation_id"]
+    created = client.post("/api/v1/conversations", json={"title": None}, headers=headers)
+    conversation_id = created.json()["data"]["conversation_id"]
 
     response = client.patch(
-        f"/api/v1/conversations/{conv_id}",
-        json={"title": "Chính sách nghỉ phép"},
+        f"/api/v1/conversations/{conversation_id}",
+        json={"title": "  Chính sách   nghỉ phép  "},
         headers=headers,
     )
+
     assert response.status_code == 200
     assert response.json()["data"]["title"] == "Chính sách nghỉ phép"
 
 
 def test_delete_conversation_hides_it_without_removing_audit_data():
     headers = get_auth_header()
-    create_resp = client.post("/api/v1/conversations", json={"title": "Conversation to delete"}, headers=headers)
-    conv_id = create_resp.json()["data"]["conversation_id"]
+    created = client.post("/api/v1/conversations", json={"title": "Conversation to delete"}, headers=headers)
+    conversation_id = created.json()["data"]["conversation_id"]
 
-    response = client.delete(f"/api/v1/conversations/{conv_id}", headers=headers)
+    response = client.delete(f"/api/v1/conversations/{conversation_id}", headers=headers)
     assert response.status_code == 200
-    assert response.json()["data"] == {"conversation_id": conv_id, "deleted": True}
+    assert response.json()["data"] == {"conversation_id": conversation_id, "deleted": True}
 
     listed = client.get("/api/v1/conversations", headers=headers).json()["data"]
-    assert all(item["conversation_id"] != conv_id for item in listed)
-
-    response_again = client.delete(f"/api/v1/conversations/{conv_id}", headers=headers)
-    assert response_again.status_code == 404
+    assert all(item["conversation_id"] != conversation_id for item in listed)
+    assert client.get(f"/api/v1/conversations/{conversation_id}", headers=headers).status_code == 404
+    assert client.delete(f"/api/v1/conversations/{conversation_id}", headers=headers).status_code == 404
 
 
 def test_get_conversation_info_endpoint():
@@ -200,6 +195,7 @@ async def test_get_conversation_messages_endpoint():
     assert res_data["success"] is True
     assert len(res_data["data"]["messages"]) == 2
     assert res_data["data"]["messages"][0]["role"] == "user"
+    assert res_data["data"]["messages"][1]["role"] == "assistant"
     assert res_data["data"]["messages"][1]["citations"][0]["citation_id"] == "cit_01"
     assert "is_official_policy" in res_data["data"]["messages"][1]["citations"][0]
     assert "source_type" in res_data["data"]["messages"][1]["citations"][0]

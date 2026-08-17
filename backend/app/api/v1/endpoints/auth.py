@@ -48,23 +48,13 @@ async def refresh_token(
 async def get_me(
     request: Request,
     current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    user = await AuthService.get_user_by_email(db, current_user["email"])
-    if not user:
-        user_dto = {
-            "id": current_user["user_id"],
-            "email": current_user["email"],
-            "full_name": "User",
-            "role": current_user["role"],
-            "department": current_user["department"],
-        }
-    else:
-        user_dto = {
-            "id": str(user.id),
-            "email": user.email,
-            "full_name": user.profile.display_name if user.profile else "User",
-            "role": user.profile.role.upper() if user.profile else current_user["role"],
-            "department": user.profile.department if user.profile else current_user["department"],
-        }
+    email = current_user["email"] or ""
+    user_dto = {
+        "id": current_user["user_id"],
+        "email": email,
+        "full_name": current_user.get("full_name") or email.split("@")[0] or "User",
+        "role": current_user["role"],
+        "department": current_user["department"],
+    }
     return wrap_response(user_dto, request)

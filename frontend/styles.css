@@ -2,8 +2,6 @@
    HR Document Intelligence Agent - Premium Enterprise SaaS CSS
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
   --bg-app: #F8FAFC;
   --bg-surface: #FFFFFF;
@@ -51,7 +49,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Work Sans', Arial, sans-serif;
 }
 
 body {

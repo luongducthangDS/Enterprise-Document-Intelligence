@@ -33,8 +33,9 @@ export type CitationSummary = {
   section: string | null;
   version: string | null;
   effective_date: string | null;
-  is_official_policy: boolean;
-  source_type: string | null;
+  is_official_policy?: boolean;
+  source_type?: string | null;
+  excerpt?: string;
 };
 
 export type CitationDetail = {
@@ -45,14 +46,38 @@ export type CitationDetail = {
     version: string | null;
     effective_date: string | null;
     status: string;
-    is_official_policy: boolean;
-    source_type: string | null;
+    is_official_policy?: boolean;
+    source_type?: string | null;
   };
   location: { page: number | null; section: string | null; chunk_id?: string | null };
   excerpt: string;
-  conflict_warning: boolean;
-  is_official_policy: boolean;
-  source_type: string | null;
+  caveat?: string | null;
+  conflict_warning?: boolean;
+  is_official_policy?: boolean;
+  source_type?: string | null;
+};
+
+export type TicketItem = {
+  id: string;
+  ticket_code: string;
+  conversation_id: string | null;
+  message_id: string | null;
+  requester_id: string;
+  requester_name: string | null;
+  employee_question: string;
+  escalate_reason: string;
+  confidence_score: number | null;
+  category: string | null;
+  target_department: string;
+  priority: string;
+  status: string;
+  assignee_id: string | null;
+  assignee_name: string | null;
+  resolution_note: string | null;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+  closed_at: string | null;
 };
 
 export type Warning = {
@@ -89,7 +114,7 @@ export type ChatResult = {
 
 export type ConversationMessage = {
   message_id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "USER" | "ASSISTANT";
   content: string;
   chat_request_id: string | null;
   answer_status?: string | null;
@@ -97,38 +122,19 @@ export type ConversationMessage = {
   created_at: string;
 };
 
-export type ConversationDetail = {
+/** GET /conversations item. Kept explicit so Backend can implement the list contract without UI changes. */
+export type ConversationListItem = {
   conversation_id: string;
-  title: string;
-  state: string;
+  title: string | null;
+  state: "ACTIVE" | "ENDED" | string;
   created_at: string;
+  updated_at: string;
   ended_at: string | null;
   message_count: number;
   last_message_at: string | null;
 };
 
-export type TicketItem = {
-  id: string;
-  ticket_code: string;
-  conversation_id: string | null;
-  message_id: string | null;
-  requester_id: string;
-  requester_name: string | null;
-  employee_question: string;
-  escalate_reason: string;
-  confidence_score: number | null;
-  category: string | null;
-  target_department: string;
-  priority: string;
-  status: string;
-  assignee_id: string | null;
-  assignee_name: string | null;
-  resolution_note: string | null;
-  created_at: string;
-  updated_at: string;
-  resolved_at: string | null;
-  closed_at: string | null;
-};
+export type ConversationDetail = ConversationListItem;
 
 export type DocumentListItem = {
   document_id: string;

@@ -14,9 +14,13 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(
     settings.async_database_url,
-    echo=(settings.app_env == "development"),
+    echo=settings.database_echo,
     future=True,
-    pool_pre_ping=True,
+    pool_pre_ping=settings.database_pool_pre_ping,
+    pool_size=settings.database_pool_size,
+    max_overflow=settings.database_max_overflow,
+    pool_timeout=settings.database_pool_timeout_seconds,
+    pool_recycle=settings.database_pool_recycle_seconds,
     connect_args={"statement_cache_size": 0},
 )
 

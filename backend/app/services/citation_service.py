@@ -66,11 +66,13 @@ class CitationService:
         version = found_item.get("version")
         effective_date = found_item.get("effective_date")
         document_status = "ACTIVE"
+        caveat = None
         if doc:
             document_id = str(doc.id)
             version = doc.version or version
             effective_date = doc.effective_date or effective_date
             document_status = doc.status
+            caveat = redact_pii(doc.caveat) or None
             user_role = user.get("role", "EMPLOYEE")
             if doc.confidentiality in ("RESTRICTED", "CONFIDENTIAL") and user_role not in (
                 "HR_ADMIN",
@@ -106,6 +108,7 @@ class CitationService:
                 "chunk_id": found_item.get("chunk_id"),
             },
             "excerpt": redact_pii(found_item.get("excerpt")),
+            "caveat": caveat,
             "conflict_warning": bool(found_item.get("conflict_warning", False)),
             "is_official_policy": is_official_policy,
             "source_type": source_type,
