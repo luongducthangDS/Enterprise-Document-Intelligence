@@ -1,6 +1,6 @@
 import asyncio
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg
@@ -16,17 +16,34 @@ from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_REFERRAL_QUERY_PATTERN = re.compile(
+    r"\breferral\b"
+    r"|(?:giới thiệu|gioi thieu).{0,48}(?:ứng tuyển|ung tuyen|ứng viên|ung vien|người quen|nguoi quen|bạn|ban)"
+    r"|(?:ứng tuyển|ung tuyen|ứng viên|ung vien).{0,48}(?:giới thiệu|gioi thieu|referral)",
+    re.IGNORECASE,
+)
 
 
 def _expand_retrieval_query(query: str) -> str:
-    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
 
-    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
-    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    Expansion nhỏ này giúp dense và BM25 tìm đúng ngay lượt đầu mà không cần
+    gọi LLM rewrite chỉ để thêm từ. Chỉ mở rộng các pattern có tín hiệu đủ rõ
+    để không làm loãng embedding của câu hỏi HR khác.
     """
-    if not _HYBRID_QUERY_PATTERN.search(query):
+    expansions: list[str] = []
+    if _HYBRID_QUERY_PATTERN.search(query):
+        expansions.append("WFH, làm việc từ xa, onsite, mô hình 3-2")
+    if _REFERRAL_QUERY_PATTERN.search(query):
+        # Regression qa_013: người dùng nói "giới thiệu bạn ứng tuyển" trong
+        # khi policy dùng "giới thiệu nội bộ (referral)" ở mục kênh đăng tin.
+        expansions.append(
+            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
+            "website tuyển dụng, nộp hồ sơ ứng viên"
+        )
+    if not expansions:
         return query
-    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
+    return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
 @lru_cache
@@ -88,7 +105,7 @@ def _provenance_filter(settings: Settings) -> dict | None:
       `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
       đó là hành vi ĐÚNG, không phải lỗi.
     """
-    query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
     conditions: list[dict] = [
         {"authority": "tenant_official_policy"},
         {"publication_status": "active"},
