@@ -160,7 +160,12 @@ class TestAstreamAnswer:
             events = [e async for e in astream_answer("Mấy ngày phép?")]
 
         statuses = [e["value"] for e in events if e["type"] == "status"]
-        assert statuses == ["Đang phân tích yêu cầu...", "Đang soạn câu trả lời..."]
+        assert statuses == [
+            "Đang phân tích yêu cầu...",
+            "Đang tìm trong tài liệu HR...",
+            "Đang mở rộng phạm vi tìm kiếm...",
+            "Đang kiểm tra độ chính xác câu trả lời...",
+        ]
 
     @pytest.mark.asyncio
     async def test_condense_status_skipped_when_no_history(self):
@@ -175,7 +180,7 @@ class TestAstreamAnswer:
             events = [e async for e in astream_answer("abc", history=None)]
 
         statuses = [e["value"] for e in events if e["type"] == "status"]
-        assert statuses == ["Đang phân tích yêu cầu..."]
+        assert statuses == ["Đang phân tích yêu cầu...", "Đang tìm trong tài liệu HR..."]
 
     @pytest.mark.asyncio
     async def test_condense_status_shown_when_history_present(self):
@@ -189,7 +194,11 @@ class TestAstreamAnswer:
             events = [e async for e in astream_answer("abc", history=history)]
 
         statuses = [e["value"] for e in events if e["type"] == "status"]
-        assert statuses == ["Đang xử lý ngữ cảnh hội thoại trước đó...", "Đang phân tích yêu cầu..."]
+        assert statuses == [
+            "Đang xử lý ngữ cảnh hội thoại...",
+            "Đang phân tích yêu cầu...",
+            "Đang tìm trong tài liệu HR...",
+        ]
 
     @pytest.mark.asyncio
     async def test_emits_tool_events_for_retrieve_node(self):
@@ -274,6 +283,8 @@ class TestAstreamAnswer:
             events = [e async for e in astream_answer("abc")]
 
         assert events[-1]["ticket_draft"] is None
+        assert events[-1]["answer"]["response"] == "12 ngày."
+        assert events[-1]["answer"]["intent"] == "hr_question"
 
     @pytest.mark.asyncio
     async def test_error_during_graph_run_emits_error_event_and_stops(self):

@@ -97,6 +97,42 @@ export type ChatState =
   | "CLARIFICATION_REQUIRED"
   | "FAILED";
 
+export type AssistantRole = "ANSWER" | "GUIDE" | "PREPARE_AND_HANDOFF" | "HUMAN_FIRST";
+export type RuntimeAction = "NONE" | "LINK_ONLY" | "PREFILL_DRAFT" | "CREATE_CASE";
+
+export type AllowedDataField = {
+  field_key: string;
+  label: string;
+  required_for_prefill: boolean;
+  pii_class: "Low" | "Medium" | "High" | "Critical";
+  storage_policy: "do_not_store" | "store_case_only" | "store_message_ok" | "store_metadata_only";
+};
+
+/**
+ * Canonical runtime decision từ agent (Runtime-Revised Canonical Scenario Registry).
+ * UI render theo `runtime_action` — mức được phép NGAY BÂY GIỜ — chứ không phải
+ * `max_runtime_action` (trần theo registry, có thể là CREATE_CASE ở MVP-2) và
+ * cũng không suy diễn từ nội dung câu trả lời.
+ */
+export type BoundaryDecision = {
+  scenario_id: number | null;
+  scenario_name: string | null;
+  service_code: string | null;
+  service_name: string | null;
+  assistant_role: AssistantRole;
+  sensitivity: "Low" | "Medium" | "High" | "Critical";
+  runtime_source_status: string;
+  source_of_truth_label: string;
+  max_runtime_action: RuntimeAction;
+  runtime_action: RuntimeAction;
+  mvp_phase: "MVP_1" | "MVP_2" | "FUTURE" | "OUT_OF_MVP";
+  handoff_target: { type?: string; code?: string; name?: string; contact_label?: string } | null;
+  user_facing_action_label: string | null;
+  allowed_data_fields: AllowedDataField[];
+  runtime_behavior: string;
+  resolution: "registry" | "fallback";
+};
+
 export type ChatResult = {
   chat_request_id: string;
   conversation_id: string;
@@ -110,6 +146,9 @@ export type ChatResult = {
   clarification: { question: string; options: string[] } | null;
   failure: { code: string; message: string; retryable: boolean } | null;
   latency_ms: number | null;
+  // null khi tải lại lịch sử hoặc poll: decision hiện chỉ đi kèm event `result`
+  // của lượt chat đang chạy (chat_requests chưa có cột lưu boundary).
+  boundary?: BoundaryDecision | null;
 };
 
 export type ConversationMessage = {

@@ -71,6 +71,13 @@
 - Lỗi: `VALIDATION_ERROR (400)`, `CONVERSATION_NOT_FOUND (404)`, `RATE_LIMITED (429)`
 - Lưu ý: `question` sau trim không rỗng; không còn giới hạn 2.000 ký tự ở hợp đồng hiện tại.
 
+**POST /chat/requests/stream** — Gửi câu hỏi và nhận kết quả qua SSE (luồng mặc định của FE)
+- Request giống `POST /chat/requests`.
+- Event lần lượt gồm `request`, `status`/`tool_start`/`tool_end`, `answer_delta`, `done`, rồi `result` sau khi Backend đã persist kết quả.
+- Backend phát `heartbeat` khi phải chờ lâu để proxy/browser không đóng kết nối nhàn rỗi.
+- Header `X-Chat-Request-ID` và event `request.chat_request_id` cho phép FE chuyển sang polling nếu SSE bị ngắt.
+- Nội dung `answer_delta` chỉ được phát sau khi Agent hoàn tất kiểm tra groundedness và che PII; không stream token thô chưa qua guardrail.
+
 **GET /chat/requests/{chat_request_id}** — Lấy trạng thái/kết quả trả lời
 - Response `data` (COMPLETED):
 ```json

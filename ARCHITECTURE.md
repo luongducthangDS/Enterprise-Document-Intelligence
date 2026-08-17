@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Agent RAG trả lời câu hỏi HR (pháp luật lao động/BHXH/BHYT/thuế TNCN + quy định nội bộ), chạy trên LangGraph, phục vụ qua một endpoint FastAPI duy nhất. Dữ liệu được ingest offline (extract → clean → chunk → embed) vào Chroma Cloud; khi có câu hỏi, agent truy hồi, rerank, sinh câu trả lời có trích dẫn, tự chấm độ tin cậy, và tạo ticket khi cần chuyển cho người. Backend (Supabase) chịu trách nhiệm auth, lưu hội thoại, và ghi ticket — agent không tự ghi DB ngoài phạm vi của nó.
+Agent RAG giải quyết nghiệp vụ HR bằng cách trả lời câu hỏi dựa trên **dữ liệu nội bộ doanh nghiệp** (chính sách/quy trình thật hoặc synthetic đóng vai nội bộ khi chưa có tài liệu công ty thật), chạy trên LangGraph, phục vụ qua một endpoint FastAPI duy nhất. Văn bản pháp luật (lao động/BHXH/BHYT/thuế TNCN...) **không phải nguồn agent được trích dẫn trực tiếp** — chỉ còn vai trò tham khảo offline để soạn thêm tài liệu nội bộ khi doanh nghiệp chưa cung cấp chính sách thật (xem `NON_RAG_SOURCE_TYPES` trong `src/ingestion/metadata.py` và `_provenance_filter` trong `src/agents/nodes/retrieval.py`, chặn cứng ở tầng truy vấn). Dữ liệu được ingest offline (extract → clean → chunk → embed) vào Chroma Cloud; khi có câu hỏi, agent truy hồi, rerank, sinh câu trả lời có trích dẫn, tự chấm độ tin cậy, và tạo ticket khi cần chuyển cho người. Backend (Supabase) chịu trách nhiệm auth, lưu hội thoại, và ghi ticket — agent không tự ghi DB ngoài phạm vi của nó.
 
 Chi tiết đầy đủ từng bước, quyết định thiết kế và số liệu đo: [`docs/rag-pipeline/PIPELINE.md`](docs/rag-pipeline/PIPELINE.md).
 
@@ -77,7 +77,7 @@ graph TB
 
 ## Data Flow
 
-1. **Offline — Ingestion:** `data/raw/<category>/` (6 category: company_regulations, government_legal, recruitment_policies, onboarding_offboarding, leave_policies, compensation_policies) → extract (`pdfplumber`/`PyMuPDF`/VLM cho bảng phức tạp) → clean → chunk → embed → upsert Chroma Cloud.
+1. **Offline — Ingestion:** `data/raw/<category>/` (6 category: company_regulations, government_legal, recruitment_policies, onboarding_offboarding, leave_policies, compensation_policies) → extract (`pdfplumber`/`PyMuPDF`/VLM cho bảng phức tạp) → clean → chunk → embed → upsert Chroma Cloud. **`government_legal` không còn RAG-eligible** (`NON_RAG_SOURCE_TYPES`) — 10 văn bản luật trong category này chỉ dùng offline làm nguồn tham khảo để soạn thêm tài liệu nội bộ synthetic (vd `09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md`, `10_chinh-sach-an-toan-ve-sinh-lao-dong.md`), không được chunk/index/truy vấn.
 2. **Online — Query:** Client gửi `POST /api/v1/chat` (kèm `history` nếu là lượt tiếp theo trong hội thoại) → `condense` (viết lại câu hỏi độc lập nếu có `history`, bỏ qua nếu không) → `router` phân loại intent → nếu `hr_question`: `retrieve` (top-k dense) → `rerank` → `grade` (lọc theo relevance) → `generate` (LLM sinh câu trả lời có trích dẫn) → `hallucination_check` → `confidence` → `finalize` (trả lời) hoặc `escalate_ticket` (tạo `ticket_draft`).
 3. Backend nhận `AgentAnswer`; nếu `escalate=True` (trừ `competitor_question`) thì insert ticket vào Supabase.
 

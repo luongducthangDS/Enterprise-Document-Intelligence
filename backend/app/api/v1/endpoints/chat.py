@@ -1,7 +1,10 @@
+import json
 import uuid
+from collections.abc import AsyncIterator
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import get_current_user
@@ -11,6 +14,11 @@ from app.schemas.common import wrap_response
 from app.services.chat_service import ChatService
 
 router = APIRouter()
+
+
+def _encode_sse(event: dict[str, Any]) -> str:
+    event_type = str(event.get("type") or "message")
+    return f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n"
 
 
 @router.post("/requests", status_code=status.HTTP_202_ACCEPTED)
@@ -33,6 +41,47 @@ async def submit_chat_request(
         question=request_data.question,
     )
     return wrap_response(data, request)
+
+
+@router.post("/requests/stream")
+async def stream_chat_request(
+    request_data: CreateChatRequestSchema,
+    current_user: dict = Depends(get_current_user),
+) -> StreamingResponse:
+    """Phát tiếp nhận ngay, sau đó lưu request và chuyển tiếp tiến trình bằng SSE."""
+    user_id = uuid.UUID(current_user["user_id"])
+    department = current_user.get("department", "GENERAL")
+    conversation_id = uuid.UUID(request_data.conversation_id)
+    chat_request_id = uuid.uuid4()
+    user_message_id = uuid.uuid4()
+    created = {
+        "chat_request_id": str(chat_request_id),
+        "conversation_id": str(conversation_id),
+        "state": "QUEUED",
+        "poll_after_ms": 1000,
+    }
+
+    async def events() -> AsyncIterator[str]:
+        yield _encode_sse({"type": "request", **created})
+        async for event in ChatService.stream_new_chat_request(
+            chat_request_id=chat_request_id,
+            user_message_id=user_message_id,
+            user_id=user_id,
+            department=department,
+            question=request_data.question.strip(),
+            conversation_id=conversation_id,
+        ):
+            yield _encode_sse(event)
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "X-Chat-Request-ID": str(chat_request_id),
+        },
+    )
 
 
 @router.get("/requests/{chat_request_id}")

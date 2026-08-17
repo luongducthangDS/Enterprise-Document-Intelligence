@@ -286,7 +286,7 @@
   "rq_014": {
     "02_quy-trinh-tuyen-dung::0002": {
       "score": 1,
-      "anchor": "## 2. Phạm vi\nÁp dụng cho mọi vị trí tuyển dụng chính thức (full-time) tại V-NOVA. Vị trí thực tập/cộng tác viên áp dụng quy trình rút gọn (mục 8)."
+      "anchor": "## 2. Phạm vi\nÁp dụng cho mọi vị trí tuyển dụng chính thức (full-time) tại NexaTech. Vị trí thực tập/cộng tác viên áp dụng quy trình rút gọn (mục 8)."
     },
     "02_quy-trinh-tuyen-dung::0004": {
       "score": 1,
@@ -850,7 +850,7 @@
   "rq_039": {
     "06_chinh-sach-dao-tao-phat-trien::0001": {
       "score": 1,
-      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại V-NOVA, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
+      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại NexaTech, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
     },
     "06_chinh-sach-dao-tao-phat-trien::0003": {
       "score": 2,
@@ -893,10 +893,6 @@
     "07_chinh-sach-nghi-phep::0017": {
       "score": 2,
       "anchor": "### 9.2. Trường hợp nghỉ khẩn cấp\n- NLĐ có thể thông báo qua điện thoại/email/tin nhắn cho quản lý trực tiếp **trong ngày** nếu lý do đột xuất (ốm đột xuất, tang sự, tai nạn).\n- Phải bổ sung yêu cầu trên HRIS trong vòng **24 giờ** kể từ khi có thể truy cập hệ thống.\n- Giấy tờ chứng minh (giấy ốm,"
-    },
-    "amis_mau-thong-bao-quy-dinh-nghi-phep::0000": {
-      "score": 1,
-      "anchor": "# amis_mau-thong-bao-quy-dinh-nghi-phep\n\nTHÔNG BÁO\nVv: Quy định nghỉ phép của công ty\n\nKính gửi: …………………………………..\n\n(Có thể là nhân viên trong công ty, ban lãnh đạo công ty…)\n\nCăn cứ quyết định số…/QĐ-BGĐ ngày….tháng….năm….của Ban giám đốc công ty…………. về việc ban hành quy định nghỉ phép trong nội bộ"
     },
     "leanh_mau-noi-quy-lao-dong::0007": {
       "score": 1,
@@ -1052,15 +1048,15 @@
   "rq_046": {
     "06_chinh-sach-dao-tao-phat-trien::0000": {
       "score": 2,
-      "anchor": "# CHÍNH SÁCH ĐÀO TẠO & PHÁT TRIỂN NHÂN VIÊN\n**Công ty Cổ phần Tập đoàn V-NOVA**\nMã tài liệu: HR-POL-TRAIN-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025\n\n> ⚠️ **SYNTHETIC DATA**: Tài liệu này là dữ liệu mô phỏng, không phản ánh chính sách của bất kỳ doanh nghiệp có thật nào."
+      "anchor": "# CHÍNH SÁCH ĐÀO TẠO & PHÁT TRIỂN NHÂN VIÊN\n**Công ty Cổ phần Tập đoàn NexaTech**\nMã tài liệu: HR-POL-TRAIN-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025\n\n> ⚠️ **SYNTHETIC DATA**: Tài liệu này là dữ liệu mô phỏng, không phản ánh chính sách của bất kỳ doanh nghiệp có thật nào."
     },
     "06_chinh-sach-dao-tao-phat-trien::0001": {
       "score": 1,
-      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại V-NOVA, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
+      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại NexaTech, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
     },
     "06_chinh-sach-dao-tao-phat-trien::0002": {
       "score": 1,
-      "anchor": "## 2. Phạm vi áp dụng\nÁp dụng cho toàn bộ NLĐ ký hợp đồng lao động xác định thời hạn và không xác định thời hạn với V-NOVA."
+      "anchor": "## 2. Phạm vi áp dụng\nÁp dụng cho toàn bộ NLĐ ký hợp đồng lao động xác định thời hạn và không xác định thời hạn với NexaTech."
     },
     "06_chinh-sach-dao-tao-phat-trien::0003": {
       "score": 1,
@@ -1076,7 +1072,7 @@
     },
     "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 1,
-      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho V-NOVA sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
     },
     "06_chinh-sach-dao-tao-phat-trien::0007": {
       "score": 1,
@@ -1290,7 +1286,7 @@
   "rq_058": {
     "05_chinh-sach-lam-viec-tu-xa::0000": {
       "score": 2,
-      "anchor": "# CHÍNH SÁCH LÀM VIỆC TỪ XA / HYBRID WORKING\n**Công ty Cổ phần Tập đoàn V-NOVA**\nMã tài liệu: HR-POL-WFH-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025\n\n> ⚠️ **SYNTHETIC DATA**: Tài liệu này là dữ liệu mô phỏng, không phản ánh chính sách của bất kỳ doanh nghiệp có thật nào."
+      "anchor": "# CHÍNH SÁCH LÀM VIỆC TỪ XA / HYBRID WORKING\n**Công ty Cổ phần Tập đoàn NexaTech**\nMã tài liệu: HR-POL-WFH-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025\n\n> ⚠️ **SYNTHETIC DATA**: Tài liệu này là dữ liệu mô phỏng, không phản ánh chính sách của bất kỳ doanh nghiệp có thật nào."
     }
   },
   "rq_059": {
@@ -2002,7 +1998,7 @@
   "rq_084": {
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": {
       "score": 1,
-      "anchor": "## 3. Định nghĩa\n- **BHYT bắt buộc**: Bảo hiểm y tế do người lao động và người sử dụng lao động đóng theo Luật BHYT số 51/2024/QH15, là nghĩa vụ pháp lý bắt buộc.\n- **Bảo hiểm Sức khỏe Tự nguyện (BHSTN)**: Gói bảo hiểm sức khỏe do V-NOVA tự nguyện mua thêm cho NLĐ thông qua đối tác bảo hiểm thương"
+      "anchor": "## 3. Định nghĩa\n- **BHYT bắt buộc**: Bảo hiểm y tế do người lao động và người sử dụng lao động đóng theo Luật BHYT số 51/2024/QH15, là nghĩa vụ pháp lý bắt buộc.\n- **Bảo hiểm Sức khỏe Tự nguyện (BHSTN)**: Gói bảo hiểm sức khỏe do NexaTech tự nguyện mua thêm cho NLĐ thông qua đối tác bảo hiểm thương"
     },
     "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007": {
       "score": 1,
@@ -2244,7 +2240,7 @@
   "rq_091": {
     "06_chinh-sach-dao-tao-phat-trien::0001": {
       "score": 2,
-      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại V-NOVA, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
+      "anchor": "## 1. Mục đích\nQuy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại NexaTech, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019."
     },
     "06_chinh-sach-dao-tao-phat-trien::0003": {
       "score": 1,
@@ -2260,7 +2256,7 @@
     },
     "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 1,
-      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho V-NOVA sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
     },
     "06_chinh-sach-dao-tao-phat-trien::0008": {
       "score": 2,
@@ -2474,7 +2470,7 @@
   "rq_099": {
     "06_chinh-sach-dao-tao-phat-trien::0006": {
       "score": 2,
-      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho V-NOVA sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
+      "anchor": "## 6. Cam kết làm việc sau đào tạo và đền bù chi phí (theo Điều 61, 62)\n6.1. Đối với đào tạo dài hạn/chi phí cao, NLĐ phải cam kết làm việc cho NexaTech sau khi kết thúc khóa học theo bảng sau:\n\n| Chi phí đào tạo / Thời gian đào tạo | Thời gian cam kết làm việc tối thiểu |\n|---|---|\n| Dưới 20.000.000"
     },
     "06_chinh-sach-dao-tao-phat-trien::0009": {
       "score": 2,

@@ -13,8 +13,21 @@
 |---|---|---|---|
 | `retrieval_eval_set.json` (split `dev`) | 77 query | Đo & tinh chỉnh retrieval | Chạy thoải mái |
 | `retrieval_eval_set.json` (split `heldout`) | 20 query | Con số cuối cho retrieval | **Chỉ chạy khi chốt kết quả** |
-| `qa_eval_set.json` | 140 câu | Đo & tinh chỉnh router + agent end-to-end | Chạy thoải mái |
+| `qa_eval_set.json` | 137 câu tính metric (+3 retired) | Đo & tinh chỉnh router + agent end-to-end. **Sau 13/08: router development/regression set** — xem 1.1 | Chạy thoải mái |
 | `qa_heldout_set.json` | 30 câu | Con số cuối cho agent | **Chỉ chạy khi chốt kết quả** |
+
+### 1.1. Verbatim leakage vs test-informed tuning
+
+Hai thứ khác nhau, và chỉ loại được thứ nhất là chưa đủ để gọi một bộ là held-out sạch:
+
+| Loại | Nghĩa | Xử lý |
+|---|---|---|
+| **Verbatim leakage** | Câu eval nằm nguyên văn trong prompt | Cấm — prompt chỉ dùng ví dụ synthetic |
+| **Test-informed tuning** | Soi lỗi trên bộ eval rồi sửa prompt theo chính các lỗi đó | Được phép, nhưng bộ đó **mất tư cách held-out** |
+
+Ca thực tế (13/08, `report_1208.md` mục 11): prompt router được sửa sau khi soi 6/7 failure trong `qa_eval_set`; rule "chiều hỏi" sinh ra từ pattern của chính các failure ấy. Ví dụ trong prompt đều là synthetic (0/24 trùng eval), nhưng bộ 137 câu vẫn **không còn** là bằng chứng không thiên lệch cho generalization của router.
+
+Hệ quả phải ghi rõ mỗi khi báo số: accuracy trên bộ này đủ mạnh để **chọn giữa các phương án**, nhưng không phải **ước lượng production**.
 
 **Kỷ luật held-out:** mỗi lần chạy held-out phải ghi lại ngày + lý do vào `eval/results/heldout_runs.md`. Chạy nhiều lần rồi chọn lần đẹp nhất thì held-out mất hết ý nghĩa và phải coi như dev set.
 
@@ -93,7 +106,46 @@ python eval/scripts/check_dataset_integrity.py   # xác nhận không có nhãn 
 
 `check_dataset_integrity.py` chạy trong CI (phần không cần `data/`) và nên gắn vào pre-push hook. Đây là gate chặn đúng sự cố đã xảy ra ngày 06-08: đổi `chunk_max_chars` 2000 → 1500 làm hỏng 78/128 nhãn mà không ai phát hiện cho tới khi metric tụt.
 
+### 5.1. Giới hạn của `remap_qrels.py` — remap KHÔNG phải cách chữa mọi lỗi toàn vẹn
+
+> **Chỉ remap khi cùng một evidence bị đổi chunk identity/boundary.** Tuyệt đối không dùng remap để tìm "evidence gần giống" cho một câu hỏi mà nguồn gốc của nó đã bị loại khỏi corpus.
+
+Phân biệt trước khi chạy bất cứ lệnh nào:
+
+| Tình huống | Cách xử lý đúng |
+|---|---|
+| Chunker đổi cấu hình, cùng đoạn văn nằm ở `chunk_id` khác | **Remap** — evidence vẫn nguyên vẹn, chỉ đổi địa chỉ |
+| Chunk biến mất **ngoài ý muốn** (bug ingestion, mất file) | **Restore/regenerate** rồi rerun CI — remap ở đây là che bug |
+| Tài liệu nguồn bị loại **có chủ đích**, evidence không còn hợp lệ về nội dung | **Retire câu hỏi**, không remap |
+
+Lý do rất cụ thể: remap map nhãn sang chunk gần nhất theo nội dung neo. Nếu evidence gốc đã không còn hợp lệ (vd tài liệu là mẫu rỗng bị gỡ), tool vẫn tìm được "một chunk nào đó" và CI sẽ xanh — nhưng benchmark từ đó chấm agent dựa trên nguồn **không phải nguồn gốc của câu hỏi**. Đó là sửa benchmark để thích nghi với vấn đề, không phải sửa vấn đề.
+
+Ca thực tế (12/08, xem `report_1208.md` mục 8): `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file mẫu rỗng (toàn `………`), bị loại có chủ đích từ 06/08. qa_117/118/119 sinh từ chính các dòng trống đó và qrel chỉ trỏ tới đúng chunk đã mất → **retired**. Nhưng rq_040 có 7 chunk có nhãn, chunk mất chỉ là 1 với score 1 → **giữ câu, chỉ gỡ entry stale**. Cùng một sự cố, hai cách xử lý khác nhau, và cả hai đều không phải remap.
+
+**Câu `retired`**: giữ nguyên trong dataset kèm `retired: true`, `retired_at`, `retired_reason` để truy vết, nhưng bị loại khỏi mọi phép tính metric (`eval_router.py`, `eval_agent.py`, `check_dataset_integrity.py` đều lọc). Đếm chúng vào mẫu số là làm loãng metric bằng câu không thể chấm.
+
 ---
+
+## 5b. Boundary eval (runtime decision)
+
+`eval/datasets/boundary_eval_set.json` + `eval/scripts/eval_boundary.py` (`make eval-boundary`).
+
+Đo lớp boundary — thứ mà eval intent/retrieval không chạm tới: câu hỏi được map
+sang scenario nào trong 64 scenario canonical, và decision kèm theo có đúng
+`assistant_role` / `runtime_action` / `sensitivity` / người phụ trách không.
+
+- Deterministic, **không gọi LLM** → chạy được trong CI, chi phí 0.
+- Ngoài accuracy còn kiểm tra invariant runtime; có vi phạm thì exit code 1:
+  `runtime_action` không bao giờ là `CREATE_CASE` ở MVP-1; scenario
+  `HUMAN_FIRST` không sinh action tạo workflow; scenario `Critical` không có
+  field bắt buộc nhập.
+- Báo cáo tách 5 chiều thay vì một con số, vì map nhầm sang scenario cùng owner
+  nhẹ hơn hẳn map nhầm một scenario ER sang scenario hành chính.
+
+**Giới hạn đã biết**: 64 câu hiện tại do chính người viết registry soạn nên
+thiên lệch về đúng từ khóa đã khai — con số 1.0 hiện tại là *baseline chống hồi
+quy*, không phải ước lượng accuracy khách quan. Cần bộ held-out do người khác
+viết trước khi trích dẫn như một chỉ số chất lượng.
 
 ## 6. Những gì bộ eval này **chưa** đo được
 

@@ -1,0 +1,31 @@
+{
+  "decision_rule": "merge C <=> context_appropriate(C) >= context_appropriate(A) AND invented_policy(C) <= invented_policy(A)",
+  "frozen_before_review": true,
+  "A_default_llm": {
+    "n": 17,
+    "context_ok": 17,
+    "invented": 0,
+    "issues": []
+  },
+  "C_fast_llm": {
+    "n": 17,
+    "context_ok": 17,
+    "invented": 0,
+    "issues": []
+  },
+  "merge_C": true,
+  "latency_evidence": {
+    "p50_ms": {
+      "A": 4969,
+      "C": 955
+    },
+    "p95_ms": {
+      "A": 11523,
+      "C": 5199
+    },
+    "max_ms": {
+      "A": 183841,
+      "C": 16707
+    }
+  }
+}
