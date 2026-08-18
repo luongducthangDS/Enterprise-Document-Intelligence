@@ -213,3 +213,84 @@ class TestVerifierTelemetry:
             result = await router_node({"query": "Nghỉ phép năm được mấy ngày?"})
 
         assert "verifier_called" not in result
+
+
+class TestG3Regression:
+    """Kiểm thử hồi quy cho 5 test cases thuộc Bug G3 (G3_ROUTER_FALSE_AMBIGUOUS).
+
+    Đảm bảo Router phân loại chính xác các trường hợp mơ hồ (ambiguous) và
+    không bị nhầm lẫn giữa out_of_scope_or_personal, hr_question và ambiguous.
+    """
+
+    def test_router_system_contains_g3_clarification_rules(self):
+        prompt = _get_router_system()
+        # qa_082: ngày phép tiêu chuẩn vs cộng dồn
+        assert "Tôi còn bao nhiêu ngày phép?" in prompt
+        # qa_083: hợp đồng sau thử việc vs gia hạn
+        assert "Tôi khi nào được ký hợp đồng mới?" in prompt
+        # qa_085: thủ tục thai sản trước sinh vs sau sinh
+        assert "Tôi muốn nghỉ thai sản thì làm thủ tục gì?" in prompt
+        # qa_086: thiếu lương cơ bản vs thưởng vs khấu trừ
+        assert "Lương của tôi tháng này bị thiếu." in prompt
+        # qa_111: bảo hiểm sức khỏe người thân
+        assert "Đăng ký bảo hiểm sức khỏe cho vợ con" in prompt or "bảo hiểm người thân" in prompt
+
+    @pytest.mark.asyncio
+    async def test_qa_082_leave_balance_ambiguity_returns_ambiguous(self):
+        """qa_082: 'Tôi còn bao nhiêu ngày phép?' mập mờ giữa phép năm nay và dồn năm trước -> ambiguous."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="ambiguous")) as llm:
+            result = await router_node({"query": "Tôi còn bao nhiêu ngày phép?"})
+        assert result["intent"] == "ambiguous"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_083_new_contract_timing_ambiguity_returns_ambiguous(self):
+        """qa_083: 'Tôi khi nào được ký hợp đồng mới?' mập mờ giữa sau thử việc và gia hạn -> ambiguous."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="ambiguous")) as llm:
+            result = await router_node({"query": "Tôi khi nào được ký hợp đồng mới?"})
+        assert result["intent"] == "ambiguous"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_085_maternity_procedure_ambiguity_returns_ambiguous(self):
+        """qa_085: 'Tôi muốn nghỉ thai sản thì làm thủ tục gì?' mập mờ trước sinh vs sau sinh -> ambiguous."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="ambiguous")) as llm:
+            result = await router_node({"query": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?"})
+        assert result["intent"] == "ambiguous"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_086_missing_salary_ambiguity_returns_ambiguous(self):
+        """qa_086: 'Lương của tôi tháng này bị thiếu.' mập mờ giữa thiếu lương cơ bản, thưởng, phụ cấp -> ambiguous."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="ambiguous")) as llm:
+            result = await router_node({"query": "Lương của tôi tháng này bị thiếu."})
+        assert result["intent"] == "ambiguous"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_111_dependent_health_insurance_returns_hr_question(self):
+        """qa_111: 'Em muốn đăng ký bảo hiểm sức khỏe cho vợ và 2 con thì chi phí thế nào và gói bảo hiểm sẽ ở hạng nào?' -> hr_question."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")) as llm:
+            result = await router_node({
+                "query": "Em muốn đăng ký bảo hiểm sức khỏe cho vợ và 2 con thì chi phí thế nào và gói bảo hiểm sẽ ở hạng nào?"
+            })
+        assert result["intent"] == "hr_question"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_clarified_maternity_procedure_routes_to_hr_question(self):
+        """Sau khi làm rõ, 'Thủ tục nghỉ thai sản sau khi sinh gồm những giấy tờ gì?' phải được phân loại là hr_question."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")) as llm:
+            result = await router_node({"condensed_query": "Thủ tục nghỉ thai sản sau khi sinh gồm những giấy tờ gì?"})
+        assert result["intent"] == "hr_question"
+        assert llm.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_clarified_leave_balance_routes_to_hr_question(self):
+        """Sau khi làm rõ, 'Quy định số ngày phép năm nay được mấy ngày?' phải được phân loại là hr_question."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")) as llm:
+            result = await router_node({"condensed_query": "Quy định số ngày phép năm nay được mấy ngày?"})
+        assert result["intent"] == "hr_question"
+        assert llm.await_count == 1
+
+
