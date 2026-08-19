@@ -29,10 +29,20 @@ Bộ test case nhóm cung cấp là đầu vào phù hợp cho dev benchmark v2:
    hạn trong tài liệu dự kiến. Tool không dùng judge và không tự biến ứng viên
    thành qrel.
 
+## Candidate pool đã chạy
+
+Người sở hữu dữ liệu đã xác nhận cho phép gửi 45 câu hỏi dev tới embedding API
+và Chroma. Pool đã tạo xong, không dùng judge và không ghi dữ liệu cloud:
+
+- 45/45 lượt có ứng viên thuộc đúng tài liệu dự kiến;
+- global dense tìm thấy đúng source ở 45/45 lượt;
+- BM25 tìm thấy đúng source ở 44/45 lượt;
+- source-constrained dense trả ứng viên ở 45/45 lượt;
+- 859 ứng viên, trung vị 19 ứng viên/lượt (nhỏ nhất 15, lớn nhất 25).
+
 ## Chưa thực hiện
 
-Candidate pool chưa chạy vì cần xác nhận rõ cho phép gửi 45 câu hỏi dev mới tới
-embedding API và Chroma. Sau khi có pool, người kiểm tra phải chấm từng ứng viên:
+Người kiểm tra vẫn phải chấm từng ứng viên:
 
 - 2: chứa câu trả lời;
 - 1: chỉ bổ trợ;
@@ -43,12 +53,11 @@ model tự chấm rồi coi ngay là ground truth.
 
 ## Thứ tự tiếp theo
 
-1. Xác nhận egress 45 câu hỏi dev để tạo candidate pool.
-2. Nhóm chốt ba contract flag và chấm relevance ứng viên.
-3. Sinh qrels v2 đã duyệt.
-4. Chạy retrieval dev và sửa lỗi theo A/B từng câu.
-5. Chạy agent end-to-end dev.
-6. Khi chuẩn bị release phiên bản mở rộng, tạo held-out mới từ người viết độc
+1. Nhóm chốt ba contract flag và chấm relevance ứng viên.
+2. Sinh qrels v2 đã duyệt.
+3. Chạy retrieval dev và sửa lỗi theo A/B từng câu.
+4. Chạy agent end-to-end dev.
+5. Khi chuẩn bị release phiên bản mở rộng, tạo held-out mới từ người viết độc
    lập và chỉ chạy một lần.
 
 Hiện chưa có bằng chứng phải bổ sung tài liệu ngay: bộ test mới đã phủ đủ 13
