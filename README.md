@@ -182,7 +182,7 @@ make eval-heldout    # CHỈ chạy 1 lần khi đã chốt config — không tu
 - Backend đã submit/poll và lưu kết quả thật cho ingestion, index rebuild và evaluation worker; metric mẫu cũ đã bị loại bỏ.
 - G5 retrieval regression `qa_013` và `qa_122` đã được sửa và khóa bằng test.
 - Test offline hiện tại: agent/core `421 passed`, backend `106 passed`; root Ruff sạch.
-- Release held-out mới cần quyền gửi 30 câu hỏi synthetic tới FPT.AI và Chroma Cloud. Lần chạy sandbox ngày 19/08 không hợp lệ vì 30/30 case bị chặn socket trước khi model xử lý; không được đọc 0% đó như chất lượng sản phẩm.
+- Release agent held-out hợp lệ ngày 19/08: `0/30`, không có lỗi hạ tầng; Recall theo gold chunk `0%`, answer judge `2/30`, p50 `10,0s`, p95 `59,7s`. Bộ legacy này lệch contract hiện tại (17/30 câu được router phân loại `pure_statutory`) và toàn bộ gold chunk ID không còn khớp retrieval hiện tại, nhưng số liệu được giữ nguyên, không tune rồi chạy lại.
 
 Chi tiết kiểm chứng và known limitations: [`docs/release_readiness_2026-08-19.md`](docs/release_readiness_2026-08-19.md).
 

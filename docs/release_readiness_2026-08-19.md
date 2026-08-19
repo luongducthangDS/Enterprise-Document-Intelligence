@@ -3,8 +3,8 @@
 ## Kết luận
 
 Phần do minhphu sở hữu đã hoàn tất ở mức code, migration, database security và
-offline regression. Release eval qua dịch vụ ngoài chưa được phép chạy, nên
-không có số held-out mới hợp lệ sau integration.
+offline regression. Agent held-out đã chạy hợp lệ sau integration và không đạt
+release gate; retrieval held-out 20 query còn cần quyền data egress riêng.
 
 ## Bằng chứng hoàn thành
 
@@ -22,11 +22,28 @@ không có số held-out mới hợp lệ sau integration.
 
 ## Release eval
 
-Run ngày 19/08 trong sandbox trả 0/30, nhưng cả 30 case đều có cùng lỗi
-`WinError 10013` trước khi FPT.AI nhận request. Run này được lưu dưới tên
-`heldout_agent_report_2026-08-19_invalid_network.json` và bị loại khỏi mọi phép
-đánh giá chất lượng. Chỉ chạy lại sau khi người sở hữu dữ liệu xác nhận cho phép
-gửi 30 câu hỏi synthetic tới FPT.AI và Chroma Cloud.
+Run đầu trong sandbox trả 0/30 do 30 lỗi `WinError 10013`; file
+`heldout_agent_report_2026-08-19_invalid_network.json` được giữ làm dấu và bị
+loại khỏi mọi phép đánh giá chất lượng.
+
+Sau khi chủ dữ liệu xác nhận cho phép egress 30 câu synthetic, release run hợp
+lệ hoàn tất với kết quả:
+
+| Metric | Kết quả |
+|---|---:|
+| Agent pass | 0/30 (0,0%) |
+| Infrastructure errors | 0 |
+| Gold context found | 0/30 |
+| Answer judge correct | 2/30 |
+| Intent distribution | 17 pure_statutory / 11 hr_question / 2 out_of_scope_or_personal |
+| Latency | p50 10.021ms / p95 59.662ms / max 127.350ms |
+
+Không sửa code hay chạy lại held-out sau khi thấy kết quả. Hai nguyên nhân đo
+được cần đưa vào known limitations: bộ 30 câu legacy gắn toàn bộ nhãn
+`in_scope` trong khi contract v3.1 loại câu luật thuần túy (`pure_statutory`), và
+toàn bộ `evidence_chunk_id` không còn khớp chunk được retrieval trả về. Script
+agent held-out hiện cũng không lưu/chấm citation, nên không suy diễn Citation
+Coverage từ report này.
 
 ## Known limitations
 
@@ -36,5 +53,6 @@ gửi 30 câu hỏi synthetic tới FPT.AI và Chroma Cloud.
   submit HTTP, job cần thao tác retry vận hành.
 - Backend test còn cảnh báo khóa JWT test ngắn, FastAPI deprecation và thread
   cleanup của `aiosqlite`; không làm test fail nhưng nên dọn sau release.
-- Release gate Citation ≥85%, Answer ≥80%, Recall@5 ≥85% chưa thể kết luận bằng
-  số mới cho tới khi có một held-out run hợp lệ.
+- Release gate chưa đạt: Answer 6,7% và Recall theo gold chunk 0%; Citation chưa
+  được script agent held-out đo. Retrieval held-out độc lập chưa chạy vì 20
+  query đó cần xác nhận data egress riêng.

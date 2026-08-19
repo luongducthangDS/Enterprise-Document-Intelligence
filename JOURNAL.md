@@ -78,7 +78,7 @@
 - [x] Chốt sản phẩm theo định vị HR Helpdesk Assistant và hợp nhất backend/agent/frontend.
 - [x] Sửa G5 retrieval, đồng bộ migration và xác nhận RLS trên Supabase thật.
 - [x] Hoàn thiện execution lifecycle cho ingestion/index/evaluation worker.
-- [ ] Chạy release held-out mới sau khi được phép gửi bộ câu hỏi synthetic tới dịch vụ model/vector bên ngoài.
+- [x] Chạy release agent held-out mới sau khi được phép gửi 30 câu hỏi synthetic tới dịch vụ model/vector bên ngoài.
 
 ### Đã hoàn thành
 - G5 `qa_013`/`qa_122` lấy đúng evidence sau khi canonical hóa retrieval query.
@@ -86,13 +86,14 @@
 - Supabase release có RLS đầy đủ và trigger chặn tự nâng `role/access_level/manager_id`.
 - Backend không còn để worker kẹt `QUEUED`: submit sang Agent, poll trạng thái và persist kết quả/metric thật.
 - Regression offline: 421 test core và 106 test backend đều pass; root Ruff sạch.
+- Agent held-out hợp lệ: 0/30, không có lỗi hạ tầng; 17/30 câu bị router đưa sang `pure_statutory`, toàn bộ gold chunk ID không khớp retrieval hiện tại và judge chỉ xác nhận 2/30 câu trả lời.
 
 ### Khó khăn & Giải pháp
 | Khó khăn | Giải pháp | Kết quả |
 |----------|-----------|---------|
 | Backend chỉ tạo job nhưng không thực thi | Thêm WorkerJobClient và đồng bộ kết quả khi FE poll | Ba lifecycle có test tới trạng thái terminal |
 | Migration RLS cũ không thể chạy lại vì policy trùng tên | Thêm migration `0007` idempotent, phạm vi đúng ba bảng worker + profile guard | Apply và verify trực tiếp thành công |
-| Sandbox chặn kết nối FPT.AI/Chroma Cloud | Phân loại run 0/30 là lỗi hạ tầng, không báo như quality score | Chờ xác nhận data egress để chạy release eval hợp lệ |
+| Sandbox chặn kết nối FPT.AI/Chroma Cloud | Phân loại run đầu là lỗi hạ tầng, sau đó chạy lại khi có xác nhận data egress | Run hợp lệ hoàn tất; giữ nguyên 0/30 và không tune lại |
 
 ### Bài học
 - Không coi `QUEUED` trong DB là worker đã hoàn thiện; phải chứng minh cả submit, polling, terminal state và persistence.
@@ -100,7 +101,7 @@
 - Migration vá production nên idempotent và giới hạn phạm vi, đặc biệt khi schema đã tồn tại trước lịch sử migration trong repo.
 
 ### Kế hoạch tuần sau
-- Chạy đúng một release held-out hợp lệ sau khi được duyệt data egress và ghi số liệu trung thực.
+- Xin quyền riêng cho 20 retrieval query, chạy retrieval held-out và chốt Recall độc lập.
 - Peer review chéo: Dương review phần minhphu trước khi merge `develop`.
 
 ---
