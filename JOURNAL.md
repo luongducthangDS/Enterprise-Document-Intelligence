@@ -79,6 +79,7 @@
 - [x] Sửa G5 retrieval, đồng bộ migration và xác nhận RLS trên Supabase thật.
 - [x] Hoàn thiện execution lifecycle cho ingestion/index/evaluation worker.
 - [x] Chạy release agent held-out mới sau khi được phép gửi 30 câu hỏi synthetic tới dịch vụ model/vector bên ngoài.
+- [x] Chạy retrieval held-out 20 query và chốt Recall độc lập.
 
 ### Đã hoàn thành
 - G5 `qa_013`/`qa_122` lấy đúng evidence sau khi canonical hóa retrieval query.
@@ -87,6 +88,7 @@
 - Backend không còn để worker kẹt `QUEUED`: submit sang Agent, poll trạng thái và persist kết quả/metric thật.
 - Regression offline: 421 test core và 106 test backend đều pass; root Ruff sạch.
 - Agent held-out hợp lệ: 0/30, không có lỗi hạ tầng; 17/30 câu bị router đưa sang `pure_statutory`, toàn bộ gold chunk ID không khớp retrieval hiện tại và judge chỉ xác nhận 2/30 câu trả lời.
+- Retrieval held-out: Hit Rate@5 45%, Recall@5 29,6%, document Hit Rate@5 15%, MRR 0,425; không đạt gate Recall@5 85%.
 
 ### Khó khăn & Giải pháp
 | Khó khăn | Giải pháp | Kết quả |
@@ -101,7 +103,7 @@
 - Migration vá production nên idempotent và giới hạn phạm vi, đặc biệt khi schema đã tồn tại trước lịch sử migration trong repo.
 
 ### Kế hoạch tuần sau
-- Xin quyền riêng cho 20 retrieval query, chạy retrieval held-out và chốt Recall độc lập.
+- Không tune hoặc chạy lại held-out; mở workstream riêng để reconcile qrel/chunk index và contract trước release kế tiếp.
 - Peer review chéo: Dương review phần minhphu trước khi merge `develop`.
 
 ---

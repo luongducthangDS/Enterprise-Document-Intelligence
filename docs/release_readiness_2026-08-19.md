@@ -2,9 +2,9 @@
 
 ## Kết luận
 
-Phần do minhphu sở hữu đã hoàn tất ở mức code, migration, database security và
-offline regression. Agent held-out đã chạy hợp lệ sau integration và không đạt
-release gate; retrieval held-out 20 query còn cần quyền data egress riêng.
+Phần do minhphu sở hữu đã hoàn tất ở mức code, migration, database security,
+offline regression và release evaluation. Cả agent lẫn retrieval held-out đều
+không đạt release gate; kết quả được giữ nguyên và không dùng để tune/rerun.
 
 ## Bằng chứng hoàn thành
 
@@ -45,6 +45,23 @@ toàn bộ `evidence_chunk_id` không còn khớp chunk được retrieval trả
 agent held-out hiện cũng không lưu/chấm citation, nên không suy diễn Citation
 Coverage từ report này.
 
+Retrieval held-out độc lập gồm 20 query hoàn tất với 0 lỗi hạ tầng:
+
+| Metric | Kết quả | Gate |
+|---|---:|---:|
+| Hit Rate@5 | 45,0% | — |
+| Recall@5 | 29,6% | 85% — FAILED |
+| Precision@5 | 15,0% | — |
+| nDCG@5 | 0,306 | — |
+| Multi-chunk Recall@5 | 15,0% | — |
+| Document Hit Rate@5 | 15,0% | — |
+| MRR | 0,425 | — |
+
+Chín trên 20 query có ít nhất một gold chunk trong top 5, nhưng chỉ ba query
+trả về đúng source document được gắn trong dataset. Việc có `chunk_hit` cùng
+`doc_MISS` ở nhiều case cho thấy cần audit lại sự nhất quán qrel–source_file bên
+cạnh việc cải thiện retrieval/index.
+
 ## Known limitations
 
 - Backend chỉ đồng bộ worker khi client poll endpoint trạng thái; chưa có poller
@@ -53,6 +70,5 @@ Coverage từ report này.
   submit HTTP, job cần thao tác retry vận hành.
 - Backend test còn cảnh báo khóa JWT test ngắn, FastAPI deprecation và thread
   cleanup của `aiosqlite`; không làm test fail nhưng nên dọn sau release.
-- Release gate chưa đạt: Answer 6,7% và Recall theo gold chunk 0%; Citation chưa
-  được script agent held-out đo. Retrieval held-out độc lập chưa chạy vì 20
-  query đó cần xác nhận data egress riêng.
+- Release gate chưa đạt: agent Answer 6,7%, agent Recall theo gold chunk 0% và
+  retrieval Recall@5 độc lập 29,6%. Citation chưa được script agent held-out đo.

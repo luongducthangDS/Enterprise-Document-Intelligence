@@ -183,6 +183,7 @@ make eval-heldout    # CHỈ chạy 1 lần khi đã chốt config — không tu
 - G5 retrieval regression `qa_013` và `qa_122` đã được sửa và khóa bằng test.
 - Test offline hiện tại: agent/core `421 passed`, backend `106 passed`; root Ruff sạch.
 - Release agent held-out hợp lệ ngày 19/08: `0/30`, không có lỗi hạ tầng; Recall theo gold chunk `0%`, answer judge `2/30`, p50 `10,0s`, p95 `59,7s`. Bộ legacy này lệch contract hiện tại (17/30 câu được router phân loại `pure_statutory`) và toàn bộ gold chunk ID không còn khớp retrieval hiện tại, nhưng số liệu được giữ nguyên, không tune rồi chạy lại.
+- Retrieval held-out 20 query: Hit Rate@5 `45%`, Recall@5 `29,6%`, document Hit Rate@5 `15%`, MRR `0,425`. Release gate Recall@5 `85%` không đạt.
 
 Chi tiết kiểm chứng và known limitations: [`docs/release_readiness_2026-08-19.md`](docs/release_readiness_2026-08-19.md).
 

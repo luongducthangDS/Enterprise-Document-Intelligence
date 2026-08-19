@@ -71,8 +71,9 @@
 | minhphu | Nối Backend ↔ Agent cho ingestion/index/evaluation lifecycle, bỏ metric evaluation mẫu | ✅ Done | `36419b9`; lifecycle test tới `COMPLETED` | - |
 | minhphu | Làm sạch bộ test G6 và chạy regression toàn repo | ✅ Done | `4115e54`; core 421 pass, backend 106 pass | - |
 | minhphu | Release agent held-out qua FPT.AI/Chroma Cloud | ✅ Done | Run hợp lệ 0/30; 0 lỗi hạ tầng; p50 10,0s, p95 59,7s | - |
+| minhphu | Release retrieval held-out qua Chroma Cloud/FPT reranker | ✅ Done | 20 query; Hit@5 45%; Recall@5 29,6%; Doc Hit@5 15% | - |
 
-**Tổng kết ngày:** Phần G5, migration/RLS và worker lifecycle đã hoàn tất bằng code + test + kiểm tra database thật. Agent held-out đã chạy đúng một lần và ghi trung thực 0/30; retrieval held-out 20 query còn chờ quyền data egress riêng.
+**Tổng kết ngày:** Phần G5, migration/RLS và worker lifecycle đã hoàn tất bằng code + test + kiểm tra database thật. Hai release held-out đã chạy đúng một lần và ghi trung thực; quality gate không đạt, chủ yếu do retrieval/gold không khớp và contract legacy lệch phạm vi hiện tại.
 
 ---
 
