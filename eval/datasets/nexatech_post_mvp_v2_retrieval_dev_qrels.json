@@ -1,0 +1,115 @@
+{
+  "nxv2_001_l1": {
+    "01_chinh-sach-lam-them-gio-OT::0005": 2,
+    "01_chinh-sach-lam-them-gio-OT::0010": 2
+  },
+  "nxv2_002_l1": {
+    "01_chinh-sach-lam-them-gio-OT::0006": 2,
+    "01_chinh-sach-lam-them-gio-OT::0010": 2
+  },
+  "nxv2_003_l1": {
+    "01_chinh-sach-lam-them-gio-OT::0007": 2
+  },
+  "nxv2_003_l2": {
+    "01_chinh-sach-lam-them-gio-OT::0007": 1,
+    "01_chinh-sach-lam-them-gio-OT::0008": 2,
+    "01_chinh-sach-lam-them-gio-OT::0010": 2
+  },
+  "nxv2_004_l1": {
+    "01_chinh-sach-lam-them-gio-OT::0007": 2
+  },
+  "nxv2_016_l1": {
+    "04_quy-trinh-offboarding::0004": 2,
+    "04_quy-trinh-offboarding::0011": 2
+  },
+  "nxv2_017_l1": {
+    "04_quy-trinh-offboarding::0006": 2,
+    "04_quy-trinh-offboarding::0009": 2
+  },
+  "nxv2_019_l1": {
+    "05_chinh-sach-lam-viec-tu-xa::0005": 1,
+    "05_chinh-sach-lam-viec-tu-xa::0007": 2,
+    "05_chinh-sach-lam-viec-tu-xa::0031": 2
+  },
+  "nxv2_020_l1": {
+    "05_chinh-sach-lam-viec-tu-xa::0006": 2
+  },
+  "nxv2_023_l1": {
+    "06_chinh-sach-dao-tao-phat-trien::0004": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0005": 2
+  },
+  "nxv2_024_l2": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0009": 2
+  },
+  "nxv2_024_l3": {
+    "06_chinh-sach-dao-tao-phat-trien::0006": 2,
+    "06_chinh-sach-dao-tao-phat-trien::0009": 1
+  },
+  "nxv2_026_l1": {
+    "07_chinh-sach-nghi-phep::0004": 2,
+    "07_chinh-sach-nghi-phep::0005": 1,
+    "07_chinh-sach-nghi-phep::0023": 2
+  },
+  "nxv2_029_l1": {
+    "07_chinh-sach-nghi-phep::0003": 2,
+    "07_chinh-sach-nghi-phep::0006": 2,
+    "07_chinh-sach-nghi-phep::0008": 2
+  },
+  "nxv2_030_l1": {
+    "07_chinh-sach-nghi-phep::0019": 2,
+    "07_chinh-sach-nghi-phep::0020": 1,
+    "07_chinh-sach-nghi-phep::0023": 2,
+    "07_chinh-sach-nghi-phep::0024": 2
+  },
+  "nxv2_030_l2": {
+    "07_chinh-sach-nghi-phep::0006": 1,
+    "07_chinh-sach-nghi-phep::0021": 2
+  },
+  "nxv2_033_l1": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0012": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 1
+  },
+  "nxv2_034_l2": {
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0014": 2,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0015": 1
+  },
+  "nxv2_035_l1": {
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0004": 1,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0007": 2,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0009": 2
+  },
+  "nxv2_036_l1": {
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0005": 2
+  },
+  "nxv2_039_l1": {
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0004": 1,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0007": 2,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0009": 2
+  },
+  "nxv2_040_l1": {
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0006": 2,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0008": 1,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong::0009": 2
+  },
+  "nxv2_043_l1": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0005": 2,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0008": 1
+  },
+  "nxv2_045_l2": {
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0004": 2,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0006": 2,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 1
+  },
+  "nxv2_047_l1": {
+    "12_quy-che-cong-tac-phi::0004": 2,
+    "12_quy-che-cong-tac-phi::0005": 2
+  },
+  "nxv2_048_l2": {
+    "12_quy-che-cong-tac-phi::0006": 2
+  },
+  "nxv2_048_l3": {
+    "12_quy-che-cong-tac-phi::0003": 1,
+    "12_quy-che-cong-tac-phi::0006": 2
+  }
+}
