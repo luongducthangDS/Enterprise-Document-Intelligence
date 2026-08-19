@@ -14,6 +14,10 @@ index hiện tại và phạm vi sản phẩm mới đang không còn khớp ho�
 Theo plan, các ngưỡng chất lượng không bắt buộc phải đạt trước deadline; yêu cầu
 bắt buộc là chạy đo thật và báo cáo trung thực. Phần này đã được thực hiện.
 
+**Cập nhật sau audit 19/08:** các số retrieval thấp bên dưới không còn được coi
+là bằng chứng chất lượng hợp lệ. Live index chỉ còn khớp 16/135 gold chunk của
+split dev; cần sửa benchmark trước khi tối ưu model/retriever.
+
 ## 2. Những việc đã làm xong
 
 ### Sửa lỗi tìm kiếm tài liệu G5
@@ -61,7 +65,7 @@ bắt buộc là chạy đo thật và báo cáo trung thực. Phần này đã 
 
 | Hạng mục | Kết quả |
 |---|---|
-| Test Agent/Core | 421 test pass |
+| Test Agent/Core | 432 test pass |
 | Test Backend | 106 test pass |
 | Kiểm tra code bằng Ruff | Pass |
 | Schema Backend | Đủ 10/10 bảng |
@@ -103,11 +107,30 @@ không còn khớp hoàn toàn với phạm vi sản phẩm hiện tại.
 | Document Hit Rate@5 | 15,0% | — |
 | MRR | 0,425 | — |
 
-Kết quả này xác nhận retrieval/index hiện tại chưa tìm đúng phần lớn tài liệu
-gold. Có 9/20 query tìm thấy ít nhất một gold chunk trong top 5, nhưng chỉ 3/20
-query khớp source document được gắn trong dataset. Điều này cho thấy cần kiểm
-tra đồng thời cả chất lượng retrieval lẫn sự nhất quán giữa qrel, chunk ID và
-source file của bộ đánh giá.
+Kết quả này là số đã quan sát, nhưng **không đủ điều kiện kết luận retrieval
+kém** vì audit sau đó xác nhận qrels không còn đại diện cho live index. Phần lớn
+gold chunk thuộc tài liệu luật/template công khai đã bị loại khỏi corpus theo
+Type-C contract mới. Vì vậy hệ thống không thể retrieve các target đó.
+
+### Audit và thử nghiệm cải thiện trên split dev
+
+| Kiểm tra | Kết quả |
+|---|---:|
+| Chunk trong live index | 189, thuộc 13 tài liệu NexaTech |
+| Gold chunk dev còn tồn tại | 16/135 (11,8%) |
+| Query dev còn ít nhất một gold chunk | 12/73 (16,4%) |
+| Source qrel không có trong index | 18/25 |
+| Dense + rerank Hit@5 / Recall@5 thô | 16,4% / 12,1% |
+| Hybrid + rerank Hit@5 / Recall@5 thô | 16,4% / 12,1% |
+| Câu thay đổi giữa hai cấu hình | 0 |
+
+Hybrid không cải thiện bất kỳ câu nào nên không bật mặc định. Đáng chú ý, cả 12
+query dev còn có gold trong index đều tìm thấy gold ngay hạng 1; đây chỉ là tín
+hiệu chẩn đoán trên một tập con nhỏ, không phải điểm benchmark mới.
+
+Eval retrieval nay có preflight đối chiếu qrels/live index và sẽ dừng trước khi
+gọi API nếu benchmark bị lệch. Script audit riêng và phép so sánh A/B theo cặp
+cũng đã được bổ sung để tránh tiếp tục tốn API cho một benchmark không hợp lệ.
 
 ### Lưu ý về API đánh giá
 
@@ -125,15 +148,19 @@ source file của bộ đánh giá.
 Các phần dưới đây là việc cải thiện chất lượng tiếp theo, không phải phần code
 Minhphu còn bỏ dở trong plan:
 
-1. Cập nhật nhãn held-out theo contract hiện tại, đặc biệt là các câu
+1. Tạo retrieval benchmark v2 chỉ từ 13 tài liệu NexaTech hiện hành; retire các
+   câu sinh từ luật/template đã bị loại khỏi corpus.
+2. Cập nhật nhãn held-out theo contract hiện tại, đặc biệt là các câu
    `pure_statutory`.
-2. Đối chiếu và remap qrel/gold chunk ID theo index hiện tại.
-3. Kiểm tra các case có `chunk_hit` nhưng `doc_MISS` để sửa sự không nhất quán
+3. Chỉ remap qrel khi cùng evidence vẫn còn nhưng chunk ID thay đổi; không remap
+   câu có nguồn đã bị loại để làm điểm đẹp hơn.
+4. Kiểm tra các case có `chunk_hit` nhưng `doc_MISS` để sửa sự không nhất quán
    giữa chunk và source document.
-4. Rebuild index sau khi chốt lại corpus/chunking, sau đó tạo một held-out set
+5. Rebuild index sau khi chốt lại corpus/chunking, sau đó tạo một held-out set
    mới chưa từng dùng để tune.
-5. Nếu team yêu cầu, thêm API key riêng cho judge/evaluation.
-6. Chạy smoke test toàn ứng dụng và live E2E worker trên môi trường triển khai.
+6. Cấu hình `JUDGE_API_KEY`/`JUDGE_BASE_URL` riêng nếu team cung cấp; code đã hỗ
+   trợ và vẫn fallback về FPT credentials hiện tại.
+7. Chạy smoke test toàn ứng dụng và live E2E worker trên môi trường triển khai.
 
 Không nên chạy lại cùng bộ held-out hiện tại sau khi sửa để lấy điểm đẹp hơn.
 Bộ này nên được dùng cho phân tích lỗi; lần đánh giá release tiếp theo cần một
