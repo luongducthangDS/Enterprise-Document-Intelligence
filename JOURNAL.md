@@ -72,24 +72,36 @@
 
 ---
 
-## Week 3: [Ngày bắt đầu] - [Ngày kết thúc]
+## Week 3: 2026-08-08 - 2026-08-19
 
 ### Mục tiêu tuần này
-- [ ] [Mục tiêu 1]
+- [x] Chốt sản phẩm theo định vị HR Helpdesk Assistant và hợp nhất backend/agent/frontend.
+- [x] Sửa G5 retrieval, đồng bộ migration và xác nhận RLS trên Supabase thật.
+- [x] Hoàn thiện execution lifecycle cho ingestion/index/evaluation worker.
+- [ ] Chạy release held-out mới sau khi được phép gửi bộ câu hỏi synthetic tới dịch vụ model/vector bên ngoài.
 
 ### Đã hoàn thành
--
+- G5 `qa_013`/`qa_122` lấy đúng evidence sau khi canonical hóa retrieval query.
+- Repo migration tái dựng đủ 10 bảng; chuỗi migration liên tục `0001`–`0007`.
+- Supabase release có RLS đầy đủ và trigger chặn tự nâng `role/access_level/manager_id`.
+- Backend không còn để worker kẹt `QUEUED`: submit sang Agent, poll trạng thái và persist kết quả/metric thật.
+- Regression offline: 421 test core và 106 test backend đều pass; root Ruff sạch.
 
 ### Khó khăn & Giải pháp
 | Khó khăn | Giải pháp | Kết quả |
 |----------|-----------|---------|
-| | | |
+| Backend chỉ tạo job nhưng không thực thi | Thêm WorkerJobClient và đồng bộ kết quả khi FE poll | Ba lifecycle có test tới trạng thái terminal |
+| Migration RLS cũ không thể chạy lại vì policy trùng tên | Thêm migration `0007` idempotent, phạm vi đúng ba bảng worker + profile guard | Apply và verify trực tiếp thành công |
+| Sandbox chặn kết nối FPT.AI/Chroma Cloud | Phân loại run 0/30 là lỗi hạ tầng, không báo như quality score | Chờ xác nhận data egress để chạy release eval hợp lệ |
 
 ### Bài học
--
+- Không coi `QUEUED` trong DB là worker đã hoàn thiện; phải chứng minh cả submit, polling, terminal state và persistence.
+- Kết quả eval chỉ hợp lệ khi không có lỗi hạ tầng; 0% do socket bị chặn không phải 0% chất lượng.
+- Migration vá production nên idempotent và giới hạn phạm vi, đặc biệt khi schema đã tồn tại trước lịch sử migration trong repo.
 
 ### Kế hoạch tuần sau
--
+- Chạy đúng một release held-out hợp lệ sau khi được duyệt data egress và ghi số liệu trung thực.
+- Peer review chéo: Dương review phần minhphu trước khi merge `develop`.
 
 ---
 

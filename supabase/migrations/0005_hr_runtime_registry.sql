@@ -6,13 +6,12 @@
 --          :: Runtime-Revised Canonical Scenario Registry
 --
 -- Migration này CHỈ THÊM bảng config mới, không sửa/không xoá bảng nào đang có.
--- Chưa chạy trên Supabase production — cần review gate theo spec trước.
+-- Đã được kiểm tra cùng chuỗi migration release; thay đổi production vẫn phải
+-- đi qua review gate thông thường.
 --
 -- CỐ Ý CHƯA LÀM trong file này:
--- * `messages`/`chat_requests` chưa được thêm cột boundary: `chat_requests`,
---   `ingestion_jobs`, `index_jobs`, `evaluation_runs` hiện KHÔNG có migration
---   nền trong repo dù SQLAlchemy model đã tồn tại. Phải reconcile phần đó
---   trước, nếu không migration này sẽ ALTER một bảng mà repo không định nghĩa.
+-- * `messages`/`chat_requests` chưa được thêm cột boundary; các bảng backend
+--   nền, gồm ingestion/index/evaluation jobs, đã được tạo trong 0001.
 -- * `hr_cases` và các bảng case khác là MVP-2, không nằm ở đây.
 -- * Không có enum `CREATE_REQUEST`/`READ_STATUS`: runtime contract đã chuyển
 --   hai action đó sang future integration.

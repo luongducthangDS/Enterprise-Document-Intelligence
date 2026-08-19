@@ -1,6 +1,6 @@
-# HR Document Intelligence Agent — P-153
+# NexaTech HR Helpdesk Assistant — P-153
 
-AI Agent trả lời câu hỏi của nhân viên về chính sách nhân sự — pháp luật lao động, BHXH/BHYT, thuế TNCN, và quy định nội bộ (nghỉ phép, lương thưởng, tuyển dụng, onboarding/offboarding) — dựa trên RAG (Retrieval-Augmented Generation), tự động tạo ticket chuyển phòng ban phù hợp khi không đủ tự tin trả lời hoặc câu hỏi cần dữ liệu cá nhân.
+Trợ lý helpdesk HR trả lời câu hỏi chính sách nội bộ có citation, hỏi lại khi thiếu ngữ cảnh và chuyển đúng người phụ trách khi cần dữ liệu cá nhân hoặc bằng chứng chưa đủ. NexaTech là tenant giả lập dùng cho demo; sản phẩm không tự xử lý payroll, không thu PII nhạy cảm và không thay thế tư vấn pháp lý.
 
 > Dự án học phần **VinUni AI20K Build Phase**, team **AI20K-Build-Phase-Cohort-3**.
 
@@ -65,7 +65,7 @@ cp .env.example .env
 # Điền các secret và connection string thật vào .env
 
 # 3. Khởi tạo database
-# Chạy lần lượt supabase/migrations/0001_*.sql → 0004_*.sql
+# Chạy lần lượt supabase/migrations/0001_*.sql → 0007_*.sql
 # trong Supabase Dashboard > SQL Editor.
 
 # 4. Cài AI Logging Hooks (bắt buộc khi phát triển/nộp bài)
@@ -174,6 +174,17 @@ make eval-router     # đo router (intent classification)
 make eval-agent      # đo agent end-to-end (tốn ~300 LLM call, ~25 phút)
 make eval-heldout    # CHỈ chạy 1 lần khi đã chốt config — không tune dựa trên kết quả này
 ```
+
+## Trạng thái release 19/08/2026
+
+- Schema repo tái dựng đủ 10 bảng backend; migration đánh số liên tục `0001`–`0007`.
+- Supabase release đã được kiểm tra trực tiếp: đủ 10/10 bảng, RLS bật trên toàn bộ bảng bắt buộc và privilege guard của `profiles` đã hiện diện.
+- Backend đã submit/poll và lưu kết quả thật cho ingestion, index rebuild và evaluation worker; metric mẫu cũ đã bị loại bỏ.
+- G5 retrieval regression `qa_013` và `qa_122` đã được sửa và khóa bằng test.
+- Test offline hiện tại: agent/core `421 passed`, backend `106 passed`; root Ruff sạch.
+- Release held-out mới cần quyền gửi 30 câu hỏi synthetic tới FPT.AI và Chroma Cloud. Lần chạy sandbox ngày 19/08 không hợp lệ vì 30/30 case bị chặn socket trước khi model xử lý; không được đọc 0% đó như chất lượng sản phẩm.
+
+Chi tiết kiểm chứng và known limitations: [`docs/release_readiness_2026-08-19.md`](docs/release_readiness_2026-08-19.md).
 
 ## 📁 Cấu trúc dự án
 

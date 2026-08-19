@@ -61,6 +61,21 @@
 
 ---
 
+## [2026-08-19]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| minhphu | Sửa G5 retrieval miss cho `qa_013` và `qa_122` | ✅ Done | `0644efb`, `6ab84c5`; regression test pass | - |
+| minhphu | Đồng bộ migration đủ schema backend, bỏ migration trùng số | ✅ Done | `32eb13f`, `b256cdb`; migration `0001`–`0007` | - |
+| minhphu | Reconcile RLS trên Supabase thật và privilege guard | ✅ Done | `9fc83cb`; verify 10/10 bảng, RLS đầy đủ, trigger present | - |
+| minhphu | Nối Backend ↔ Agent cho ingestion/index/evaluation lifecycle, bỏ metric evaluation mẫu | ✅ Done | `36419b9`; lifecycle test tới `COMPLETED` | - |
+| minhphu | Làm sạch bộ test G6 và chạy regression toàn repo | ✅ Done | `4115e54`; core 421 pass, backend 106 pass | - |
+| minhphu | Release held-out qua FPT.AI/Chroma Cloud | ⏸ Awaiting approval | Sandbox run không hợp lệ: 30/30 lỗi socket trước khi model xử lý | - |
+
+**Tổng kết ngày:** Phần G5, migration/RLS và worker lifecycle đã hoàn tất bằng code + test + kiểm tra database thật. Chỉ còn release eval qua dịch vụ ngoài; cần xác nhận data egress rõ ràng trước khi chạy.
+
+---
+
 ## [YYYY-MM-DD]
 
 | Member | Task | Status | Output | Time |
