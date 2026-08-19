@@ -8,9 +8,13 @@ from app.core.exceptions import AppException, ConflictError, NotFoundError
 from app.domain.models.documents import DocumentDB
 from app.domain.models.index_job import IndexJobDB
 from app.schemas.indexes import IndexRebuildRequest
+from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 
 class IndexService:
+    worker_client = WorkerJobClient()
+    worker_dispatch_enabled = True
+
     @classmethod
     async def create_rebuild_job(
         cls,
@@ -36,6 +40,7 @@ class IndexService:
             )
 
         # Validate specified document readiness
+        targets: list[dict[str, str]] = []
         if request_data.document_ids:
             for doc_id_str in request_data.document_ids:
                 try:
@@ -57,6 +62,7 @@ class IndexService:
                         code="DOCUMENT_NOT_READY",
                         message=f"Tài liệu '{doc_id_str}' không tồn tại hoặc ở trạng thái không thể index.",
                     )
+                targets.append({"document_id": str(doc.id), "source_file": doc.source_file})
 
         job = IndexJobDB(
             requested_by=requested_by,
@@ -70,6 +76,21 @@ class IndexService:
         db.add(job)
         await db.commit()
         await db.refresh(job)
+
+        if cls.worker_dispatch_enabled:
+            try:
+                await cls.worker_client.submit_index_rebuild(
+                    {
+                        "job_id": str(job.id),
+                        "documents": targets,
+                        "strategy": job.strategy,
+                    }
+                )
+            except WorkerJobClientError as exc:
+                job.state = "FAILED"
+                job.stage = "FAILED"
+                job.error = str(exc)
+                await db.commit()
 
         return {
             "job_id": str(job.id),
@@ -101,6 +122,21 @@ class IndexService:
                 code="INDEX_JOB_NOT_FOUND",
                 message="Không tìm thấy thông tin tác vụ tái lập chỉ mục.",
             )
+
+        if cls.worker_dispatch_enabled and job.state not in ("COMPLETED", "FAILED"):
+            try:
+                worker = await cls.worker_client.get_status(str(job.id))
+            except WorkerJobClientError:
+                worker = None
+            if worker:
+                job.state = str(worker.get("state", job.state))
+                job.stage = str(worker.get("stage", job.stage))
+                job.progress_percent = int(worker.get("progress_percent", job.progress_percent))
+                job.error = worker.get("error")
+                result = worker.get("result") or {}
+                if result.get("active_index_version"):
+                    job.active_index_version = str(result["active_index_version"])
+                await db.commit()
 
         return {
             "job_id": str(job.id),

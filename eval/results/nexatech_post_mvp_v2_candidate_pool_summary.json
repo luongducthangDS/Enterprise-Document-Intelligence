@@ -1,0 +1,15 @@
+{
+  "status": "PENDING_HUMAN_ADJUDICATION",
+  "query_count": 45,
+  "index_chunk_count": 189,
+  "candidate_count": 859,
+  "candidate_min": 15,
+  "candidate_median": 19,
+  "candidate_max": 25,
+  "expected_source_in_pool": 45,
+  "expected_source_in_global_dense": 45,
+  "expected_source_in_bm25": 44,
+  "source_constrained_pass_returned": 45,
+  "pending_human_labels": 859,
+  "contract_flagged_queries": 3
+}

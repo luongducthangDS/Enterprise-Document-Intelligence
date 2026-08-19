@@ -61,6 +61,22 @@
 
 ---
 
+## [2026-08-19]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| minhphu | Sửa G5 retrieval miss cho `qa_013` và `qa_122` | ✅ Done | `0644efb`, `6ab84c5`; regression test pass | - |
+| minhphu | Đồng bộ migration đủ schema backend, bỏ migration trùng số | ✅ Done | `32eb13f`, `b256cdb`; migration `0001`–`0007` | - |
+| minhphu | Reconcile RLS trên Supabase thật và privilege guard | ✅ Done | `9fc83cb`; verify 10/10 bảng, RLS đầy đủ, trigger present | - |
+| minhphu | Nối Backend ↔ Agent cho ingestion/index/evaluation lifecycle, bỏ metric evaluation mẫu | ✅ Done | `36419b9`; lifecycle test tới `COMPLETED` | - |
+| minhphu | Làm sạch bộ test G6 và chạy regression toàn repo | ✅ Done | `4115e54`; core 421 pass, backend 106 pass | - |
+| minhphu | Release agent held-out qua FPT.AI/Chroma Cloud | ✅ Done | Run hợp lệ 0/30; 0 lỗi hạ tầng; p50 10,0s, p95 59,7s | - |
+| minhphu | Release retrieval held-out qua Chroma Cloud/FPT reranker | ✅ Done | 20 query; Hit@5 45%; Recall@5 29,6%; Doc Hit@5 15% | - |
+
+**Tổng kết ngày:** Phần G5, migration/RLS và worker lifecycle đã hoàn tất bằng code + test + kiểm tra database thật. Hai release held-out đã chạy đúng một lần và ghi trung thực; quality gate không đạt, chủ yếu do retrieval/gold không khớp và contract legacy lệch phạm vi hiện tại.
+
+---
+
 ## [YYYY-MM-DD]
 
 | Member | Task | Status | Output | Time |

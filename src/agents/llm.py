@@ -20,6 +20,8 @@ async def acall_llm(
     temperature: float = 0.5,
     model: str | None = None,
     enable_thinking: bool | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
 ) -> str:
     """Gọi LLM qua FPT.AI Marketplace mà không block event loop —
     fpt_client.chat_completion dùng requests đồng bộ nên chạy trong thread pool.
@@ -36,8 +38,8 @@ async def acall_llm(
         system,
         user,
         model=model or settings.llm_model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
+        base_url=base_url or settings.fpt_base_url,
+        api_key=api_key or settings.fpt_api_key,
         temperature=temperature,
         enable_thinking=enable_thinking,
     )

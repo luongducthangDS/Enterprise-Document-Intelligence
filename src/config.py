@@ -315,6 +315,10 @@ class Settings(BaseSettings):
     # độ nhất quán của model với chính nó, không phải chất lượng hệ thống
     # (circular evaluation). Llama-3.3-70B khác họ với GLM và phản hồi nhanh.
     judge_model: str = "Llama-3.3-70B-Instruct"
+    # Có thể tách credential/quota của judge khỏi traffic chat production.
+    # Để trống thì tương thích ngược: dùng FPT_API_KEY/FPT_BASE_URL như trước.
+    judge_api_key: str = ""
+    judge_base_url: str = ""
 
     # Agent RAG
     retrieval_top_k: int = 25

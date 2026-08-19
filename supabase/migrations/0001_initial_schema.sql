@@ -1,68 +1,93 @@
--- Initial schema: profiles (users/RBAC), conversations, messages, tickets, documents.
--- Vector embeddings KHÔNG ở đây — sống ở Chroma Cloud (src/ingestion/indexer.py).
--- Chạy 1 lần qua Supabase SQL Editor (Dashboard > SQL Editor > New query > Run).
+-- Canonical backend schema for the custom-JWT architecture.
+-- Vector embeddings live in Chroma; PostgreSQL stores identity, chat, tickets,
+-- documents and durable background-job state.
 
--- ============================================================
--- 1. profiles — mở rộng auth.users (Supabase Auth có sẵn), không tự làm bảng password
--- ============================================================
+create extension if not exists pgcrypto;
+
+create table public.users (
+  id uuid primary key default gen_random_uuid(),
+  email text unique not null,
+  hashed_password text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index users_email_idx on public.users (email);
+
 create table public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  display_name text not null,
-  role text not null check (role in ('employee','manager','hr_admin')),
-  employment_status text not null default 'full_time'
-    check (employment_status in ('probation','full_time','on_notice_termination','resigned')),
+  id uuid primary key references public.users(id) on delete cascade,
+  display_name text not null default '',
+  role text not null default 'employee',
+  employment_status text not null default 'full_time',
   department text,
   business_unit text,
-  contract_type text check (contract_type in ('xac_dinh_thoi_han','khong_xac_dinh_thoi_han','thu_viec')),
-  tenure_months integer default 0,
-  seniority_years integer default 0,
-  access_level text not null default 'self_only'
-    check (access_level in ('self_only','team_scope','org_wide')),
+  contract_type text,
+  tenure_months integer not null default 0,
+  seniority_years integer not null default 0,
+  access_level text not null default 'self_only',
   manager_id uuid references public.profiles(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
--- ============================================================
--- 2. conversations + messages
--- ============================================================
 create table public.conversations (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
-  title text,
+  title text not null,
+  state text not null default 'ACTIVE',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  ended_at timestamptz
+);
+
+create table public.documents (
+  id uuid primary key default gen_random_uuid(),
+  title text not null default 'Tài liệu không tên',
+  source_file text unique not null,
+  category text not null default 'GENERAL',
+  version text,
+  effective_date text,
+  confidentiality text not null default 'INTERNAL',
+  status text not null default 'ACTIVE',
+  source_type text not null default 'FILE_UPLOAD',
+  is_official_policy boolean not null default false,
+  caveat text,
+  processed_path text,
+  chunks_path text,
+  chroma_indexed_at timestamptz,
+  uploaded_by uuid references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+-- Cyclic references messages <-> tickets/chat_requests are added after all
+-- three tables exist.
 create table public.messages (
   id uuid primary key default gen_random_uuid(),
   conversation_id uuid not null references public.conversations(id) on delete cascade,
-  role text not null check (role in ('user','assistant')),
+  role text not null,
   content text not null,
-  citations jsonb not null default '[]',
+  chat_request_id uuid,
+  citations jsonb not null default '[]'::jsonb,
   confidence_score numeric(4,3),
   escalated boolean not null default false,
   ticket_id uuid,
   created_at timestamptz not null default now()
 );
 
--- ============================================================
--- 3. tickets — đúng theo data/metadata/ticket_routing_rules.json::ticket_template
--- ============================================================
 create table public.tickets (
   id uuid primary key default gen_random_uuid(),
   ticket_code text unique not null,
-  conversation_id uuid references public.conversations(id),
-  message_id uuid references public.messages(id),
-  requester_id uuid not null references public.profiles(id),
+  conversation_id uuid references public.conversations(id) on delete cascade,
+  message_id uuid references public.messages(id) on delete cascade,
+  requester_id uuid not null references public.profiles(id) on delete cascade,
   employee_question text not null,
-  escalate_reason text not null
-    check (escalate_reason in ('low_confidence','out_of_scope','personal_data_required','user_requested_human')),
+  escalate_reason text not null,
   confidence_score numeric(4,3),
   category text,
-  target_department text not null check (target_department in ('CB','ER','TA','LD','HRBP')),
-  priority text not null check (priority in ('Low','Medium','High')),
-  status text not null default 'open' check (status in ('open','in_progress','resolved','closed')),
+  target_department text not null,
+  priority text not null default 'Medium',
+  status text not null default 'open',
   assignee_id uuid references public.profiles(id),
   resolution_note text,
   created_at timestamptz not null default now(),
@@ -70,79 +95,83 @@ create table public.tickets (
   resolved_at timestamptz
 );
 
-alter table public.messages
-  add constraint messages_ticket_id_fkey foreign key (ticket_id) references public.tickets(id);
+create index tickets_ticket_code_idx on public.tickets (ticket_code);
 
--- ============================================================
--- 4. documents — mirror data/metadata/document_registry.csv
--- ============================================================
-create table public.documents (
+create table public.chat_requests (
   id uuid primary key default gen_random_uuid(),
-  source_file text unique not null,
-  category text not null,
-  status text not null default 'raw'
-    check (status in ('raw','processed','processed_incomplete','rejected')),
-  source_type text not null
-    check (source_type in ('government_law','official_policy','public_template','synthetic','public_article','eval_asset','config','rejected')),
-  is_official_policy boolean not null default false,
-  caveat text,
-  processed_path text,
-  chunks_path text,
-  chroma_indexed_at timestamptz,
-  uploaded_by uuid references public.profiles(id),
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  question text not null,
+  state text not null default 'QUEUED',
+  answer_status text,
+  answer text,
+  citations jsonb,
+  warnings jsonb,
+  clarification jsonb,
+  failure jsonb,
+  user_message_id uuid references public.messages(id) on delete set null,
+  assistant_message_id uuid references public.messages(id) on delete set null,
+  parent_chat_request_id uuid references public.chat_requests(id) on delete set null,
+  retry_count integer not null default 0,
+  retryable boolean not null default false,
+  latency_ms integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
--- ============================================================
--- 5. RLS — bật cho cả 5 bảng + policy theo role/ownership
--- ============================================================
-alter table public.profiles enable row level security;
-alter table public.conversations enable row level security;
-alter table public.messages enable row level security;
-alter table public.tickets enable row level security;
-alter table public.documents enable row level security;
+alter table public.messages
+  add constraint messages_chat_request_id_fkey
+    foreign key (chat_request_id) references public.chat_requests(id) on delete set null,
+  add constraint messages_ticket_id_fkey
+    foreign key (ticket_id) references public.tickets(id) on delete set null;
 
--- profiles
-create policy "own profile" on public.profiles for select
-  using (id = auth.uid());
-create policy "manager sees reports" on public.profiles for select
-  using (manager_id = auth.uid());
-create policy "hr_admin sees all profiles" on public.profiles for select
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));
-create policy "user updates own profile" on public.profiles for update
-  using (id = auth.uid());
+create table public.ingestion_jobs (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.documents(id) on delete cascade,
+  state text not null default 'QUEUED',
+  stage text not null default 'UPLOADED',
+  progress_percent integer not null default 0,
+  chunk_count integer not null default 0,
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
--- conversations
-create policy "own conversations" on public.conversations for all
-  using (user_id = auth.uid());
-create policy "hr_admin reads all conversations" on public.conversations for select
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));
+create table public.index_jobs (
+  id uuid primary key default gen_random_uuid(),
+  requested_by uuid not null references public.profiles(id) on delete cascade,
+  document_ids jsonb,
+  strategy text not null default 'REPLACE',
+  state text not null default 'QUEUED',
+  stage text not null default 'QUEUED',
+  progress_percent integer not null default 0,
+  active_index_version text not null default 'v1.0',
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
--- messages (quyền dựa theo conversation cha)
-create policy "own messages" on public.messages for all
-  using (exists (
-    select 1 from public.conversations c
-    where c.id = messages.conversation_id and c.user_id = auth.uid()
-  ));
-create policy "hr_admin reads all messages" on public.messages for select
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));
+create table public.evaluation_runs (
+  id uuid primary key default gen_random_uuid(),
+  dataset_id text not null,
+  index_version text,
+  model_config_id text,
+  requested_by uuid not null references public.profiles(id) on delete cascade,
+  state text not null default 'QUEUED',
+  stage text not null default 'QUEUED',
+  progress_percent integer not null default 0,
+  metrics jsonb,
+  quality_gate text not null default 'PENDING',
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
--- tickets
-create policy "requester reads own tickets" on public.tickets for select
-  using (requester_id = auth.uid());
-create policy "assignee/hr_admin manage tickets" on public.tickets for all
-  using (
-    assignee_id = auth.uid()
-    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin')
-  );
+create index conversations_user_id_idx on public.conversations (user_id);
+create index messages_conversation_id_idx on public.messages (conversation_id);
+create index chat_requests_conversation_id_idx on public.chat_requests (conversation_id);
+create index chat_requests_user_id_idx on public.chat_requests (user_id);
+create index ingestion_jobs_document_id_idx on public.ingestion_jobs (document_id);
+create index index_jobs_requested_by_idx on public.index_jobs (requested_by);
+create index evaluation_runs_requested_by_idx on public.evaluation_runs (requested_by);
 
--- documents
-create policy "authenticated read documents" on public.documents for select
-  using (auth.role() = 'authenticated');
-create policy "hr_admin insert documents" on public.documents for insert
-  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));
-create policy "hr_admin update documents" on public.documents for update
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));
-create policy "hr_admin delete documents" on public.documents for delete
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'hr_admin'));

@@ -5,6 +5,9 @@ from app.api.dependencies.db_deps import get_db
 from app.core.database import AsyncSessionLocal, Base
 from app.schemas.agent import AgentAnswerDTO
 from app.services.chat_service import ChatService
+from app.services.document_service import DocumentService
+from app.services.evaluation_service import EvaluationService
+from app.services.index_service import IndexService
 from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -85,6 +88,10 @@ async def setup_test_database():
     original_background_tasks_enabled = ChatService.background_tasks_enabled
     ChatService.agent_client = FakeAgentClient()
     ChatService.background_tasks_enabled = False
+    worker_services = (DocumentService, IndexService, EvaluationService)
+    original_dispatch = [service.worker_dispatch_enabled for service in worker_services]
+    for service in worker_services:
+        service.worker_dispatch_enabled = False
 
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -102,6 +109,8 @@ async def setup_test_database():
     ChatService.session_factory = AsyncSessionLocal
     ChatService.agent_client = original_agent_client
     ChatService.background_tasks_enabled = original_background_tasks_enabled
+    for service, enabled in zip(worker_services, original_dispatch, strict=True):
+        service.worker_dispatch_enabled = enabled
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
