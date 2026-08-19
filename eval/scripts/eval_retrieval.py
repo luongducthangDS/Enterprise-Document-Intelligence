@@ -181,6 +181,13 @@ async def _run_one(
         "top1_distance": distances[0] if distances else None,
         "top1_source_file": metadatas[0].get("source_file") if metadatas else None,
         "num_retrieved": len(ids),
+        # Persist the actual ranking so a miss can be diagnosed without
+        # repeating paid embedding/reranker calls.  Earlier reports kept only
+        # the hit rank, which could not distinguish candidate-generation loss
+        # from a reranker ordering problem.
+        "retrieved_chunk_ids": ids,
+        "retrieved_source_files": [metadata.get("source_file") for metadata in metadatas],
+        "reranker_scores": raw["scores"],
     }
 
     if item["type"] == "in_scope":
