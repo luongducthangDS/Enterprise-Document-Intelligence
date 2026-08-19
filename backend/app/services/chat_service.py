@@ -59,7 +59,7 @@ class ChatService:
         if not cls.background_tasks_enabled:
             return 0
 
-        async with AsyncSessionLocal() as db:
+        async with cls.session_factory() as db:
             result = await db.execute(
                 select(ChatRequestDB)
                 .where(ChatRequestDB.state.in_(("QUEUED", "GENERATING")))
@@ -67,7 +67,12 @@ class ChatService:
             )
             pending = list(result.scalars().all())
             cutoff = datetime.now(UTC) - timedelta(minutes=10)
-            recoverable = [request for request in pending if request.created_at >= cutoff][:10]
+            def _to_utc(dt: datetime | None) -> datetime:
+                if dt is None:
+                    return datetime.min.replace(tzinfo=UTC)
+                return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+            recoverable = [request for request in pending if _to_utc(request.created_at) >= cutoff][:10]
             recoverable_ids = {request.id for request in recoverable}
             for request in pending:
                 if request.id not in recoverable_ids:
