@@ -1,3 +1,4 @@
+import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -107,3 +108,32 @@ async def test_internal_agent_query_rejects_invalid_service_token(client):
             headers={"X-Service-Token": "wrong-token"},
         )
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_internal_agent_query_streams_sse_events(client):
+    async def fake_stream(query, history=None):
+        assert query == "Leave policy"
+        assert history == []
+        yield {"type": "status", "value": "Đang tìm trong tài liệu HR..."}
+        yield {
+            "type": "done",
+            "answer": AgentAnswer(response="Policy answer", intent="hr_question").model_dump(),
+        }
+
+    payload = {
+        "query": "Leave policy",
+        "request_id": "req-stream",
+        "user_id": "user-123",
+        "department": "Engineering",
+    }
+    with patch("src.api.routes.agent_stream_answer", new=fake_stream):
+        response = await client.post("/api/v1/agent/query/stream", json=payload, headers=service_headers())
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    payloads = [
+        json.loads(line.removeprefix("data: ")) for line in response.text.splitlines() if line.startswith("data: ")
+    ]
+    assert [item["type"] for item in payloads] == ["status", "done"]
+    assert payloads[-1]["answer"]["response"] == "Policy answer"

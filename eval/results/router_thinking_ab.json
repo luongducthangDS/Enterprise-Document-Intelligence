@@ -1,0 +1,134 @@
+{
+  "run_at": "2026-08-12T15:26:23.235276+00:00",
+  "purpose": "A/B chat_template_kwargs.enable_thinking cho router_node — cùng model DeepSeek-V4-Flash, cùng 140 câu qa_eval_set",
+  "threshold_note": "Ngưỡng chấp nhận của router: accuracy >= 94% (theo tiền lệ A/B router_model trong src/config.py)",
+  "thinking_on": {
+    "accuracy": 0.936,
+    "correct": 131,
+    "total": 140,
+    "latency_p50_ms": 4845.2,
+    "latency_p95_ms": 12475.2,
+    "confusion": {
+      "hr_question->out_of_scope_or_personal": 4,
+      "hr_question->ambiguous": 1,
+      "ambiguous->out_of_scope_or_personal": 3,
+      "ambiguous->hr_question": 1
+    }
+  },
+  "thinking_off": {
+    "accuracy": 0.857,
+    "correct": 120,
+    "total": 140,
+    "latency_p50_ms": 345,
+    "latency_p95_ms": 740,
+    "confusion": {
+      "hr_question->ambiguous": 9,
+      "hr_question->out_of_scope_or_personal": 7,
+      "ambiguous->out_of_scope_or_personal": 3,
+      "ambiguous->hr_question": 1
+    },
+    "note": "chạy tuần tự có delay 1s vì tắt thinking làm request nhanh tới mức đập rate limit 429 của gateway ở concurrency 2"
+  },
+  "verdict": "KHÔNG ĐẠT — tắt thinking chỉ 85.7% so với 93.6%, dưới ngưỡng 94%. Giữ thinking_router=True.",
+  "flips": [
+    {
+      "id": "qa_002",
+      "question": "Chủ nhật mình đi làm thêm thì tính lương bao nhiêu?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_003",
+      "question": "Tự ở lại làm thêm mà không đăng ký trước có được tính OT không?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_008",
+      "question": "Nếu mình đi công tác tự lo chỗ ở không lấy hóa đơn khách sạn thì có được hỗ trợ tiền không?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_013",
+      "question": "Mình giới thiệu bạn ứng tuyển thì bạn mình nộp hồ sơ qua kênh nào?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "out_of_scope_or_personal",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_036",
+      "question": "Tôi ốm đột xuất sáng nay mới biết, báo nghỉ kiểu gì?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_037",
+      "question": "Cuối năm mình còn 8 ngày phép chưa dùng thì xử lý thế nào?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "out_of_scope_or_personal",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_041",
+      "question": "Công ty tuyển dụng em từ năm 14 tuổi có được không?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "out_of_scope_or_personal",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_110",
+      "question": "Cho mình hỏi nếu mình nghỉ việc thì gói bảo hiểm sức khỏe của công ty sẽ chấm dứt vào thời điểm nào? Có cách nào để tiếp tục duy trì gói này không?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_111",
+      "question": "Em muốn đăng ký bảo hiểm sức khỏe cho vợ và 2 con thì chi phí thế nào và gói bảo hiểm sẽ ở hạng nào?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_112",
+      "question": "Em đang trong thời gian thử việc, vậy em có được tham gia gói bảo hiểm sức khỏe tự nguyện (BHSTN) của công ty ngay không?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    },
+    {
+      "id": "qa_126",
+      "question": "Chào anh/chị, nếu công ty tài trợ cho em đi học một khóa chứng chỉ quốc tế bên ngoài với chi phí 20 triệu đồng, thì sau khi học xong em cần cam kết làm việc tại công ty thêm bao lâu?",
+      "expected": "hr_question",
+      "thinking_on": "hr_question",
+      "thinking_off": "ambiguous",
+      "on_correct": true,
+      "off_correct": false
+    }
+  ]
+}

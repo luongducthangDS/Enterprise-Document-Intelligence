@@ -1,0 +1,535 @@
+{
+  "run_at": "2026-08-13T03:20:00.986348+00:00",
+  "purpose": "P4A — A/B nhánh direct và clarify, hai gate tách biệt.",
+  "dataset": "eval\\datasets\\p4a_cheap_path_set.json",
+  "baseline_from_p3": {
+    "direct_p50_ms": 5502,
+    "clarify_p50_ms": 9236
+  },
+  "direct": [
+    {
+      "variant": "A_default_llm",
+      "n": 17,
+      "all_checks_pass": 15,
+      "per_check": {
+        "is_social_response": 16,
+        "no_policy_number": 17,
+        "offers_help": 17,
+        "context_appropriate": 16,
+        "concise": 17,
+        "non_empty": 17
+      },
+      "p50_ms": 4969,
+      "p95_ms": 45987,
+      "mean_ms": 15695,
+      "max_ms": 183841
+    },
+    {
+      "variant": "C_fast_llm",
+      "n": 17,
+      "all_checks_pass": 14,
+      "per_check": {
+        "is_social_response": 15,
+        "no_policy_number": 17,
+        "offers_help": 16,
+        "context_appropriate": 16,
+        "concise": 17,
+        "non_empty": 17
+      },
+      "p50_ms": 955,
+      "p95_ms": 7501,
+      "mean_ms": 2123,
+      "max_ms": 16707
+    }
+  ],
+  "clarify": [],
+  "results": [
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_01",
+      "query": "chào bạn",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự cho bạn?",
+      "latency_ms": 4969,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_02",
+      "query": "hello bot",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự cho bạn không?",
+      "latency_ms": 4775,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "output": "Chào buổi sáng! Mình có thể hỗ trợ gì về chính sách nhân sự cho bạn không?",
+      "latency_ms": 2848,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "output": "Mình là trợ lý HR nội bộ, hỗ trợ bạn về các chính sách và quy định nhân sự của công ty. Bạn cần hỏi gì cứ nhắn mình nhé!",
+      "latency_ms": 4638,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "output": "Mình là trợ lý HR nội bộ, hỗ trợ bạn các thắc mắc về chính sách nhân sự, phúc lợi và quy định công ty. Bạn cần tìm hiểu vấn đề gì nào?",
+      "latency_ms": 5444,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "output": "Không có gì, khi nào cần bạn cứ hỏi mình nhé!",
+      "latency_ms": 1332,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "output": "Không có gì, khi nào cần bạn cứ hỏi mình nhé.",
+      "latency_ms": 5767,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "output": "Chào bạn! Mình ở đây rồi. Bạn cần hỗ trợ gì về chính sách nhân sự nhé?",
+      "latency_ms": 183841,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_09",
+      "query": "hi",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự?",
+      "latency_ms": 5537,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "output": "Chào bạn, chúc mừng bạn gia nhập công ty! Mình có thể hỗ trợ gì về chính sách nhân sự cho bạn không?",
+      "latency_ms": 11287,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_11",
+      "query": "ok hiểu rồi",
+      "output": "Ok, khi nào cần hỗ trợ thêm bạn cứ hỏi mình nhé!",
+      "latency_ms": 2633,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_12",
+      "query": "à vâng, rõ rồi ạ",
+      "output": "Vâng, khi nào cần thêm thông tin bạn cứ hỏi mình nhé!",
+      "latency_ms": 1945,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_13",
+      "query": "bye nhé",
+      "output": "Chào bạn, hẹn gặp lại!",
+      "latency_ms": 4453,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_14",
+      "query": "thôi mình đi làm đây, chào bạn",
+      "output": "Chào bạn, làm việc hiệu quả nhé!",
+      "latency_ms": 6165,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_15",
+      "query": "cảm ơn nhiều nha, mình đi đây",
+      "output": "Không có gì, chào bạn nhé! Hẹn gặp lại!",
+      "latency_ms": 2583,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_16",
+      "query": "bạn làm việc cuối tuần luôn à?",
+      "output": "Mình hỗ trợ bạn bất cứ lúc nào, kể cả cuối tuần nhé. Bạn cần hỏi thêm gì về chính sách nhân sự không?",
+      "latency_ms": 7067,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_17",
+      "query": "bạn có phải người thật không đấy",
+      "output": "Mình là trợ lý HR nội bộ nhé, không phải người thật. Mình có thể hỗ trợ bạn các thắc mắc về chính sách nhân sự của công ty, bạn cần hỏi gì không?",
+      "latency_ms": 11523,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_01",
+      "query": "chào bạn",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự không?",
+      "latency_ms": 649,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_02",
+      "query": "hello bot",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự không?",
+      "latency_ms": 5199,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "output": "Chào buổi sáng! Mình có thể hỗ trợ gì cho bạn về chính sách nhân sự không?",
+      "latency_ms": 708,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "output": "Mình là trợ lý HR nội bộ, hỗ trợ các bạn về chính sách nhân sự, phúc lợi và các thủ tục hành chính liên quan. Có gì cần hỏi cứ nhắn mình nhé!",
+      "latency_ms": 1151,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "output": "Mình hỗ trợ các vấn đề về chính sách nhân sự như phúc lợi, lương thưởng, nghỉ phép, bảo hiểm... Bạn cần tìm hiểu gì cứ hỏi mình nhé!",
+      "latency_ms": 1796,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "output": "Không có gì đâu, khi nào cần hỗ trợ thêm bạn cứ hỏi mình nhé!",
+      "latency_ms": 1214,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "output": "Không có gì, khi nào cần bạn cứ hỏi mình nhé!",
+      "latency_ms": 586,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "output": "Chào bạn! Mình có mặt đây. Bạn cần hỗ trợ gì về chính sách nhân sự không?",
+      "latency_ms": 742,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_09",
+      "query": "hi",
+      "output": "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự?",
+      "latency_ms": 1304,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "output": "Chào bạn! Chúc mừng bạn gia nhập công ty nhé. Nếu cần tìm hiểu gì về chính sách nhân sự, mình luôn sẵn sàng hỗ trợ.",
+      "latency_ms": 955,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "offers_help": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_11",
+      "query": "ok hiểu rồi",
+      "output": "Tuyệt vời! Khi nào cần hỗ trợ thêm về chính sách nhân sự, bạn cứ hỏi mình nhé.",
+      "latency_ms": 844,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_12",
+      "query": "à vâng, rõ rồi ạ",
+      "output": "Không có gì, khi nào cần hỗ trợ thêm bạn cứ hỏi mình nhé!",
+      "latency_ms": 661,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_13",
+      "query": "bye nhé",
+      "output": "Chào bạn, hẹn gặp lại nhé!",
+      "latency_ms": 563,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_14",
+      "query": "thôi mình đi làm đây, chào bạn",
+      "output": "Chào bạn, đi làm vui vẻ nhé!",
+      "latency_ms": 847,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_15",
+      "query": "cảm ơn nhiều nha, mình đi đây",
+      "output": "Không có gì đâu! Chào bạn, đi đường an toàn nhé!",
+      "latency_ms": 16707,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true,
+        "is_social_response": true,
+        "context_appropriate": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_16",
+      "query": "bạn làm việc cuối tuần luôn à?",
+      "output": "Mình vẫn hỗ trợ anh/chị vào cuối tuần nếu có thắc mắc gấp nhé! Có gì cần mình giúp không?",
+      "latency_ms": 973,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_17",
+      "query": "bạn có phải người thật không đấy",
+      "output": "Mình là trợ lý HR nội bộ, không phải người thật đâu bạn. Nhưng mình luôn sẵn sàng hỗ trợ bạn về các vấn đề nhân sự đó!",
+      "latency_ms": 1197,
+      "checks": {
+        "no_policy_number": true,
+        "concise": true,
+        "non_empty": true
+      }
+    }
+  ],
+  "gate_revision": "v4 — mỗi act chỉ bị chấm bởi tiêu chí áp dụng cho nó. Sửa 2 false positive của v3: (a) chào tạm biệt dùng chung từ với chào mở đầu; (b) capability/casual_social cần trả lời nội dung, không cần từ chào. Chấm lại trên output đã lưu, 0 API call."
+}

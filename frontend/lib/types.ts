@@ -33,8 +33,9 @@ export type CitationSummary = {
   section: string | null;
   version: string | null;
   effective_date: string | null;
-  is_official_policy: boolean;
-  source_type: string | null;
+  is_official_policy?: boolean;
+  source_type?: string | null;
+  excerpt?: string;
 };
 
 export type CitationDetail = {
@@ -45,66 +46,15 @@ export type CitationDetail = {
     version: string | null;
     effective_date: string | null;
     status: string;
-    is_official_policy: boolean;
-    source_type: string | null;
+    is_official_policy?: boolean;
+    source_type?: string | null;
   };
   location: { page: number | null; section: string | null; chunk_id?: string | null };
   excerpt: string;
-  conflict_warning: boolean;
-  is_official_policy: boolean;
-  source_type: string | null;
-};
-
-export type Warning = {
-  type: string;
-  severity: "INFO" | "WARNING" | "BLOCKING" | string;
-  message: string;
-  citation_ids?: string[] | null;
-  recommended_action?: string | null;
-};
-
-export type ChatState =
-  | "QUEUED"
-  | "RETRIEVING"
-  | "GENERATING"
-  | "COMPLETED"
-  | "REFUSED"
-  | "CLARIFICATION_REQUIRED"
-  | "FAILED";
-
-export type ChatResult = {
-  chat_request_id: string;
-  conversation_id: string;
-  user_message_id: string | null;
-  assistant_message_id: string | null;
-  state: ChatState;
-  answer_status: string | null;
-  answer: string | null;
-  citations: CitationSummary[] | null;
-  warnings: Warning[] | null;
-  clarification: { question: string; options: string[] } | null;
-  failure: { code: string; message: string; retryable: boolean } | null;
-  latency_ms: number | null;
-};
-
-export type ConversationMessage = {
-  message_id: string;
-  role: "user" | "assistant";
-  content: string;
-  chat_request_id: string | null;
-  answer_status?: string | null;
-  citations?: CitationSummary[] | null;
-  created_at: string;
-};
-
-export type ConversationDetail = {
-  conversation_id: string;
-  title: string;
-  state: string;
-  created_at: string;
-  ended_at: string | null;
-  message_count: number;
-  last_message_at: string | null;
+  caveat?: string | null;
+  conflict_warning?: boolean;
+  is_official_policy?: boolean;
+  source_type?: string | null;
 };
 
 export type TicketItem = {
@@ -129,6 +79,101 @@ export type TicketItem = {
   resolved_at: string | null;
   closed_at: string | null;
 };
+
+export type Warning = {
+  type: string;
+  severity: "INFO" | "WARNING" | "BLOCKING" | string;
+  message: string;
+  citation_ids?: string[] | null;
+  recommended_action?: string | null;
+};
+
+export type ChatState =
+  | "QUEUED"
+  | "RETRIEVING"
+  | "GENERATING"
+  | "COMPLETED"
+  | "REFUSED"
+  | "CLARIFICATION_REQUIRED"
+  | "FAILED";
+
+export type AssistantRole = "ANSWER" | "GUIDE" | "PREPARE_AND_HANDOFF" | "HUMAN_FIRST";
+export type RuntimeAction = "NONE" | "LINK_ONLY" | "PREFILL_DRAFT" | "CREATE_CASE";
+
+export type AllowedDataField = {
+  field_key: string;
+  label: string;
+  required_for_prefill: boolean;
+  pii_class: "Low" | "Medium" | "High" | "Critical";
+  storage_policy: "do_not_store" | "store_case_only" | "store_message_ok" | "store_metadata_only";
+};
+
+/**
+ * Canonical runtime decision từ agent (Runtime-Revised Canonical Scenario Registry).
+ * UI render theo `runtime_action` — mức được phép NGAY BÂY GIỜ — chứ không phải
+ * `max_runtime_action` (trần theo registry, có thể là CREATE_CASE ở MVP-2) và
+ * cũng không suy diễn từ nội dung câu trả lời.
+ */
+export type BoundaryDecision = {
+  scenario_id: number | null;
+  scenario_name: string | null;
+  service_code: string | null;
+  service_name: string | null;
+  assistant_role: AssistantRole;
+  sensitivity: "Low" | "Medium" | "High" | "Critical";
+  runtime_source_status: string;
+  source_of_truth_label: string;
+  max_runtime_action: RuntimeAction;
+  runtime_action: RuntimeAction;
+  mvp_phase: "MVP_1" | "MVP_2" | "FUTURE" | "OUT_OF_MVP";
+  handoff_target: { type?: string; code?: string; name?: string; contact_label?: string } | null;
+  user_facing_action_label: string | null;
+  allowed_data_fields: AllowedDataField[];
+  runtime_behavior: string;
+  resolution: "registry" | "fallback";
+};
+
+export type ChatResult = {
+  chat_request_id: string;
+  conversation_id: string;
+  user_message_id: string | null;
+  assistant_message_id: string | null;
+  state: ChatState;
+  answer_status: string | null;
+  answer: string | null;
+  citations: CitationSummary[] | null;
+  warnings: Warning[] | null;
+  clarification: { question: string; options: string[] } | null;
+  failure: { code: string; message: string; retryable: boolean } | null;
+  latency_ms: number | null;
+  // null khi tải lại lịch sử hoặc poll: decision hiện chỉ đi kèm event `result`
+  // của lượt chat đang chạy (chat_requests chưa có cột lưu boundary).
+  boundary?: BoundaryDecision | null;
+};
+
+export type ConversationMessage = {
+  message_id: string;
+  role: "user" | "assistant" | "USER" | "ASSISTANT";
+  content: string;
+  chat_request_id: string | null;
+  answer_status?: string | null;
+  citations?: CitationSummary[] | null;
+  created_at: string;
+};
+
+/** GET /conversations item. Kept explicit so Backend can implement the list contract without UI changes. */
+export type ConversationListItem = {
+  conversation_id: string;
+  title: string | null;
+  state: "ACTIVE" | "ENDED" | string;
+  created_at: string;
+  updated_at: string;
+  ended_at: string | null;
+  message_count: number;
+  last_message_at: string | null;
+};
+
+export type ConversationDetail = ConversationListItem;
 
 export type DocumentListItem = {
   document_id: string;

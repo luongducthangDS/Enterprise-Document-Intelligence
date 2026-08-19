@@ -1,0 +1,519 @@
+{
+  "run_at": "2026-08-12T15:38:31.978456+00:00",
+  "purpose": "A/B chat_template_kwargs.enable_thinking cho hallucination_check_node — cùng model GLM-5.2, replay offline 60 câu in_scope từ agent_eval_report.json",
+  "threshold_note": "Ngưỡng đổi default: agreement >= 95% (theo tiền lệ hallucination_model trong src/config.py)",
+  "agreement": 0.783,
+  "agree": 47,
+  "total": 60,
+  "latency_p50_ms": {
+    "thinking_on": 8085,
+    "thinking_off": 609
+  },
+  "pass_rate": {
+    "thinking_on": 43,
+    "thinking_off": 50,
+    "total": 60
+  },
+  "disagreement_direction": {
+    "off_pass_on_fail": [
+      "qa_003",
+      "qa_009",
+      "qa_010",
+      "qa_012",
+      "qa_019",
+      "qa_021",
+      "qa_030",
+      "qa_039",
+      "qa_040",
+      "qa_059"
+    ],
+    "off_fail_on_pass": [
+      "qa_032",
+      "qa_044",
+      "qa_056"
+    ]
+  },
+  "verdict": "KHÔNG ĐẠT — 78.3% << 95%. Quan trọng hơn con số: 10/13 bất đồng là tắt thinking nói PASS trong khi bật nói FAIL, tức lớp chống bịa đặt trở nên DỄ DÃI hơn (pass rate 43/60 -> 50/60). Đây là sai theo hướng nguy hiểm, khác hẳn router (sai theo hướng an toàn). Giữ thinking_hallucination=True.",
+  "results": [
+    {
+      "id": "qa_001",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6665,
+      "off_ms": 581
+    },
+    {
+      "id": "qa_002",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 5289,
+      "off_ms": 3235
+    },
+    {
+      "id": "qa_003",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 20704,
+      "off_ms": 942
+    },
+    {
+      "id": "qa_004",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6839,
+      "off_ms": 998
+    },
+    {
+      "id": "qa_005",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 12821,
+      "off_ms": 515
+    },
+    {
+      "id": "qa_006",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 25687,
+      "off_ms": 1234
+    },
+    {
+      "id": "qa_007",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 13396,
+      "off_ms": 587
+    },
+    {
+      "id": "qa_008",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 3029,
+      "off_ms": 651
+    },
+    {
+      "id": "qa_009",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 10817,
+      "off_ms": 613
+    },
+    {
+      "id": "qa_010",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 12726,
+      "off_ms": 378
+    },
+    {
+      "id": "qa_011",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 9893,
+      "off_ms": 587
+    },
+    {
+      "id": "qa_012",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 20306,
+      "off_ms": 575
+    },
+    {
+      "id": "qa_013",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 11051,
+      "off_ms": 611
+    },
+    {
+      "id": "qa_014",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6227,
+      "off_ms": 1012
+    },
+    {
+      "id": "qa_015",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 7590,
+      "off_ms": 415
+    },
+    {
+      "id": "qa_016",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 14948,
+      "off_ms": 626
+    },
+    {
+      "id": "qa_017",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 11339,
+      "off_ms": 578
+    },
+    {
+      "id": "qa_018",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6054,
+      "off_ms": 599
+    },
+    {
+      "id": "qa_019",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 3374,
+      "off_ms": 4628
+    },
+    {
+      "id": "qa_020",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 5808,
+      "off_ms": 957
+    },
+    {
+      "id": "qa_021",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 12468,
+      "off_ms": 606
+    },
+    {
+      "id": "qa_022",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 12010,
+      "off_ms": 609
+    },
+    {
+      "id": "qa_023",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6837,
+      "off_ms": 2840
+    },
+    {
+      "id": "qa_024",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 4848,
+      "off_ms": 412
+    },
+    {
+      "id": "qa_025",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 20143,
+      "off_ms": 360
+    },
+    {
+      "id": "qa_026",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 7302,
+      "off_ms": 567
+    },
+    {
+      "id": "qa_027",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 2150,
+      "off_ms": 627
+    },
+    {
+      "id": "qa_028",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 15849,
+      "off_ms": 1413
+    },
+    {
+      "id": "qa_029",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 11880,
+      "off_ms": 1876
+    },
+    {
+      "id": "qa_030",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 13635,
+      "off_ms": 604
+    },
+    {
+      "id": "qa_031",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 7745,
+      "off_ms": 621
+    },
+    {
+      "id": "qa_032",
+      "thinking_on_pass": true,
+      "thinking_off_pass": false,
+      "agree": false,
+      "on_ms": 11181,
+      "off_ms": 620
+    },
+    {
+      "id": "qa_033",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 5321,
+      "off_ms": 629
+    },
+    {
+      "id": "qa_034",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 4928,
+      "off_ms": 605
+    },
+    {
+      "id": "qa_035",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 11849,
+      "off_ms": 605
+    },
+    {
+      "id": "qa_036",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 8996,
+      "off_ms": 678
+    },
+    {
+      "id": "qa_037",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6463,
+      "off_ms": 1076
+    },
+    {
+      "id": "qa_038",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 8662,
+      "off_ms": 3740
+    },
+    {
+      "id": "qa_039",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 10718,
+      "off_ms": 2338
+    },
+    {
+      "id": "qa_040",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 5056,
+      "off_ms": 555
+    },
+    {
+      "id": "qa_041",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 8915,
+      "off_ms": 579
+    },
+    {
+      "id": "qa_042",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 6667,
+      "off_ms": 1013
+    },
+    {
+      "id": "qa_043",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 2300,
+      "off_ms": 595
+    },
+    {
+      "id": "qa_044",
+      "thinking_on_pass": true,
+      "thinking_off_pass": false,
+      "agree": false,
+      "on_ms": 12841,
+      "off_ms": 586
+    },
+    {
+      "id": "qa_045",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 4420,
+      "off_ms": 583
+    },
+    {
+      "id": "qa_046",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 3034,
+      "off_ms": 595
+    },
+    {
+      "id": "qa_047",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 12348,
+      "off_ms": 550
+    },
+    {
+      "id": "qa_048",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 8085,
+      "off_ms": 567
+    },
+    {
+      "id": "qa_049",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 4623,
+      "off_ms": 609
+    },
+    {
+      "id": "qa_050",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 1860,
+      "off_ms": 1142
+    },
+    {
+      "id": "qa_051",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 1769,
+      "off_ms": 664
+    },
+    {
+      "id": "qa_053",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 2471,
+      "off_ms": 582
+    },
+    {
+      "id": "qa_054",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 1737,
+      "off_ms": 979
+    },
+    {
+      "id": "qa_055",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 5922,
+      "off_ms": 1602
+    },
+    {
+      "id": "qa_056",
+      "thinking_on_pass": true,
+      "thinking_off_pass": false,
+      "agree": false,
+      "on_ms": 12941,
+      "off_ms": 570
+    },
+    {
+      "id": "qa_057",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 4733,
+      "off_ms": 583
+    },
+    {
+      "id": "qa_058",
+      "thinking_on_pass": true,
+      "thinking_off_pass": true,
+      "agree": true,
+      "on_ms": 5231,
+      "off_ms": 696
+    },
+    {
+      "id": "qa_059",
+      "thinking_on_pass": false,
+      "thinking_off_pass": true,
+      "agree": false,
+      "on_ms": 29305,
+      "off_ms": 604
+    },
+    {
+      "id": "qa_060",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 13890,
+      "off_ms": 562
+    },
+    {
+      "id": "qa_101",
+      "thinking_on_pass": false,
+      "thinking_off_pass": false,
+      "agree": true,
+      "on_ms": 12958,
+      "off_ms": 573
+    }
+  ]
+}

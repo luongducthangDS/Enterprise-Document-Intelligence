@@ -1,0 +1,173 @@
+[
+  {
+    "eval_id": "qa_102",
+    "old_chunk_ids": [
+      "05_chinh-sach-lam-viec-tu-xa::0010"
+    ],
+    "new_chunk_ids": [
+      "05_chinh-sach-lam-viec-tu-xa::0009"
+    ],
+    "supported_assertion": "NLĐ được WFH tối đa 08 ngày/tháng và 96 ngày/năm; vượt giới hạn vì lý do sức khỏe/bất khả kháng phải được Giám đốc bộ phận + Trưởng phòng NS phê duyệt bằng văn bản.",
+    "evidence_excerpt_or_hash": "Không quá 08 ngày WFH/tháng. Không quá 96 ngày WFH/năm (dựa trên 02 ngày/tuần × 48 tuần làm việc thực tế). Trường hợp NLĐ cần WFH vượt giới hạn trên vì lý do sức khỏe hoặc bất khả kháng, phải được Giám đốc bộ phận và Trưởng phòng Nhân sự phê duyệt bằng văn bản.",
+    "evidence_sha256": "f877b7757e01becc1f057c93ab304aa3cc4b2a0d92e0547acb21abb6a518e616",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_110",
+    "old_chunk_ids": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0007"
+    ],
+    "new_chunk_ids": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019"
+    ],
+    "supported_assertion": "Gói BHSTN chấm dứt vào ngày cuối cùng của tháng NLĐ nghỉ việc; có thể tiếp tục duy trì cá nhân bằng tự đóng phí cho Đối tác BH.",
+    "evidence_excerpt_or_hash": "Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH.",
+    "evidence_sha256": "21647bc3003929b3c3165229f2a00e1301e65cc789e77546b0aa9b9d885c211d",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_120",
+    "old_chunk_ids": [
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000"
+    ],
+    "new_chunk_ids": [
+      "07_chinh-sach-nghi-phep::0014",
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010"
+    ],
+    "supported_assertion": "(1) Hỗ trợ thêm 2 tháng lương nếu HĐLĐ>=12 tháng + đóng BHXH liên tục; (2) quyền lợi thai sản BHSTN chỉ áp dụng nếu tham gia gói >=10 tháng tính đến ngày dự sinh.",
+    "evidence_excerpt_or_hash": "NLĐ nữ sinh con được công ty hỗ trợ thêm 2 tháng lương (trợ cấp riêng từ công ty) ngoài chế độ BHXH, nếu có HĐLĐ xác định thời hạn từ 12 tháng trở lên và đóng BHXH liên tục. | Lưu ý thai sản: Quyền lợi thai sản chỉ áp dụng khi NLĐ nữ đã tham gia gói BHSTN ít nhất 10 tháng tính đến ngày dự sinh.",
+    "evidence_sha256": "e334e1c37d4c3bccff295e0276302b57595688849e03c587cf9b7d23cae9d63c",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_122",
+    "old_chunk_ids": [
+      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0007"
+    ],
+    "supported_assertion": "Tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày không lý do chính đáng dẫn tới sa thải (KHÔNG có ngưỡng theo năm — claim đó bị loại vì không có nguồn).",
+    "evidence_excerpt_or_hash": "Sa thải | Trộm cắp, tham ô, tiết lộ bí mật kinh doanh/công nghệ, quấy rối tình dục, tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày mà không có lý do chính đáng",
+    "evidence_sha256": "ee3fc6e1ccbead79cf3a683636081ecfdbecc14da10baa5767a1823e40e6b24f",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_123",
+    "old_chunk_ids": [
+      "leanh_mau-noi-quy-lao-dong::0000"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0002"
+    ],
+    "supported_assertion": "Thời gian làm việc chuẩn: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.",
+    "evidence_excerpt_or_hash": "Thời gian làm việc: 40 giờ/tuần, 08 giờ/ngày, từ thứ Hai đến thứ Sáu.",
+    "evidence_sha256": "7369e169c145b640c1399020a093734d6e92ed1b3ce6c99cae4433174989a49b",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_124",
+    "old_chunk_ids": [
+      "leanh_mau-noi-quy-lao-dong::0022"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0005"
+    ],
+    "supported_assertion": "Hành vi quấy rối tình dục gồm 3 nhóm: hành động/cử chỉ tính chất tình dục; ngôn ngữ/tài liệu liên quan hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy đánh giá ưu ái/lương thưởng/công việc.",
+    "evidence_excerpt_or_hash": "5.1. Hành vi quấy rối tình dục bao gồm: hành động/cử chỉ có tính chất tình dục; ngôn ngữ, tài liệu liên quan đến hoạt động tình dục; đề nghị đổi quan hệ tình dục lấy sự đánh giá ưu ái/lương thưởng/công việc.",
+    "evidence_sha256": "d7fca5ce6f9734e8489e4241c8e3174919a63c40f43c8f83f62d210eed8b8ccb",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_126",
+    "old_chunk_ids": [
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0002"
+    ],
+    "new_chunk_ids": [
+      "06_chinh-sach-dao-tao-phat-trien::0006"
+    ],
+    "supported_assertion": "Chi phí đào tạo 20 triệu (thuộc mức 20.000.000-50.000.000 VNĐ) -> cam kết làm việc tối thiểu 02 năm sau khi hoàn thành khóa học.",
+    "evidence_excerpt_or_hash": "Từ 20.000.000 VNĐ - 50.000.000 VNĐ hoặc thời gian đào tạo từ 06 - 12 tháng | 02 năm",
+    "evidence_sha256": "ab77431f3f2841cb58b59ed7cf070a92f05bef87eed0dc14eda5e13f815d9221",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_127",
+    "old_chunk_ids": [
+      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004"
+    ],
+    "new_chunk_ids": [
+      "06_chinh-sach-dao-tao-phat-trien::0006"
+    ],
+    "supported_assertion": "Chi phí đào tạo 20 triệu -> cam kết 02 năm; công thức đền bù = Tổng chi phí đào tạo × (Số tháng chưa làm đủ cam kết / Tổng số tháng cam kết).",
+    "evidence_excerpt_or_hash": "Từ 20.000.000 VNĐ - 50.000.000 VNĐ | 02 năm ... Chi phí đền bù = Tổng chi phí đào tạo × (Số tháng chưa làm đủ cam kết / Tổng số tháng cam kết)",
+    "evidence_sha256": "fb14e2c3d6bd69138af7b9805428a5b0458e67c6538db8862646cbbec4077672",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_129",
+    "old_chunk_ids": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "supported_assertion": "Thiệt hại không nghiêm trọng (dưới 10 tháng lương tối thiểu vùng): bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng không quá 30%/tháng.",
+    "evidence_excerpt_or_hash": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "evidence_sha256": "d2dd468df1462e1e38c40aa9f6ccb663e1aaef38712938d4cf542b7c1b2186c9",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_130",
+    "old_chunk_ids": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0003"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "supported_assertion": "Thiệt hại không nghiêm trọng (dưới 10 tháng lương tối thiểu vùng): bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng không quá 30%/tháng.",
+    "evidence_excerpt_or_hash": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "evidence_sha256": "d2dd468df1462e1e38c40aa9f6ccb663e1aaef38712938d4cf542b7c1b2186c9",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_131",
+    "old_chunk_ids": [
+      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0006"
+    ],
+    "new_chunk_ids": [
+      "13_noi-quy-lao-dong-va-ky-luat::0009"
+    ],
+    "supported_assertion": "Thiệt hại không nghiêm trọng (dưới 10 tháng lương tối thiểu vùng): bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng không quá 30%/tháng.",
+    "evidence_excerpt_or_hash": "9.1. NLĐ làm hư hỏng dụng cụ, thiết bị do sơ suất với giá trị thiệt hại dưới 10 tháng lương tối thiểu vùng: bồi thường tối đa 03 tháng lương, khấu trừ dần vào lương hằng tháng (không quá 30% lương thực nhận/tháng).",
+    "evidence_sha256": "d2dd468df1462e1e38c40aa9f6ccb663e1aaef38712938d4cf542b7c1b2186c9",
+    "validation": "EXACT"
+  },
+  {
+    "eval_id": "qa_138",
+    "old_chunk_ids": [
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0001"
+    ],
+    "new_chunk_ids": [
+      "04_quy-trinh-offboarding::0004"
+    ],
+    "supported_assertion": "NLĐ có quyền chấm dứt HĐLĐ không cần báo trước trong một số trường hợp cụ thể theo khoản 2 Điều 35, gồm (theo đúng 4 ví dụ tài liệu sống nêu): không được bố trí đúng công việc; không được trả đủ lương/đúng hạn; bị ngược đãi; bị quấy rối tình dục.",
+    "evidence_excerpt_or_hash": "Các trường hợp NLĐ được quyền nghỉ không cần báo trước: theo khoản 2 Điều 35 (ví dụ không được bố trí đúng công việc, không được trả đủ lương/đúng hạn, bị ngược đãi, bị quấy rối tình dục...).",
+    "evidence_sha256": "eca4144051c91d85255cb41b1314b093f491585435656c5dcae4656ad9c29228",
+    "validation": "SEMANTIC"
+  },
+  {
+    "eval_id": "qa_140",
+    "old_chunk_ids": [
+      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0006"
+    ],
+    "new_chunk_ids": [
+      "04_quy-trinh-offboarding::0007",
+      "04_quy-trinh-offboarding::0008"
+    ],
+    "supported_assertion": "Trong 14 ngày làm việc kể từ ngày chấm dứt HĐLĐ (có thể tới 30 ngày trong một số trường hợp theo Điều 48), công ty thanh toán đầy đủ quyền lợi, trả lại sổ BHXH + giấy tờ đã giữ, cấp giấy xác nhận thời gian làm việc nếu NLĐ yêu cầu.",
+    "evidence_excerpt_or_hash": "Trong thời hạn 14 ngày làm việc kể từ ngày chấm dứt, hai bên thanh toán đầy đủ các khoản liên quan đến quyền lợi mỗi bên (có thể kéo dài nhưng không quá 30 ngày trong một số trường hợp theo Điều 48). ... Công ty hoàn thành thủ tục xác nhận và trả lại sổ bảo hiểm xã hội, giấy tờ đã giữ của NLĐ (Điều 48). Cấp giấy xác nhận thời gian làm việc nếu NLĐ yêu cầu.",
+    "evidence_sha256": "0e655f4f2a407dd6b5c73ca65bdef53560bd09504c006fc45e105db1662a3c62",
+    "validation": "SEMANTIC"
+  }
+]

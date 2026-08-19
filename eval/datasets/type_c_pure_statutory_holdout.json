@@ -1,0 +1,102 @@
+[
+  {
+    "id": "qa_113",
+    "category": "Type C",
+    "archetype": "ARC_1",
+    "query": "Nghị định 161/2026/NĐ-CP quy định về mức lương cơ sở và chế độ tiền thưởng thì những đối tượng nào được áp dụng vậy anh/chị?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_113",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_114",
+    "category": "Type C",
+    "archetype": "ARC_1",
+    "query": "Em là viên chức thuộc đơn vị đang bảo lưu phần chênh lệch tiền lương và thu nhập tăng thêm từ tháng 6 năm 2024. Vậy từ ngày 01/07/2026, khi lương cơ sở tăng thì phần chênh lệch bảo lưu này có bị giảm không ạ?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_114",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_115",
+    "category": "Type C",
+    "archetype": "ARC_4",
+    "query": "Em làm việc tại một cơ sở y tế công lập, em muốn hỏi cơ sở của em được phép sử dụng bao nhiêu phần trăm từ số thu cung cấp dịch vụ khám chữa bệnh, y tế dự phòng để cải cách tiền lương sau khi đã trừ các chi phí liên quan?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_115",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_116",
+    "category": "Type C",
+    "archetype": "ARC_3",
+    "query": "Anh/chị cho em hỏi, theo quy định mới về lương cơ sở và tiền thưởng, Bộ Tài chính có trách nhiệm hướng dẫn những nội dung gì liên quan đến việc chi trả cho các cơ quan, đơn vị?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_116",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_132",
+    "category": "Type C",
+    "archetype": "ARC_1",
+    "query": "Em tham gia bảo hiểm xã hội bắt buộc trước ngày 01/07/2025 và đã đóng đủ 20 năm trở lên. Nếu khi tính ra mức lương hưu hàng tháng của em thấp hơn mức tham chiếu thì có được điều chỉnh lên mức tham chiếu không?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_132",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_133",
+    "category": "Type C",
+    "archetype": "ARC_1",
+    "query": "Anh chị ơi, em có thời gian làm việc trước ngày 01/01/1995 ở vùng có phụ cấp khu vực và thời gian đó được tính là thời gian đóng bảo hiểm xã hội. Vậy khi em nghỉ việc để hưởng lương hưu thì em có được hưởng thêm khoản trợ cấp nào liên quan đến phụ cấp khu vực không ạ?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_133",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_134",
+    "category": "Type C",
+    "archetype": "ARC_1",
+    "query": "Tôi được cơ quan cử đi làm việc có thời hạn ở nước ngoài trước ngày 01/01/1995, khi về nước đúng hạn nhưng đơn vị không bố trí được việc làm và tôi cũng chưa nhận trợ cấp thôi việc. Vậy thời gian làm việc ở trong nước trước khi đi và thời gian ở nước ngoài có được tính để hưởng chế độ hưu trí không?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_134",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_135",
+    "category": "Type C",
+    "archetype": "ARC_4",
+    "query": "Cho mình hỏi theo Nghị định 293/2025/NĐ-CP mới ban hành, mức lương tối thiểu tháng và mức lương tối thiểu giờ áp dụng cho người lao động ở vùng I là bao nhiêu?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_135",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_136",
+    "category": "Type C",
+    "archetype": "ARC_4",
+    "query": "Cho em hỏi tại tỉnh Ninh Bình, Vùng II gồm những phường nào vậy ạ?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_136",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  },
+  {
+    "id": "qa_137",
+    "category": "Type C",
+    "archetype": "ARC_4",
+    "query": "Cho em hỏi tại Thành phố Cần Thơ, các phường Ninh Kiều, Cái Khế, Bình Thủy và Cái Răng được phân loại thuộc Vùng nào vậy?",
+    "expected_state": "OUT_OF_SCOPE",
+    "origin_eval_id": "qa_137",
+    "note": "Additional/holdout pure_statutory case — KHÔNG thuộc canonical 20 Type-C matrix (xem eval/datasets/type_c_contract_set.json cho 20 case đóng băng). Production router KHÔNG đọc file này.",
+    "migrated_at": "2026-08-15T09:26:25.159794+00:00"
+  }
+]

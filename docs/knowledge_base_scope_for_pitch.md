@@ -2,214 +2,216 @@
 
 ## Product Positioning
 
-San pham nen duoc pitch la **HR Policy Copilot / HR Helpdesk Assistant** cho mot khoa hoc, tap trung vao viec tra loi cau hoi nhan su lap lai, tra cuu chinh sach chung va escalate dung bo phan khi cau hoi vuot pham vi.
+Sản phẩm nên được pitch là **HR Policy Copilot / HR Helpdesk Assistant** cho một khóa học, tập trung vào việc trả lời câu hỏi nhân sự lặp lại, tra cứu chính sách chung và escalate đúng bộ phận khi câu hỏi vượt phạm vi.
 
-Khong nen pitch nhu mot **HR system day du** hoac mot assistant co kha nang tra loi tat ca van de nhan su cua mot cong ty cu the.
+Không nên pitch như một **HR system đầy đủ** hoặc một assistant có khả năng trả lời tất cả vấn đề nhân sự của một công ty cụ thể.
 
-Thong diep chinh:
+Thông điệp chính:
 
-> Knowledge base cua he thong duoc gioi han co chu dich o cac chinh sach HR pho bien va van ban phap luat tham khao. Voi cau hoi can du lieu ca nhan, can xac minh HR, hoac co rui ro phap ly, agent khong tu suy doan ma tao ticket/escalate den dung bo phan HR.
+> Knowledge base của hệ thống được giới hạn có chủ đích ở các chính sách HR phổ biến và văn bản pháp luật tham khảo. Với câu hỏi cần dữ liệu cá nhân, cần xác minh HR, hoặc có rủi ro pháp lý, agent không tự suy đoán mà tạo ticket/escalate đến đúng bộ phận HR.
 
 ## Pitch-Safe Naming
 
-De tranh rui ro thuong hieu, trong slide/demo khong nen noi "day la chinh sach cua VinGroup/VinFast" hoac gan dataset voi mot cong ty cu the.
+Để tránh rủi ro thương hiệu, trong slide/demo không nên nói "đây là chính sách của VinGroup/VinFast" hoặc gắn dataset với một công ty cụ thể.
 
-Nen dung cach goi an toan hon:
+Nên dùng cách gọi an toàn hơn:
 
-- "tai lieu tham khao tu mot tap doan lon tai Viet Nam"
+- "tài liệu tham khảo từ một tập đoàn lớn tại Việt Nam"
 - "internal policy reference document"
 - "enterprise HR reference material"
 - "sample corporate policy corpus"
 
-Neu can noi ve nguon, chi nen noi:
+Nếu cần nói về nguồn, chỉ nên nói:
 
-> Mot phan knowledge base gom tai lieu tham khao dang corporate policy cua mot tap doan lon tai Viet Nam; he thong khong khang dinh day la chinh sach dang ap dung cua bat ky cong ty cu the nao.
+> Một phần knowledge base gồm tài liệu tham khảo dạng corporate policy của một tập đoàn lớn tại Việt Nam; hệ thống không khẳng định đây là chính sách đang áp dụng của bất kỳ công ty cụ thể nào.
 
 ## What The Current Knowledge Base Contains
 
-Bo du lieu trong `data/` bao gom cac nhom tai lieu chinh:
+Bộ dữ liệu trong `data/` bao gồm các nhóm tài liệu chính:
 
-- Chinh sach nghi phep.
-- Chinh sach lam them gio/OT.
-- Chinh sach lam viec tu xa/hybrid.
-- Quy trinh tuyen dung.
-- Quy trinh onboarding.
-- Quy trinh offboarding/cham dut hop dong lao dong.
-- Chinh sach dao tao va phat trien.
-- Chinh sach bao hiem suc khoe tu nguyen.
-- Quy che luong, thuong, phu cap, cong tac phi.
-- Quy che KPI/danh gia hieu suat.
-- Quy trinh ky luat lao dong va khieu nai.
-- Van ban phap luat ve lao dong, BHXH, BHYT, thue TNCN, luong toi thieu.
-- Cau hinh routing ticket sang cac bo phan HR nhu C&B, ER, TA, L&D, HRBP.
+- Chính sách nghỉ phép.
+- Chính sách làm thêm giờ/OT.
+- Chính sách làm việc từ xa/hybrid.
+- Quy trình tuyển dụng.
+- Quy trình onboarding.
+- Quy trình offboarding/chấm dứt hợp đồng lao động.
+- Chính sách đào tạo và phát triển.
+- Chính sách bảo hiểm sức khỏe tự nguyện.
+- Quy chế lương, thưởng, phụ cấp, công tác phí.
+- Quy chế KPI/đánh giá hiệu suất.
+- Quy trình kỷ luật lao động và khiếu nại.
+- Chính sách bảo hiểm xã hội/y tế/thất nghiệp bắt buộc, an toàn vệ sinh lao động (soạn nội bộ, có căn cứ pháp luật).
+- Cấu hình routing ticket sang các bộ phận HR như C&B, ER, TA, L&D, HRBP.
+
+Văn bản pháp luật về lao động, BHXH, BHYT, thuế TNCN, lương tối thiểu **không nằm trong knowledge base agent truy vấn trực tiếp** — chỉ dùng offline để soạn ra các tài liệu chính sách nội bộ ở trên khi doanh nghiệp chưa cung cấp chính sách thật. Agent không bao giờ trích dẫn nguyên văn luật khi trả lời; nếu một câu hỏi chỉ có thể trả lời bằng luật mà chưa có chính sách nội bộ tương ứng, agent escalate thay vì tự suy diễn.
 
 ## Important Data Caveats
 
-Day la diem can noi ro trong pitch de tranh pham vi bi mo ho:
+Đây là điểm cần nói rõ trong pitch để tránh phạm vi bị mơ hồ:
 
-- Nhieu tai lieu noi bo trong dataset la **synthetic/template**, khong phai chinh sach that cua mot doanh nghiep cu the.
-- Mot so tai lieu la template cong khai, chi nen dung de minh hoa cau truc quy trinh/chinh sach.
-- Cac van ban phap luat la nguon tham khao tot hon, nhung khi dung trong production van can quy trinh cap nhat va xac minh hieu luc.
-- Mot so tai lieu co nguon/tham chieu tu mot tap doan lon tai Viet Nam nen duoc trinh bay la **tai lieu tham khao dang corporate policy**, khong gan thanh chinh sach dang ap dung cho mot cong ty cu the.
-- Cac tai lieu tham khao nay co the la ban cu hoac khong ro thoi hieu, can xac minh ban cap nhat truoc khi dung cho cau hoi hien tai.
-- Knowledge base khong chua du lieu HRIS/payroll ca nhan, vi vay khong the tra loi cac cau hoi ve so du phep, trang thai don, bang luong, thuong hoac bao hiem cua mot ca nhan cu the.
+- Nhiều tài liệu nội bộ trong dataset là **synthetic/template**, không phải chính sách thật của một doanh nghiệp cụ thể.
+- Một số tài liệu là template công khai, chỉ nên dùng để minh họa cấu trúc quy trình/chính sách.
+- Các văn bản pháp luật là nguồn tham khảo tốt hơn, nhưng khi dùng trong production vẫn cần quy trình cập nhật và xác minh hiệu lực.
+- Một số tài liệu có nguồn/tham chiếu từ một tập đoàn lớn tại Việt Nam nên được trình bày là **tài liệu tham khảo dạng corporate policy**, không gắn thành chính sách đang áp dụng cho một công ty cụ thể.
+- Các tài liệu tham khảo này có thể là bản cũ hoặc không rõ thời hiệu, cần xác minh bản cập nhật trước khi dùng cho câu hỏi hiện tại.
+- Knowledge base không chứa dữ liệu HRIS/payroll cá nhân, vì vậy không thể trả lời các câu hỏi về số dư phép, trạng thái đơn, bảng lương, thưởng hoặc bảo hiểm của một cá nhân cụ thể.
 
 ## In Scope
 
-He thong co the xu ly tot cac nhom cau hoi sau trong demo/MVP:
+Hệ thống có thể xử lý tốt các nhóm câu hỏi sau trong demo/MVP:
 
-| Capability | Mo ta |
+| Capability | Mô tả |
 |---|---|
-| Policy Q&A | Tra loi cau hoi chung ve nghi phep, OT, WFH, onboarding, offboarding, tuyen dung, dao tao, bao hiem suc khoe. |
-| Legal reference | Tra cuu va tom tat cac quy dinh phap luat lao dong/BHXH/BHYT/thue o muc tham khao. |
-| Procedure guidance | Huong dan cac buoc dang ky nghi phep, dang ky OT, WFH, claim bao hiem, nghi viec, onboarding. |
-| Role-based answers | Dieu chinh cach tra loi cho employee, manager, HR admin neu co context vai tro. |
-| Source-aware answers | Dua caveat khi nguon la synthetic, template, public article, hoac chinh sach cu can xac minh. |
-| Ticket routing | Phan loai cau hoi va escalate sang C&B, ER, TA, L&D hoac HRBP. |
-| Low-confidence handling | Neu khong tim thay cau tra loi chac chan trong KB, agent nen thua nhan gioi han va tao ticket. |
-| MVP evaluation | Do accuracy, refusal quality va routing accuracy tren bo test nho truoc demo. |
+| Policy Q&A | Trả lời câu hỏi chung về nghỉ phép, OT, WFH, onboarding, offboarding, tuyển dụng, đào tạo, bảo hiểm sức khỏe. |
+| Legal reference | Tra cứu và tóm tắt các quy định pháp luật lao động/BHXH/BHYT/thuế ở mức tham khảo. |
+| Procedure guidance | Hướng dẫn các bước đăng ký nghỉ phép, đăng ký OT, WFH, claim bảo hiểm, nghỉ việc, onboarding. |
+| Role-based answers | Điều chỉnh cách trả lời cho employee, manager, HR admin nếu có context vai trò. |
+| Source-aware answers | Đưa caveat khi nguồn là synthetic, template, public article, hoặc chính sách cũ cần xác minh. |
+| Ticket routing | Phân loại câu hỏi và escalate sang C&B, ER, TA, L&D hoặc HRBP. |
+| Low-confidence handling | Nếu không tìm thấy câu trả lời chắc chắn trong KB, agent nên thừa nhận giới hạn và tạo ticket. |
+| MVP evaluation | Đo accuracy, refusal quality và routing accuracy trên bộ test nhỏ trước demo. |
 
 ## Agentic Behavior In MVP
 
-De tranh bi judge nhin nhu "chatbot RAG + router", can pitch ro cac hanh vi agentic dang co trong MVP:
+Để tránh bị judge nhìn như "chatbot RAG + router", cần pitch rõ các hành vi agentic đang có trong MVP:
 
-| Agentic capability | Cach the hien trong demo |
+| Agentic capability | Cách thể hiện trong demo |
 |---|---|
-| Intent analysis | Agent tu phan loai greeting, HR question, ambiguous, personal/out-of-scope. |
-| Retrieval planning | Agent chi retrieve khi cau hoi du ro va co the tra loi bang policy chung. |
-| Source-grounded generation | Agent chi tra loi dua tren doan trich, kem citation va caveat nguon. |
-| Self-check | Agent co hallucination check/confidence check truoc khi finalize. |
-| Escalation decision | Agent quyet dinh khi nao khong nen tra loi va can tao ticket draft. |
-| Ticket routing | Agent chon bo phan xu ly phu hop: C&B, ER, TA, L&D, HRBP. |
-| Clarification | Agent hoi lai khi cau hoi mo ho thay vi doan y user. |
+| Intent analysis | Agent tự phân loại greeting, HR question, ambiguous, personal/out-of-scope. |
+| Retrieval planning | Agent chỉ retrieve khi câu hỏi đủ rõ và có thể trả lời bằng policy chung. |
+| Source-grounded generation | Agent chỉ trả lời dựa trên đoạn trích, kèm citation và caveat nguồn. |
+| Self-check | Agent có hallucination check/confidence check trước khi finalize. |
+| Escalation decision | Agent quyết định khi nào không nên trả lời và cần tạo ticket draft. |
+| Ticket routing | Agent chọn bộ phận xử lý phù hợp: C&B, ER, TA, L&D, HRBP. |
+| Clarification | Agent hỏi lại khi câu hỏi mơ hồ thay vì đoán ý user. |
 
-Nen noi thang gioi han:
+Nên nói thẳng giới hạn:
 
 > In this MVP, the agent does not yet execute live HR transactions. Its agentic behavior is decision-making around retrieval, grounding, clarification, refusal, and ticket routing. Live ticket creation and status tracking are the next integration step.
 
-Ban tieng Viet:
+Bản tiếng Việt:
 
-> Trong MVP nay, agent chua thuc hien giao dich HR truc tiep tren HRIS/payroll. Tinh agentic nam o viec tu quyet dinh retrieve hay hoi lai, tu kiem tra grounding/confidence, tu choi khi vuot pham vi, va tao ticket draft den dung bo phan. Ket noi ticket system/HRIS that la buoc tich hop tiep theo.
+> Trong MVP này, agent chưa thực hiện giao dịch HR trực tiếp trên HRIS/payroll. Tính agentic nằm ở việc tự quyết định retrieve hay hỏi lại, tự kiểm tra grounding/confidence, từ chối khi vượt phạm vi, và tạo ticket draft đến đúng bộ phận. Kết nối ticket system/HRIS thật là bước tích hợp tiếp theo.
 
 ## Out Of Scope
 
-He thong khong nen tu tra loi cac truong hop sau:
+Hệ thống không nên tự trả lời các trường hợp sau:
 
-| Out of scope | Ly do |
+| Out of scope | Lý do |
 |---|---|
-| So du phep cua mot nhan vien cu the | Can du lieu HRIS ca nhan. |
-| Trang thai don nghi phep/OT/WFH/claim bao hiem | Can ket noi workflow/system that. |
-| Luong, thuong, khau tru, thue TNCN ca nhan | Can payroll va du lieu thu nhap ca nhan. |
-| Ket qua phong van/offer cua ung vien cu the | Can ATS hoac du lieu tuyen dung noi bo. |
-| Quyet dinh ky luat/cham dut hop dong cu the | Rui ro phap ly, can HR/Legal xac minh. |
-| Tu van phap ly cuoi cung cho tranh chap lao dong | Agent chi nen cung cap tham khao va escalate. |
-| Khẳng định chinh sach dang ap dung cho mot cong ty cu the | Dataset co nhieu synthetic/template, tai lieu tham khao va tai lieu cu. |
-| Cap nhat phap ly moi nhat neu KB chua duoc refresh | Can quy trinh update/verify nguon phap ly. |
+| Số dư phép của một nhân viên cụ thể | Cần dữ liệu HRIS cá nhân. |
+| Trạng thái đơn nghỉ phép/OT/WFH/claim bảo hiểm | Cần kết nối workflow/system thật. |
+| Lương, thưởng, khấu trừ, thuế TNCN cá nhân | Cần payroll và dữ liệu thu nhập cá nhân. |
+| Kết quả phỏng vấn/offer của ứng viên cụ thể | Cần ATS hoặc dữ liệu tuyển dụng nội bộ. |
+| Quyết định kỷ luật/chấm dứt hợp đồng cụ thể | Rủi ro pháp lý, cần HR/Legal xác minh. |
+| Tư vấn pháp lý cuối cùng cho tranh chấp lao động | Agent chỉ nên cung cấp tham khảo và escalate. |
+| Khẳng định chính sách đang áp dụng cho một công ty cụ thể | Dataset có nhiều synthetic/template, tài liệu tham khảo và tài liệu cũ. |
+| Cập nhật pháp lý mới nhất nếu KB chưa được refresh | Cần quy trình update/verify nguồn pháp lý. |
 
 ## Recommended User Stories For Demo
 
 ### Employee
 
-- La nhan vien, toi muon hoi minh duoc bao nhieu ngay phep nam, de biet quyen nghi phep theo tham nien va loai cong viec.
-- La nhan vien, toi muon biet quy trinh xin nghi phep tren HRIS, de nop don dung han.
-- La nhan vien, toi muon hoi nghi cuoi, nghi tang, nghi khong luong co duoc huong luong khong.
-- La nhan vien, toi muon biet lam OT vao ngay thuong, cuoi tuan, ngay le duoc tinh nhu the nao.
-- La nhan vien, toi muon biet minh co du dieu kien WFH/hybrid khong.
-- La nhan vien, toi muon biet WFH dot xuat can thong bao truoc khi nao.
-- La nhan vien, toi muon biet goi bao hiem suc khoe tu nguyen co ap dung cho minh khong.
-- La nhan vien, toi muon biet thu tuc claim bao hiem khi da ung tien vien phi.
-- La nhan vien, toi muon biet neu nghi viec thi phai bao truoc bao lau.
-- La nhan vien, toi muon biet sau khi nghi viec bao lau duoc thanh toan cac che do con lai.
-- La nhan vien, toi muon biet neu nghi sau khoa hoc chi phi cao thi co phai boi hoan khong.
+- Là nhân viên, tôi muốn hỏi mình được bao nhiêu ngày phép năm, để biết quyền nghỉ phép theo thâm niên và loại công việc.
+- Là nhân viên, tôi muốn biết quy trình xin nghỉ phép trên HRIS, để nộp đơn đúng hạn.
+- Là nhân viên, tôi muốn hỏi nghỉ cưới, nghỉ tang, nghỉ không lương có được hưởng lương không.
+- Là nhân viên, tôi muốn biết làm OT vào ngày thường, cuối tuần, ngày lễ được tính như thế nào.
+- Là nhân viên, tôi muốn biết mình có đủ điều kiện WFH/hybrid không.
+- Là nhân viên, tôi muốn biết WFH đột xuất cần thông báo trước khi nào.
+- Là nhân viên, tôi muốn biết gói bảo hiểm sức khỏe tự nguyện có áp dụng cho mình không.
+- Là nhân viên, tôi muốn biết thủ tục claim bảo hiểm khi đã ứng tiền viện phí.
+- Là nhân viên, tôi muốn biết nếu nghỉ việc thì phải báo trước bao lâu.
+- Là nhân viên, tôi muốn biết sau khi nghỉ việc bao lâu được thanh toán các chế độ còn lại.
+- Là nhân viên, tôi muốn biết nếu nghỉ sau khóa học chi phí cao thì có phải bồi hoàn không.
 
 ### Manager
 
-- La quan ly, toi muon biet quy trinh phe duyet OT, de dam bao nhan vien khong vuot gio theo quy dinh.
-- La quan ly, toi muon biet checklist onboarding 30-60-90 ngay, de ho tro nhan vien moi.
-- La quan ly, toi muon biet khi nao co the thu hoi quyen WFH cua nhan vien.
-- La hiring manager, toi muon tao yeu cau tuyen dung va biet luong phe duyet headcount.
-- La quan ly, toi muon biet vai tro cua minh trong offboarding va ban giao tai san/cong viec.
+- Là quản lý, tôi muốn biết quy trình phê duyệt OT, để đảm bảo nhân viên không vượt giờ theo quy định.
+- Là quản lý, tôi muốn biết checklist onboarding 30-60-90 ngày, để hỗ trợ nhân viên mới.
+- Là quản lý, tôi muốn biết khi nào có thể thu hồi quyền WFH của nhân viên.
+- Là hiring manager, tôi muốn tạo yêu cầu tuyển dụng và biết luồng phê duyệt headcount.
+- Là quản lý, tôi muốn biết vai trò của mình trong offboarding và bàn giao tài sản/công việc.
 
 ### HR / Admin
 
-- La HR, toi muon agent tra loi cac cau hoi chinh sach lap lai, de giam tai cho HR helpdesk.
-- La HR, toi muon agent tu dong phan loai ticket sang C&B, ER, TA, L&D hoac HRBP.
-- La HR, toi muon agent escalate khi cau hoi can du lieu ca nhan hoac co rui ro phap ly.
-- La HR admin, toi muon cau tra loi co source/caveat, de tranh nham lan giua chinh sach noi bo, tai lieu tham khao, template va synthetic data.
-- La HR admin, toi muon theo doi cac cau hoi low-confidence, de biet can bo sung knowledge base nao.
+- Là HR, tôi muốn agent trả lời các câu hỏi chính sách lặp lại, để giảm tải cho HR helpdesk.
+- Là HR, tôi muốn agent tự động phân loại ticket sang C&B, ER, TA, L&D hoặc HRBP.
+- Là HR, tôi muốn agent escalate khi câu hỏi cần dữ liệu cá nhân hoặc có rủi ro pháp lý.
+- Là HR admin, tôi muốn câu trả lời có source/caveat, để tránh nhầm lẫn giữa chính sách nội bộ, tài liệu tham khảo, template và synthetic data.
+- Là HR admin, tôi muốn theo dõi các câu hỏi low-confidence, để biết cần bổ sung knowledge base nào.
 
 ## Escalation Rules
 
-Agent nen escalate thay vi tu tra loi khi:
+Agent nên escalate thay vì tự trả lời khi:
 
-- Cau hoi can du lieu ca nhan: so du phep, bang luong, thue, trang thai don, trang thai claim, offer ca nhan.
-- Cau hoi lien quan tranh chap, khieu nai, quay roi, ky luat, cham dut hop dong.
-- Cau hoi co anh huong truc tiep den thu nhap da nhan hoac quyen loi phap ly.
-- Cau hoi nam ngoai tai lieu hien co.
-- Cau hoi co nguon tai lieu cu, synthetic/template, hoac chua ro hieu luc.
-- User yeu cau gap nguoi that.
+- Câu hỏi cần dữ liệu cá nhân: số dư phép, bảng lương, thuế, trạng thái đơn, trạng thái claim, offer cá nhân.
+- Câu hỏi liên quan tranh chấp, khiếu nại, quấy rối, kỷ luật, chấm dứt hợp đồng.
+- Câu hỏi có ảnh hưởng trực tiếp đến thu nhập đã nhận hoặc quyền lợi pháp lý.
+- Câu hỏi nằm ngoài tài liệu hiện có.
+- Câu hỏi có nguồn tài liệu cũ, synthetic/template, hoặc chưa rõ hiệu lực.
+- User yêu cầu gặp người thật.
 
-Routing goi y:
+Routing gợi ý:
 
 | Category | Department |
 |---|---|
-| Luong, thue, OT, phu cap, BHXH/BHYT, cham cong | C&B |
-| Nghi phep, so du phep, trang thai don | C&B |
-| Khieu nai, mau thuan, ky luat, quay roi, tranh chap | ER |
-| Tuyen dung, phong van, offer, gioi thieu ung vien | TA |
-| Onboarding/offboarding, nghi viec, ban giao | ER hoac HRBP tuy tinh huong |
-| Dao tao, cam ket boi hoan, lo trinh phat trien | L&D |
-| Cau hoi khong khop ro | HRBP |
+| Lương, thuế, OT, phụ cấp, BHXH/BHYT, chấm công | C&B |
+| Nghỉ phép, số dư phép, trạng thái đơn | C&B |
+| Khiếu nại, mâu thuẫn, kỷ luật, quấy rối, tranh chấp | ER |
+| Tuyển dụng, phỏng vấn, offer, giới thiệu ứng viên | TA |
+| Onboarding/offboarding, nghỉ việc, bàn giao | ER hoặc HRBP tùy tình huống |
+| Đào tạo, cam kết bồi hoàn, lộ trình phát triển | L&D |
+| Câu hỏi không khớp rõ | HRBP |
 
 ## Demo Boundary Statement
 
-Co the dua nguyen van nay vao slide pitch:
+Có thể đưa nguyên văn này vào slide pitch:
 
 > In this MVP, the HR AI Assistant focuses on policy Q&A and routing, not personal HR transactions. It answers common questions using a curated HR knowledge base, cites or caveats its source, and escalates to the right HR team when the request requires personal data, legal judgment, or system access.
 
-Ban tieng Viet:
+Bản tiếng Việt:
 
-> Trong MVP nay, HR AI Assistant tap trung vao hoi dap chinh sach va dieu phoi yeu cau, khong thay the he thong HRIS/payroll. Agent tra loi cac cau hoi HR pho bien dua tren knowledge base da curate, neu ro gioi han cua nguon, va escalate den dung bo phan khi cau hoi can du lieu ca nhan, can danh gia phap ly, hoac can truy cap he thong noi bo.
+> Trong MVP này, HR AI Assistant tập trung vào hỏi đáp chính sách và điều phối yêu cầu, không thay thế hệ thống HRIS/payroll. Agent trả lời các câu hỏi HR phổ biến dựa trên knowledge base đã curate, nêu rõ giới hạn của nguồn, và escalate đến đúng bộ phận khi câu hỏi cần dữ liệu cá nhân, cần đánh giá pháp lý, hoặc cần truy cập hệ thống nội bộ.
 
 ## MVP Evaluation
 
-Eval khong nen de o roadmap. Nen co mot bo test nho ngay trong MVP de chung minh he thong dang duoc kiem soat.
+Eval không nên để ở roadmap. Nên có một bộ test nhỏ ngay trong MVP để chứng minh hệ thống đang được kiểm soát.
 
-Bo test de pitch co the gom 30-50 cau:
+Bộ test để pitch có thể gồm 30-50 câu:
 
-| Metric | Muc tieu demo | Vi du test |
+| Metric | Mục tiêu demo | Ví dụ test |
 |---|---|---|
-| Policy answer accuracy | Cau tra loi dung theo nguon va co citation | "OT Chu nhat tinh bao nhieu phan tram?" |
-| Refusal quality | Tu choi/escalate dung khi can du lieu ca nhan | "Luong thang nay cua toi bi tru bao nhieu?" |
-| Routing accuracy | Ticket draft di dung bo phan | Luong/OT -> C&B, khieu nai -> ER, dao tao -> L&D |
-| Clarification quality | Hoi lai khi cau hoi mo ho | "Khi nao toi duoc nhan thuong?" |
-| Source caveat quality | Canh bao dung khi nguon la template/synthetic/reference | "Chinh sach KPI nhu the nao?" |
+| Policy answer accuracy | Câu trả lời đúng theo nguồn và có citation | "OT Chủ nhật tính bao nhiêu phần trăm?" |
+| Refusal quality | Từ chối/escalate đúng khi cần dữ liệu cá nhân | "Lương tháng này của tôi bị trừ bao nhiêu?" |
+| Routing accuracy | Ticket draft đi đúng bộ phận | Lương/OT -> C&B, khiếu nại -> ER, đào tạo -> L&D |
+| Clarification quality | Hỏi lại khi câu hỏi mơ hồ | "Khi nào tôi được nhận thưởng?" |
+| Source caveat quality | Cảnh báo đúng khi nguồn là template/synthetic/reference | "Chính sách KPI như thế nào?" |
 
-Thong diep voi judge:
+Thông điệp với judge:
 
 > Because this is an enterprise HR use case, we evaluate not only answer correctness, but also refusal quality, escalation routing, and source caveat behavior.
 
 ## Suggested Pitch Framing
 
-Nen noi san pham giai quyet 3 van de:
+Nên nói sản phẩm giải quyết 3 vấn đề:
 
-1. Giam tai cho HR bang cach tu dong tra loi cau hoi lap lai.
-2. Tang tinh nhat quan cua cau tra loi vi dua tren knowledge base co cau truc.
-3. Kiem soat rui ro bang co che caveat va escalation.
+1. Giảm tải cho HR bằng cách tự động trả lời câu hỏi lặp lại.
+2. Tăng tính nhất quán của câu trả lời vì dựa trên knowledge base có cấu trúc.
+3. Kiểm soát rủi ro bằng cơ chế caveat và escalation.
 
-Khong nen noi san pham:
+Không nên nói sản phẩm:
 
-- Thay the HR.
-- Tra loi moi cau hoi phap ly/nhan su.
-- Co du lieu ca nhan that.
-- La chinh sach chinh thuc/dang ap dung cua mot cong ty cu the.
+- Thay thế HR.
+- Trả lời mọi câu hỏi pháp lý/nhân sự.
+- Có dữ liệu cá nhân thật.
+- Là chính sách chính thức/đang áp dụng của một công ty cụ thể.
 
 ## Roadmap After MVP
 
-Neu muon mo rong sau pitch:
+Nếu muốn mở rộng sau pitch:
 
-- Ket noi HRIS de xem so du phep, trang thai don, lich su cham cong.
-- Ket noi payroll de giai thich bang luong ca nhan co kiem soat quyen truy cap.
-- Them admin dashboard de quan ly nguon tai lieu, version, ngay hieu luc.
-- Them approval workflow cho ticket va human-in-the-loop.
-- Them co che cap nhat van ban phap luat dinh ky.
+- Kết nối HRIS để xem số dư phép, trạng thái đơn, lịch sử chấm công.
+- Kết nối payroll để giải thích bảng lương cá nhân có kiểm soát quyền truy cập.
+- Thêm admin dashboard để quản lý nguồn tài liệu, version, ngày hiệu lực.
+- Thêm approval workflow cho ticket và human-in-the-loop.
+- Thêm cơ chế cập nhật văn bản pháp luật định kỳ.

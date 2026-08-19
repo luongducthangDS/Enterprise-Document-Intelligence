@@ -1,7 +1,8 @@
 from langgraph.graph import END, StateGraph
 
+from src.agents.nodes.boundary import boundary_node
 from src.agents.nodes.condense import condense_node
-from src.agents.nodes.escalation import confidence_node, escalate_node
+from src.agents.nodes.escalation import confidence_node, escalate_node, out_of_scope_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
 from src.agents.nodes.router import clarify_node, direct_node, router_node
@@ -15,6 +16,11 @@ def route_by_intent(state: AgentState) -> str:
         return "direct"
     if intent == "ambiguous":
         return "clarify"
+    # Routing precedence priority 2 (NexaTech Type-C contract v3.1.0): pure
+    # statutory/legal intent bypasses retrieval hoàn toàn — không đi qua nhánh
+    # escalate/ticket, có node riêng với response cố định.
+    if intent == "pure_statutory":
+        return "out_of_scope"
     if intent == "out_of_scope_or_personal":
         return "escalate"
     return "retrieve"
@@ -67,6 +73,7 @@ def build_graph() -> StateGraph:
 
     graph.add_node("condense", condense_node)
     graph.add_node("router", router_node)
+    graph.add_node("boundary", boundary_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
     graph.add_node("retrieve", retrieval_node)
@@ -76,17 +83,28 @@ def build_graph() -> StateGraph:
     graph.add_node("hallucination_check", hallucination_check_node)
     graph.add_node("confidence", confidence_node)
     graph.add_node("escalate_ticket", escalate_node)
+    graph.add_node("out_of_scope", out_of_scope_node)
     graph.add_node("finalize", finalize_node)
 
     graph.set_entry_point("condense")
     graph.add_edge("condense", "router")
+    # `boundary` nằm giữa router và các nhánh xử lý: nó cần `intent` do router
+    # đặt, và các node phía sau (escalate, finalize) cần decision của nó.
+    graph.add_edge("router", "boundary")
     graph.add_conditional_edges(
-        "router",
+        "boundary",
         route_by_intent,
-        {"direct": "direct", "clarify": "clarify", "escalate": "escalate_ticket", "retrieve": "retrieve"},
+        {
+            "direct": "direct",
+            "clarify": "clarify",
+            "escalate": "escalate_ticket",
+            "out_of_scope": "out_of_scope",
+            "retrieve": "retrieve",
+        },
     )
     graph.add_edge("direct", END)
     graph.add_edge("clarify", END)
+    graph.add_edge("out_of_scope", END)
 
     graph.add_edge("retrieve", "grade")
     graph.add_conditional_edges("grade", route_after_grade, {"generate": "generate", "rewrite": "rewrite"})

@@ -1,0 +1,142 @@
+{
+  "purpose": "Prerequisite 1+2 truoc F.2 - normalize denominator + classify qa_005",
+  "prerequisite_1_comparable_cohort": {
+    "comparable_eval_ids_count": 111,
+    "comparable_eval_ids": [
+      "qa_001", "qa_002", "qa_003", "qa_004", "qa_005", "qa_006", "qa_007", "qa_008", "qa_009", "qa_010",
+      "qa_011", "qa_012", "qa_013", "qa_014", "qa_015", "qa_021", "qa_022", "qa_023", "qa_024", "qa_025",
+      "qa_026", "qa_027", "qa_028", "qa_029", "qa_030", "qa_031", "qa_032", "qa_033", "qa_034", "qa_035",
+      "qa_036", "qa_037", "qa_038", "qa_039", "qa_040", "qa_046", "qa_047", "qa_048", "qa_049", "qa_050",
+      "qa_051", "qa_052", "qa_053", "qa_056", "qa_057", "qa_058", "qa_059", "qa_060", "qa_061", "qa_062",
+      "qa_063", "qa_064", "qa_065", "qa_066", "qa_067", "qa_068", "qa_069", "qa_070", "qa_071", "qa_072",
+      "qa_073", "qa_074", "qa_075", "qa_076", "qa_077", "qa_078", "qa_079", "qa_080", "qa_081", "qa_082",
+      "qa_083", "qa_084", "qa_085", "qa_086", "qa_087", "qa_088", "qa_089", "qa_090", "qa_091", "qa_092",
+      "qa_093", "qa_094", "qa_095", "qa_096", "qa_097", "qa_098", "qa_099", "qa_100", "qa_101", "qa_102",
+      "qa_103", "qa_104", "qa_105", "qa_106", "qa_107", "qa_108", "qa_109", "qa_110", "qa_111", "qa_112",
+      "qa_120", "qa_122", "qa_123", "qa_124", "qa_126", "qa_127", "qa_129", "qa_130", "qa_131", "qa_138",
+      "qa_140"
+    ],
+    "note_generation": "comparable_eval_ids = giao (intersection) cua id trong R0 report (eval/results/agent_eval_report.json, 125 item) va id ACTIVE (retired != true) hien tai trong qa_eval_set.json (111 item), tinh HOAN TOAN bang script (khong go tay) de tranh sai sot transcription. Vi F.1 CHI loai bo, khong bao gio them item moi, giao nay chinh xac bang tap 111 active hien tai.",
+    "immutability": "Danh sach nay KHONG duoc doi trong suot F.2. Moi R1/R2 deu phai filter dung 111 id nay, khong dung denominator khac.",
+    "note_qa_016_020_041_045_054_055": "Cac id nay (16-20, 41-45, 54-55) da bi retired TU TRUOC F.1 (vong loai template/reference cu hon) nen khong xuat hien ca trong R0 report (125 item) lan trong active set hien tai - khong lien quan F.1, khong can giai thich them o day."
+  },
+  "excluded_from_comparable_cohort": [
+    {
+      "eval_id": "qa_113",
+      "exclusion_reason": "pure_statutory holdout - router route dung theo Type-C contract da dong bang, dataset type=in_scope cu chua cap nhat theo contract",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_113) + eval/results/phase_f1_migration_audit.json (field_changed=retired/retired_reason, eval_id=qa_113)"
+    },
+    {
+      "eval_id": "qa_114",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_114) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_115",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_115) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_116",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_116) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_121",
+      "exclusion_reason": "retired - khong co internal frozen source ho tro claim 'muc ho tro tien mung cuoi hoi' (nguon duy nhat la base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md, public_template da loai khoi RAG index). Khong invent qrel.",
+      "r0_status": "FAIL",
+      "audit_record": "eval/results/phase_f1_migration_audit.json (eval_id=qa_121, field_changed=retired/retired_reason)"
+    },
+    {
+      "eval_id": "qa_125",
+      "exclusion_reason": "retired - khong co internal frozen source ho tro claim 'chi nhanh tu xay dung noi quy rieng' (nguon duy nhat la leanh_mau-noi-quy-lao-dong.md, public_template da loai khoi RAG index; tai lieu song 13_noi-quy-lao-dong-va-ky-luat.md khong co dieu khoan nay).",
+      "r0_status": "FAIL",
+      "audit_record": "eval/results/phase_f1_migration_audit.json (eval_id=qa_125, field_changed=retired/retired_reason)"
+    },
+    {
+      "eval_id": "qa_128",
+      "exclusion_reason": "retired - khong co internal frozen source ho tro breakdown chi phi dao tao + thu tu uu tien khau tru (chi co trong mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md, public_template da loai khoi RAG index; tai lieu song 06 chi co cong thuc tong quat).",
+      "r0_status": "FAIL",
+      "audit_record": "eval/results/phase_f1_migration_audit.json (eval_id=qa_128, field_changed=retired/retired_reason)"
+    },
+    {
+      "eval_id": "qa_132",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_132) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_133",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_133) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_134",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_134) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_135",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_135) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_136",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_136) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_137",
+      "exclusion_reason": "pure_statutory holdout - cung ly do qa_113",
+      "r0_status": "FAIL",
+      "audit_record": "eval/datasets/type_c_pure_statutory_holdout.json (id=qa_137) + eval/results/phase_f1_migration_audit.json"
+    },
+    {
+      "eval_id": "qa_139",
+      "exclusion_reason": "retired - TU SUA SAI SOT cua chinh F.1: gia dinh sai la moc bao truoc Dieu 35 (NLD xin nghi) ap dung doi xung cho Dieu 36 (cong ty don phuong cham dut). Agent chay live da xac nhan doc 04 khong co can cu do. Khong invent qrel.",
+      "r0_status": "FAIL",
+      "audit_record": "eval/results/phase_f1_migration_audit.json (eval_id=qa_139, field_changed=retired/retired_reason)"
+    }
+  ],
+  "r0_comparable": {
+    "passed": 86,
+    "total": 111,
+    "rate": 0.7748,
+    "method": "Loc dung 111 comparable_eval_ids tu ket qua GOC cua agent_eval_report.json (khong chay lai) - 86 item passed, 25 item fail (39 fail goc - 14 excluded, tat ca 14 excluded deu la FAIL o R0 nen khong anh huong so passed)."
+  },
+  "r1_comparable_3_runs": {
+    "run_a": {"passed": 98, "total": 111, "rate": 0.8829, "source": "R1-a goc chay tren 112 item (truoc khi tu sua qa_139) - loai qa_139 (PASS o run nay) ra khoi ca tu so va mau so: 99-1=98 / 112-1=111"},
+    "run_b": {"passed": 92, "total": 111, "rate": 0.8288, "source": "eval/results/agent_eval_report_phase_f1.json - chay dung tren 111 comparable id"},
+    "run_c": {"passed": 98, "total": 111, "rate": 0.8829, "source": "eval/results/agent_eval_report_r1.json - chay dung tren 111 comparable id"}
+  },
+  "delta_dataset": {
+    "range_percentage_points": [5.4, 10.8],
+    "formula": "r1_comparable_rate - r0_comparable_rate, tinh tren tung run rieng le (khong lay trung binh de bao mot so duy nhat, vi nhieu run-to-run co that)",
+    "conclusion": "delta_dataset THAT (khong phai +14..+21 nhu bao cao truoc - do la loi so sai denominator giua 86/125 va X/111, da duoc Ted chi ra va sua o day)."
+  },
+  "prerequisite_2_qa_005_classification": {
+    "eval_id": "qa_005",
+    "primary_root_cause": "G6_GENERATION_CONTENT_ERROR",
+    "question": "Muon lam OT thi can ai phe duyet truoc?",
+    "expected_answer": "Can co su dong y cua NLD va phe duyet truoc cua quan ly truc tiep.",
+    "gold_chunk": "01_chinh-sach-lam-them-gio-OT::0004",
+    "gold_chunk_text": "4.1. Lam them gio chi thuc hien khi co su dong y cua NLD va phe duyet truoc cua quan ly truc tiep (can cu Dieu 107).",
+    "retrieved_chunk_ids_live_run": [
+      "01_chinh-sach-lam-them-gio-OT::0007",
+      "05_chinh-sach-lam-viec-tu-xa::0031",
+      "01_chinh-sach-lam-them-gio-OT::0004"
+    ],
+    "evidence_analysis": "context_found=True - gold chunk ::0004 THUC SU nam trong retrieved pool (vi tri 3, score thap hon). Chunk ::0007 (rank 1, duoc cited [Nguon 1]) CUNG co mot dang bang chung ve 'NLD dong y' o buoc 3: 'NLD xac nhan dong y (chu ky hoac phe duyet tren he thong HRIS)'. Response THUC TE: 'Theo Chinh sach OT... muon lam OT can co phe duyet truoc cua quan ly truc tiep [Nguon 1]. Trong quy trinh chinh thuc, quan ly truc tiep gui Phieu dang ky OT, sau do Truong bo phan phe duyet; neu vuot 20 gio/thang/nguoi thi phai co them phe duyet cua Phong Nhan su [Nguon 1].' -> generation CHI dung buoc 1-2 cua chunk ::0007, BO SOT ca buoc 3 cua chunk ::0007 LAN toan bo chunk ::0004 (nguyen tac 'su dong y cua NLD').",
+    "conclusion": "Retrieval THANH CONG (ca 2 nguon co bang chung deu nam trong context). Generation KHONG tong hop day du - bo sot ve 'su dong y cua NLD' du bang chung co san o CA HAI chunk duoc retrieve. Day la loi sinh cau tra loi khong day du (content-completeness), KHONG phai retrieval-miss, KHONG phai router bug, KHONG phai judge error (cau tra loi thuc su thieu 1 fact so voi expected, judge cham dung).",
+    "relation_to_other_cases": "Cung co che voi qa_047 (bo sot dieu khoan ngoai le BHXH nguoi nuoc ngoai du chunk chua dieu khoan do duoc retrieve) - ca hai deu la 'generation chi tong hop tu chunk/doan xep hang cao nhat, bo qua fact bo sung o chunk/doan khac trong cung context', KHAC co che voi P1 (confidence_score bi kep 0.1 gay escalate) - qa_005 KHONG escalate, van tra loi nhung thieu 1 fact.",
+    "note_for_f2_ordering": "qa_005 va qa_047 KHONG khop vao dung 4 P-step (P1 confidence=0.1 / P2 ambiguous router / P3 retrieval miss / P4 judge error) ma Ted da lock. Can Ted quyet dinh: (a) mo rong P1 thanh 'generation/confidence cluster' bao gom ca 2 co che, hay (b) giu qa_005/047 la FAIL_PRODUCT_BUG da duoc giai thich (co primary_root_cause ro rang = G6) nhung CHUA sua trong vong F.2 nay, bao cao trung thuc o F.4 thay vi ep vao mot trong 4 P-step khong khop."
+  }
+}

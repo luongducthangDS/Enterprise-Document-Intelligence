@@ -3,8 +3,9 @@ import type {
   AsyncJob,
   ChatResult,
   CitationDetail,
-  ConversationDetail,
   ConversationMessage,
+  ConversationListItem,
+  ConversationDetail,
   DocumentDetail,
   DocumentListItem,
   EvaluationRun,
@@ -15,6 +16,17 @@ import type {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const ACCESS_TOKEN_KEY = "hr_knowledge_access_token";
 const REFRESH_TOKEN_KEY = "hr_knowledge_refresh_token";
+
+export type ChatStreamEvent =
+  | { type: "request"; chat_request_id: string; conversation_id: string; state: string; poll_after_ms: number }
+  | { type: "heartbeat" }
+  | { type: "status"; value: string }
+  | { type: "tool_start" | "tool_end"; tool: string }
+  | { type: "answer_delta"; content: string }
+  | { type: "citation"; source: string; title: string; page_start: number | null; is_official_policy: boolean }
+  | { type: "done"; answer?: unknown }
+  | { type: "error"; code?: string; message: string; status?: number; retryable?: boolean }
+  | { type: "result"; data: ChatResult };
 
 export class ApiClientError extends Error {
   constructor(
@@ -40,6 +52,7 @@ export function clearSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  window.dispatchEvent(new Event("hr-session-cleared"));
 }
 
 export function hasSession() {
@@ -49,11 +62,16 @@ export function hasSession() {
 async function refreshSession() {
   const refreshToken = getStoredToken(REFRESH_TOKEN_KEY);
   if (!refreshToken) return false;
-  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+  } catch {
+    throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
+  }
   if (!response.ok) return false;
   const payload = (await response.json()) as ApiResponse<{
     access_token: string;
@@ -74,15 +92,28 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true, all
   }
 
   let response: Response;
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeout = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 45_000);
+  init.signal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, signal: controller.signal });
   } catch (reason) {
-    if (reason instanceof DOMException && reason.name === "AbortError") throw reason;
+    if (controller.signal.aborted && !timedOut) throw reason;
+    if (timedOut) {
+      throw new ApiClientError("Backend phản hồi quá lâu. Vui lòng thử lại.", "REQUEST_TIMEOUT", 0, true);
+    }
     throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
+  } finally {
+    window.clearTimeout(timeout);
   }
 
-  if (response.status === 401 && auth && allowRefresh && (await refreshSession())) {
-    return request<T>(path, init, auth, false);
+  if (response.status === 401 && auth && allowRefresh) {
+    if (await refreshSession()) return request<T>(path, init, auth, false);
+    clearSession();
   }
 
   let payload: ApiResponse<T>;
@@ -104,6 +135,92 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true, all
 
 function idempotencyHeaders() {
   return { "Idempotency-Key": crypto.randomUUID() };
+}
+
+async function streamRequest(
+  path: string,
+  body: unknown,
+  onEvent: (event: ChatStreamEvent) => void,
+  allowRefresh = true,
+): Promise<void> {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    Accept: "text/event-stream",
+    "X-Request-ID": crypto.randomUUID(),
+    ...idempotencyHeaders(),
+  });
+  const token = getStoredToken(ACCESS_TOKEN_KEY);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
+  }
+
+  if (response.status === 401 && allowRefresh && (await refreshSession())) {
+    return streamRequest(path, body, onEvent, false);
+  }
+  if (!response.ok) {
+    let payload: ApiResponse<unknown> | null = null;
+    try {
+      payload = (await response.json()) as ApiResponse<unknown>;
+    } catch {
+      // Một proxy có thể trả HTML khi endpoint streaming chưa được triển khai.
+    }
+    throw new ApiClientError(
+      payload?.error?.message ?? "Không thể bắt đầu câu trả lời trực tiếp.",
+      payload?.error?.code ?? `HTTP_${response.status}`,
+      response.status,
+      payload?.error?.retryable ?? response.status >= 500,
+    );
+  }
+  if (!response.body) {
+    throw new ApiClientError("Backend không trả về luồng dữ liệu.", "EMPTY_STREAM", response.status, true);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  function consume(block: string) {
+    const data = block
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n");
+    if (!data) return;
+    try {
+      const event = JSON.parse(data) as ChatStreamEvent;
+      if (event.type === "error") {
+        throw new ApiClientError(
+          event.message,
+          event.code ?? "STREAM_ERROR",
+          event.status ?? 0,
+          event.retryable ?? true,
+        );
+      }
+      onEvent(event);
+    } catch (error) {
+      if (error instanceof ApiClientError) throw error;
+      throw new ApiClientError("Luồng trả lời có dữ liệu không hợp lệ.", "INVALID_STREAM_EVENT", 0, true);
+    }
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const blocks = buffer.split(/\r?\n\r?\n/);
+    buffer = blocks.pop() ?? "";
+    blocks.forEach(consume);
+    if (done) break;
+  }
+  if (buffer.trim()) consume(buffer);
 }
 
 export const api = {
@@ -132,8 +249,9 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ title }),
     }).then((response) => response.data!),
+  /** Backend contract: GET /conversations returns newest-updated conversations for current user. */
   listConversations: () =>
-    request<ConversationDetail[]>("/conversations?limit=100").then((response) => response.data!),
+    request<ConversationListItem[]>("/conversations?limit=100").then((response) => response.data!),
   getConversation: (conversationId: string) =>
     request<ConversationDetail>(`/conversations/${conversationId}`).then((response) => response.data!),
   renameConversation: (conversationId: string, title: string) =>
@@ -159,6 +277,11 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ conversation_id: conversationId, question }),
     }).then((response) => response.data!),
+  streamChatRequest: (
+    conversationId: string,
+    question: string,
+    onEvent: (event: ChatStreamEvent) => void,
+  ) => streamRequest("/chat/requests/stream", { conversation_id: conversationId, question }, onEvent),
   getChatRequest: (chatRequestId: string, signal?: AbortSignal) =>
     request<ChatResult>(`/chat/requests/${chatRequestId}`, { signal }).then((response) => response.data!),
   retryChatRequest: (chatRequestId: string) =>
@@ -168,20 +291,25 @@ export const api = {
     ).then((response) => response.data!),
   getCitation: (citationId: string) =>
     request<CitationDetail>(`/citations/${citationId}`).then((response) => response.data!),
-  listTickets: (filters: { status?: string; priority?: string } = {}) => {
+  listTickets: (filters: { status?: string; department?: string; priority?: string } = {}) => {
     const params = new URLSearchParams();
     if (filters.status) params.set("status", filters.status);
+    if (filters.department) params.set("department", filters.department);
     if (filters.priority) params.set("priority", filters.priority);
     const suffix = params.size ? `?${params.toString()}` : "";
     return request<TicketItem[]>(`/tickets${suffix}`).then((response) => response.data!);
   },
   getTicket: (ticketId: string) =>
     request<TicketItem>(`/tickets/${ticketId}`).then((response) => response.data!),
-  updateTicket: (ticketId: string, update: { status?: string; assignee_id?: string; resolution_note?: string; priority?: string }) =>
-    request<TicketItem>(`/tickets/${ticketId}`, {
-      method: "PATCH",
-      body: JSON.stringify(update),
-    }).then((response) => response.data!),
+  createTicket: (payload: { user_query: string; target_department: string; priority: string; category?: string }) =>
+    request<TicketItem>("/tickets", { method: "POST", body: JSON.stringify(payload) }).then((response) => response.data!),
+  updateTicket: (
+    ticketId: string,
+    payload: { status?: string; priority?: string; resolution_note?: string; assignee_id?: string },
+  ) =>
+    request<TicketItem>(`/tickets/${ticketId}`, { method: "PATCH", body: JSON.stringify(payload) }).then(
+      (response) => response.data!,
+    ),
   listDocuments: (filters: { category?: string; status?: string; indexed?: string } = {}) => {
     const params = new URLSearchParams();
     if (filters.category) params.set("category", filters.category);

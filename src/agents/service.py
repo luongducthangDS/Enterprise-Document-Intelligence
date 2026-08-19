@@ -10,30 +10,57 @@ state nội bộ của agent.
 """
 
 import json
+import time
 from collections.abc import AsyncIterator
 from typing import Any
 
 from src.agents.graph import agent
 from src.agents.guardrails import redact_pii
 from src.agents.state import AgentState
-from src.models.schemas import AgentAnswer, Citation, TicketDraft
+from src.config import get_settings
+from src.models.schemas import AgentAnswer, BoundaryDecisionDTO, Citation, TicketDraft
+from src.observability import llm_trace
 
-# Tên node -> thông báo tiến trình hiển thị cho user trong lúc graph đang chạy
-# (xem astream_answer). Node không có trong bảng này chạy đủ nhanh/đủ nội bộ
-# (grade/confidence/finalize là code thuần <10ms; direct/clarify là nhánh tắt)
-# nên không đáng phát riêng 1 status, tránh spam UI.
-_NODE_STATUS_MESSAGES: dict[str, str] = {
-    "condense": "Đang xử lý ngữ cảnh hội thoại trước đó...",
-    "router": "Đang phân tích yêu cầu...",
-    "rewrite": "Đang viết lại câu hỏi để tìm kiếm chính xác hơn...",
-    "generate": "Đang soạn câu trả lời...",
-    "hallucination_check": "Đang kiểm tra độ chính xác câu trả lời...",
-    "escalate_ticket": "Đang chuẩn bị chuyển yêu cầu hỗ trợ...",
-}
 _RETRIEVE_TOOL_NAME = "hr_policy_search"
 # ~15 từ/chunk (tiếng Việt trung bình 4-6 ký tự/từ) -> chunk vừa đủ nhỏ để tạo
 # hiệu ứng gõ chữ mượt, vừa đủ lớn để không spam quá nhiều event/response ngắn.
 _ANSWER_CHUNK_WORDS = 15
+
+# Tri-state contract (NexaTech Type-C contract v3.1.0, frozen) — map escalate_reason
+# (lịch sử, 6 giá trị, vẫn giữ nguyên cho ticket routing/backward-compat) sang
+# reason_code (contract, chỉ 2 giá trị cho ABSTAIN). competitor_question/
+# human_first_required có escalate=False (không tạo ticket) nhưng VẪN LÀ một
+# lượt từ chối — phải map dù không tạo ticket, nên tra theo escalate_reason,
+# KHÔNG theo escalate.
+_ABSTAIN_REASON_CODE: dict[str, str] = {
+    "personal_data_required": "requires_live_personal_data",
+    "user_requested_human": "requires_live_personal_data",
+    "human_first_required": "requires_live_personal_data",
+    "low_confidence": "missing_policy_evidence",
+    "out_of_scope": "missing_policy_evidence",
+    "competitor_question": "missing_policy_evidence",
+}
+
+
+def _derive_runtime_state(state: AgentState) -> tuple[str, str | None]:
+    """Tính tập trung MỘT LẦN, không để từng node tự set — tránh một nhánh quên
+    gán rồi rơi về None âm thầm. Thứ tự kiểm tra phản ánh routing_precedence:
+
+    1. intent=pure_statutory (routing precedence priority 2) -> OUT_OF_SCOPE,
+       bất kể escalate_reason (out_of_scope_node không tạo ticket nên
+       escalate_reason luôn rỗng ở nhánh này, nhưng intent là tín hiệu đáng
+       tin cậy hơn vì được set ngay tại router, không phụ thuộc node nào chạy
+       sau).
+    2. escalate_reason có mặt (dù escalate=True hay False — competitor/
+       human_first vẫn là một lượt từ chối) -> ABSTAIN với reason_code tương ứng.
+    3. Còn lại (greeting/clarify/answer thành công) -> ANSWER.
+    """
+    if state.get("intent") == "pure_statutory":
+        return "OUT_OF_SCOPE", None
+    escalate_reason = state.get("escalate_reason")
+    if escalate_reason in _ABSTAIN_REASON_CODE:
+        return "ABSTAIN", _ABSTAIN_REASON_CODE[escalate_reason]
+    return "ANSWER", None
 
 
 def sanitize_citations(citations: list[dict]) -> list[Citation]:
@@ -66,7 +93,38 @@ def _build_ticket_draft(state: AgentState) -> TicketDraft | None:
     )
 
 
-def _log_audit(state: AgentState) -> None:
+def _build_boundary(state: AgentState) -> BoundaryDecisionDTO | None:
+    """State luôn có `boundary` khi graph chạy đủ node; giữ nullable để test
+    gọi thẳng một node lẻ hoặc client bản cũ vẫn hợp lệ."""
+    decision = state.get("boundary")
+    return BoundaryDecisionDTO.model_validate(decision) if decision else None
+
+
+def _network_summary(calls: list[dict]) -> list[dict]:
+    """Rút gọn trace của llm_trace về đúng phần đọc được trong log.
+
+    Giữ nguyên THỨ TỰ gọi — thứ tự chính là thứ cho biết một request đã phải
+    generate lại mấy lần (cặp chat/chat lặp lại), thứ mà tổng cộng dồn theo
+    `kind` giấu mất. Không mang theo prompt/nội dung, chỉ số đo.
+    """
+    return [
+        {
+            "kind": call["kind"],
+            "model": call["model"],
+            "ms": call["duration_ms"],
+            **({"attempts": call["attempts"]} if call["attempts"] > 1 else {}),
+            **({"ctok": call["completion_tokens"]} if call.get("completion_tokens") else {}),
+            **({"reasoning_chars": call["reasoning_chars"]} if call.get("reasoning_chars") else {}),
+        }
+        for call in calls
+    ]
+
+
+def _log_audit(
+    state: AgentState,
+    stage_timings_ms: dict[str, int] | None = None,
+    network_calls: list[dict] | None = None,
+) -> None:
     """Audit trail tối thiểu cho mỗi lượt trả lời — 1 dòng JSON/request, đọc
     được bằng log aggregator bất kỳ (Render/Docker log) mà không cần hạ tầng
     mới. Cố tình KHÔNG log `query` (nội dung câu hỏi thô của nhân viên) — audit
@@ -88,6 +146,20 @@ def _log_audit(state: AgentState) -> None:
         "guardrail_injection_detected": state.get("guardrail_injection_detected", False),
         "guardrail_pii_redacted": state.get("guardrail_pii_redacted", False),
     }
+    # Telemetry escalation guard — chỉ log khi fast router định escalate, để
+    # phân biệt được "guard không chạy" với "guard chạy mà không tốn LLM".
+    # verifier_trigger_rate và verifier_useful_rate tính trực tiếp từ 2 trường
+    # này (xem AgentState.verifier_*); useful_rate tụt là tín hiệu mở task thêm
+    # pre-filter trước verifier.
+    if "verifier_called" in state:
+        audit["verifier_called"] = state["verifier_called"]
+        if state["verifier_called"]:
+            audit["verifier_changed_route"] = state.get("verifier_changed_route", False)
+            audit["verifier_latency_ms"] = state.get("verifier_latency_ms")
+    if stage_timings_ms is not None:
+        audit["stage_timings_ms"] = stage_timings_ms
+    if network_calls:
+        audit["network_calls"] = _network_summary(network_calls)
     print(f"[audit] {json.dumps(audit, ensure_ascii=False)}")
 
 
@@ -134,34 +206,88 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
     # (CSS/JS), không phải ở backend.
     """
     state: AgentState = {"query": query, "history": history or []}
+    started_at = time.perf_counter()
+    previous_node_at = started_at
+    stage_timings_ms: dict[str, int] = {}
+    # Trace chỉ cần SỐNG trong lúc graph chạy; list thu được vẫn đọc bình thường
+    # sau khi thoát context, nên đóng nó trước _log_audit là đúng ý.
+    profiling = get_settings().profile_latency
+    capture_cm = llm_trace.capture() if profiling else None
+    network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
     try:
         has_history = bool(state.get("history"))
+        yield {
+            "type": "status",
+            "value": "Đang xử lý ngữ cảnh hội thoại..." if has_history else "Đang phân tích yêu cầu...",
+        }
         async for step in agent.astream(state, stream_mode="updates"):
             for node_name, delta in step.items():
+                node_completed_at = time.perf_counter()
+                elapsed_ms = round((node_completed_at - previous_node_at) * 1000)
+                stage_timings_ms[node_name] = stage_timings_ms.get(node_name, 0) + elapsed_ms
+                previous_node_at = node_completed_at
                 state.update(delta)
-                if node_name == "retrieve":
-                    yield {"type": "tool_start", "tool": _RETRIEVE_TOOL_NAME}
+                if node_name == "condense" and has_history:
+                    yield {"type": "status", "value": "Đang phân tích yêu cầu..."}
+                elif node_name == "router":
+                    if state.get("intent") == "hr_question":
+                        yield {"type": "tool_start", "tool": _RETRIEVE_TOOL_NAME}
+                        yield {"type": "status", "value": "Đang tìm trong tài liệu HR..."}
+                    else:
+                        yield {"type": "status", "value": "Đang soạn câu trả lời..."}
+                elif node_name == "retrieve":
                     yield {"type": "tool_end", "tool": _RETRIEVE_TOOL_NAME}
-                    continue
-                if node_name == "condense" and not has_history:
-                    # 0-cost skip (không có LLM call, xem condense_node) — phát
-                    # status ở đây sẽ báo sai là "đang xử lý" trong khi thực tế
-                    # không có việc gì chạy.
-                    continue
-                message = _NODE_STATUS_MESSAGES.get(node_name)
-                if message:
+                    yield {"type": "status", "value": "Đang đánh giá các tài liệu tìm được..."}
+                elif node_name == "grade":
+                    message = (
+                        "Đang soạn câu trả lời..."
+                        if state.get("retrieved_chunks")
+                        else "Đang mở rộng phạm vi tìm kiếm..."
+                    )
                     yield {"type": "status", "value": message}
+                elif node_name == "rewrite":
+                    yield {"type": "tool_start", "tool": _RETRIEVE_TOOL_NAME}
+                    yield {"type": "status", "value": "Đang tìm lại với truy vấn chính xác hơn..."}
+                elif node_name == "generate":
+                    yield {"type": "status", "value": "Đang kiểm tra độ chính xác câu trả lời..."}
+                elif node_name == "hallucination_check" and not state.get("hallucination_passed", True):
+                    yield {"type": "status", "value": "Đang điều chỉnh câu trả lời theo nguồn..."}
+                elif node_name == "escalate_ticket":
+                    yield {"type": "status", "value": "Đang chuẩn bị chuyển yêu cầu hỗ trợ..."}
     except Exception as e:  # noqa: BLE001 — báo lỗi qua event thay vì làm rơi kết nối SSE trần trụi
         yield {"type": "error", "message": f"{type(e).__name__}: {e}"}
         return
+    finally:
+        if capture_cm is not None:
+            capture_cm.__exit__(None, None, None)
 
     safe_response = _sanitize_response(state)
-    _log_audit(state)
+    stage_timings_ms["total"] = round((time.perf_counter() - started_at) * 1000)
+    _log_audit(state, stage_timings_ms, network_calls)
+
+    safe_citations = sanitize_citations(state.get("citations", []))
+    ticket_draft = _build_ticket_draft(state)
+    runtime_state, reason_code = _derive_runtime_state(state)
+    final_answer = AgentAnswer(
+        response=safe_response,
+        intent=state.get("intent", "hr_question"),
+        confidence_score=state.get("confidence_score"),
+        citations=safe_citations,
+        needs_clarification=state.get("needs_clarification", False),
+        clarifying_question=state.get("clarifying_question"),
+        escalate=state.get("escalate", False),
+        escalate_reason=state.get("escalate_reason"),
+        ticket_draft=ticket_draft,
+        boundary=_build_boundary(state),
+        state=runtime_state,
+        reason_code=reason_code,
+        answer_type=state.get("answer_type"),
+    )
 
     for chunk in _chunk_answer_text(safe_response):
         yield {"type": "answer_delta", "content": chunk}
 
-    for citation in sanitize_citations(state.get("citations", [])):
+    for citation in safe_citations:
         yield {
             "type": "citation",
             "source": citation.source_file,
@@ -170,7 +296,6 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
             "is_official_policy": citation.is_official_policy,
         }
 
-    ticket_draft = _build_ticket_draft(state)
     yield {
         "type": "done",
         "intent": state.get("intent"),
@@ -180,14 +305,33 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
         "escalate": state.get("escalate", False),
         "escalate_reason": state.get("escalate_reason"),
         "ticket_draft": ticket_draft.model_dump() if ticket_draft else None,
+        "boundary": final_answer.boundary.model_dump() if final_answer.boundary else None,
+        "state": runtime_state,
+        "reason_code": reason_code,
+        # Contract hoàn chỉnh giúp service trung gian persist kết quả mà không
+        # phải tự ghép lại các event hiển thị như answer_delta/citation.
+        "answer": final_answer.model_dump(),
     }
 
 
 async def answer(query: str, history: list[dict] | None = None) -> AgentAnswer:
-    state: AgentState = await agent.ainvoke({"query": query, "history": history or []})
+    # Đường non-stream (Backend polling) trước đây không có số đo nào ngoài tổng
+    # thời gian mà Backend tự bấm giờ, nên không phân biệt được "agent chậm" với
+    # "mạng giữa hai service chậm". Chỉ bật khi `profile_latency`.
+    profiling = get_settings().profile_latency
+    started_at = time.perf_counter()
+    capture_cm = llm_trace.capture() if profiling else None
+    network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
+    try:
+        state: AgentState = await agent.ainvoke({"query": query, "history": history or []})
+    finally:
+        if capture_cm is not None:
+            capture_cm.__exit__(None, None, None)
     safe_response = _sanitize_response(state)
-    _log_audit(state)
+    total_ms = round((time.perf_counter() - started_at) * 1000)
+    _log_audit(state, {"total": total_ms} if profiling else None, network_calls)
 
+    runtime_state, reason_code = _derive_runtime_state(state)
     return AgentAnswer(
         response=safe_response,
         intent=state.get("intent", "hr_question"),
@@ -198,4 +342,8 @@ async def answer(query: str, history: list[dict] | None = None) -> AgentAnswer:
         escalate=state.get("escalate", False),
         escalate_reason=state.get("escalate_reason"),
         ticket_draft=_build_ticket_draft(state),
+        boundary=_build_boundary(state),
+        state=runtime_state,
+        reason_code=reason_code,
+        answer_type=state.get("answer_type"),
     )

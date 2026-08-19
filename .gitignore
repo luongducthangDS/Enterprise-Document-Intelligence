@@ -53,6 +53,8 @@ docker-compose.override.yml
 # Node (frontend)
 node_modules/
 .next/
+.next-dev/
+.next-hover/
 out/
 .nuxt/
 .pnpm-store/
@@ -85,9 +87,27 @@ docs/reports/
 *_review.md
 ISSUES.md
 
+# Bằng chứng eval chạy tay — output thật của agent kèm trích dẫn nội dung tài
+# liệu nội bộ, và script sinh ra chúng. Chỉ giữ ở máy.
+# Pattern có wildcard để bắt cả các bản đo lại về sau (hậu tố ngày, vd _20260813).
+eval/MANUAL_EVAL_EVIDENCE.md
+eval/MANUAL_EVAL_EVIDENCE_*.md
+eval/EVAL_EVIDENCES.md
+eval/results/manual_eval_*.json
+scripts/run_manual_eval.py
+scripts/build_eval_evidence_docx.py
+scripts/build_eval_evidence_docx_*.py
+
+# Tài liệu Word binary — không đưa vào repo code. Cần commit thì force-add.
+*.docx
+
 # Tool-specific local/private configuration
 .codex/*.local.*
 .gemini/*.local.*
 .claude/*.local.*
 .cursor/*.local.*
 .agents/*.local.*
+
+# Local agent/UI verification artifacts
+.markiii/
+.omo/

@@ -1,0 +1,965 @@
+{
+  "run_at": "2026-08-13T00:50:34.361952+00:00",
+  "purpose": "P4A — A/B nhánh direct và clarify, hai gate tách biệt.",
+  "dataset": "eval\\datasets\\p4a_cheap_path_set.json",
+  "baseline_from_p3": {
+    "direct_p50_ms": 5502,
+    "clarify_p50_ms": 9236
+  },
+  "direct": [
+    {
+      "variant": "A_default_llm",
+      "n": 10,
+      "all_checks_pass": 10,
+      "per_check": {
+        "is_greeting": 10,
+        "no_policy_number": 10,
+        "offers_help": 10,
+        "context_appropriate": 10,
+        "concise": 10,
+        "non_empty": 10
+      },
+      "p50_ms": 5156,
+      "p95_ms": 6946,
+      "mean_ms": 5295,
+      "max_ms": 7166
+    },
+    {
+      "variant": "B_template",
+      "n": 10,
+      "all_checks_pass": 8,
+      "per_check": {
+        "is_greeting": 10,
+        "no_policy_number": 10,
+        "offers_help": 10,
+        "context_appropriate": 8,
+        "concise": 10,
+        "non_empty": 10
+      },
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "mean_ms": 0,
+      "max_ms": 0
+    },
+    {
+      "variant": "C_fast_llm",
+      "n": 10,
+      "all_checks_pass": 8,
+      "per_check": {
+        "is_greeting": 10,
+        "no_policy_number": 10,
+        "offers_help": 10,
+        "context_appropriate": 8,
+        "concise": 10,
+        "non_empty": 10
+      },
+      "p50_ms": 1998,
+      "p95_ms": 2673,
+      "mean_ms": 2034,
+      "max_ms": 2720
+    }
+  ],
+  "clarify": [
+    {
+      "variant": "A_glm_thinking",
+      "n": 12,
+      "all_checks_pass": 11,
+      "per_check": {
+        "is_question": 12,
+        "no_invented_number": 11,
+        "on_topic": 12,
+        "offers_options": 12,
+        "concise": 12,
+        "non_empty": 12
+      },
+      "p50_ms": 5490,
+      "p95_ms": 8777,
+      "mean_ms": 5952,
+      "max_ms": 8972
+    },
+    {
+      "variant": "B_fast_no_thinking",
+      "n": 12,
+      "all_checks_pass": 11,
+      "per_check": {
+        "is_question": 12,
+        "no_invented_number": 11,
+        "on_topic": 12,
+        "offers_options": 12,
+        "concise": 12,
+        "non_empty": 12
+      },
+      "p50_ms": 1432,
+      "p95_ms": 3291,
+      "mean_ms": 1737,
+      "max_ms": 4813
+    }
+  ],
+  "results": [
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_01",
+      "query": "chào bạn",
+      "output": "Chào bạn! Tôi là trợ lý HR nội bộ. Hôm nay tôi có thể giúp gì cho bạn? \n\nBạn có thể hỏi tôi về các chính sách nhân sự như nghỉ phép, lương thưởng, quy định nhân sự, hoặc các chương trình đào tạo nhé!",
+      "latency_ms": 4837,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_02",
+      "query": "hello bot",
+      "output": "Xin chào! Bot rất vui được hỗ trợ bạn. Bạn có muốn tìm hiểu thêm về các chính sách nhân sự như nghỉ phép, lương thưởng, tuyển dụng hay đào tạo không ạ?",
+      "latency_ms": 7166,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "output": "Chào buổi sáng! Chúc bạn một ngày làm việc thật hiệu quả. \n\nBạn có cần mình hỗ trợ gì về các chính sách nhân sự như nghỉ phép, lương thưởng, phúc lợi hay đào tạo hôm nay không?",
+      "latency_ms": 6678,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "output": "Chào bạn! Mình là trợ lý HR nội bộ của công ty. Rất vui được hỗ trợ bạn. Bạn có thắc mắc gì về các chính sách nhân sự như nghỉ phép, lương thưởng, phúc lợi hay đào tạo không ạ?",
+      "latency_ms": 5476,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "output": "Chào bạn! Mình là trợ lý HR nội bộ. Mình có thể hỗ trợ giải đáp các thắc mắc về chính sách nhân sự của công ty, ví dụ như:\n\n- Chế độ nghỉ phép, ngày công\n- Chính sách lương, thưởng, phúc lợi\n- Quy trình tuyển dụng, thuyên chuyển\n- Các chương trình đào tạo và phát triển\n\nBạn cần tìm hiểu vấn đề gì hôm nay ạ?",
+      "latency_ms": 6597,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "output": "Dạ, không có gì ạ! Nếu bạn cần hỗ trợ thêm về các chính sách nhân sự như nghỉ phép, lương thưởng, phúc lợi hay đào tạo, cứ nhắn cho mình bất cứ lúc nào nhé. Chúc bạn một ngày làm việc vui vẻ!",
+      "latency_ms": 5715,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "output": "Dạ không có gì! Nếu bạn có thắc mắc gì về các chính sách nhân sự như nghỉ phép, lương thưởng, phúc lợi hay đào tạo, cứ nhắn cho mình nhé. Chúc bạn một ngày làm việc vui vẻ!",
+      "latency_ms": 4367,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "output": "Dạ có mình đây! Chào bạn, hôm nay mình có thể hỗ trợ bạn thông tin gì về các chính sách nhân sự như nghỉ phép, lương thưởng, tuyển dụng hay đào tạo không ạ?",
+      "latency_ms": 4365,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_09",
+      "query": "hi",
+      "output": "Chào bạn! Tôi là trợ lý HR nội bộ. Hôm nay tôi có thể giúp gì cho bạn? \n\nNếu bạn cần, tôi có thể hỗ trợ giải đáp các thắc mắc về chính sách nhân sự như nghỉ phép, lương thưởng, quy trình tuyển dụng hay các chương trình đào tạo nhé. Bạn muốn tìm hiểu về chủ đề nào?",
+      "latency_ms": 3247,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "A_default_llm",
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "output": "Chào bạn, chúc mừng bạn gia nhập công ty! Rất vui được hỗ trợ bạn. \n\nNếu bạn có thắc mắc về các chính sách nhân sự như quy định nghỉ phép, lương thưởng, đào tạo hay quy định công ty, cứ thoải mái hỏi mình nhé!",
+      "latency_ms": 4504,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_01",
+      "query": "chào bạn",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_02",
+      "query": "hello bot",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": false,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": false,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_09",
+      "query": "hi",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "B_template",
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "output": "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé.",
+      "latency_ms": 0,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_01",
+      "query": "chào bạn",
+      "output": "Chào bạn! Rất vui được gặp bạn. 👋\n\nMình là trợ lý HR nội bộ, luôn sẵn sàng hỗ trợ bạn. Nếu bạn cần giải đáp bất kỳ điều gì liên quan đến chính sách nhân sự như **nghỉ phép, lương thưởng, tuyển dụng hay đào tạo**, cứ thoải mái chia sẻ với mình nhé!\n\nHôm nay mình có thể giúp gì cho bạn? 😊",
+      "latency_ms": 2720,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_02",
+      "query": "hello bot",
+      "output": "Chào bạn! Rất vui được gặp bạn. Mình là trợ lý HR nội bộ, có thể hỗ trợ các câu hỏi về nghỉ phép, lương thưởng, tuyển dụng hay đào tạo. Bạn cần mình giúp gì không?",
+      "latency_ms": 1562,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_03",
+      "query": "chào buổi sáng nhé",
+      "output": "Chào buổi sáng! Chúc bạn một ngày làm việc thật vui vẻ và hiệu quả nhé. 😊\n\nNếu bạn cần hỗ trợ gì về các vấn đề nhân sự như nghỉ phép, lương thưởng, hay chính sách đào tạo, cứ thoải mái hỏi mình nha!",
+      "latency_ms": 2123,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_04",
+      "query": "bạn là ai vậy?",
+      "output": "Chào bạn! Mình là trợ lý HR nội bộ, hỗ trợ các anh/chị/em trong công ty về các vấn đề nhân sự như nghỉ phép, lương thưởng, tuyển dụng, đào tạo... Bạn cần mình giúp gì không? Cứ hỏi thoải mái nhé! 😊",
+      "latency_ms": 1978,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_05",
+      "query": "bạn giúp được những gì?",
+      "output": "Chào bạn! Mình có thể hỗ trợ các vấn đề liên quan đến nhân sự như: chính sách nghỉ phép, lương thưởng, quy trình tuyển dụng, đào tạo, hoặc các câu hỏi khác về môi trường làm việc. Bạn muốn tìm hiểu về điều gì cụ thể không? 😊",
+      "latency_ms": 2391,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_06",
+      "query": "cảm ơn bạn nhiều",
+      "output": "Chào bạn! Rất vui khi được hỗ trợ bạn. 😊 Nếu bạn cần tìm hiểu thêm về các chính sách nhân sự như nghỉ phép, lương thưởng, hay chương trình đào tạo, đừng ngại đặt câu hỏi nhé!",
+      "latency_ms": 1443,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": false,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_07",
+      "query": "ok thanks nhé",
+      "output": "Chào bạn! Rất vui khi được hỗ trợ. Nếu bạn cần tìm hiểu thêm về các chính sách nhân sự như nghỉ phép, lương thưởng, tuyển dụng hay đào tạo, cứ thoải mái hỏi mình nhé. Chúc bạn một ngày làm việc tốt lành!",
+      "latency_ms": 1812,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": false,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_08",
+      "query": "alo có ai không",
+      "output": "Chào bạn! 👋 Mình luôn ở đây để hỗ trợ bạn.\n\nCó điều gì về chính sách nhân sự (nghỉ phép, lương thưởng, tuyển dụng, đào tạo...) mà bạn muốn hỏi không? Cứ thoải mái chia sẻ nhé!",
+      "latency_ms": 2018,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_09",
+      "query": "hi",
+      "output": "Chào bạn! Rất vui được gặp bạn. Mình là trợ lý HR nội bộ, có thể hỗ trợ bạn các vấn đề về chính sách nhân sự như nghỉ phép, lương thưởng, tuyển dụng hay đào tạo. Bạn cần mình giúp gì không?",
+      "latency_ms": 1682,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "direct",
+      "variant": "C_fast_llm",
+      "id": "dr_10",
+      "query": "chào bạn, mình mới vào công ty",
+      "output": "Chào bạn! Chào mừng bạn đến với công ty nhé! 👋 Mình rất vui khi được hỗ trợ bạn.\n\nNếu bạn cần tìm hiểu về các chính sách nhân sự như nghỉ phép, lương thưởng, quy trình đào tạo hay bất kỳ điều gì khác trong những ngày đầu, cứ thoải mái hỏi mình nhé. Mình luôn sẵn sàng giúp đỡ! 😊",
+      "latency_ms": 2616,
+      "checks": {
+        "is_greeting": true,
+        "no_policy_number": true,
+        "offers_help": true,
+        "context_appropriate": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_01",
+      "query": "Tôi muốn nghỉ 3 ngày tuần sau.",
+      "output": "Bạn muốn đăng ký nghỉ 3 ngày tuần sau dưới dạng nghỉ phép năm, nghỉ ốm hay nghỉ không lương?",
+      "latency_ms": 4128,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_02",
+      "query": "Công ty có hỗ trợ tiền khám bệnh không?",
+      "output": "Bạn đang hỏi về chính sách khám sức khỏe định kỳ hay hỗ trợ chi phí khám chữa bệnh khi ốm đau ạ?",
+      "latency_ms": 3992,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_03",
+      "query": "Tôi khi nào được nhận tiền thưởng?",
+      "output": "Bạn vui lòng cho biết đang hỏi về loại tiền thưởng nào (thưởng Tết, thưởng KPI, hay thưởng khác) để mình hỗ trợ chính xác nhé?",
+      "latency_ms": 5924,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_04",
+      "query": "Tôi muốn xin chuyển công tác.",
+      "output": "Bạn muốn xin chuyển sang bộ phận hoặc chi nhánh khác trong cùng công ty, hay muốn nghỉ việc để chuyển sang công ty mới?",
+      "latency_ms": 5010,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_05",
+      "query": "Tôi làm cuối tuần thì được tính sao?",
+      "output": "Bạn muốn hỏi về mức tính lương làm thêm giờ hay chế độ nghỉ bù khi làm cuối tuần ạ?",
+      "latency_ms": 5056,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_06",
+      "query": "Công ty có đóng bảo hiểm cho mình không?",
+      "output": "Bạn đang hỏi về bảo hiểm xã hội bắt buộc hay gói bảo hiểm thương mại bổ sung của công ty ạ?",
+      "latency_ms": 4197,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_07",
+      "query": "Nếu tôi quit thì có được nhận tiền không?",
+      "output": "Bạn đang muốn hỏi về khoản tiền nào khi nghỉ việc: lương, phép năm hay trợ cấp thôi việc ạ?",
+      "latency_ms": 8618,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_08",
+      "query": "Công ty có hỗ trợ học tập không?",
+      "output": "Bạn đang hỏi về các chương trình đào tạo nội bộ hay chính sách hỗ trợ tài chính cho các khóa học bên ngoài ạ?",
+      "latency_ms": 4264,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_09",
+      "query": "Tôi bị ốm có được trả lương không?",
+      "output": "Bạn muốn hỏi về chính sách nghỉ ốm hưởng lương của công ty hay chế độ trợ cấp ốm đau của Bảo hiểm xã hội?",
+      "latency_ms": 8972,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_10",
+      "query": "Đến ngày thứ 60 thì có đánh giá gì không?",
+      "output": "Anh/chị đang hỏi về đánh giá kết thúc 60 ngày thử việc hay đánh giá sau 60 ngày nghỉ chế độ (nghỉ ốm, thai sản) ạ?",
+      "latency_ms": 7446,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": false,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_11",
+      "query": "Tôi còn bao nhiêu ngày phép?",
+      "output": "Bạn vui lòng cho biết bạn đang hỏi về số ngày phép năm còn lại, ngày nghỉ ốm, hay số ngày phép để thanh toán khi nghỉ việc?",
+      "latency_ms": 7351,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "A_glm_thinking",
+      "id": "cl_12",
+      "query": "Tôi khi nào được ký hợp đồng mới?",
+      "output": "Bạn vui lòng cho biết bạn đang hỏi về việc chuyển từ hợp đồng thử việc sang chính thức hay gia hạn hợp đồng sắp hết hạn vậy?",
+      "latency_ms": 6461,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_01",
+      "query": "Tôi muốn nghỉ 3 ngày tuần sau.",
+      "output": "Dạ, anh/chị muốn nghỉ 3 ngày đó là nghỉ phép năm, nghỉ không lương hay nghỉ vì lý do cá nhân/ốm đau ạ?",
+      "latency_ms": 1195,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_02",
+      "query": "Công ty có hỗ trợ tiền khám bệnh không?",
+      "output": "Dạ, em muốn hỏi rõ là công ty hỗ trợ tiền khám bệnh trong trường hợp nào ạ? Ví dụ như khám bệnh thông thường khi đi làm, hay là khám do tai nạn lao động, hoặc khám định kỳ hàng năm ạ?",
+      "latency_ms": 1632,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_03",
+      "query": "Tôi khi nào được nhận tiền thưởng?",
+      "output": "Bạn muốn hỏi về tiền thưởng trong trường hợp nào: thưởng cuối năm, thưởng theo KPI hàng quý/tháng, hay thưởng khi hoàn thành một dự án cụ thể?",
+      "latency_ms": 1795,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_04",
+      "query": "Tôi muốn xin chuyển công tác.",
+      "output": "Bạn muốn xin chuyển công tác trong nội bộ công ty, hay xin nghỉ việc để chuyển sang công ty khác?",
+      "latency_ms": 1131,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_05",
+      "query": "Tôi làm cuối tuần thì được tính sao?",
+      "output": "Bạn muốn hỏi về cách tính lương khi làm việc vào cuối tuần, hay là về chế độ nghỉ bù cho những ngày làm thêm cuối tuần vậy ạ?",
+      "latency_ms": 1172,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_06",
+      "query": "Công ty có đóng bảo hiểm cho mình không?",
+      "output": "Bạn muốn hỏi về loại bảo hiểm nào: bảo hiểm xã hội (BHXH), bảo hiểm y tế (BHYT) hay bảo hiểm thất nghiệp (BHTN)?",
+      "latency_ms": 1222,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_07",
+      "query": "Nếu tôi quit thì có được nhận tiền không?",
+      "output": "Bạn muốn hỏi rõ là khi nghỉ việc hẳn (quit) thì có được nhận tiền trợ cấp thôi việc hoặc thanh toán các khoản phúc lợi còn lại không, hay bạn đang nói về việc nghỉ phép năm có được trả lương không ạ?",
+      "latency_ms": 1774,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_08",
+      "query": "Công ty có hỗ trợ học tập không?",
+      "output": "Anh/chị muốn hỏi về chính sách hỗ trợ chi phí cho các khóa học nâng cao chuyên môn, hay là chế độ nghỉ phép để đi học ạ?",
+      "latency_ms": 4813,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_09",
+      "query": "Tôi bị ốm có được trả lương không?",
+      "output": "Bạn muốn hỏi rõ về trường hợp cụ thể nào: nghỉ ốm trong thời gian ngắn (vài ngày) hay nghỉ ốm dài hạn, và bạn đang quan tâm đến chế độ lương từ công ty hay bảo hiểm xã hội?",
+      "latency_ms": 2046,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_10",
+      "query": "Đến ngày thứ 60 thì có đánh giá gì không?",
+      "output": "Bạn muốn hỏi về đánh giá sau 60 ngày thử việc, hay là đánh giá khi kết thúc hợp đồng lao động ạ?",
+      "latency_ms": 1185,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": false,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_11",
+      "query": "Tôi còn bao nhiêu ngày phép?",
+      "output": "Bạn muốn hỏi về số ngày nghỉ phép năm còn lại, hay là số ngày nghỉ ốm/nghỉ không lương trong năm nay ạ?",
+      "latency_ms": 1231,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    },
+    {
+      "path": "clarify",
+      "variant": "B_fast_no_thinking",
+      "id": "cl_12",
+      "query": "Tôi khi nào được ký hợp đồng mới?",
+      "output": "Bạn muốn hỏi về việc ký hợp đồng mới trong trường hợp nào: gia hạn hợp đồng lao động, chuyển sang loại hợp đồng khác (không xác định thời hạn), hay sau khi nghỉ việc và quay lại làm việc?",
+      "latency_ms": 1643,
+      "checks": {
+        "is_question": true,
+        "no_invented_number": true,
+        "on_topic": true,
+        "offers_options": true,
+        "concise": true,
+        "non_empty": true
+      }
+    }
+  ],
+  "gate_revision": "v2 — sửa 3 false positive: is_greeting thiếu nhóm phản hồi cảm ơn; no_policy_number phạt số trích lại từ câu hỏi gốc; offers_options chỉ khớp từ khoá cứng. Chấm lại trên CÙNG output đã lưu, 0 API call."
+}

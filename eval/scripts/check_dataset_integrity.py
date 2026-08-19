@@ -167,6 +167,9 @@ def main() -> int:
     for path in ("eval/datasets/qa_eval_set.json", "eval/datasets/qa_heldout_set.json"):
         items = _load(path)
         if items:
+            # Bỏ qua câu retired: nguồn đã bị gỡ khỏi corpus có chủ đích nên chúng
+            # KHÔNG có qrel/anchor, và đó là trạng thái đúng — không phải lỗi toàn vẹn.
+            items = [it for it in items if not it.get("retired")]
             all_items += items
             print(f"{os.path.basename(path)}: {len(items)} câu")
     if all_items and qrels:

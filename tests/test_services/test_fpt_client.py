@@ -161,6 +161,42 @@ class TestChatCompletion:
         out = fpt_client.chat_completion("sys", "usr", model="GLM-5.2", base_url="https://fake.example", api_key="k")
         assert out == "suy luận"
 
+    def test_omits_thinking_field_by_default(self, monkeypatch):
+        """Không truyền enable_thinking -> payload không có chat_template_kwargs,
+        tức mọi caller cũ (script ingest, eval judge) giữ nguyên hành vi model."""
+        _no_sleep(monkeypatch)
+        captured = {}
+
+        def fake_post(url, headers, json, timeout):
+            captured["json"] = json
+            return FakeResponse({"choices": [{"message": {"content": "ok"}}]})
+
+        _patch_post(monkeypatch, fake_post)
+        fpt_client.chat_completion("sys", "usr", model="GLM-5.2", base_url="https://fake.example", api_key="k")
+        assert "chat_template_kwargs" not in captured["json"]
+
+    def test_sends_disable_thinking_flag(self, monkeypatch):
+        """enable_thinking=False phải xuống gateway đúng dạng
+        chat_template_kwargs — đây là dạng duy nhất gateway FPT chấp nhận
+        (reasoning_effort trả 200 nhưng vẫn sinh đủ reasoning token)."""
+        _no_sleep(monkeypatch)
+        captured = {}
+
+        def fake_post(url, headers, json, timeout):
+            captured["json"] = json
+            return FakeResponse({"choices": [{"message": {"content": "hr_question"}}]})
+
+        _patch_post(monkeypatch, fake_post)
+        fpt_client.chat_completion(
+            "sys",
+            "usr",
+            model="DeepSeek-V4-Flash",
+            base_url="https://fake.example",
+            api_key="k",
+            enable_thinking=False,
+        )
+        assert captured["json"]["chat_template_kwargs"] == {"enable_thinking": False}
+
 
 class TestExtractPageMarkdown:
     def test_builds_image_and_prompt_payload(self, monkeypatch):

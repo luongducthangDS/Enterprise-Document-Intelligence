@@ -8,6 +8,7 @@ python-dotenv>=1.0.0
 
 # ---- Database & ORM (PostgreSQL) ----
 sqlalchemy>=2.0.30
+greenlet>=3.0.0
 asyncpg>=0.29.0
 alembic>=1.14.0
 psycopg2-binary>=2.9.9
@@ -25,4 +26,3 @@ ruff>=0.8.0
 pytest>=8.0.0
 pytest-asyncio>=0.24.0
 aiosqlite>=0.20.0
-
