@@ -1,12 +1,12 @@
-# Báo cáo phần việc MinhPhú — Post-MVP
+# Báo cáo trạng thái hệ thống HR Assistant — Post-MVP
 
 Ngày cập nhật: 19/08/2026
 
 ## 1. Mục tiêu
 
-Hoàn thiện phần worker/evaluation và migration sau khi nhóm đã hoàn thành MVP; chuẩn bị bộ đánh giá mới cho hệ thống HR Assistant và kiểm tra khả năng chạy tích hợp.
+Đánh giá trạng thái hiện tại của toàn bộ hệ thống HR Assistant sau khi nhóm hoàn thành MVP; bao gồm worker, migration, dữ liệu, retrieval, evaluation, backend, frontend và khả năng chạy tích hợp.
 
-## 2. Những phần đã hoàn thành
+## 2. Các phần hệ thống đã hoàn thành
 
 - Kiểm tra worker evaluation và vòng đời job giữa agent với backend.
 - Kiểm tra hệ thống migration, schema và RLS; không còn migration trùng hoặc sai thứ tự.
@@ -71,4 +71,4 @@ Batch đã dừng sau 54 lượt lỗi. Các lượt này được ghi là **kh�
 
 ## 7. Kết luận
 
-Phần code, worker, migration, bộ qrels và retrieval benchmark của MinhPhú đã hoàn thành. Retrieval hiện đạt mức tốt trên benchmark dev hợp lệ. Công việc còn lại duy nhất để có kết quả end-to-end cuối là cập nhật FPT API key hợp lệ và chạy lại 74 lượt hành vi.
+Các phần code, worker, migration, bộ qrels và retrieval benchmark của hệ thống đã hoàn thành. Retrieval hiện đạt mức tốt trên benchmark dev hợp lệ. Công việc còn lại để có kết quả end-to-end cuối là cập nhật FPT API key hợp lệ và chạy lại 74 lượt hành vi.
