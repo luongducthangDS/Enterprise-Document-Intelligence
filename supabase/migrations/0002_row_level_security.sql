@@ -9,7 +9,7 @@ security definer
 stable
 set search_path = public
 as $$
-  select role from public.profiles where id = auth.uid()
+  select lower(role) from public.profiles where id = auth.uid()
 $$;
 
 alter table public.users enable row level security;
