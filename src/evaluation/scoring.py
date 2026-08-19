@@ -60,7 +60,14 @@ async def judge_answer(question: str, response: str, expected_answer: str, setti
     user = f"Câu hỏi: {question}\n\nCâu trả lời mẫu: {expected_answer}\n\nCâu trả lời thực tế của agent: {response}"
     # Judge PHẢI khác model với agent: cùng model vừa trả lời vừa tự chấm thì
     # điểm phản ánh độ nhất quán của model với chính nó (circular evaluation).
-    verdict = await acall_llm(JUDGE_SYSTEM, user, temperature=0.0, model=settings.judge_model)
+    verdict = await acall_llm(
+        JUDGE_SYSTEM,
+        user,
+        temperature=0.0,
+        model=settings.judge_model,
+        base_url=settings.judge_base_url or settings.fpt_base_url,
+        api_key=settings.judge_api_key or settings.fpt_api_key,
+    )
     return parse_verdict(verdict)
 
 
