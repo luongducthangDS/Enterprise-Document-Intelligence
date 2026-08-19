@@ -49,3 +49,32 @@ def test_evaluate_signals_checks_independent_contract_dimensions():
     )
     assert checks == {"runtime_state": True, "assistant_role": False}
     assert passed is False
+
+
+def test_build_report_does_not_turn_transport_errors_into_behavior_failures(monkeypatch):
+    monkeypatch.setattr(MODULE, "get_settings", lambda: type("Settings", (), {"llm_model": "test-model"})())
+    rows = [
+        {
+            "id": "q1",
+            "case_id": "case-1",
+            "turn": 1,
+            "scored": True,
+            "passed": False,
+            "checks": {},
+            "error": "HTTPError: 401 Unauthorized",
+            "unscored_reason": None,
+        }
+    ]
+
+    report = MODULE.build_report(
+        rows,
+        "dataset.json",
+        expected_case_count=2,
+        expected_turn_count=2,
+    )
+
+    assert report["status"] == "INCOMPLETE"
+    assert report["eligible_turns"] == 1
+    assert report["evaluated_turns"] == 0
+    assert report["behavior_match_rate"] is None
+    assert report["error_count"] == 1

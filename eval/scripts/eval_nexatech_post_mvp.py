@@ -162,18 +162,38 @@ async def run_case(case: dict, semaphore: asyncio.Semaphore) -> list[dict]:
     return rows
 
 
-def build_report(rows: list[dict], dataset_path: str) -> dict:
-    scored = [row for row in rows if row["scored"]]
-    passed = [row for row in scored if row["passed"]]
+def build_report(
+    rows: list[dict],
+    dataset_path: str,
+    *,
+    expected_case_count: int | None = None,
+    expected_turn_count: int | None = None,
+) -> dict:
+    eligible = [row for row in rows if row["scored"]]
+    evaluated = [row for row in eligible if not row["error"]]
+    passed = [row for row in evaluated if row["passed"]]
     signal_totals: Counter[str] = Counter()
     signal_passes: Counter[str] = Counter()
-    for row in scored:
+    for row in evaluated:
         for name, ok in row["checks"].items():
             signal_totals[name] += 1
             signal_passes[name] += int(ok)
+    error_counts = Counter(row["error"] for row in rows if row["error"])
+    completed_case_count = len({row["case_id"] for row in rows})
+    incomplete = (
+        (expected_case_count is not None and completed_case_count < expected_case_count)
+        or (expected_turn_count is not None and len(rows) < expected_turn_count)
+    )
+    if incomplete:
+        status = "INCOMPLETE"
+    elif error_counts:
+        status = "COMPLETED_WITH_ERRORS"
+    else:
+        status = "COMPLETE"
     return {
         "run_at": datetime.now(UTC).isoformat(),
-        "status": "DEV_DIAGNOSTIC",
+        "status": status,
+        "report_type": "DEV_DIAGNOSTIC",
         "dataset": dataset_path,
         "model": get_settings().llm_model,
         "judge_used": False,
@@ -183,12 +203,19 @@ def build_report(rows: list[dict], dataset_path: str) -> dict:
             "Only deterministic runtime-state, boundary-role, clarification, and refusal signals are scored.",
             "Response content still needs blind human review or a separately configured judge API.",
         ],
-        "total_turns": len(rows),
-        "scored_turns": len(scored),
-        "unscored_turns": len(rows) - len(scored),
+        "expected_case_count": expected_case_count,
+        "completed_case_count": completed_case_count,
+        "expected_turn_count": expected_turn_count,
+        "observed_turn_count": len(rows),
+        "eligible_turns": len(eligible),
+        "evaluated_turns": len(evaluated),
+        "unscored_turns": len(rows) - len(eligible),
         "passed_turns": len(passed),
-        "behavior_match_rate": round(len(passed) / len(scored), 4) if scored else None,
-        "error_count": sum(bool(row["error"]) for row in rows),
+        # Transport/auth failures are not product-quality failures.  Keeping
+        # them out of the denominator prevents another misleading 0/N score.
+        "behavior_match_rate": round(len(passed) / len(evaluated), 4) if evaluated else None,
+        "error_count": sum(error_counts.values()),
+        "error_counts": dict(sorted(error_counts.items())),
         "signal_metrics": {
             name: {
                 "passed": signal_passes[name],
@@ -223,6 +250,7 @@ async def main() -> int:
         cases = json.load(handle)
     if args.limit_cases:
         cases = cases[: args.limit_cases]
+    expected_turn_count = sum(len(case.get("turns") or []) for case in cases)
 
     semaphore = asyncio.Semaphore(args.concurrency)
     rows: list[dict] = []
@@ -231,18 +259,29 @@ async def main() -> int:
         case_rows = await task
         rows.extend(case_rows)
         completed += 1
-        report = build_report(rows, args.dataset)
+        report = build_report(
+            rows,
+            args.dataset,
+            expected_case_count=len(cases),
+            expected_turn_count=expected_turn_count,
+        )
         _write_json(args.out, report)
         case_id = case_rows[0]["case_id"] if case_rows else "empty"
         case_passed = sum(row["passed"] is True for row in case_rows)
         case_scored = sum(row["scored"] for row in case_rows)
         print(f"[{completed}/{len(cases)}] {case_id}: {case_passed}/{case_scored} scored turns")
 
-    report = build_report(rows, args.dataset)
+    report = build_report(
+        rows,
+        args.dataset,
+        expected_case_count=len(cases),
+        expected_turn_count=expected_turn_count,
+    )
     _write_json(args.out, report)
+    rate_label = f"{report['behavior_match_rate']:.1%}" if report["behavior_match_rate"] is not None else "n/a"
     print(
-        f"behavior={report['passed_turns']}/{report['scored_turns']} "
-        f"({report['behavior_match_rate']:.1%}) unscored={report['unscored_turns']} "
+        f"behavior={report['passed_turns']}/{report['evaluated_turns']} "
+        f"({rate_label}) unscored={report['unscored_turns']} "
         f"errors={report['error_count']}"
     )
     print(f"saved={args.out}")
