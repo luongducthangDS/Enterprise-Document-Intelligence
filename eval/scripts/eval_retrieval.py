@@ -38,9 +38,19 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from _stats import bootstrap_ci, format_ci  # noqa: E402
 
-from src.agents.nodes.retrieval import _aembed_query, _bm25_index, _collection  # noqa: E402
+from src.agents.nodes.retrieval import (  # noqa: E402
+    _aembed_query,
+    _bm25_index,
+    _collection,
+    _expand_retrieval_query,
+    _provenance_filter,
+)
 from src.config import get_settings  # noqa: E402
-from src.evaluation.retrieval_metrics import expected_source_stems, first_doc_hit_rank  # noqa: E402
+from src.evaluation.retrieval_metrics import (  # noqa: E402
+    expected_source_stems,
+    first_doc_hit_rank,
+    live_index_alignment,
+)
 from src.retrieval.hybrid import fuse_candidate_ids  # noqa: E402
 from src.services.fpt_client import rerank  # noqa: E402
 
@@ -90,9 +100,14 @@ async def _retrieve_raw(
     logic fusion riêng ở đây), để số đo phản ánh đúng code path production."""
     settings = get_settings()
     async with semaphore:
+        query = _expand_retrieval_query(query)
         embedding = await _aembed_query(query)
         collection = _collection()
-        result = await asyncio.to_thread(collection.query, query_embeddings=[embedding], n_results=top_k)
+        where = _provenance_filter(settings)
+        query_kwargs = {"query_embeddings": [embedding], "n_results": top_k}
+        if where:
+            query_kwargs["where"] = where
+        result = await asyncio.to_thread(collection.query, **query_kwargs)
         ids = (result.get("ids") or [[]])[0]
         documents = (result.get("documents") or [[]])[0]
         metadatas = (result.get("metadatas") or [[]])[0]
@@ -229,6 +244,11 @@ async def main() -> None:
         "--min-relevance", type=int, default=1, choices=[1, 2],
         help="Ngưỡng nhãn tính là relevant: 1 = cả chunk bổ trợ, 2 = chỉ chunk chứa câu trả lời",
     )
+    parser.add_argument(
+        "--allow-stale-qrels",
+        action="store_true",
+        help="Vẫn chạy khi qrel trỏ tới chunk không còn trong index; số đo chỉ có giá trị chẩn đoán",
+    )
     args = parser.parse_args()
 
     with open(args.dataset, encoding="utf-8") as f:
@@ -265,6 +285,28 @@ async def main() -> None:
     else:
         print(f"[CẢNH BÁO] Không tìm thấy {args.qrels} — chạy scripts/rag_pipeline/build_retrieval_qrels.py trước. "
               "Metric chunk-level sẽ = 0 cho toàn bộ câu.")
+
+    # Fail trước khi gửi hàng chục query tốn phí nếu gold labels không còn tồn
+    # tại trong chính collection đang được đo. Trước đây 160/189 qrel ID mất
+    # khỏi index nhưng script vẫn chạy và báo Recall thấp như lỗi retriever.
+    snapshot = await asyncio.to_thread(_collection().get, include=["metadatas"])
+    alignment = live_index_alignment(
+        items,
+        qrels,
+        set(snapshot.get("ids") or []),
+        min_relevance=args.min_relevance,
+    )
+    if not alignment["benchmark_valid"]:
+        print(
+            "\n[QRELS/INDEX KHÔNG KHỚP] chỉ có "
+            f"{alignment['available_qrel_chunk_labels']}/{alignment['qrel_chunk_labels']} gold chunk "
+            f"còn trong index; {alignment['queries_with_any_available_qrel']}/"
+            f"{alignment['scored_queries']} query còn ít nhất một gold chunk."
+        )
+        print("Chạy eval/scripts/audit_live_index_alignment.py để xem chi tiết.")
+        if not args.allow_stale_qrels:
+            print("Dừng trước khi gọi embedding/reranker. Dùng --allow-stale-qrels chỉ khi cần chẩn đoán.")
+            raise SystemExit(2)
 
     semaphore = asyncio.Semaphore(args.concurrency)
     results = []
@@ -354,6 +396,7 @@ async def main() -> None:
         "dataset": args.dataset,
         "qrels": args.qrels,
         "min_relevance": args.min_relevance,
+        "alignment": alignment,
         "summary": summary,
         "results": results,
     }

@@ -104,6 +104,20 @@ python scripts/rag_pipeline/remap_qrels.py            # map nhãn sang chunk_id 
 python eval/scripts/check_dataset_integrity.py   # xác nhận không có nhãn nào lạc
 ```
 
+Trước khi chạy eval có gọi API, phải kiểm tra qrel với **live index** (CI chỉ
+thấy `data/chunks/` cục bộ nên không phát hiện được collection cloud đã đổi):
+
+```bash
+python eval/scripts/audit_live_index_alignment.py \
+  --dataset eval/datasets/retrieval_eval_set.json \
+  --qrels eval/datasets/retrieval_eval_qrels.json --split dev --strict
+```
+
+`eval_retrieval.py` cũng tự chạy preflight này và dừng trước khi gọi
+embedding/reranker nếu có gold chunk đã biến mất. Cờ `--allow-stale-qrels` chỉ
+dùng để chẩn đoán; report sinh ra trong chế độ đó không được coi là số chất
+lượng hợp lệ.
+
 `check_dataset_integrity.py` chạy trong CI (phần không cần `data/`) và nên gắn vào pre-push hook. Đây là gate chặn đúng sự cố đã xảy ra ngày 06-08: đổi `chunk_max_chars` 2000 → 1500 làm hỏng 78/128 nhãn mà không ai phát hiện cho tới khi metric tụt.
 
 ### 5.1. Giới hạn của `remap_qrels.py` — remap KHÔNG phải cách chữa mọi lỗi toàn vẹn
