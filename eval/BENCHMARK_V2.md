@@ -38,7 +38,11 @@ python eval/scripts/pool_nexatech_v2_candidates.py
 ```
 
 File kết quả để người kiểm tra điền `human_relevance` nằm ở
-`eval/results/nexatech_post_mvp_v2_candidate_pool.json`.
+`eval/results/nexatech_post_mvp_v2_candidate_pool.json`. File này chứa excerpt
+tài liệu phục vụ review nên được `.gitignore`; chỉ báo cáo tổng hợp không chứa
+nội dung tài liệu được commit.
 
-Việc chạy lệnh sẽ gửi các câu hỏi dev tới embedding API và Chroma. Cần người sở
-hữu dữ liệu xác nhận egress trước; tool không được tự động chạy trong CI.
+Việc chạy lệnh sẽ gửi các câu hỏi dev tới embedding API và Chroma. Người sở hữu
+dữ liệu đã xác nhận egress cho lần tạo pool ngày 19/08/2026; tool vẫn không được
+tự động chạy trong CI hoặc hiểu xác nhận đó là quyền gửi nội dung chunk cho
+judge.

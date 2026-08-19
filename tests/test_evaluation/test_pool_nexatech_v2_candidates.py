@@ -41,3 +41,9 @@ def test_merge_candidates_preserves_all_pool_origins():
     assert set(ids) == {"a", "b", "c", "d"}
     assert set(details["b"]["origins"]) == {"dense", "bm25"}
     assert set(details["c"]["origins"]) == {"bm25", "expected_source_dense"}
+
+
+def test_source_filter_preserves_case_from_chroma_metadata():
+    assert MODULE.source_stem_for_filter(r"data\processed\01_chinh-sach-lam-them-gio-OT.md") == (
+        "01_chinh-sach-lam-them-gio-OT"
+    )

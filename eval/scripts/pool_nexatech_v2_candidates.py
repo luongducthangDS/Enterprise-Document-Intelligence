@@ -27,8 +27,13 @@ from src.agents.nodes.retrieval import (  # noqa: E402
     _provenance_filter,
 )
 from src.config import get_settings  # noqa: E402
-from src.evaluation.retrieval_metrics import normalize_source_stem  # noqa: E402
 from src.retrieval.bm25 import BM25  # noqa: E402
+
+
+def source_stem_for_filter(source_file: str | None) -> str:
+    """Preserve case because Chroma metadata equality is case-sensitive."""
+    value = str(source_file or "").replace("\\", "/")
+    return os.path.splitext(os.path.basename(value))[0]
 
 
 def contextual_query(case: dict, turn: dict, by_id: dict[str, dict]) -> str:
@@ -107,7 +112,7 @@ async def pool_one(
         dense_ids = (dense_result.get("ids") or [[]])[0]
         bm25_ranked = await asyncio.to_thread(bm25.top_k, query, bm25_k)
 
-        expected_stem = normalize_source_stem(case.get("source_file"))
+        expected_stem = source_stem_for_filter(case.get("source_file"))
         source_dense_ids: list[str] = []
         if expected_stem:
             source_result = await asyncio.to_thread(
