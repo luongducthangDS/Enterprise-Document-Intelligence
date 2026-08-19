@@ -7,11 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import ConflictError, NotFoundError
 from app.domain.models.evaluation import EvaluationRunDB
 from app.schemas.evaluation import EvaluationRunRequest
+from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 VALID_DATASETS = {"evalset_hr_v1", "evalset_hr_v2", "evalset_default"}
 
 
 class EvaluationService:
+    worker_client = WorkerJobClient()
+    worker_dispatch_enabled = True
+
     @classmethod
     async def create_evaluation_run(
         cls,
@@ -59,6 +63,20 @@ class EvaluationService:
         await db.commit()
         await db.refresh(run)
 
+        if cls.worker_dispatch_enabled:
+            try:
+                await cls.worker_client.submit_evaluation(
+                    {
+                        "job_id": str(run.id),
+                        "dataset_id": run.dataset_id,
+                    }
+                )
+            except WorkerJobClientError as exc:
+                run.state = "FAILED"
+                run.stage = "FAILED"
+                run.error = str(exc)
+                await db.commit()
+
         return {
             "run_id": str(run.id),
             "state": run.state,
@@ -90,19 +108,24 @@ class EvaluationService:
                 message="Không tìm thấy thông tin lượt đánh giá.",
             )
 
-        metrics = run.metrics
-        if run.state == "COMPLETED" and not metrics:
-            metrics = {
-                "recall_at_5": 0.92,
-                "answer_correctness": 0.88,
-                "citation_coverage": 0.95,
-                "citation_correctness": 0.90,
-                "p95_latency_ms": 1450,
-            }
-
-        quality_gate = run.quality_gate
-        if run.state == "COMPLETED" and quality_gate == "PENDING":
-            quality_gate = "PASSED"
+        if cls.worker_dispatch_enabled and run.state not in ("COMPLETED", "FAILED"):
+            try:
+                worker = await cls.worker_client.get_status(str(run.id))
+            except WorkerJobClientError:
+                worker = None
+            if worker:
+                run.state = str(worker.get("state", run.state))
+                run.stage = str(worker.get("stage", run.stage))
+                run.progress_percent = int(worker.get("progress_percent", run.progress_percent))
+                run.error = worker.get("error")
+                result = worker.get("result") or {}
+                if run.state == "COMPLETED":
+                    metrics = dict(result.get("metrics") or {})
+                    if "recall_at_k" in metrics:
+                        metrics["recall_at_5"] = metrics["recall_at_k"]
+                    run.metrics = metrics
+                    run.quality_gate = str(result.get("quality_gate") or "PENDING")
+                await db.commit()
 
         return {
             "run_id": str(run.id),
@@ -110,8 +133,8 @@ class EvaluationService:
             "state": run.state,
             "stage": run.stage,
             "progress_percent": run.progress_percent,
-            "metrics": metrics,
-            "quality_gate": quality_gate,
+            "metrics": run.metrics,
+            "quality_gate": run.quality_gate,
             "error": run.error,
             "poll_after_ms": 3000,
         }

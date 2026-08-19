@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import os
 import uuid
@@ -11,12 +12,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.documents import DocumentDB, IngestionJobDB
 from app.schemas.documents import DocumentMetadataUpdate
+from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
-ALLOWED_EXTENSIONS = {".pdf", ".docx", ".xlsx"}
+ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".md"}
 
 
 class DocumentService:
+    worker_client = WorkerJobClient()
+    worker_dispatch_enabled = True
+
     @classmethod
     async def upload_document(
         cls,
@@ -44,7 +49,7 @@ class DocumentService:
             raise AppException(
                 status_code=415,
                 code="UNSUPPORTED_FILE_TYPE",
-                message="Định dạng file không được hỗ trợ. Chỉ chấp nhận PDF, DOCX, XLSX.",
+                message="Định dạng file không được hỗ trợ. Chỉ chấp nhận PDF, DOC, DOCX, MD.",
             )
 
         contents = await file.read()
@@ -90,6 +95,28 @@ class DocumentService:
         await db.commit()
         await db.refresh(doc)
         await db.refresh(job)
+
+        if cls.worker_dispatch_enabled:
+            try:
+                await cls.worker_client.submit_ingestion(
+                    {
+                        "job_id": str(job.id),
+                        "document_id": str(doc.id),
+                        "source_file": filename,
+                        "content_base64": base64.b64encode(contents).decode("ascii"),
+                        "category": doc.category,
+                        "source_type": "official_policy",
+                        "is_official_policy": True,
+                        "caveat": doc.caveat or "",
+                        "authority": "tenant_official_policy",
+                        "provenance": "customer_provided",
+                    }
+                )
+            except WorkerJobClientError as exc:
+                job.state = "FAILED"
+                job.stage = "FAILED"
+                job.error = str(exc)
+                await db.commit()
 
         return {
             "document_id": str(doc.id),
@@ -345,6 +372,26 @@ class DocumentService:
 
         if not job:
             raise NotFoundError(code="INGESTION_JOB_NOT_FOUND", message="Không tìm thấy tác vụ ingestion.")
+
+        if cls.worker_dispatch_enabled and job.state not in ("COMPLETED", "FAILED"):
+            try:
+                worker = await cls.worker_client.get_status(str(job.id))
+            except WorkerJobClientError:
+                worker = None
+            if worker:
+                job.state = str(worker.get("state", job.state))
+                job.stage = str(worker.get("stage", job.stage))
+                job.progress_percent = int(worker.get("progress_percent", job.progress_percent))
+                job.error = worker.get("error")
+                result = worker.get("result") or {}
+                if job.state == "COMPLETED":
+                    job.chunk_count = int(result.get("chunk_count", 0))
+                    document = await db.get(DocumentDB, job.document_id)
+                    if document:
+                        document.processed_path = result.get("processed_path")
+                        document.chunks_path = result.get("chunks_path")
+                        document.chroma_indexed_at = datetime.now(UTC)
+                await db.commit()
 
         return {
             "job_id": str(job.id),
