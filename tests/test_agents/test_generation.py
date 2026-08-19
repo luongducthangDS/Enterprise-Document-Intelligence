@@ -599,3 +599,189 @@ class TestSourceSectionLabel:
             result = await generate_node({"query": "abc", "retrieved_chunks": [chunk]})
         assert result["citations"][0]["source_section"] == "4.1. Số ngày nghỉ phép năm tiêu chuẩn"
         assert result["citations"][0]["policy_status"] == "active"
+
+
+class TestG6Regression:
+    """Hoi quy cho Bug G6 -- G6_GENERATION_CONTENT_ERROR (fix 2026-08-19).
+
+    5 case eval thuc te bi escalate oan vi generate_node phat INSUFFICIENT_MARKER
+    nham cho cau hoi dang phu dinh / dieu kien / ngoai le du context_found=True.
+    Co che loi: INSUFFICIENT_MARKER -> answerable=False -> confidence_node ep score
+    ve fail_cap=0.1 -> duoi nguong 0.2 -> escalate=True oan.
+
+    Root cause fix: bo sung quy tac trong _GENERATE_SYSTEM huong dan model KHONG
+    phat INSUFFICIENT_MARKER khi doan trich da nhac toi dung chu de, ke ca cau
+    hoi phu dinh/dieu kien phuc tap. Test nay lock behavior o cap unit (mock LLM)
+    de khong regression ve sau khi chinh sua prompt.
+    """
+
+    @pytest.mark.asyncio
+    async def test_qa_003_ot_khong_dang_ky_truoc_van_answerable(self):
+        """qa_003: OT tu o lai khong dang ky truoc co duoc tinh khong?
+        Context co quy dinh OT -- cau hoi phu dinh van tra loi duoc tu quy dinh.
+        Model PHAI tra loi binh thuong (answerable=True), khong phat INSUFFICIENT.
+        """
+        chunks = [
+            _chunk(
+                "ot_policy_0001",
+                text=(
+                    "Nhan vien lam them gio phai dang ky truoc qua form OT. "
+                    "Truong hop chua dang ky kip do yeu cau dot xuat, quan ly truc tiep "
+                    "xac nhan bo sung trong vong 24 gio sau khi OT. Khong co xac nhan "
+                    "cua quan ly thi gio lam them khong duoc tinh vao bang luong."
+                ),
+                title="Chinh sach OT",
+                source_file="01_chinh-sach-ot.md",
+            )
+        ]
+        llm_answer = (
+            f"{ANSWER_TYPE_NA_MARKER} Theo quy dinh [Nguồn 1], OT tu o lai khong dang ky "
+            "truoc khong duoc tinh vao luong tru khi quan ly truc tiep xac nhan bo sung "
+            "trong vong 24 gio sau do."
+        )
+        with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_answer)):
+            result = await generate_node(
+                {"query": "Tu o lai lam OT khong dang ky truoc co duoc tinh khong?", "retrieved_chunks": chunks}
+            )
+
+        assert result["answerable"] is True, "qa_003: answerable phai True -- co evidence dung chu de"
+        assert INSUFFICIENT_MARKER not in result["generated_answer"]
+        assert len(result["citations"]) == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_047_bhxh_nguoi_nuoc_ngoai_phu_song_ngoai_le(self):
+        """qa_047: Nguoi nuoc ngoai co phai dong BHXH bat buoc khong?
+        Chunk da chua dieu khoan chinh + ve ngoai le.
+        Model PHAI phu song DAY DU ca hai ve, khong bo sot ngoai le.
+        """
+        chunks = [
+            _chunk(
+                "bhxh_0009",
+                text=(
+                    "Nguoi lao dong nuoc ngoai lam viec tai Viet Nam theo hop dong lao dong "
+                    "tu 1 nam tro len phai tham gia BHXH bat buoc voi muc dong nhu lao dong "
+                    "trong nuoc. Tru cac truong hop: (1) di chuyen noi bo doanh nghiep trong "
+                    "pham vi tap doan da quoc gia; (2) da du tuoi nghi huu theo quy dinh cua "
+                    "nuoc so tai tai thoi diem ky hop dong."
+                ),
+                title="Chinh sach BHXH",
+                source_file="09_bhxh.md",
+            )
+        ]
+        llm_answer = (
+            f"{ANSWER_TYPE_GENERAL_MARKER} Nguoi nuoc ngoai co hop dong tu 1 nam "
+            "phai dong BHXH bat buoc [Nguồn 1]. Tuy nhien co hai ngoai le: (1) di chuyen "
+            "noi bo trong tap doan da quoc gia va (2) da du tuoi nghi huu tai thoi diem ky "
+            "hop dong [Nguồn 1]."
+        )
+        with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_answer)):
+            result = await generate_node(
+                {"query": "Nguoi nuoc ngoai co phai dong BHXH bat buoc khong?", "retrieved_chunks": chunks}
+            )
+
+        assert result["answerable"] is True, "qa_047: answerable phai True -- co evidence day du"
+        assert INSUFFICIENT_MARKER not in result["generated_answer"]
+        assert len(result["citations"]) == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_107_cam_ket_dao_tao_answerable(self):
+        """qa_107: Cam ket lam viec sau dao tao 60 trieu thi bao lau?
+        Cau hoi ve cam ket/rang buoc -- chunk da co dieu khoan cam ket.
+        Model PHAI tra loi tu dieu khoan, khong phat INSUFFICIENT_MARKER.
+        """
+        chunks = [
+            _chunk(
+                "dao_tao_0005",
+                text=(
+                    "Nhan vien duoc cong ty ho tro hoc phi tren 50 trieu VND phai cam ket "
+                    "tiep tuc lam viec toi thieu 24 thang ke tu ngay ket thuc khoa hoc. "
+                    "Neu nghi viec truoc thoi han cam ket, nhan vien phai hoan lai toan bo "
+                    "chi phi dao tao theo ty le thoi gian con lai."
+                ),
+                title="Chinh sach dao tao",
+                source_file="06_dao-tao-va-phat-trien.md",
+            )
+        ]
+        llm_answer = (
+            f"{ANSWER_TYPE_GENERAL_MARKER} Hoc phi tren 50 trieu VND yeu cau cam ket lam viec "
+            "toi thieu 24 thang sau khi ket thuc khoa hoc [Nguồn 1]. Nghi truoc han phai hoan "
+            "lai chi phi theo ty le thoi gian con lai."
+        )
+        with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_answer)):
+            result = await generate_node(
+                {"query": "Duoc tai tro 60 trieu hoc phi thi cam ket lam bao lau?", "retrieved_chunks": chunks}
+            )
+
+        assert result["answerable"] is True, "qa_107: answerable phai True -- chunk co dieu khoan cam ket"
+        assert INSUFFICIENT_MARKER not in result["generated_answer"]
+        assert len(result["citations"]) == 1
+
+    @pytest.mark.asyncio
+    async def test_qa_109_vua_qua_thu_viec_bhstn_answerable(self):
+        """qa_109: Vua qua thu viec co duoc tham gia BHSTN khong?
+        Cau hoi ve dieu kien tham gia -- chunk phan biet ro thu viec/chinh thuc.
+        Model PHAI tra loi tu dieu kien trong chunk, khong phat INSUFFICIENT_MARKER.
+        """
+        chunks = [
+            _chunk(
+                "bhstn_0003",
+                text=(
+                    "Bao hiem suc khoe tu nguyen ap dung cho toan bo nhan vien chinh thuc "
+                    "da ky hop dong lao dong chinh thuc tu 3 thang tro len. Nhan vien vua "
+                    "hoan thanh thu viec va chuyen sang hop dong chinh thuc du dieu kien "
+                    "dang ky ngay trong ky dang ky gan nhat sau ngay ky hop dong."
+                ),
+                title="Chinh sach BHSTN",
+                source_file="08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+            ),
+            _chunk(
+                "bhstn_0001",
+                text="Nhan vien thu viec KHONG duoc tham gia BHSTN trong thoi gian thu viec.",
+                title="Chinh sach BHSTN",
+                source_file="08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+            ),
+        ]
+        llm_answer = (
+            f"{ANSWER_TYPE_GENERAL_MARKER} Nhan vien vua qua thu viec va ky hop dong chinh thuc "
+            "du dieu kien dang ky BHSTN ngay trong ky dang ky gan nhat [Nguồn 1]. "
+            "Trong thoi gian thu viec thi chua duoc tham gia [Nguồn 2]."
+        )
+        with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_answer)):
+            result = await generate_node(
+                {"query": "Vua qua thu viec co duoc tham gia BHSTN khong?", "retrieved_chunks": chunks}
+            )
+
+        assert result["answerable"] is True, "qa_109: answerable phai True -- chunk phan biet ro dieu kien"
+        assert INSUFFICIENT_MARKER not in result["generated_answer"]
+
+    @pytest.mark.asyncio
+    async def test_qa_123_lich_lam_viec_chuan_answerable(self):
+        """qa_123: Lich lam viec chuan trong tuan la gi?
+        Cau hoi tra cuu thong tin -- chunk co noi quy lao dong neu ro lich lam viec.
+        Model PHAI tra loi binh thuong (answerable=True), khong phat INSUFFICIENT.
+        """
+        chunks = [
+            _chunk(
+                "nqld_0003",
+                text=(
+                    "Thoi gian lam viec tieu chuan la 8 gio/ngay, 5 ngay/tuan tu thu Hai "
+                    "den thu Sau. Gio lam viec: 08:30 - 17:30, nghi trua 60 phut tu 12:00 - 13:00. "
+                    "Cac phong ban san xuat va van hanh ap dung ca kip theo lich rieng."
+                ),
+                title="Noi quy lao dong",
+                source_file="13_noi-quy-lao-dong-va-ky-luat.md",
+            )
+        ]
+        llm_answer = (
+            f"{ANSWER_TYPE_NA_MARKER} Lich lam viec chuan la thu Hai den thu Sau, 08:30-17:30, "
+            "nghi trua 12:00-13:00 [Nguồn 1]. Bo phan san xuat va van hanh ap dung ca kip theo "
+            "lich rieng."
+        )
+        with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_answer)):
+            result = await generate_node(
+                {"query": "Lich lam viec chuan trong tuan la gi?", "retrieved_chunks": chunks}
+            )
+
+        assert result["answerable"] is True, "qa_123: answerable phai True -- noi quy co lich lam viec"
+        assert INSUFFICIENT_MARKER not in result["generated_answer"]
+        assert len(result["citations"]) == 1

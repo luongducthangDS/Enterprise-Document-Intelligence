@@ -25,9 +25,24 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
     logger.info("Database schema is managed by Supabase migrations; automatic create_all is disabled.")
+    
+    # Chat Job Durability: Tự động phục hồi các request bị gián đoạn khi Backend khởi động lại
+    try:
+        from app.services.chat_service import ChatService
+        recovered = await ChatService.recover_pending_requests()
+        if recovered > 0:
+            logger.info(f"[Chat Durability] Recovered {recovered} pending chat request(s) on startup.")
+    except Exception as e:
+        logger.error(f"[Chat Durability] Failed to recover pending chat requests on startup: {e}")
+
     try:
         yield
     finally:
+        try:
+            from app.services.chat_service import ChatService
+            await ChatService.cancel_background_tasks()
+        except Exception as e:
+            logger.warning(f"[Chat Durability] Error cancelling background tasks on shutdown: {e}")
         await engine.dispose()
         logger.info("Shutting down application...")
 
