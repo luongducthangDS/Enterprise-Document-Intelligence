@@ -83,6 +83,10 @@ def passed_for_type(item_type: str, result: dict[str, Any], *, context_ok: bool,
         return bool(result.get("response")) and context_ok and answer_ok
     if item_type == "ambiguous":
         return result.get("needs_clarification") is True
+    if item_type == "pure_statutory":
+        return result.get("intent") == "pure_statutory" and (
+            result.get("state") == "OUT_OF_SCOPE" or result.get("reason_code") == "PURE_STATUTORY"
+        )
     if item_type == "competitor_comparison":
         return result.get("escalate") is False and result.get("escalate_reason") == "competitor_question"
     return result.get("escalate") is True  # out_of_scope
