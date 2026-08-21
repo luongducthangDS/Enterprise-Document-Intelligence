@@ -1,0 +1,69 @@
+{
+  "dataset_items": 97,
+  "qrel_queries": 96,
+  "issue_count": 8,
+  "issues_by_kind": {
+    "declared_source_disagrees_with_qrels": 4,
+    "missing_qrel": 4
+  },
+  "issues": [
+    {
+      "kind": "declared_source_disagrees_with_qrels",
+      "id": "rq_003",
+      "declared_sources": [
+        "161-ndcp.signed"
+      ],
+      "qrel_sources": [
+        "161-ndcp"
+      ]
+    },
+    {
+      "kind": "missing_qrel",
+      "id": "rq_012"
+    },
+    {
+      "kind": "missing_qrel",
+      "id": "rq_013"
+    },
+    {
+      "kind": "declared_source_disagrees_with_qrels",
+      "id": "rq_014",
+      "declared_sources": [
+        "[base.vn] mẫu sơ đồ quy trình tuyển dụng nhân sự.docx"
+      ],
+      "qrel_sources": [
+        "[base.vn] mẫu sơ đồ quy trình tuyển dụng nhân sự"
+      ]
+    },
+    {
+      "kind": "missing_qrel",
+      "id": "rq_032"
+    },
+    {
+      "kind": "declared_source_disagrees_with_qrels",
+      "id": "rq_040",
+      "declared_sources": [
+        "amis_mau-thong-bao-quy-dinh-nghi-phep"
+      ],
+      "qrel_sources": [
+        "07_chinh-sach-nghi-phep",
+        "leanh_mau-noi-quy-lao-dong"
+      ]
+    },
+    {
+      "kind": "missing_qrel",
+      "id": "rq_056"
+    },
+    {
+      "kind": "declared_source_disagrees_with_qrels",
+      "id": "rq_095",
+      "declared_sources": [
+        "[base.vn] mẫu sơ đồ quy trình tuyển dụng nhân sự.docx"
+      ],
+      "qrel_sources": [
+        "02_quy-trinh-tuyen-dung",
+        "[base.vn] mẫu sơ đồ quy trình tuyển dụng nhân sự"
+      ]
+    }
+  ]
+}

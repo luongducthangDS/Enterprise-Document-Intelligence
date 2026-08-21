@@ -1,0 +1,263 @@
+{
+  "run_at": "2026-08-19T10:59:30.630226+00:00",
+  "dataset": "eval\\datasets\\qa_heldout_set.json",
+  "total": 30,
+  "total_passed": 0,
+  "summary_by_type": {
+    "in_scope": {
+      "passed": 0,
+      "total": 30,
+      "rate": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "total_ci": [
+      0.0,
+      0.0
+    ]
+  },
+  "results": [
+    {
+      "id": "heldout_001",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_002",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_003",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_004",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_005",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_006",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_007",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_008",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_009",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_010",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_011",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_012",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_013",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_014",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_015",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_016",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_017",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_018",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_019",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_020",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_021",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_022",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_023",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_024",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_025",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_026",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_027",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_028",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_029",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    },
+    {
+      "id": "heldout_030",
+      "type": "in_scope",
+      "category": "mixed",
+      "error": "HTTPSConnectionPool(host='mkp-api.fptcloud.com', port=443): Max retries exceeded with url: /chat/completions (Caused by NewConnectionError(\"HTTPSConnection(host='mkp-api.fptcloud.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions\"))",
+      "passed": false,
+      "latency_ms": null
+    }
+  ]
+}

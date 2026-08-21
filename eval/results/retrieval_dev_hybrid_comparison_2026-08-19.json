@@ -1,0 +1,25 @@
+{
+  "k": 5,
+  "paired_queries": 73,
+  "hit_rate_before": 0.1644,
+  "hit_rate_after": 0.1644,
+  "hit_rate_test": {
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "p_value": 1.0,
+    "significant": false
+  },
+  "recall_before": 0.121,
+  "recall_after": 0.121,
+  "recall_test": {
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "p_value": 1.0,
+    "significant": false
+  },
+  "fixed_queries": [],
+  "broken_queries": [],
+  "identical_per_query": true
+}

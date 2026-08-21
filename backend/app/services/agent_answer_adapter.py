@@ -66,6 +66,9 @@ class AgentAnswerAdapter:
                 existing["page_start"] = min(starts) if starts else None
                 existing["page_end"] = max(ends) if ends else None
                 existing["page"] = existing["page_start"]
+                if not existing.get("sheet_start"):
+                    existing["sheet_start"] = item.sheet_start
+                    existing["sheet_end"] = item.sheet_end
                 existing["is_official_policy"] = existing["is_official_policy"] and item.is_official_policy
                 continue
 
@@ -73,6 +76,7 @@ class AgentAnswerAdapter:
                 "citation_id": cls._citation_id(chat_request_id, source_key),
                 "title": item.title or item.source_file,
                 "page": item.page_start,
+                "sheet": item.sheet_start,
                 # Trước đây hardcode None — agent không hề gửi field này. Giờ
                 # agent trả source_section (vd "4.1. Số ngày nghỉ phép năm tiêu
                 # chuẩn"), client hiển thị "Nguồn: {title} · {section}".
@@ -83,6 +87,9 @@ class AgentAnswerAdapter:
                 "source_file": item.source_file,
                 "page_start": item.page_start,
                 "page_end": item.page_end,
+                "sheet_start": item.sheet_start,
+                "sheet_end": item.sheet_end,
+                "department": item.department,
                 "category": item.category,
                 "is_official_policy": item.is_official_policy,
                 "source_type": item.source_type,

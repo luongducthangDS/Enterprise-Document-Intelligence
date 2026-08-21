@@ -1,0 +1,458 @@
+{
+  "status": "CURATED_DEV_ONLY",
+  "reviewer_type": "single_ai_assisted_local_semantic_review",
+  "release_ground_truth": false,
+  "limitations": [
+    "Positive labels were selected from the saved candidate pool by one AI-assisted local review.",
+    "Unselected candidates are implicit negatives for this dev benchmark, not independent human judgments.",
+    "Release reporting still requires independent human adjudication through finalize_nexatech_v2_qrels.py."
+  ],
+  "pool_query_count": 45,
+  "included_query_count": 27,
+  "excluded_query_count": 18,
+  "exclusion_counts": {
+    "conditional_contract": 1,
+    "contract_conflict": 1,
+    "missing_fixture": 1,
+    "missing_policy_detail": 10,
+    "partial_only": 2,
+    "requires_personal_data": 3
+  },
+  "included": [
+    {
+      "id": "nxv2_001_l1",
+      "question": "cho hỏi 1 tháng mình đc làm OT tối đa bao nhiêu tiếng vậy ạ",
+      "expected_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "labeled_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reason": "Both the limits section and FAQ state the monthly OT limit."
+    },
+    {
+      "id": "nxv2_002_l1",
+      "question": "em làm OT chủ nhật với ngày lễ thì tính tiền khác ngày thường ko ạ",
+      "expected_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "labeled_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reason": "The pay table and FAQ directly distinguish Sunday and holiday OT rates."
+    },
+    {
+      "id": "nxv2_003_l1",
+      "question": "OT phải đăng ký trước hay làm xong khai sau?",
+      "expected_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "labeled_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reason": "The approval procedure requires registration at least one working day in advance."
+    },
+    {
+      "id": "nxv2_003_l2",
+      "question": "vậy em tự ở lại làm thêm mà không đăng ký thì có được tính không?",
+      "expected_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "labeled_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reason": "The recording rule and FAQ answer unregistered voluntary overtime directly."
+    },
+    {
+      "id": "nxv2_004_l1",
+      "question": "đăng ký OT làm ở đâu vậy, form nào?",
+      "expected_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "labeled_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reason": "The procedure names form HR-FRM-OT-01 and the HRIS approval flow."
+    },
+    {
+      "id": "nxv2_016_l1",
+      "question": "hợp đồng không xác định thời hạn thì phải báo trước bao lâu",
+      "expected_source_file": "04_quy-trinh-offboarding.md",
+      "labeled_source_files": [
+        "04_quy-trinh-offboarding.md"
+      ],
+      "reason": "The notice-period section and FAQ state the indefinite-contract deadline."
+    },
+    {
+      "id": "nxv2_017_l1",
+      "question": "bàn giao gồm những gì, ai ký xác nhận cuối cùng",
+      "expected_source_file": "04_quy-trinh-offboarding.md",
+      "labeled_source_files": [
+        "04_quy-trinh-offboarding.md"
+      ],
+      "reason": "The handover step lists work/assets and the RACI identifies the accountable manager."
+    },
+    {
+      "id": "nxv2_019_l1",
+      "question": "1 tuần đc wfh mấy buổi thế ạ",
+      "expected_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "labeled_source_files": [
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reason": "The Hybrid 3-2 section and FAQ state the weekly WFH maximum."
+    },
+    {
+      "id": "nxv2_020_l1",
+      "question": "con e ốm, mai e wfh dc ko a",
+      "expected_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "labeled_source_files": [
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reason": "The exception rule supplies the age condition, approval path, and duration limits needed for a conditional guide."
+    },
+    {
+      "id": "nxv2_023_l1",
+      "question": "công ty có hỗ trợ học phí khoá học bên ngoài không ạ",
+      "expected_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "labeled_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md"
+      ],
+      "reason": "The budget table and proposal process establish available support and its approval conditions."
+    },
+    {
+      "id": "nxv2_024_l2",
+      "question": "được công ty tài trợ học mà nghỉ việc sớm thì có phải hoàn tiền không",
+      "expected_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "labeled_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md"
+      ],
+      "reason": "The commitment rule and FAQ directly cover repayment after early departure."
+    },
+    {
+      "id": "nxv2_024_l3",
+      "question": "em đang cân nhắc nghỉ, hoàn cụ thể bao nhiêu?",
+      "expected_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "labeled_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md"
+      ],
+      "reason": "The policy provides the repayment formula; personal inputs still require handoff."
+    },
+    {
+      "id": "nxv2_026_l1",
+      "question": "1 năm được bao nhiêu ngày phép ạ",
+      "expected_source_file": "07_chinh-sach-nghi-phep.md",
+      "labeled_source_files": [
+        "07_chinh-sach-nghi-phep.md"
+      ],
+      "reason": "The annual-leave table and FAQ state standard entitlement; seniority is supporting context."
+    },
+    {
+      "id": "nxv2_029_l1",
+      "question": "nghỉ không lương với nghỉ phép năm khác nhau chỗ nào",
+      "expected_source_file": "07_chinh-sach-nghi-phep.md",
+      "labeled_source_files": [
+        "07_chinh-sach-nghi-phep.md"
+      ],
+      "reason": "Definitions and the paid/unpaid rules directly support the comparison."
+    },
+    {
+      "id": "nxv2_030_l1",
+      "question": "phép chưa dùng hết có được cộng dồn sang năm sau không?",
+      "expected_source_file": "07_chinh-sach-nghi-phep.md",
+      "labeled_source_files": [
+        "07_chinh-sach-nghi-phep.md"
+      ],
+      "reason": "The carry-over rule and FAQs state the five-day cap and treatment of the excess."
+    },
+    {
+      "id": "nxv2_030_l2",
+      "question": "vậy nếu em nghỉ việc giữa năm, phép dư có quy ra tiền không?",
+      "expected_source_file": "07_chinh-sach-nghi-phep.md",
+      "labeled_source_files": [
+        "07_chinh-sach-nghi-phep.md"
+      ],
+      "reason": "The termination rule directly requires payment for unused annual leave."
+    },
+    {
+      "id": "nxv2_033_l1",
+      "question": "bảo hiểm sức khoẻ này có mua thêm cho vợ con được không",
+      "expected_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "labeled_source_files": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+      ],
+      "reason": "The dependent-coverage section directly lists eligible spouse and children."
+    },
+    {
+      "id": "nxv2_034_l2",
+      "question": "em nằm viện tuần trước rồi, giờ nộp hồ sơ bồi thường kiểu gì",
+      "expected_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "labeled_source_files": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+      ],
+      "reason": "The reimbursement section lists the 30-day deadline, documents, and submission route."
+    },
+    {
+      "id": "nxv2_035_l1",
+      "question": "công ty cũ em là Vinatek Solutions cho khám định kỳ 2 lần/năm, bên mình có vậy không?",
+      "expected_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "labeled_source_files": [
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+      ],
+      "reason": "The answer is in the safety policy, not the source predicted by the imported test case."
+    },
+    {
+      "id": "nxv2_036_l1",
+      "question": "lương em bị trừ những khoản bảo hiểm gì, tỉ lệ bao nhiêu",
+      "expected_source_file": "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+      "labeled_source_files": [
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md"
+      ],
+      "reason": "The contribution table directly lists employee deductions and rates."
+    },
+    {
+      "id": "nxv2_039_l1",
+      "question": "khám sức khoẻ định kỳ 1 năm mấy lần, ai chi trả",
+      "expected_source_file": "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+      "labeled_source_files": [
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+      ],
+      "reason": "The frequency is explicit and the employer-responsibility section identifies NexaTech as organizer."
+    },
+    {
+      "id": "nxv2_040_l1",
+      "question": "hôm qua em trượt ngã ở cầu thang bộ, sưng chân, giờ em phải làm gì ạ",
+      "expected_source_file": "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+      "labeled_source_files": [
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+      ],
+      "reason": "The accident procedure gives immediate first aid and reporting steps."
+    },
+    {
+      "id": "nxv2_043_l1",
+      "question": "quy trình đánh giá gồm những bước nào, em có được tự đánh giá không",
+      "expected_source_file": "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+      "labeled_source_files": [
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+      ],
+      "reason": "The four-step process begins with employee self-evaluation."
+    },
+    {
+      "id": "nxv2_045_l2",
+      "question": "điểm KPI thấp thì có bị cắt thưởng hay cho nghỉ không?",
+      "expected_source_file": "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+      "labeled_source_files": [
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+      ],
+      "reason": "The rating table covers bonus impact and the PIP rule limits when termination may follow."
+    },
+    {
+      "id": "nxv2_047_l1",
+      "question": "đi công tác tỉnh thì phụ cấp ăn ở tính sao ạ",
+      "expected_source_file": "12_quy-che-cong-tac-phi.md",
+      "labeled_source_files": [
+        "12_quy-che-cong-tac-phi.md"
+      ],
+      "reason": "Separate tables directly cover meal/per-diem and accommodation limits."
+    },
+    {
+      "id": "nxv2_048_l2",
+      "question": "chứng từ hoàn ứng nộp ở đâu, trong bao lâu?",
+      "expected_source_file": "12_quy-che-cong-tac-phi.md",
+      "labeled_source_files": [
+        "12_quy-che-cong-tac-phi.md"
+      ],
+      "reason": "The settlement procedure states submission to Accounting within five working days."
+    },
+    {
+      "id": "nxv2_048_l3",
+      "question": "em mất hoá đơn taxi rồi thì sao",
+      "expected_source_file": "12_quy-che-cong-tac-phi.md",
+      "labeled_source_files": [
+        "12_quy-che-cong-tac-phi.md"
+      ],
+      "reason": "The policy requires valid travel evidence but provides no lost-invoice exception, supporting a bounded insufficient-evidence response."
+    }
+  ],
+  "excluded": [
+    {
+      "id": "nxv2_006_l1",
+      "question": "tuyển 1 vị trí thì đi qua mấy vòng, ai duyệt cuối",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "partial_only",
+      "reason": "Interview rounds are documented, but no final candidate approver is identified."
+    },
+    {
+      "id": "nxv2_007_l1",
+      "question": "em có đứa bạn muốn ứng tuyển, giới thiệu kiểu gì để tính referral",
+      "expected_states": [
+        "GUIDE"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "Referral is only named as a sourcing channel; procedure and credit rules are absent."
+    },
+    {
+      "id": "nxv2_010_l1",
+      "question": "ngày đầu đi làm em cần mang giấy tờ gì ạ",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "The onboarding document says an email will list documents but does not provide that list."
+    },
+    {
+      "id": "nxv2_011_l2",
+      "question": "bằng đại học em chưa lấy bản gốc, có nộp bản sao công chứng trước được không?",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "No original-versus-notarized-degree rule is present."
+    },
+    {
+      "id": "nxv2_011_l3",
+      "question": "vậy chậm nộp bản gốc quá hạn thì ảnh hưởng gì",
+      "expected_states": [
+        "PREPARE_AND_HANDOFF"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "No consequence for a late original document is present."
+    },
+    {
+      "id": "nxv2_012_l1",
+      "question": "email công ty với tài khoản chấm công kích hoạt kiểu gì thế ạ",
+      "expected_states": [
+        "GUIDE"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "IT preparation is documented, but activation instructions are absent."
+    },
+    {
+      "id": "nxv2_015_l3",
+      "question": "nếu em nghỉ ngang không báo trước thì bị gì",
+      "expected_states": [
+        "HUMAN_FIRST",
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "Notice periods are documented, but consequences of quitting without notice are not."
+    },
+    {
+      "id": "nxv2_025_l1",
+      "question": "đăng ký khoá đào tạo nội bộ ở đâu, hạn đăng ký khi nào",
+      "expected_states": [
+        "GUIDE"
+      ],
+      "contract_flags": [],
+      "kind": "partial_only",
+      "reason": "Annual TNA timing exists, but no specific internal-course registration channel or deadline exists."
+    },
+    {
+      "id": "nxv2_027_l1",
+      "question": "em còn bao nhiêu ngày phép?",
+      "expected_states": [
+        "INSUFFICIENT_EVIDENCE",
+        "GUIDE"
+      ],
+      "contract_flags": [],
+      "kind": "requires_personal_data",
+      "reason": "A personal leave balance cannot be derived from policy text."
+    },
+    {
+      "id": "nxv2_028_l1",
+      "question": "đang thử việc thì có phép năm không ạ",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "The leave policy does not explicitly settle annual leave during probation."
+    },
+    {
+      "id": "nxv2_030_l3",
+      "question": "em nghỉ tháng 3 thì được quy đổi mấy ngày?",
+      "expected_states": [
+        "PREPARE_AND_HANDOFF"
+      ],
+      "contract_flags": [],
+      "kind": "requires_personal_data",
+      "reason": "Exact payable days require employment dates and the employee's actual leave ledger."
+    },
+    {
+      "id": "nxv2_037_l1",
+      "question": "theo luật thì phải đóng bảo hiểm bao lâu mới được hưởng chế độ thai sản ạ",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [
+        "pure_statutory_scope_conflict"
+      ],
+      "kind": "contract_conflict",
+      "reason": "A pure statutory question conflicts with the current Type-C scope contract."
+    },
+    {
+      "id": "nxv2_038_l1",
+      "question": "em đóng bảo hiểm được bao nhiêu tháng rồi ạ",
+      "expected_states": [
+        "INSUFFICIENT_EVIDENCE",
+        "GUIDE"
+      ],
+      "contract_flags": [],
+      "kind": "requires_personal_data",
+      "reason": "Contribution months require the employee's insurance record."
+    },
+    {
+      "id": "nxv2_042_l1",
+      "question": "1 năm đánh giá KPI mấy kỳ, vào tháng nào",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "The policy names annual/monthly/quarterly cycles but gives no calendar months."
+    },
+    {
+      "id": "nxv2_049_l1",
+      "question": "đi công tác nước ngoài có khác không ạ",
+      "expected_states": [
+        "INSUFFICIENT_EVIDENCE",
+        "ANSWER"
+      ],
+      "contract_flags": [
+        "conditional_expectation_needs_adjudication"
+      ],
+      "kind": "conditional_contract",
+      "reason": "Foreign travel is in scope but no foreign rates or procedures are specified."
+    },
+    {
+      "id": "nxv2_050_l1",
+      "question": "đi muộn bao nhiêu phút thì bị tính vi phạm?",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "The work rules give start time but no lateness threshold in minutes."
+    },
+    {
+      "id": "nxv2_050_l2",
+      "question": "1 tháng muộn mấy lần thì bị nhắc nhở chính thức?",
+      "expected_states": [
+        "ANSWER"
+      ],
+      "contract_flags": [],
+      "kind": "missing_policy_detail",
+      "reason": "No monthly lateness count for a formal warning is specified."
+    },
+    {
+      "id": "nxv2_054_l1",
+      "question": "nội quy ghi 1 kiểu mà mail HR gửi tháng trước ghi khác, cái nào đúng ạ",
+      "expected_states": [
+        "CONFLICTING_SOURCES"
+      ],
+      "contract_flags": [
+        "requires_conflicting_source_fixture"
+      ],
+      "kind": "missing_fixture",
+      "reason": "The corpus has no conflicting HR email fixture to compare with the policy."
+    }
+  ]
+}

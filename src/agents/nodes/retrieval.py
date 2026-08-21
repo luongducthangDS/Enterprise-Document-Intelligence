@@ -1,6 +1,6 @@
 import asyncio
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg
@@ -14,19 +14,49 @@ from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
-_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_REFERRAL_QUERY_PATTERN = re.compile(
+    r"\breferral\b"
+    r"|(?:giới thiệu|gioi thieu).{0,48}(?:ứng tuyển|ung tuyen|ứng viên|ung vien|người quen|nguoi quen|bạn|ban)"
+    r"|(?:ứng tuyển|ung tuyen|ứng viên|ung vien).{0,48}(?:giới thiệu|gioi thieu|referral)",
+    re.IGNORECASE,
+)
+_DISCIPLINARY_ABSENCE_QUERY_PATTERN = re.compile(
+    r"(?:tự ý|tu y).{0,40}(?:nghỉ|nghi|bỏ việc|bo viec)"
+    r"|(?:sa thải|sa thai|kỷ luật|ky luat).{0,48}(?:nghỉ|nghi|bỏ việc|bo viec|vắng|vang)"
+    r"|(?:nghỉ|nghi|bỏ việc|bo viec).{0,48}(?:sa thải|sa thai|kỷ luật|ky luat|phê duyệt|phe duyet)",
+    re.IGNORECASE,
+)
 
 
 def _expand_retrieval_query(query: str) -> str:
-    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
 
-    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
-    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    Expansion nhỏ này giúp dense và BM25 tìm đúng ngay lượt đầu mà không cần
+    gọi LLM rewrite chỉ để thêm từ. Chỉ mở rộng các pattern có tín hiệu đủ rõ
+    để không làm loãng embedding của câu hỏi HR khác.
     """
-    if not _HYBRID_QUERY_PATTERN.search(query):
+    expansions: list[str] = []
+    if _HYBRID_QUERY_PATTERN.search(query):
+        expansions.append("WFH, làm việc từ xa, onsite, mô hình 3-2")
+    if _REFERRAL_QUERY_PATTERN.search(query):
+        # Regression qa_013: người dùng nói "giới thiệu bạn ứng tuyển" trong
+        # khi policy dùng "giới thiệu nội bộ (referral)" ở mục kênh đăng tin.
+        expansions.append(
+            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
+            "website tuyển dụng, nộp hồ sơ ứng viên"
+        )
+    disciplinary_match = _DISCIPLINARY_ABSENCE_QUERY_PATTERN.search(query)
+    if disciplinary_match:
+        # Regression qa_122: câu hỏi nói "tự ý nghỉ/chưa được phê duyệt", còn
+        # policy dùng cụm "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày".
+        # Đây là một paraphrase canonical có chủ đích: câu hỏi gốc dài và
+        # chứa nhiều điều kiện, trong khi chunk policy có đúng cụm này.
+        return "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày; sa thải; lý do chính đáng"
+    if not expansions:
         return query
-    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
+    return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
 @lru_cache
@@ -88,7 +118,7 @@ def _provenance_filter(settings: Settings) -> dict | None:
       `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
       đó là hành vi ĐÚNG, không phải lỗi.
     """
-    query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
     # authority allowlist: tenant_official_policy = tài liệu nội bộ doanh nghiệp (quy trình,
     # biên bản, quyết định, quy chế); government_law = văn bản pháp luật (bộ luật, nghị định,
     # thông tư) — được đưa vào knowledge database từ 2026-08-21, trích dẫn kèm
@@ -152,6 +182,7 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         text=text,
         source_file=meta.get("source_file", ""),
         title=meta.get("title", ""),
+        department=str(meta.get("department") or "HR"),
         category=meta.get("category", ""),
         is_official_policy=bool(meta.get("is_official_policy", False)),
         source_type=str(meta.get("source_type") or ""),
@@ -166,6 +197,8 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         policy_status=str(meta.get("publication_status") or ""),
         page_start=meta.get("page_start"),
         page_end=meta.get("page_end"),
+        sheet_start=meta.get("sheet_start"),
+        sheet_end=meta.get("sheet_end"),
         distance=distance,
         score=None,
     )

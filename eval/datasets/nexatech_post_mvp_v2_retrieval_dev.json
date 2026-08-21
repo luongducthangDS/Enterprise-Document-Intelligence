@@ -1,0 +1,464 @@
+[
+  {
+    "id": "nxv2_001_l1",
+    "query": "cho hỏi 1 tháng mình đc làm OT tối đa bao nhiêu tiếng vậy ạ",
+    "original_question": "cho hỏi 1 tháng mình đc làm OT tối đa bao nhiêu tiếng vậy ạ",
+    "type": "multi_chunk",
+    "category": "01_chinh-sach-lam-them-gio-OT",
+    "source_files": [
+      "01_chinh-sach-lam-them-gio-OT.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_002_l1",
+    "query": "em làm OT chủ nhật với ngày lễ thì tính tiền khác ngày thường ko ạ",
+    "original_question": "em làm OT chủ nhật với ngày lễ thì tính tiền khác ngày thường ko ạ",
+    "type": "multi_chunk",
+    "category": "01_chinh-sach-lam-them-gio-OT",
+    "source_files": [
+      "01_chinh-sach-lam-them-gio-OT.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_003_l1",
+    "query": "OT phải đăng ký trước hay làm xong khai sau?",
+    "original_question": "OT phải đăng ký trước hay làm xong khai sau?",
+    "type": "single_chunk",
+    "category": "01_chinh-sach-lam-them-gio-OT",
+    "source_files": [
+      "01_chinh-sach-lam-them-gio-OT.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_003_l2",
+    "query": "Ngữ cảnh hội thoại:\n- OT phải đăng ký trước hay làm xong khai sau?\n- vậy em tự ở lại làm thêm mà không đăng ký thì có được tính không?",
+    "original_question": "vậy em tự ở lại làm thêm mà không đăng ký thì có được tính không?",
+    "type": "multi_chunk",
+    "category": "01_chinh-sach-lam-them-gio-OT",
+    "source_files": [
+      "01_chinh-sach-lam-them-gio-OT.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_004_l1",
+    "query": "đăng ký OT làm ở đâu vậy, form nào?",
+    "original_question": "đăng ký OT làm ở đâu vậy, form nào?",
+    "type": "single_chunk",
+    "category": "01_chinh-sach-lam-them-gio-OT",
+    "source_files": [
+      "01_chinh-sach-lam-them-gio-OT.md"
+    ],
+    "expected_states": [
+      "GUIDE"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_016_l1",
+    "query": "hợp đồng không xác định thời hạn thì phải báo trước bao lâu",
+    "original_question": "hợp đồng không xác định thời hạn thì phải báo trước bao lâu",
+    "type": "multi_chunk",
+    "category": "04_quy-trinh-offboarding",
+    "source_files": [
+      "04_quy-trinh-offboarding.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_017_l1",
+    "query": "bàn giao gồm những gì, ai ký xác nhận cuối cùng",
+    "original_question": "bàn giao gồm những gì, ai ký xác nhận cuối cùng",
+    "type": "multi_chunk",
+    "category": "04_quy-trinh-offboarding",
+    "source_files": [
+      "04_quy-trinh-offboarding.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_019_l1",
+    "query": "1 tuần đc wfh mấy buổi thế ạ",
+    "original_question": "1 tuần đc wfh mấy buổi thế ạ",
+    "type": "multi_chunk",
+    "category": "05_chinh-sach-lam-viec-tu-xa",
+    "source_files": [
+      "05_chinh-sach-lam-viec-tu-xa.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_020_l1",
+    "query": "con e ốm, mai e wfh dc ko a",
+    "original_question": "con e ốm, mai e wfh dc ko a",
+    "type": "single_chunk",
+    "category": "05_chinh-sach-lam-viec-tu-xa",
+    "source_files": [
+      "05_chinh-sach-lam-viec-tu-xa.md"
+    ],
+    "expected_states": [
+      "GUIDE"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_023_l1",
+    "query": "công ty có hỗ trợ học phí khoá học bên ngoài không ạ",
+    "original_question": "công ty có hỗ trợ học phí khoá học bên ngoài không ạ",
+    "type": "multi_chunk",
+    "category": "06_chinh-sach-dao-tao-phat-trien",
+    "source_files": [
+      "06_chinh-sach-dao-tao-phat-trien.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_024_l2",
+    "query": "Ngữ cảnh hội thoại:\n- công ty có hỗ trợ học phí khoá học bên ngoài không ạ\n- được công ty tài trợ học mà nghỉ việc sớm thì có phải hoàn tiền không",
+    "original_question": "được công ty tài trợ học mà nghỉ việc sớm thì có phải hoàn tiền không",
+    "type": "multi_chunk",
+    "category": "06_chinh-sach-dao-tao-phat-trien",
+    "source_files": [
+      "06_chinh-sach-dao-tao-phat-trien.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_024_l3",
+    "query": "Ngữ cảnh hội thoại:\n- công ty có hỗ trợ học phí khoá học bên ngoài không ạ\n- được công ty tài trợ học mà nghỉ việc sớm thì có phải hoàn tiền không\n- em đang cân nhắc nghỉ, hoàn cụ thể bao nhiêu?",
+    "original_question": "em đang cân nhắc nghỉ, hoàn cụ thể bao nhiêu?",
+    "type": "single_chunk",
+    "category": "06_chinh-sach-dao-tao-phat-trien",
+    "source_files": [
+      "06_chinh-sach-dao-tao-phat-trien.md"
+    ],
+    "expected_states": [
+      "PREPARE_AND_HANDOFF"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_026_l1",
+    "query": "1 năm được bao nhiêu ngày phép ạ",
+    "original_question": "1 năm được bao nhiêu ngày phép ạ",
+    "type": "multi_chunk",
+    "category": "07_chinh-sach-nghi-phep",
+    "source_files": [
+      "07_chinh-sach-nghi-phep.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_029_l1",
+    "query": "nghỉ không lương với nghỉ phép năm khác nhau chỗ nào",
+    "original_question": "nghỉ không lương với nghỉ phép năm khác nhau chỗ nào",
+    "type": "multi_chunk",
+    "category": "07_chinh-sach-nghi-phep",
+    "source_files": [
+      "07_chinh-sach-nghi-phep.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 3,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_030_l1",
+    "query": "phép chưa dùng hết có được cộng dồn sang năm sau không?",
+    "original_question": "phép chưa dùng hết có được cộng dồn sang năm sau không?",
+    "type": "multi_chunk",
+    "category": "07_chinh-sach-nghi-phep",
+    "source_files": [
+      "07_chinh-sach-nghi-phep.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 4,
+    "num_highly_relevant": 3,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_030_l2",
+    "query": "Ngữ cảnh hội thoại:\n- phép chưa dùng hết có được cộng dồn sang năm sau không?\n- vậy nếu em nghỉ việc giữa năm, phép dư có quy ra tiền không?",
+    "original_question": "vậy nếu em nghỉ việc giữa năm, phép dư có quy ra tiền không?",
+    "type": "single_chunk",
+    "category": "07_chinh-sach-nghi-phep",
+    "source_files": [
+      "07_chinh-sach-nghi-phep.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_033_l1",
+    "query": "bảo hiểm sức khoẻ này có mua thêm cho vợ con được không",
+    "original_question": "bảo hiểm sức khoẻ này có mua thêm cho vợ con được không",
+    "type": "single_chunk",
+    "category": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen",
+    "source_files": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_034_l2",
+    "query": "Ngữ cảnh hội thoại:\n- bảo hiểm sức khoẻ này có mua thêm cho vợ con được không\n- em nằm viện tuần trước rồi, giờ nộp hồ sơ bồi thường kiểu gì",
+    "original_question": "em nằm viện tuần trước rồi, giờ nộp hồ sơ bồi thường kiểu gì",
+    "type": "single_chunk",
+    "category": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen",
+    "source_files": [
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+    ],
+    "expected_states": [
+      "GUIDE"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_035_l1",
+    "query": "công ty cũ em là Vinatek Solutions cho khám định kỳ 2 lần/năm, bên mình có vậy không?",
+    "original_question": "công ty cũ em là Vinatek Solutions cho khám định kỳ 2 lần/năm, bên mình có vậy không?",
+    "type": "multi_chunk",
+    "category": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen",
+    "source_files": [
+      "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+    ],
+    "expected_states": [
+      "OUT_OF_SCOPE",
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_036_l1",
+    "query": "lương em bị trừ những khoản bảo hiểm gì, tỉ lệ bao nhiêu",
+    "original_question": "lương em bị trừ những khoản bảo hiểm gì, tỉ lệ bao nhiêu",
+    "type": "single_chunk",
+    "category": "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc",
+    "source_files": [
+      "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_039_l1",
+    "query": "khám sức khoẻ định kỳ 1 năm mấy lần, ai chi trả",
+    "original_question": "khám sức khoẻ định kỳ 1 năm mấy lần, ai chi trả",
+    "type": "multi_chunk",
+    "category": "10_chinh-sach-an-toan-ve-sinh-lao-dong",
+    "source_files": [
+      "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_040_l1",
+    "query": "hôm qua em trượt ngã ở cầu thang bộ, sưng chân, giờ em phải làm gì ạ",
+    "original_question": "hôm qua em trượt ngã ở cầu thang bộ, sưng chân, giờ em phải làm gì ạ",
+    "type": "multi_chunk",
+    "category": "10_chinh-sach-an-toan-ve-sinh-lao-dong",
+    "source_files": [
+      "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+    ],
+    "expected_states": [
+      "PREPARE_AND_HANDOFF"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_043_l1",
+    "query": "quy trình đánh giá gồm những bước nào, em có được tự đánh giá không",
+    "original_question": "quy trình đánh giá gồm những bước nào, em có được tự đánh giá không",
+    "type": "single_chunk",
+    "category": "11_chinh-sach-danh-gia-hieu-suat-kpi",
+    "source_files": [
+      "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_045_l2",
+    "query": "Ngữ cảnh hội thoại:\n- em thấy kỳ này sếp chấm em không công bằng, khiếu nại thế nào ạ\n- điểm KPI thấp thì có bị cắt thưởng hay cho nghỉ không?",
+    "original_question": "điểm KPI thấp thì có bị cắt thưởng hay cho nghỉ không?",
+    "type": "multi_chunk",
+    "category": "11_chinh-sach-danh-gia-hieu-suat-kpi",
+    "source_files": [
+      "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+    ],
+    "expected_states": [
+      "HUMAN_FIRST",
+      "ANSWER"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_047_l1",
+    "query": "đi công tác tỉnh thì phụ cấp ăn ở tính sao ạ",
+    "original_question": "đi công tác tỉnh thì phụ cấp ăn ở tính sao ạ",
+    "type": "multi_chunk",
+    "category": "12_quy-che-cong-tac-phi",
+    "source_files": [
+      "12_quy-che-cong-tac-phi.md"
+    ],
+    "expected_states": [
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_048_l2",
+    "query": "Ngữ cảnh hội thoại:\n- đi công tác tỉnh thì phụ cấp ăn ở tính sao ạ\n- chứng từ hoàn ứng nộp ở đâu, trong bao lâu?",
+    "original_question": "chứng từ hoàn ứng nộp ở đâu, trong bao lâu?",
+    "type": "single_chunk",
+    "category": "12_quy-che-cong-tac-phi",
+    "source_files": [
+      "12_quy-che-cong-tac-phi.md"
+    ],
+    "expected_states": [
+      "GUIDE"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  },
+  {
+    "id": "nxv2_048_l3",
+    "query": "Ngữ cảnh hội thoại:\n- đi công tác tỉnh thì phụ cấp ăn ở tính sao ạ\n- chứng từ hoàn ứng nộp ở đâu, trong bao lâu?\n- em mất hoá đơn taxi rồi thì sao",
+    "original_question": "em mất hoá đơn taxi rồi thì sao",
+    "type": "single_chunk",
+    "category": "12_quy-che-cong-tac-phi",
+    "source_files": [
+      "12_quy-che-cong-tac-phi.md"
+    ],
+    "expected_states": [
+      "INSUFFICIENT_EVIDENCE",
+      "ANSWER"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev",
+    "qrel_status": "curated_dev_single_reviewer"
+  }
+]

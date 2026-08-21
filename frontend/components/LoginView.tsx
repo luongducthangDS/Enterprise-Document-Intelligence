@@ -5,7 +5,7 @@ import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import type { User } from "@/lib/types";
 
-const DEPARTMENTS = ["HR", "Engineering", "IT", "Finance", "Sales", "Marketing", "Operations", "Legal"];
+const DEPARTMENTS = ["HR", "Product", "Engineering", "IT", "Finance", "Sales", "Marketing", "Operations", "Legal"];
 
 export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");

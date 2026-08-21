@@ -94,6 +94,8 @@ eval/MANUAL_EVAL_EVIDENCE.md
 eval/MANUAL_EVAL_EVIDENCE_*.md
 eval/EVAL_EVIDENCES.md
 eval/results/manual_eval_*.json
+# Candidate pool chứa excerpt tài liệu nội bộ để người chấm qrel — giữ local.
+eval/results/*candidate_pool.json
 scripts/run_manual_eval.py
 scripts/build_eval_evidence_docx.py
 scripts/build_eval_evidence_docx_*.py
@@ -102,6 +104,7 @@ scripts/build_eval_evidence_docx_*.py
 *.docx
 
 # Tool-specific local/private configuration
+.codex/
 .codex/*.local.*
 .gemini/*.local.*
 .claude/*.local.*
