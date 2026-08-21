@@ -48,6 +48,7 @@ def build_chunks_from_text(
     source_type: str,
     is_official_policy: bool,
     department: str = "HR",
+    owner: str | None = None,
     caveat: str = "",
     authority: str = "public_reference",
     provenance: str = "public_web",
@@ -117,7 +118,7 @@ def build_chunks_from_text(
             document_code=cleaned.frontmatter.get("document_code"),
             version=str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None,
             effective_date=resolved_effective_date,
-            owner=cleaned.frontmatter.get("owner"),
+            owner=owner or cleaned.frontmatter.get("owner"),
             legal_basis=cleaned.frontmatter.get("legal_basis"),
         )
         breadcrumb = " — ".join(p for p in (title, tc.heading_path) if p)
