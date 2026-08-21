@@ -94,36 +94,98 @@ def is_accounting_request(state: dict) -> bool:
     return _is_accounting_query(raw_query, category)
 
 
-async def accounting_retrieval_node(state: dict) -> dict:
-    """Node retrieval độc lập cho phân hệ Kế toán.
+def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> dict:
+    """Chuyển đổi metadata Chroma thành RetrievedChunk chuẩn."""
+    return {
+        "chunk_id": chunk_id,
+        "text": text,
+        "source_file": meta.get("source_file", ""),
+        "title": meta.get("title", ""),
+        "department": str(meta.get("department") or "accounting"),
+        "category": meta.get("category", ""),
+        "is_official_policy": bool(meta.get("is_official_policy", True)),
+        "source_type": str(meta.get("source_type") or "internal_policy"),
+        "authority": str(meta.get("authority") or "tenant_official_policy"),
+        "provenance": str(meta.get("provenance") or "internal_company"),
+        "tenant": str(meta.get("tenant") or ""),
+        "caveat": str(meta.get("caveat") or ""),
+        "heading_path": str(meta.get("heading_path") or ""),
+        "policy_status": str(meta.get("publication_status") or "active"),
+        "page_start": meta.get("page_start"),
+        "page_end": meta.get("page_end"),
+        "sheet_start": meta.get("sheet_start"),
+        "sheet_end": meta.get("sheet_end"),
+        "distance": distance,
+        "score": None,
+    }
 
-    Tách biệt 100% với retrieval_node gốc của HR:
+
+def _accounting_provenance_filter(settings, allowed_categories: list[str] | None = None) -> dict:
+    """Bộ lọc quyền truy xuất chuẩn doanh nghiệp cho Kế toán."""
+    from datetime import datetime, timezone
+    try:
+        from datetime import UTC
+    except ImportError:
+        UTC = timezone.utc
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    categories = allowed_categories or ["GENERAL"]
+    category_filter = (
+        {"access_category": {"$in": categories}}
+        if len(categories) > 1
+        else {"access_category": {"$eq": categories[0]}}
+    )
+    return {
+        "$and": [
+            category_filter,
+            {"publication_status": "active"},
+            {"artifact_state": "frozen"},
+            {"retrieval_enabled": True},
+            {"effective_date_ymd": {"$lte": query_date_ymd}},
+            {"expiry_date_ymd": {"$gte": query_date_ymd}},
+        ]
+    }
+
+
+async def accounting_retrieval_node(state: dict) -> dict:
+    """Node retrieval độc lập 100% cho phân hệ Kế toán.
+
+    Tách biệt hoàn toàn với mọi hàm của HR trên develop:
     - Tự động áp dụng Query Expansion kế toán (G2)
     - Tự động áp dụng Dynamic Top-K (G3)
-    - Tự động kích hoạt Hybrid Search (G1)
-    - Kết nối Chroma Cloud (collection accounting_documents hoặc tenant_nexatech_knowledge)
+    - Tự động lọc metadata quyền truy cập Kế toán
+    - Kết nối trực tiếp Chroma Cloud collection accounting_documents
     - Tái xếp hạng bằng Reranker (G7)
     """
     import asyncio
     from functools import partial
-    from src.agents.nodes.retrieval import _aembed_query, _arerank, _collection, _provenance_filter, _to_chunk
     from src.config import get_settings
     from src.ingestion.indexer import get_chroma_client, get_collection
     from src.observability import llm_trace
+    from src.services.fpt_client import embed_batch, rerank
 
     settings = get_settings()
     raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
     query = _expand_accounting_query(raw_query)
     effective_top_k = _get_accounting_top_k(raw_query, settings.retrieval_top_k)
 
-    embedding = await _aembed_query(query)
+    # 1. Tính embedding câu hỏi
+    with llm_trace.Timer("embedding", "fpt_cloud"):
+        vectors = await asyncio.to_thread(
+            embed_batch,
+            [f"query: {query}"],
+            model=settings.embedding_model,
+            base_url=settings.fpt_base_url,
+            api_key=settings.fpt_api_key,
+        )
+        embedding = vectors[0]
 
-    # Ưu tiên collection accounting_documents, fallback về collection mặc định
+    # 2. Kết nối collection Kế toán trên Chroma Cloud
     client = get_chroma_client(settings)
+    collection_name = "accounting_documents"
     try:
-        col = get_collection(client, "accounting_documents")
+        col = get_collection(client, collection_name)
     except Exception:
-        col = _collection()
+        col = get_collection(client, settings.chroma_collection_name)
 
     allowed_categories = state.get("allowed_categories")
     user_role = state.get("user_role")
@@ -132,8 +194,10 @@ async def accounting_retrieval_node(state: dict) -> dict:
             allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
         else:
             allowed_categories = ["GENERAL"]
-    where = _provenance_filter(settings, allowed_categories=allowed_categories)
 
+    where = _accounting_provenance_filter(settings, allowed_categories=allowed_categories)
+
+    # 3. Vector search
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
         result = await asyncio.to_thread(
             partial(col.query, where=where) if where else col.query,
@@ -147,13 +211,35 @@ async def accounting_retrieval_node(state: dict) -> dict:
     distances = (result.get("distances") or [[]])[0]
 
     chunk_map = {
-        chunk_id: _to_chunk(chunk_id, text, meta, distance)
+        chunk_id: _to_accounting_chunk(chunk_id, text, meta, distance)
         for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
     }
 
     chunks = list(chunk_map.values())
+
+    # 4. Rerank
     if settings.use_reranker and chunks:
-        chunks = await _arerank(query, chunks)
+        try:
+            ranked = await asyncio.to_thread(
+                rerank,
+                query,
+                [c["text"] for c in chunks],
+                model=settings.reranker_model,
+                base_url=settings.fpt_base_url,
+                api_key=settings.fpt_api_key,
+                top_n=settings.rerank_top_k,
+            )
+            reranked = []
+            for index, score in ranked:
+                if 0 <= index < len(chunks):
+                    chunk = chunks[index]
+                    chunk["score"] = score
+                    reranked.append(chunk)
+            chunks = reranked[: settings.rerank_top_k]
+        except Exception as e:
+            print(f"[accounting_rerank] lỗi {type(e).__name__}: {e}")
+            chunks = chunks[: settings.rerank_top_k]
 
     return {"retrieved_chunks": chunks}
+
 
