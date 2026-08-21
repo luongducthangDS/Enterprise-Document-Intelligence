@@ -30,6 +30,7 @@ export type CitationSummary = {
   citation_id: string;
   title: string;
   page: number | null;
+  sheet?: string | null;
   section: string | null;
   version: string | null;
   effective_date: string | null;
@@ -49,7 +50,7 @@ export type CitationDetail = {
     is_official_policy?: boolean;
     source_type?: string | null;
   };
-  location: { page: number | null; section: string | null; chunk_id?: string | null };
+  location: { page: number | null; sheet?: string | null; section: string | null; chunk_id?: string | null };
   excerpt: string;
   caveat?: string | null;
   conflict_warning?: boolean;

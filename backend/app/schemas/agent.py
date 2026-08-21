@@ -7,8 +7,11 @@ class AgentCitationDTO(BaseModel):
     chunk_id: str
     source_file: str
     title: str
+    department: str = "HR"
     page_start: int | None = None
     page_end: int | None = None
+    sheet_start: str | None = None
+    sheet_end: str | None = None
     category: str
     is_official_policy: bool
     source_type: str = ""

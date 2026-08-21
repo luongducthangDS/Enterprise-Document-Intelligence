@@ -14,7 +14,7 @@ from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
-_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
 _REFERRAL_QUERY_PATTERN = re.compile(
     r"\breferral\b"
@@ -178,6 +178,7 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         text=text,
         source_file=meta.get("source_file", ""),
         title=meta.get("title", ""),
+        department=str(meta.get("department") or "HR"),
         category=meta.get("category", ""),
         is_official_policy=bool(meta.get("is_official_policy", False)),
         source_type=str(meta.get("source_type") or ""),
@@ -192,6 +193,8 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         policy_status=str(meta.get("publication_status") or ""),
         page_start=meta.get("page_start"),
         page_end=meta.get("page_end"),
+        sheet_start=meta.get("sheet_start"),
+        sheet_end=meta.get("sheet_end"),
         distance=distance,
         score=None,
     )
