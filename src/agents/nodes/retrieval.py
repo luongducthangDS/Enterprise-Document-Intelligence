@@ -1,6 +1,12 @@
 import asyncio
 import re
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+try:
+    from datetime import UTC
+except ImportError:
+    UTC = timezone.utc
+
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg

@@ -53,6 +53,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="Chunk lại kể cả đã có output")
     parser.add_argument("--only", nargs="*", help="Chỉ xử lý các source_file khớp tên (vd bo_luat_lao_dong.pdf)")
+    parser.add_argument("--category", default=None, help="Chỉ xử lý các tài liệu thuộc category này (vd government_legal)")
     parser.add_argument("--registry", default=None, help="Registry CSV (mặc định data/metadata/document_registry.csv)")
     parser.add_argument("--out-dir", default=OUT_DIR, help="Thư mục output chunk")
     args = parser.parse_args()
@@ -67,6 +68,8 @@ def main() -> None:
     warnings: list[str] = []
 
     for row in rows:
+        if args.category and row.category != args.category:
+            continue
         if args.only and row.source_file not in args.only:
             continue
 
