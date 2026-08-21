@@ -76,17 +76,14 @@ def _provenance_filter(settings: Settings) -> dict | None:
     nên không có đường nào để model lỡ trích dẫn nó.
 
     Bốn điều kiện LUÔN áp dụng (demo lẫn production) + 1 điều kiện chỉ production:
-    - authority=tenant_official_policy: sản phẩm chỉ trả lời bằng dữ liệu nội bộ
-      doanh nghiệp (thật hoặc synthetic đóng vai nội bộ) — luật, chính sách THẬT
-      của doanh nghiệp khác, template công khai không gắn công ty nào đều KHÔNG
-      được trích dẫn trực tiếp. Cố tình dùng allowlist ($eq) thay vì liệt kê
-      từng `$ne` (government_law, public_reference, public_template...): chunk
-      index từ TRƯỚC KHI taxonomy authority/provenance tồn tại không có field
-      `authority` trong metadata Chroma — `$ne` với field vắng mặt vẫn khớp
-      (tức KHÔNG lọc được), đã đo được lỗi này thật khi luật vẫn lọt vào
-      retrieved_chunks dù filter `$ne government_law` đã có. `$eq` fail-closed:
-      chunk thiếu/khác field tự động bị loại, không cần nhớ liệt kê hết mọi giá
-      trị cần chặn.
+    - authority IN [tenant_official_policy, government_law]: sản phẩm trả lời bằng
+      (1) dữ liệu nội bộ doanh nghiệp (quy trình, biên bản, quyết định, quy chế)
+      và (2) văn bản pháp luật (bộ luật, nghị định, thông tư) — cả hai được index
+      vào knowledge database từ 2026-08-21. Chính sách THẬT của doanh nghiệp KHÁC,
+      template công khai không gắn công ty nào vẫn bị loại. Dùng allowlist ($in)
+      thay vì liệt kê từng $ne: chunk cũ không có field `authority` trong Chroma
+      metadata — $ne với field vắng mặt vẫn khớp (không lọc được); $in fail-closed
+      — chunk thiếu/khác field tự động bị loại.
     - publication_status=active, artifact_state=frozen, retrieval_enabled=True:
       contract "frozen internal corpus" (NexaTech Type-C contract v3.1.0) — một
       tài liệu tenant_official_policy vẫn có thể bị loại khỏi truy vấn khi bị
