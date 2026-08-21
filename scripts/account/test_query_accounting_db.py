@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Script kiểm tra và truy vấn thử Local ChromaDB của phòng Kế toán.
+"""Script kiểm tra và truy vấn thử Chroma Cloud của phòng Kế toán.
 
 Cách dùng:
     python scripts/test_query_accounting_db.py "Hạn mức duyệt chi của Giám đốc tài chính là bao nhiêu?"
@@ -14,24 +14,21 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
 
-import chromadb
 from src.config import get_settings
+from src.ingestion.indexer import get_chroma_client, get_collection
 from src.services.fpt_client import embed_batch
 
 
-def test_query(query_text: str, n_results: int = 3):
+def test_query(query_text: str, n_results: int = 3, collection_name: str | None = None):
     settings = get_settings()
-    db_path = WORKSPACE_ROOT / "data" / "data_accounting" / "db_hr"
-
-    if not db_path.exists():
-        print(f"❌ Chưa tìm thấy Local ChromaDB tại: {db_path}. Hãy chạy ingest_accounting_docs.py trước.")
-        return
+    col_name = collection_name or "accounting_documents"
 
     print("=" * 80)
-    print("🔍 KIỂM TRA TRUY VẤN LOCAL CHROMADB (PHÒNG KẾ TOÁN)")
+    print("🔍 KIỂM TRA TRUY VẤN CHROMA CLOUD (PHÒNG KẾ TOÁN)")
     print("=" * 80)
-    print(f"❓ Câu hỏi truy vấn: '{query_text}'")
-    print(f"🗄️  Đường dẫn DB   : {db_path}")
+    print(f"❓ Câu hỏi truy vấn : '{query_text}'")
+    print(f"🌐 Backend Vector DB: {settings.vector_db_backend}")
+    print(f"📁 Collection       : {col_name}")
 
     # 1. Tính embedding câu hỏi
     print("\n🔢 Đang tính embedding câu hỏi...")
@@ -42,9 +39,9 @@ def test_query(query_text: str, n_results: int = 3):
         api_key=settings.fpt_api_key,
     )[0]
 
-    # 2. Truy vấn ChromaDB
-    client = chromadb.PersistentClient(path=str(db_path))
-    collection = client.get_collection(name="accounting_documents")
+    # 2. Truy vấn Chroma Cloud
+    client = get_chroma_client(settings)
+    collection = get_collection(client, col_name)
 
     results = collection.query(
         query_embeddings=[query_emb],

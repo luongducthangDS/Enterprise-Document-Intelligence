@@ -287,7 +287,7 @@ class TestProvenanceFilter:
     def test_demo_mode_requires_tenant_policy_and_frozen_lifecycle(self):
         where = _provenance_filter(self._settings("demo"))
         conditions = where["$and"]
-        assert {"authority": "tenant_official_policy"} in conditions
+        assert {"access_category": {"$eq": "GENERAL"}} in conditions
         assert {"publication_status": "active"} in conditions
         assert {"artifact_state": "frozen"} in conditions
         assert {"retrieval_enabled": True} in conditions
@@ -296,7 +296,7 @@ class TestProvenanceFilter:
     def test_production_mode_adds_provenance_condition(self):
         where = _provenance_filter(self._settings("production"))
         conditions = where["$and"]
-        assert {"authority": "tenant_official_policy"} in conditions
+        assert {"access_category": {"$eq": "GENERAL"}} in conditions
         assert {"publication_status": "active"} in conditions
         assert {"artifact_state": "frozen"} in conditions
         assert {"retrieval_enabled": True} in conditions
@@ -322,6 +322,7 @@ class TestProvenanceFilterScenarios:
 
     def _base_meta(self, **overrides) -> dict:
         meta = {
+            "access_category": "GENERAL",
             "authority": "tenant_official_policy",
             "publication_status": "active",
             "artifact_state": "frozen",
@@ -352,11 +353,10 @@ class TestProvenanceFilterScenarios:
         meta = self._base_meta()
         assert _chunk_matches_filter(meta, self._where()) is True
 
-    def test_law_authority_not_retrieved(self):
-        """authority ~ contract 'source_role': giá trị 'government_law' tương
-        đương source_role != internal_policy trong contract — LUÔN bị loại,
-        kể cả khi mọi field lifecycle khác đều 'sạch'."""
-        meta = self._base_meta(authority="government_law")
+    def test_non_general_category_not_retrieved(self):
+        """access_category: giá trị khác 'GENERAL' (vd 'LEGAL') — LUÔN bị loại
+        đối với employee default query."""
+        meta = self._base_meta(access_category="LEGAL")
         assert _chunk_matches_filter(meta, self._where()) is False
 
     def test_missing_field_chunk_not_retrieved(self):

@@ -1,9 +1,10 @@
 {
-  "run_at": "2026-08-21T13:25:38.221521+00:00",
+  "run_at": "2026-08-21T17:18:31.762544+00:00",
   "split": "heldout",
   "top_k": 10,
   "dataset": "eval/datasets/eval_accounting.json",
-  "db_path": "E:\\build\\P-153\\data\\data_accounting\\db_hr",
+  "vector_db_backend": "cloud",
+  "collection_name": "accounting_documents",
   "collection_count": 152,
   "summary": {
     "total": 6,
@@ -15,17 +16,17 @@
     "hit_rate@3": 0.4,
     "recall@3": 0.2667,
     "ndcg@3": 0.2939,
-    "hit_rate@5": 0.8,
-    "recall@5": 0.6667,
-    "ndcg@5": 0.4661,
-    "hit_rate@10": 0.8,
-    "recall@10": 0.7333,
-    "ndcg@10": 0.4974,
-    "mrr": 0.5,
+    "hit_rate@5": 1.0,
+    "recall@5": 0.7667,
+    "ndcg@5": 0.525,
+    "hit_rate@10": 1.0,
+    "recall@10": 0.8333,
+    "ndcg@10": 0.5562,
+    "mrr": 0.54,
     "doc_hit_rate": 1.0,
     "by_type": {
-      "table_lookup": {
-        "n": 1,
+      "single_chunk": {
+        "n": 2,
         "hit_rate@5": 1.0,
         "recall@5": 1.0
       },
@@ -34,22 +35,22 @@
         "hit_rate@5": 1.0,
         "recall@5": 0.3333
       },
-      "scenario_reasoning": {
+      "table_lookup": {
         "n": 1,
-        "hit_rate@5": 0.0,
-        "recall@5": 0.0
-      },
-      "single_chunk": {
-        "n": 2,
         "hit_rate@5": 1.0,
         "recall@5": 1.0
+      },
+      "scenario_reasoning": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.5
       }
     },
     "by_category": {
       "internal_expense_policy": {
         "n": 1,
-        "hit_rate@5": 0.0,
-        "recall@5": 0.0
+        "hit_rate@5": 1.0,
+        "recall@5": 0.5
       },
       "payroll_and_compensation": {
         "n": 2,
@@ -67,16 +68,7 @@
         "recall@5": 1.0
       }
     },
-    "miss_top5": [
-      {
-        "id": "acc_ret_004",
-        "query": "Quy chế chi tiêu có cho phép chia nhỏ một hợp đồng mua sắm thành nhiều lần dưới ",
-        "missed_chunks": [
-          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
-          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025"
-        ]
-      }
-    ],
+    "miss_top5": [],
     "no_gt_avg_top1_distance": 0.1585
   },
   "results": [
@@ -86,45 +78,44 @@
       "type": "scenario_reasoning",
       "category": "internal_expense_policy",
       "split": "heldout",
-      "top1_distance": 0.1591271162033081,
-      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+      "top1_distance": 0.15046054,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
       "retrieved_ids": [
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0010",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0019",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027"
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "BC-QTCP-Q3-2026_CongtyABC::0015"
       ],
       "num_retrieved": 10,
       "num_relevant": 2,
-      "hit_rank": 0,
-      "reciprocal_rank": 0.0,
+      "hit_rank": 5,
+      "reciprocal_rank": 0.2,
       "recalls": {
         "recall@1": 0.0,
         "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.0
+        "recall@5": 0.5,
+        "recall@10": 0.5
       },
       "ndcgs": {
         "ndcg@1": 0.0,
         "ndcg@3": 0.0,
-        "ndcg@5": 0.0,
-        "ndcg@10": 0.0
+        "ndcg@5": 0.2941,
+        "ndcg@10": 0.2941
       },
       "hits": {
         "hit@1": 0,
         "hit@3": 0,
-        "hit@5": 0,
-        "hit@10": 0
+        "hit@5": 1,
+        "hit@10": 1
       },
       "doc_hit": true,
       "missed_chunks": [
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025"
       ],
       "is_in_scope": true
@@ -135,7 +126,7 @@
       "type": "table_lookup",
       "category": "payroll_and_compensation",
       "split": "heldout",
-      "top1_distance": 0.12660229206085205,
+      "top1_distance": 0.12660229,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
@@ -181,7 +172,7 @@
       "type": "single_chunk",
       "category": "financial_report",
       "split": "heldout",
-      "top1_distance": 0.14181923866271973,
+      "top1_distance": 0.14181936,
       "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0007",
       "retrieved_ids": [
         "BC-QTCP-Q3-2026_CongtyABC::0007",
@@ -227,7 +218,7 @@
       "type": "single_chunk",
       "category": "procurement_and_purchasing",
       "split": "heldout",
-      "top1_distance": 0.14078271389007568,
+      "top1_distance": 0.1407829,
       "top1_chunk_id": "PO-2026-0810_Don-Dat-Hang::0002",
       "retrieved_ids": [
         "PO-2026-0810_Don-Dat-Hang::0002",
@@ -273,7 +264,7 @@
       "type": "cross_document",
       "category": "payroll_and_compensation",
       "split": "heldout",
-      "top1_distance": 0.15517592430114746,
+      "top1_distance": 0.15517598,
       "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
       "retrieved_ids": [
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
@@ -321,7 +312,7 @@
       "type": "out_of_scope_or_personal",
       "category": "internal_expense_policy",
       "split": "heldout",
-      "top1_distance": 0.15851545333862305,
+      "top1_distance": 0.15851533,
       "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
       "retrieved_ids": [
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",

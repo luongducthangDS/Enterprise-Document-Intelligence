@@ -12,6 +12,7 @@ from functools import lru_cache, partial
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
+from src.domains import get_matching_domain
 from src.ingestion.indexer import get_chroma_client, get_collection
 from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
 from src.observability import llm_trace
@@ -174,6 +175,17 @@ async def retrieval_node(state: AgentState) -> dict:
     settings = get_settings()
     raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
     query = _expand_retrieval_query(raw_query)
+
+    # --- Domain-Specific Plugin Hooks (G1, G2, G3) ---
+    domain = get_matching_domain(raw_query, state.get("category"))
+    if domain:
+        query = domain.expand_query(query)
+        effective_top_k = domain.get_top_k_override(raw_query, settings.retrieval_top_k)
+        effective_hybrid = settings.use_hybrid or domain.should_force_hybrid(raw_query)
+    else:
+        effective_top_k = settings.retrieval_top_k
+        effective_hybrid = settings.use_hybrid
+
     embedding = await _aembed_query(query)
 
     # Đo riêng hai phần, vì chúng có bản chất khác hẳn nhau và trước đây cùng
@@ -194,12 +206,12 @@ async def retrieval_node(state: AgentState) -> dict:
             # Employee default: strictly GENERAL company-wide documents only
             allowed_categories = ["GENERAL"]
     where = _provenance_filter(settings, allowed_categories=allowed_categories)
-    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
 
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,
             query_embeddings=[embedding],
-            n_results=settings.retrieval_top_k,
+            n_results=effective_top_k,
         )
 
     ids = (result.get("ids") or [[]])[0]
@@ -212,8 +224,8 @@ async def retrieval_node(state: AgentState) -> dict:
         for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
     }
 
-    if settings.use_hybrid and ids:
-        chunk_map = await _amerge_bm25(query, ids, chunk_map, settings)
+    if effective_hybrid and ids:
+        chunk_map = await _amerge_bm25(query, ids, chunk_map, settings, fused_top_k=effective_top_k)
 
     chunks = list(chunk_map.values())
     if settings.use_reranker and chunks:
@@ -223,7 +235,11 @@ async def retrieval_node(state: AgentState) -> dict:
 
 
 async def _amerge_bm25(
-    query: str, dense_ids: list[str], chunk_map: dict[str, RetrievedChunk], settings: Settings
+    query: str,
+    dense_ids: list[str],
+    chunk_map: dict[str, RetrievedChunk],
+    settings: Settings,
+    fused_top_k: int | None = None,
 ) -> dict[str, RetrievedChunk]:
     """Trộn thêm ứng viên BM25 (RRF) rồi trả về đúng tập chunk theo thứ tự
     trộn — ứng viên chỉ đến từ BM25 (không nằm trong dense_ids) cần lấy riêng
@@ -235,7 +251,7 @@ async def _amerge_bm25(
         query=query,
         bm25_top_k=settings.bm25_top_k,
         rrf_k=settings.rrf_k,
-        fused_top_k=settings.retrieval_top_k,
+        fused_top_k=fused_top_k or settings.retrieval_top_k,
     )
 
     missing_ids = [cid for cid in fused_ids if cid not in chunk_map]

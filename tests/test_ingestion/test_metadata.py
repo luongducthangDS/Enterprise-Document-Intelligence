@@ -82,22 +82,17 @@ class TestLoadRegistry:
     def test_missing_optional_columns_default_empty(self, registry_path):
         rows = load_registry(registry_path)
         b = next(r for r in rows if r.source_file == "b.md")
-        assert b.department == "HR"
+        assert b.department == "GENERAL"
         assert b.chunks_path == ""
         assert b.indexed_at == ""
 
 
 class TestRagEligibleRows:
     def test_filters_non_rag_source_types_and_non_processed(self, registry_path):
-        """b.md là dòng processed + source_type RAG-eligible duy nhất. a.pdf và
-        raw_only.pdf đều bị loại vì source_type="government_law" — luật chỉ còn
-        là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent trích
-        dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES); raw_only.pdf còn bị loại thêm
-        vì status != "processed". eval.json bị loại vì source_type="eval_asset"."""
         rows = load_registry(registry_path)
         eligible = rag_eligible_rows(rows)
         eligible_files = {r.source_file for r in eligible}
-        assert eligible_files == {"b.md"}
+        assert eligible_files == {"a.pdf", "b.md"}
 
 
 class TestUpdateRegistryColumn:

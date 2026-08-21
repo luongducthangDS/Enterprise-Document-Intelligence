@@ -2,16 +2,16 @@
 """Đánh giá khả năng RETRIEVAL của hệ thống trên bộ dữ liệu Phòng Kế toán.
 
 Script này đo retrieval THUẦN (không qua router/grade/generate) trực tiếp lên
-local ChromaDB tại data/data_accounting/db_hr/ — cùng logic đo với eval_retrieval.py
-nhưng được điều chỉnh cho:
+Chroma Cloud — cùng kiến trúc và cơ chế kết nối với eval_retrieval.py của HR:
   - Schema JSON của eval_accounting.json (dùng `query` thay vì `question`,
     `qrels` inline thay vì file qrels riêng).
   - Hai split: dev (25 queries) và heldout (10 queries).
   - 5 loại câu: single_chunk, multi_chunk, cross_document, scenario_reasoning,
     ambiguous/out_of_scope/edge_case (không có ground truth).
+  - Tích hợp Domain Plugin Hooks (G1 Hybrid, G2 Query Expansion, G3 Dynamic Top-K).
 
 Chạy:
-    python eval/scripts/eval_accounting_retrieval.py [--split dev|heldout|all] [--top-k 10]
+    python eval/scripts/eval_accounting_retrieval.py [--split dev|heldout|all] [--top-k 10] [--collection hr_documents]
 
 Output:
     eval/results/accounting_retrieval_report.json
@@ -29,9 +29,8 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 sys.path.insert(0, _ROOT)
 sys.stdout.reconfigure(encoding="utf-8")
 
-import chromadb  # noqa: E402
-
 from src.config import get_settings  # noqa: E402
+from src.ingestion.indexer import get_chroma_client, get_collection  # noqa: E402
 from src.services.fpt_client import embed_batch  # noqa: E402
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -77,6 +76,9 @@ def _first_hit_rank(qrels: dict, retrieved: list) -> int:
     return 0
 
 
+from src.domains import get_matching_domain
+
+
 # ── Embedding (sync wrapper) ──────────────────────────────────────────────────
 def _embed_query(query: str, settings) -> list[float]:
     results = embed_batch(
@@ -90,14 +92,18 @@ def _embed_query(query: str, settings) -> list[float]:
 
 # ── Retrieve (async) ──────────────────────────────────────────────────────────
 async def _retrieve(
-    query: str, collection, top_k: int, semaphore: asyncio.Semaphore, settings
+    query: str, collection, top_k: int, semaphore: asyncio.Semaphore, settings, category: str | None = None
 ) -> dict:
+    domain = get_matching_domain(query, category)
+    effective_query = domain.expand_query(query) if domain else query
+    effective_top_k = domain.get_top_k_override(query, top_k) if domain else top_k
+
     async with semaphore:
-        embedding = await asyncio.to_thread(_embed_query, query, settings)
+        embedding = await asyncio.to_thread(_embed_query, effective_query, settings)
         result = await asyncio.to_thread(
             collection.query,
             query_embeddings=[embedding],
-            n_results=top_k,
+            n_results=effective_top_k,
             include=["documents", "metadatas", "distances"],
         )
         ids = (result.get("ids") or [[]])[0]
@@ -115,7 +121,7 @@ async def _eval_one(
     item_type = item["type"]
     qrels: dict = item.get("qrels", {})
 
-    raw = await _retrieve(query, collection, top_k, semaphore, settings)
+    raw = await _retrieve(query, collection, top_k, semaphore, settings, category=item.get("category"))
     ids = raw["ids"]
     distances = raw["distances"]
 
@@ -243,6 +249,7 @@ async def main() -> None:
     parser.add_argument("--concurrency", type=int, default=5)
     parser.add_argument("--out", default=RESULTS_PATH)
     parser.add_argument("--dataset", default=EVAL_DATASET)
+    parser.add_argument("--collection", default="accounting_documents", help="Tên collection Chroma Cloud (mặc định 'accounting_documents')")
     parser.add_argument("--dev", action="store_true", help="Shorthand: chạy split=dev")
     args = parser.parse_args()
 
@@ -251,21 +258,11 @@ async def main() -> None:
 
     settings = get_settings()
 
-    # Connect local ChromaDB accounting
-    db_path = os.path.join(_ROOT, "data", "data_accounting", "db_hr")
-    if not os.path.isdir(db_path):
-        print(f"[LỖI] Không tìm thấy local ChromaDB tại: {db_path}")
-        print("       Hãy chạy scripts/ingest_accounting_docs.py trước.")
-        sys.exit(1)
-
-    client = chromadb.PersistentClient(path=db_path)
-    # Thử hr_documents trước (alias chính), nếu không có thì dùng accounting_documents
-    try:
-        collection = client.get_collection("hr_documents")
-        print(f"[DB] Collection 'hr_documents' — {collection.count()} chunks")
-    except Exception:
-        collection = client.get_collection("accounting_documents")
-        print(f"[DB] Collection 'accounting_documents' — {collection.count()} chunks")
+    # Kết nối Chroma Cloud (collection accounting_documents)
+    client = get_chroma_client(settings)
+    collection_name = args.collection or "accounting_documents"
+    collection = get_collection(client, collection_name)
+    print(f"[Chroma Cloud] Backend: {settings.vector_db_backend} | Collection: '{collection_name}' ({collection.count()} chunks)")
 
     # Load eval dataset
     dataset_path = os.path.join(_ROOT, args.dataset)
@@ -341,7 +338,8 @@ async def main() -> None:
         "split": args.split,
         "top_k": args.top_k,
         "dataset": args.dataset,
-        "db_path": db_path,
+        "vector_db_backend": settings.vector_db_backend,
+        "collection_name": collection_name,
         "collection_count": collection.count(),
         "summary": summary,
         "results": results,

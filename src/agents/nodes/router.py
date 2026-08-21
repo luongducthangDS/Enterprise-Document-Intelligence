@@ -9,6 +9,7 @@ from src.agents.nodes.escalation import (
     _strip_diacritics,
 )
 from src.agents.state import AgentState, Intent
+from src.domains import get_matching_domain
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal|pure_statutory")
 _EXPLICIT_HYBRID_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
@@ -176,6 +177,17 @@ async def router_node(state: AgentState) -> dict:
     # not the internal demo persona must not be treated as currently applicable HR policy.
     if _mentions_competitor_company(query):
         return {"intent": "out_of_scope_or_personal"}
+
+    # --- Domain-Specific Personal Data / ABSTAIN Guardrail (G5) ---
+    domain = get_matching_domain(query, state.get("category"))
+    if domain:
+        is_personal, reason_code = domain.check_personal_data_query(query)
+        if is_personal:
+            return {
+                "intent": "out_of_scope_or_personal",
+                "escalate_reason": reason_code or "domain_personal_data_detected",
+                "verifier_called": False,
+            }
 
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy

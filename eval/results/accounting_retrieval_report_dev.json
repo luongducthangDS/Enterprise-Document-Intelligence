@@ -1,9 +1,10 @@
 {
-  "run_at": "2026-08-21T13:25:49.665946+00:00",
+  "run_at": "2026-08-21T17:14:12.560782+00:00",
   "split": "dev",
   "top_k": 10,
   "dataset": "eval/datasets/eval_accounting.json",
-  "db_path": "E:\\build\\P-153\\data\\data_accounting\\db_hr",
+  "vector_db_backend": "cloud",
+  "collection_name": "hr_documents",
   "collection_count": 152,
   "summary": {
     "total": 29,
@@ -18,17 +19,12 @@
     "hit_rate@5": 0.9167,
     "recall@5": 0.7292,
     "ndcg@5": 0.6538,
-    "hit_rate@10": 0.9167,
-    "recall@10": 0.7778,
-    "ndcg@10": 0.6723,
-    "mrr": 0.7188,
+    "hit_rate@10": 0.9583,
+    "recall@10": 0.7917,
+    "ndcg@10": 0.6793,
+    "mrr": 0.724,
     "doc_hit_rate": 1.0,
     "by_type": {
-      "multi_chunk": {
-        "n": 5,
-        "hit_rate@5": 1.0,
-        "recall@5": 0.8667
-      },
       "single_chunk": {
         "n": 16,
         "hit_rate@5": 1.0,
@@ -43,6 +39,11 @@
         "n": 2,
         "hit_rate@5": 0.5,
         "recall@5": 0.3333
+      },
+      "multi_chunk": {
+        "n": 5,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.8667
       }
     },
     "by_category": {
@@ -92,13 +93,12 @@
         "id": "acc_ret_035",
         "query": "Nếu nhà cung cấp xuất hóa đơn giấy viết tay hoặc hóa đơn điện tử không tra cứu đ",
         "missed_chunks": [
-          "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
           "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004",
           "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
         ]
       }
     ],
-    "no_gt_avg_top1_distance": 0.1619
+    "no_gt_avg_top1_distance": 0.1575
   },
   "results": [
     {
@@ -107,7 +107,7 @@
       "type": "single_chunk",
       "category": "internal_expense_policy",
       "split": "dev",
-      "top1_distance": 0.11750578880310059,
+      "top1_distance": 0.11750561,
       "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
       "retrieved_ids": [
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
@@ -153,7 +153,7 @@
       "type": "single_chunk",
       "category": "internal_expense_policy",
       "split": "dev",
-      "top1_distance": 0.0970529317855835,
+      "top1_distance": 0.09705293,
       "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
       "retrieved_ids": [
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
@@ -201,7 +201,7 @@
       "type": "single_chunk",
       "category": "internal_expense_policy",
       "split": "dev",
-      "top1_distance": 0.14260941743850708,
+      "top1_distance": 0.14260924,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
@@ -249,7 +249,7 @@
       "type": "single_chunk",
       "category": "internal_expense_policy",
       "split": "dev",
-      "top1_distance": 0.1391611099243164,
+      "top1_distance": 0.13916105,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
@@ -295,7 +295,7 @@
       "type": "multi_chunk",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.14440655708312988,
+      "top1_distance": 0.14440656,
       "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
       "retrieved_ids": [
         "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
@@ -341,7 +341,7 @@
       "type": "single_chunk",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.165560781955719,
+      "top1_distance": 0.1655609,
       "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
       "retrieved_ids": [
         "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
@@ -389,7 +389,7 @@
       "type": "single_chunk",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.15402215719223022,
+      "top1_distance": 0.15402228,
       "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
       "retrieved_ids": [
         "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
@@ -435,7 +435,7 @@
       "type": "single_chunk",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.1318759322166443,
+      "top1_distance": 0.13187611,
       "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
       "retrieved_ids": [
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
@@ -481,7 +481,7 @@
       "type": "multi_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.11861348152160645,
+      "top1_distance": 0.11861336,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
@@ -529,19 +529,19 @@
       "type": "multi_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.1188349723815918,
+      "top1_distance": 0.109362125,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0031",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0002",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0032",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030"
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0006"
       ],
       "num_retrieved": 10,
       "num_relevant": 3,
@@ -575,7 +575,7 @@
       "type": "single_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.14176541566848755,
+      "top1_distance": 0.14176548,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
@@ -621,7 +621,7 @@
       "type": "single_chunk",
       "category": "payroll_and_compensation",
       "split": "dev",
-      "top1_distance": 0.13377392292022705,
+      "top1_distance": 0.13377404,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
@@ -667,7 +667,7 @@
       "type": "single_chunk",
       "category": "payroll_and_compensation",
       "split": "dev",
-      "top1_distance": 0.1548578143119812,
+      "top1_distance": 0.15485781,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0033",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0033",
@@ -715,7 +715,7 @@
       "type": "single_chunk",
       "category": "payroll_and_compensation",
       "split": "dev",
-      "top1_distance": 0.11030864715576172,
+      "top1_distance": 0.110308886,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
@@ -761,7 +761,7 @@
       "type": "multi_chunk",
       "category": "financial_report",
       "split": "dev",
-      "top1_distance": 0.12755048274993896,
+      "top1_distance": 0.12755042,
       "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0000",
       "retrieved_ids": [
         "BC-QTCP-Q3-2026_CongtyABC::0000",
@@ -807,7 +807,7 @@
       "type": "multi_chunk",
       "category": "financial_report",
       "split": "dev",
-      "top1_distance": 0.14630556106567383,
+      "top1_distance": 0.1463055,
       "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0002",
       "retrieved_ids": [
         "BC-QTCP-Q3-2026_CongtyABC::0002",
@@ -853,7 +853,7 @@
       "type": "single_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.14508867263793945,
+      "top1_distance": 0.14508879,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
@@ -901,7 +901,7 @@
       "type": "single_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.12830346822738647,
+      "top1_distance": 0.12830359,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
@@ -949,7 +949,7 @@
       "type": "single_chunk",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.14087766408920288,
+      "top1_distance": 0.14087754,
       "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
       "retrieved_ids": [
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
@@ -995,7 +995,7 @@
       "type": "cross_document",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.1223188042640686,
+      "top1_distance": 0.12231898,
       "top1_chunk_id": "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
       "retrieved_ids": [
         "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
@@ -1007,9 +1007,14 @@
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0034",
         "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0001",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035"
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0025",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0036",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0004",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0015"
       ],
-      "num_retrieved": 10,
+      "num_retrieved": 15,
       "num_relevant": 3,
       "hit_rank": 1,
       "reciprocal_rank": 1.0,
@@ -1041,7 +1046,7 @@
       "type": "single_chunk",
       "category": "fixed_assets_management",
       "split": "dev",
-      "top1_distance": 0.1209302544593811,
+      "top1_distance": 0.120930254,
       "top1_chunk_id": "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
       "retrieved_ids": [
         "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
@@ -1087,7 +1092,7 @@
       "type": "single_chunk",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.12441480159759521,
+      "top1_distance": 0.1244148,
       "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
       "retrieved_ids": [
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
@@ -1133,7 +1138,7 @@
       "type": "cross_document",
       "category": "procurement_and_purchasing",
       "split": "dev",
-      "top1_distance": 0.13233906030654907,
+      "top1_distance": 0.132339,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
@@ -1145,9 +1150,14 @@
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0022",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026"
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0032",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016"
       ],
-      "num_retrieved": 10,
+      "num_retrieved": 15,
       "num_relevant": 4,
       "hit_rank": 0,
       "reciprocal_rank": 0.0,
@@ -1184,7 +1194,7 @@
       "type": "ambiguous",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.16437149047851562,
+      "top1_distance": 0.16438276,
       "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
       "retrieved_ids": [
         "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
@@ -1215,19 +1225,19 @@
       "type": "ambiguous",
       "category": "internal_expense_policy",
       "split": "dev",
-      "top1_distance": 0.14433836936950684,
-      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+      "top1_distance": 0.12199855,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
       "retrieved_ids": [
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0023",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0024",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0022",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004"
       ],
       "num_retrieved": 10,
       "num_relevant": 3,
@@ -1246,7 +1256,7 @@
       "type": "out_of_scope_or_personal",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.1547994613647461,
+      "top1_distance": 0.15479934,
       "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
       "retrieved_ids": [
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
@@ -1277,7 +1287,7 @@
       "type": "edge_case_and_unanswerable",
       "category": "payroll_and_compensation",
       "split": "dev",
-      "top1_distance": 0.17237067222595215,
+      "top1_distance": 0.17237067,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0029",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0029",
@@ -1308,7 +1318,7 @@
       "type": "out_of_scope_or_personal",
       "category": "payroll_and_compensation",
       "split": "dev",
-      "top1_distance": 0.17382586002349854,
+      "top1_distance": 0.17382586,
       "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
       "retrieved_ids": [
         "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
@@ -1339,45 +1349,44 @@
       "type": "scenario_reasoning",
       "category": "advance_and_payment_sop",
       "split": "dev",
-      "top1_distance": 0.15397977828979492,
+      "top1_distance": 0.14903367,
       "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
       "retrieved_ids": [
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
-        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
         "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0012",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
         "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
-        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
-        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
-        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
-        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0009"
+        "BC-QTCP-Q3-2026_CongtyABC::0016"
       ],
       "num_retrieved": 10,
       "num_relevant": 3,
-      "hit_rank": 0,
-      "reciprocal_rank": 0.0,
+      "hit_rank": 8,
+      "reciprocal_rank": 0.125,
       "recalls": {
         "recall@1": 0.0,
         "recall@3": 0.0,
         "recall@5": 0.0,
-        "recall@10": 0.0
+        "recall@10": 0.3333
       },
       "ndcgs": {
         "ndcg@1": 0.0,
         "ndcg@3": 0.0,
         "ndcg@5": 0.0,
-        "ndcg@10": 0.0
+        "ndcg@10": 0.1677
       },
       "hits": {
         "hit@1": 0,
         "hit@3": 0,
         "hit@5": 0,
-        "hit@10": 0
+        "hit@10": 1
       },
       "doc_hit": true,
       "missed_chunks": [
-        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004",
         "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
       ],
