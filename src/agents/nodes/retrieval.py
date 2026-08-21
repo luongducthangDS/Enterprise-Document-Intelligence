@@ -104,8 +104,9 @@ def _provenance_filter(settings: Settings, user_department: str | None = None) -
 
     # Department-based Access Control (ACL / RBAC)
     if user_department and user_department.upper() not in ("ADMIN", "ALL"):
-        allowed_depts = ["GENERAL", "ALL", user_department, user_department.upper(), user_department.lower()]
+        allowed_depts = ["GENERAL", "ALL", "LEGAL", user_department, user_department.upper(), user_department.lower()]
         conditions.append({"department": {"$in": list(set(allowed_depts))}})
+
 
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
