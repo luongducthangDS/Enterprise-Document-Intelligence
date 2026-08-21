@@ -85,3 +85,75 @@ def _get_accounting_top_k(query: str, default_k: int) -> int:
     if _MULTI_DOC_PATTERN.search(query):
         return max(default_k, ACCOUNTING_MULTI_DOC_TOP_K)
     return default_k
+
+
+def is_accounting_request(state: dict) -> bool:
+    """Kiểm tra xem request có thuộc phân hệ Kế toán không."""
+    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    category = state.get("category")
+    return _is_accounting_query(raw_query, category)
+
+
+async def accounting_retrieval_node(state: dict) -> dict:
+    """Node retrieval độc lập cho phân hệ Kế toán.
+
+    Tách biệt 100% với retrieval_node gốc của HR:
+    - Tự động áp dụng Query Expansion kế toán (G2)
+    - Tự động áp dụng Dynamic Top-K (G3)
+    - Tự động kích hoạt Hybrid Search (G1)
+    - Kết nối Chroma Cloud (collection accounting_documents hoặc tenant_nexatech_knowledge)
+    - Tái xếp hạng bằng Reranker (G7)
+    """
+    import asyncio
+    from functools import partial
+    from src.agents.nodes.retrieval import _aembed_query, _arerank, _collection, _provenance_filter, _to_chunk
+    from src.config import get_settings
+    from src.ingestion.indexer import get_chroma_client, get_collection
+    from src.observability import llm_trace
+
+    settings = get_settings()
+    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+    query = _expand_accounting_query(raw_query)
+    effective_top_k = _get_accounting_top_k(raw_query, settings.retrieval_top_k)
+
+    embedding = await _aembed_query(query)
+
+    # Ưu tiên collection accounting_documents, fallback về collection mặc định
+    client = get_chroma_client(settings)
+    try:
+        col = get_collection(client, "accounting_documents")
+    except Exception:
+        col = _collection()
+
+    allowed_categories = state.get("allowed_categories")
+    user_role = state.get("user_role")
+    if not allowed_categories:
+        if user_role == "admin":
+            allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
+        else:
+            allowed_categories = ["GENERAL"]
+    where = _provenance_filter(settings, allowed_categories=allowed_categories)
+
+    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
+        result = await asyncio.to_thread(
+            partial(col.query, where=where) if where else col.query,
+            query_embeddings=[embedding],
+            n_results=effective_top_k,
+        )
+
+    ids = (result.get("ids") or [[]])[0]
+    documents = (result.get("documents") or [[]])[0]
+    metadatas = (result.get("metadatas") or [[]])[0]
+    distances = (result.get("distances") or [[]])[0]
+
+    chunk_map = {
+        chunk_id: _to_chunk(chunk_id, text, meta, distance)
+        for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
+    }
+
+    chunks = list(chunk_map.values())
+    if settings.use_reranker and chunks:
+        chunks = await _arerank(query, chunks)
+
+    return {"retrieved_chunks": chunks}
+
