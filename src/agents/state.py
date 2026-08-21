@@ -108,7 +108,16 @@ class AgentState(TypedDict, total=False):
     """
 
     query: str
+    tenant_id: str
+    user_id: str
+    department: str
+    user_role: str
+    groups: list[str]
+    permissions: list[str]
+    request_id: str
+
     # Canonical runtime decision từ Runtime-Revised Canonical Scenario Registry
+
     # (src/agents/boundary.py). Quyết định assistant được phép làm gì với câu
     # hỏi này: scenario, assistant_role, sensitivity, trần action, người phụ
     # trách, field dữ liệu được phép thu. Có mặt từ node `boundary` trở đi.

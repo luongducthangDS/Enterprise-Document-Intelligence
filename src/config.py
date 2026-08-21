@@ -55,7 +55,8 @@ class Settings(BaseSettings):
     # được trên Render vì free/standard tier không có persistent disk).
     vector_db_backend: Literal["cloud", "local"] = "cloud"
     chroma_persist_dir: str = "./storage/vector_db"
-    chroma_collection_name: str = "hr_documents"
+    chroma_collection_name: str = "tenant_nexatech_knowledge"
+
     chroma_cloud_api_key: str = ""
     chroma_cloud_tenant: str = ""
     chroma_cloud_database: str = ""

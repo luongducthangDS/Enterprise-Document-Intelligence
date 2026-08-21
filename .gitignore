@@ -55,6 +55,9 @@ node_modules/
 .next/
 .next-dev/
 .next-hover/
+.next*
+frontend/.next*
+frontend/.next-dev*
 out/
 .nuxt/
 .pnpm-store/

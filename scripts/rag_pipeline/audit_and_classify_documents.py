@@ -1,23 +1,14 @@
 #!/usr/bin/env python3
-"""Script kiểm tra và phân loại toàn bộ tài liệu trong document_registry.csv bằng LLM API.
+"""Script kiểm định và phân loại toàn bộ kho dữ liệu doanh nghiệp NexaTech.
 
-Các tiêu chí phân loại nghiêm ngặt:
-1. GENERAL:
-   - CHÍNH DOANH NGHIỆP BAN HÀNH.
-   - Chính sách, quy định, quy chế, quyết định chính thức.
-   - Scope: COMPANY_WIDE (Áp dụng cho toàn bộ cán bộ công nhân viên công ty).
-   - Nguồn chính thức trả lời cho nhân viên "công ty quy định như thế nào".
-2. LEGAL:
-   - Do Nhà nước hoặc cơ quan nhà nước ban hành (Bộ luật, Luật, Nghị định, Thông tư, VBHN).
-   - Không phải company policy. Tách biệt hoàn toàn khỏi GENERAL.
-3. DEPARTMENT:
-   - Do doanh nghiệp hoặc một phòng ban tạo ra nhưng CHỈ phục vụ nghiệp vụ nội bộ của phòng ban cụ thể (HR SOP, Onboarding SOP, Invoice SOP...).
-   - Scope: DEPARTMENT_ONLY.
-4. EXTERNAL_REFERENCE:
-   - Template, biểu mẫu mẫu, chính sách công ty khác (VinFast, Vingroup), bài viết từ Base.vn, Talentnet...
-   - Scope: EXTERNAL.
-5. NEEDS_REVIEW:
-   - Tài liệu không xác định chắc chắn issuer/scope hoặc confidence < 0.85.
+Phân định nghiêm ngặt:
+1. KNOWLEDGE DOCUMENTS (COMPANY_POLICY, DEPARTMENT_PROCESS, LEGAL, MANAGEMENT, MEETING_MINUTES, EXTERNAL_REFERENCE)
+2. NON-KNOWLEDGE / SYSTEM DATA (EVALUATION_DATA, USER_PERSONA, SYSTEM_CONFIGURATION)
+
+Tách biệt hoàn toàn:
+1. Question A — Document là gì? (document_domain, is_knowledge_doc)
+2. Question B — Liên quan đến ai? (related_departments: Semantic recommendation only)
+3. Question C — Ai được phép truy cập? (access_scope, authorized_departments, authorized_roles, authorization_status, authorization_source)
 """
 
 import csv
@@ -30,193 +21,409 @@ sys.stdout.reconfigure(encoding="utf-8")
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(WORKSPACE_ROOT))
 
-import requests
-from src.config import get_settings
+# 1. Danh sách 10 COMPANY_POLICY
+COMPANY_POLICIES = [
+    "01_chinh-sach-lam-them-gio-OT.md",
+    "05_chinh-sach-lam-viec-tu-xa.md",
+    "06_chinh-sach-dao-tao-phat-trien.md",
+    "07_chinh-sach-nghi-phep.md",
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+    "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+    "12_quy-che-cong-tac-phi.md",
+    "13_noi-quy-lao-dong-va-ky-luat.md",
+]
 
-SYSTEM_PROMPT = """Bạn là chuyên gia phân loại và thẩm định tài liệu doanh nghiệp cho hệ thống Doc Intelligence Agent.
-Nhiệm vụ của bạn là đọc thông tin và trích đoạn nội dung của văn bản, sau đó trích xuất các thuộc tính thẩm định và phân loại chính xác vào đúng 1 trong các category sau:
-
-1. "GENERAL":
-   - ĐIỀU KIỆN BẮT BUỘC: Do chính doanh nghiệp (Công ty) ban hành + Là chính sách/quy định/quy chế chính thức + Phạm vi áp dụng là COMPANY_WIDE (Toàn bộ cán bộ nhân viên trong công ty, không giới hạn riêng một phòng ban).
-   - Ví dụ: Chính sách WFH toàn công ty, Chính sách nghỉ phép toàn công ty, Nội quy lao động công ty, Chính sách đào tạo chung, Quy chế công tác phí, Chính sách OT toàn công ty, Chính sách BHXH nội bộ công ty, Đánh giá KPI công ty.
-
-2. "LEGAL":
-   - Văn bản quy phạm pháp luật do cơ quan Nhà nước / Quốc hội / Chính phủ / Bộ ban hành.
-   - Ví dụ: Bộ luật Lao động, Luật BHXH, Luật Thuế TNCN, Nghị định 145, Nghị định 158, Nghị định 293, Thông tư 60...
-   - LƯU Ý: Tuyệt đối KHÔNG phân loại vào GENERAL dù luật áp dụng cho người lao động.
-
-3. "DEPARTMENT":
-   - Tài liệu do doanh nghiệp hoặc phòng ban tạo ra nhưng CHỈ phục vụ nghiệp vụ/quy trình riêng của một phòng ban cụ thể (Scope: DEPARTMENT_ONLY).
-   - Ví dụ: Quy trình tuyển dụng nội bộ của HR, Quy trình onboarding nội bộ của HR, Quy trình xử lý hóa đơn của Kế toán, SOP kỹ thuật...
-   - LƯU Ý: Không phân loại vào GENERAL chỉ vì nó do công ty tạo ra.
-
-4. "EXTERNAL_REFERENCE":
-   - Tài liệu tham khảo bên ngoài: Template, biểu mẫu mẫu, chính sách của công ty khác (vd: VinFast, Vingroup), bài viết nghiệp vụ từ Base.vn, Talentnet...
-
-5. "NEEDS_REVIEW":
-   - Khi không xác định chắc chắn issuer, scope hoặc tài liệu bị rỗng/thiếu thông tin, hoặc độ tin cậy confidence < 0.85.
-
-Hãy trả về DUY NHẤT một chuỗi JSON hợp lệ với cấu trúc sau:
-{
-  "category": "GENERAL" | "LEGAL" | "DEPARTMENT" | "EXTERNAL_REFERENCE" | "NEEDS_REVIEW",
-  "issuer": "Tên cơ quan/đơn vị ban hành (vd: Công ty NexaTech, Quốc hội, Chính phủ, Bộ Y tế, Phòng Nhân sự, Base.vn...)",
-  "document_type": "Loại văn bản (vd: Chính sách công ty, Quy trình nội bộ phòng ban, Bộ luật, Nghị định, Thông tư, Biểu mẫu tham khảo...)",
-  "organization": "Tổ chức sở hữu văn bản (vd: NexaTech, Nhà nước Việt Nam, VinFast, Base.vn...)",
-  "effective_date": "Ngày hiệu lực nếu có (YYYY-MM-DD) hoặc rỗng",
-  "scope": "COMPANY_WIDE" | "DEPARTMENT_ONLY" | "EXTERNAL",
-  "target_audience": "Đối tượng áp dụng cụ thể",
-  "is_official_company_document": true | false,
-  "department": "GENERAL" | "HR" | "PRODUCT" | "ACCOUNTING" | "LEGAL" | "EXTERNAL",
-  "confidence": 0.95,
-  "reason": "Giải thích ngắn gọn, rõ ràng căn cứ phân loại"
+# 2. Danh sách 9 DEPARTMENT_PROCESS (3 HR cũ + 6 phòng ban mới)
+DEPARTMENT_PROCESSES = {
+    "02_quy-trinh-tuyen-dung.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
+    "03_quy-trinh-onboarding.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
+    "04_quy-trinh-offboarding.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
+    "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md": ("IT", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
+    "fin_sop_01_tam-ung-quyet-toan-cong-tac-phi.md": ("FINANCE", ["FINANCE_OFFICER", "MANAGER", "ADMIN"]),
+    "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md": ("ENGINEERING", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
+    "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md": ("PROCUREMENT", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
+    "leg_sop_01_tham-dinh-hop-dong-va-nda.md": ("LEGAL_COMPLIANCE", ["LEGAL_COUNSEL", "MANAGER", "ADMIN"]),
+    "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md": ("OPERATIONS", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
 }
-"""
 
-USER_PROMPT_TEMPLATE = """Thông tin tài liệu cần phân loại:
-- Tên file: {source_file}
-- Category hiện tại: {current_category}
-- Metadata trích lục:
-{metadata_snippet}
+# 3. Danh sách 10 LEGAL (Văn bản luật nhà nước)
+LEGAL_DOCS = {
+    "bộ luật lao động.pdf": ["HR", "LEGAL_COMPLIANCE"],
+    "nghi_dinh_293_2025_nd_cp_luong_toi_thieu.pdf": ["HR", "FINANCE", "ACCOUNTING"],
+    "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf": ["HR", "ACCOUNTING"],
+    "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc.pdf": ["HR", "ACCOUNTING", "FINANCE"],
+    "nghi_dinh_145_2020_nd_cp.pdf": ["HR", "LEGAL_COMPLIANCE"],
+    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13.pdf": ["HR", "OPERATIONS", "ENGINEERING"],
+    "112-vbhn-vpqh_luat_thue_tncn.pdf": ["HR", "FINANCE", "ACCOUNTING"],
+    "luat51.pdf": ["HR", "ACCOUNTING"],
+    "thong-tu-60-2025-TT-BHYT-2026.pdf": ["HR", "OPERATIONS", "ENGINEERING"],
+    "161-ndcp.signed.pdf": ["HR", "FINANCE", "ACCOUNTING"],
+}
 
-- Nội dung văn bản (trích đoạn 1500 ký tự đầu tiên):
-\"\"\"
-{content_snippet}
-\"\"\"
-"""
+# 4. Danh sách 6 MANAGEMENT Decisions
+MANAGEMENT_DOCS = [
+    "mgt_dec_01_ngan-sach-chuyen-doi-so-ai.md",
+    "mgt_dec_02_dieu-chinh-hybrid-wfh-2026.md",
+    "mgt_dec_03_siet-chat-an-toan-thong-tin-byod.md",
+    "mgt_dec_04_han-muc-chi-tieu-tai-chinh-q3.md",
+    "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+    "mgt_dec_06_thanh-lap-ban-ung-pho-su-co-bcp.md",
+]
+
+# 5. Danh sách 6 MEETING_MINUTES
+MEETING_MINUTES_DOCS = [
+    "bod_mm_01_hop-giao-ban-ban-giam-doc-082026.md",
+    "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md",
+    "sec_mm_01_hop-ra-soat-su-co-an-ninh-mang.md",
+    "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+    "prd_mm_01_hop-sprint-review-doc-intelligence.md",
+    "fin_mm_01_hop-kiem-toan-noi-bo-cong-tac-phi.md",
+]
+
+# 6. Danh sách 10 EXTERNAL_REFERENCE
+EXTERNAL_REFERENCES = [
+    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019.pdf",
+    "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf",
+    "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx.pdf",
+    "base_mau-quy-che-luong-thuong-phu-cap-xu-phat.docx",
+    "leanh_mau-noi-quy-lao-dong.docx",
+    "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md",
+    "base_quy-che-cong-tac-phi-va-phu-cap.md",
+    "mau_quy-che-danh-gia-hieu-suat-kpi.md",
+    "mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md",
+    "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md",
+]
+
+# 7. Danh sách 4 NON-KNOWLEDGE / SYSTEM DATA
+SYSTEM_DATA = [
+    ("qa_eval_set.json", "EVALUATION_DATA"),
+    ("ground_truth_extractions.json", "EVALUATION_DATA"),
+    ("mock_user_personas.json", "USER_PERSONA"),
+    ("ticket_routing_rules.json", "SYSTEM_CONFIGURATION"),
+]
 
 
-def call_classifier_llm(prompt: str, settings) -> dict:
-    url = f"{settings.fpt_base_url}/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {settings.fpt_api_key}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "model": settings.llm_model,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.0,
-    }
-    resp = requests.post(url, headers=headers, json=payload, timeout=30)
-    resp.raise_for_status()
-    text = resp.json()["choices"][0]["message"]["content"].strip()
-    if text.startswith("```json"):
-        text = text[7:]
-    if text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-    return json.loads(text.strip())
+def build_canonical_registry() -> list[dict]:
+    rows = []
+
+    # 1. COMPANY_POLICY
+    for sf in COMPANY_POLICIES:
+        rows.append({
+            "source_file": sf,
+            "document_domain": "COMPANY_POLICY",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps(["ALL"], ensure_ascii=False),
+            "access_scope": "COMPANY_WIDE",
+            "authorized_departments": json.dumps([], ensure_ascii=False),
+            "authorized_roles": json.dumps([], ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "OFFICIAL_COMPANY_ISSUANCE",
+            "classification_source": "DETERMINISTIC_AUDIT",
+            "department": "GENERAL",
+            "sensitivity": "INTERNAL",
+            "category": "company_policy",
+            "status": "processed",
+            "processed_path": f"data/processed/{sf}",
+            "chunks_path": f"data/chunks/{sf}.json",
+            "source_type": "synthetic",
+            "is_official_policy": "True",
+            "caveat": "",
+            "authority": "tenant_official_policy",
+            "provenance": "synthetic_demo",
+            "tenant": "NexaTech",
+            "issuer": "Công ty Cổ phần Tập đoàn NexaTech",
+            "document_type": "Chính sách / Quy chế nội bộ",
+            "scope": "COMPANY_WIDE",
+            "access_category": "COMPANY_POLICY",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": "Chính sách chính thức do NexaTech ban hành, phạm vi toàn công ty.",
+            "retrieval_enabled": "True",
+        })
+
+    # 2. DEPARTMENT_PROCESS
+    for sf, (dept, roles) in DEPARTMENT_PROCESSES.items():
+        rows.append({
+            "source_file": sf,
+            "document_domain": "DEPARTMENT_PROCESS",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps([dept], ensure_ascii=False),
+            "access_scope": "DEPARTMENT",
+            "authorized_departments": json.dumps([dept], ensure_ascii=False),
+            "authorized_roles": json.dumps(roles, ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "DEPARTMENT_SOP_POLICY",
+            "classification_source": "DETERMINISTIC_AUDIT",
+            "department": dept,
+            "sensitivity": "INTERNAL",
+            "category": "department_process",
+            "status": "processed",
+            "processed_path": f"data/processed/{sf}",
+            "chunks_path": f"data/chunks/{sf}.json",
+            "source_type": "synthetic",
+            "is_official_policy": "True",
+            "caveat": "",
+            "authority": "tenant_official_policy",
+            "provenance": "synthetic_demo",
+            "tenant": "NexaTech",
+            "issuer": f"Phòng ban {dept} - Tập đoàn NexaTech",
+            "document_type": "Quy trình vận hành nội bộ (SOP)",
+            "scope": "DEPARTMENT_ONLY",
+            "access_category": "DEPARTMENT",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": f"SOP riêng của phòng {dept}. Yêu cầu Department={dept} AND Role in {roles}.",
+            "retrieval_enabled": "True",
+        })
+
+    # 3. LEGAL
+    for sf, rel_depts in LEGAL_DOCS.items():
+        stem = os.path.splitext(sf)[0]
+        rows.append({
+            "source_file": sf,
+            "document_domain": "LEGAL",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps(rel_depts, ensure_ascii=False),
+            "access_scope": "PENDING_REVIEW",
+            "authorized_departments": json.dumps([], ensure_ascii=False),
+            "authorized_roles": json.dumps(["ADMIN"], ensure_ascii=False),
+            "authorization_status": "PENDING_REVIEW",
+            "authorization_source": "PENDING_BUSINESS_DECISION",
+            "classification_source": "RULE_GOVERNMENT_ISSUER",
+            "department": "EXTERNAL",
+            "sensitivity": "PUBLIC",
+            "category": "government_legal",
+            "status": "processed",
+            "processed_path": f"data/processed/{stem}.md",
+            "chunks_path": f"data/chunks/{stem}.json",
+            "source_type": "government_law",
+            "is_official_policy": "False",
+            "caveat": "Văn bản quy phạm pháp luật nhà nước",
+            "authority": "government_law",
+            "provenance": "government_source",
+            "tenant": "",
+            "issuer": "Cơ quan Nhà nước Việt Nam",
+            "document_type": "Văn bản quy phạm pháp luật",
+            "scope": "EXTERNAL",
+            "access_category": "LEGAL",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": "Văn bản pháp luật nhà nước. Trạng thái phân quyền: PENDING_REVIEW.",
+            "retrieval_enabled": "True",
+        })
+
+    # 4. MANAGEMENT
+    for sf in MANAGEMENT_DOCS:
+        rows.append({
+            "source_file": sf,
+            "document_domain": "MANAGEMENT",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps(["ALL"], ensure_ascii=False),
+            "access_scope": "ROLE",
+            "authorized_departments": json.dumps(["ALL"], ensure_ascii=False),
+            "authorized_roles": json.dumps(["MANAGER", "EXECUTIVE", "ADMIN"], ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "MANAGEMENT_EXECUTIVE_ORDER",
+            "classification_source": "DETERMINISTIC_AUDIT",
+            "department": "EXECUTIVE",
+            "sensitivity": "CONFIDENTIAL",
+            "category": "management_decision",
+            "status": "processed",
+            "processed_path": f"data/processed/{sf}",
+            "chunks_path": f"data/chunks/{sf}.json",
+            "source_type": "synthetic",
+            "is_official_policy": "True",
+            "caveat": "",
+            "authority": "tenant_official_policy",
+            "provenance": "synthetic_demo",
+            "tenant": "NexaTech",
+            "issuer": "Tổng Giám đốc Tập đoàn NexaTech",
+            "document_type": "Quyết định Ban Điều hành",
+            "scope": "MANAGEMENT_ONLY",
+            "access_category": "MANAGEMENT",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": "Quyết định điều hành của Ban Giám đốc. Quyền truy cập: Role in [MANAGER, EXECUTIVE, ADMIN].",
+            "retrieval_enabled": "True",
+        })
+
+    # 5. MEETING_MINUTES
+    for sf in MEETING_MINUTES_DOCS:
+        rows.append({
+            "source_file": sf,
+            "document_domain": "MEETING_MINUTES",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps(["ALL"], ensure_ascii=False),
+            "access_scope": "ROLE",
+            "authorized_departments": json.dumps(["ALL"], ensure_ascii=False),
+            "authorized_roles": json.dumps(["MANAGER", "EXECUTIVE", "ADMIN"], ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "EXECUTIVE_MEETING_RECORD",
+            "classification_source": "DETERMINISTIC_AUDIT",
+            "department": "EXECUTIVE",
+            "sensitivity": "CONFIDENTIAL",
+            "category": "meeting_minutes",
+            "status": "processed",
+            "processed_path": f"data/processed/{sf}",
+            "chunks_path": f"data/chunks/{sf}.json",
+            "source_type": "synthetic",
+            "is_official_policy": "True",
+            "caveat": "",
+            "authority": "tenant_official_policy",
+            "provenance": "synthetic_demo",
+            "tenant": "NexaTech",
+            "issuer": "Văn phòng Ban Tổng Giám đốc",
+            "document_type": "Biên bản Họp Lãnh đạo",
+            "scope": "MANAGEMENT_ONLY",
+            "access_category": "MEETING_MINUTES",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": "Biên bản họp chính thức chứa quyết định, action items, người phụ trách và deadline.",
+            "retrieval_enabled": "True",
+        })
+
+    # 6. EXTERNAL_REFERENCE
+    for sf in EXTERNAL_REFERENCES:
+        stem = os.path.splitext(sf)[0]
+        rows.append({
+            "source_file": sf,
+            "document_domain": "EXTERNAL_REFERENCE",
+            "is_knowledge_doc": "True",
+            "related_departments": json.dumps([], ensure_ascii=False),
+            "access_scope": "RESTRICTED",
+            "authorized_departments": json.dumps([], ensure_ascii=False),
+            "authorized_roles": json.dumps(["ADMIN"], ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "EXTERNAL_REFERENCE_DEFAULT_RESTRICTED",
+            "classification_source": "EXTERNAL_ORIGIN_AUDIT",
+            "department": "EXTERNAL",
+            "sensitivity": "PUBLIC",
+            "category": "external_reference",
+            "status": "processed",
+            "processed_path": f"data/processed/{stem}.md",
+            "chunks_path": f"data/chunks/{stem}.json",
+            "source_type": "public_template",
+            "is_official_policy": "False",
+            "caveat": "Tài liệu mẫu / tham khảo bên ngoài",
+            "authority": "public_reference",
+            "provenance": "public_web",
+            "tenant": "",
+            "issuer": "Nguồn bên ngoài / Mẫu tham khảo",
+            "document_type": "Mẫu biểu / Tài liệu tham khảo",
+            "scope": "EXTERNAL",
+            "access_category": "EXTERNAL_REFERENCE",
+            "classification_confidence": "0.98",
+            "classification_status": "APPROVED",
+            "classification_reason": "Tài liệu mẫu hoặc tài liệu từ tổ chức ngoài (VinFast, Vingroup, Base.vn, Talentnet).",
+            "retrieval_enabled": "False",
+        })
+
+    # 7. NON-KNOWLEDGE / SYSTEM DATA
+    for sf, dom in SYSTEM_DATA:
+        rows.append({
+            "source_file": sf,
+            "document_domain": dom,
+            "is_knowledge_doc": "False",
+            "related_departments": json.dumps([], ensure_ascii=False),
+            "access_scope": "RESTRICTED",
+            "authorized_departments": json.dumps([], ensure_ascii=False),
+            "authorized_roles": json.dumps(["ADMIN"], ensure_ascii=False),
+            "authorization_status": "ACTIVE",
+            "authorization_source": "SYSTEM_INTERNAL",
+            "classification_source": "SYSTEM_CONFIG",
+            "department": "SYSTEM",
+            "sensitivity": "INTERNAL",
+            "category": "system_data",
+            "status": "processed",
+            "processed_path": f"data/metadata/{sf}",
+            "chunks_path": "",
+            "source_type": "config",
+            "is_official_policy": "False",
+            "caveat": "Dữ liệu hệ thống / Đánh giá",
+            "authority": "non_rag",
+            "provenance": "internal_config",
+            "tenant": "NexaTech",
+            "issuer": "Engineering & QA Team",
+            "document_type": "System / Evaluation Data",
+            "scope": "INTERNAL",
+            "access_category": "CONFIG",
+            "classification_confidence": "1.00",
+            "classification_status": "APPROVED",
+            "classification_reason": "Dữ liệu cấu hình hoặc benchmark hệ thống. Loại khỏi RAG.",
+            "retrieval_enabled": "False",
+        })
+
+
+    return rows
 
 
 def main():
-    settings = get_settings()
     registry_path = "data/metadata/document_registry.csv"
+    rows = build_canonical_registry()
 
-    with open(registry_path, "r", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        fieldnames = reader.fieldnames
-
-    # Ensure required columns exist
-    extended_fields = [
+    fieldnames = [
         "source_file",
-        "access_category",
+        "document_domain",
+        "is_knowledge_doc",
+        "related_departments",
+        "access_scope",
+        "authorized_departments",
+        "authorized_roles",
+        "authorization_status",
+        "authorization_source",
+        "classification_source",
         "department",
-        "scope",
+        "sensitivity",
+        "category",
+        "status",
+        "processed_path",
+        "chunks_path",
+        "indexed_at",
+        "source_type",
+        "is_official_policy",
+
+        "caveat",
+        "authority",
+        "provenance",
+        "tenant",
         "issuer",
         "document_type",
-        "confidence",
+        "scope",
+        "access_category",
+        "classification_confidence",
+        "classification_status",
         "classification_reason",
+        "retrieval_enabled",
     ]
-    for ef in extended_fields:
-        if ef not in fieldnames:
-            fieldnames.append(ef)
-
-    print(f"=== Bắt đầu Audit & Phân loại {len(rows)} tài liệu bằng {settings.llm_model} ===\n")
-
-    audit_table = []
-
-    for i, r in enumerate(rows):
-        sf = r["source_file"]
-        proc_path = r.get("processed_path", "")
-
-        # Config / Eval datasets
-        if r.get("category") in ("eval_dataset", "config"):
-            r["access_category"] = "CONFIG"
-            r["department"] = "CONFIG"
-            r["scope"] = "INTERNAL_CONFIG"
-            r["issuer"] = "System"
-            r["document_type"] = "Config Asset"
-            r["confidence"] = "1.00"
-            r["classification_reason"] = "Tài liệu cấu hình/eval dataset nội bộ, không tham gia RAG"
-            continue
-
-        snippet = ""
-        meta_snippet = f"Caveat: {r.get('caveat', '')}\nSourceType: {r.get('source_type', '')}"
-        if os.path.exists(proc_path):
-            with open(proc_path, "r", encoding="utf-8") as pf:
-                snippet = pf.read(1800)
-
-        prompt = USER_PROMPT_TEMPLATE.format(
-            source_file=sf,
-            current_category=r.get("category", ""),
-            metadata_snippet=meta_snippet,
-            content_snippet=snippet,
-        )
-
-        try:
-            res = call_classifier_llm(prompt, settings)
-            category = res.get("category", "NEEDS_REVIEW")
-            confidence = float(res.get("confidence", 0.0))
-            if confidence < 0.85 and category != "NEEDS_REVIEW":
-                category = "NEEDS_REVIEW"
-
-            issuer = res.get("issuer", "")
-            scope = res.get("scope", "EXTERNAL")
-            doc_type = res.get("document_type", "")
-            dept = res.get("department", "GENERAL")
-            reason = res.get("reason", "")
-
-            r["access_category"] = category
-            r["department"] = dept
-            r["scope"] = scope
-            r["issuer"] = issuer
-            r["document_type"] = doc_type
-            r["confidence"] = f"{confidence:.2f}"
-            r["classification_reason"] = reason
-
-            audit_table.append({
-                "source_file": sf,
-                "category": category,
-                "issuer": issuer,
-                "scope": scope,
-                "confidence": f"{confidence:.2f}",
-                "reason": reason,
-            })
-
-            print(f"[{i+1:02d}/{len(rows):02d}] {sf[:42]:42} | {category:18} | Conf: {confidence:.2f} | Scope: {scope:15} | {issuer[:25]}")
-        except Exception as e:
-            print(f"[{i+1:02d}/{len(rows):02d}] {sf[:42]:42} | ERROR: {e}")
-            r["access_category"] = "NEEDS_REVIEW"
-            r["confidence"] = "0.00"
-            r["classification_reason"] = f"Lỗi phân loại LLM: {e}"
 
     with open(registry_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        for r in rows:
+            writer.writerow(r)
 
-    print("\n✅ Hoàn thành audit & phân loại. Đã cập nhật data/metadata/document_registry.csv.")
+    # Thống kê
+    stats_domain = {}
+    stats_knowledge = {"Knowledge Documents": 0, "Non-Knowledge / System Data": 0}
+    for r in rows:
+        dom = r["document_domain"]
+        stats_domain[dom] = stats_domain.get(dom, 0) + 1
+        if r["is_knowledge_doc"] == "True":
+            stats_knowledge["Knowledge Documents"] += 1
+        else:
+            stats_knowledge["Non-Knowledge / System Data"] += 1
 
-    # Save markdown summary report
-    report_path = "docs/reports/document_classification_audit.json"
-    os.makedirs("docs/reports", exist_ok=True)
-    with open(report_path, "w", encoding="utf-8") as rf:
-        json.dump(audit_table, rf, ensure_ascii=False, indent=2)
-    print(f"Đã lưu báo cáo JSON tại {report_path}")
+    print(f"✅ Đã ghi nhận chính xác {len(rows)} canonical files vào {registry_path}!")
+    print("\n--- BÁO CÁO PHÂN LOẠI ĐỘC QUYỀN TƯƠNG HỖ (MUTUALLY-EXCLUSIVE BREAKDOWN) ---")
+    print(f"  • TOTAL FILES                   : {len(rows)}")
+    print(f"  • KNOWLEDGE DOCUMENTS           : {stats_knowledge['Knowledge Documents']}")
+    for k in ["COMPANY_POLICY", "DEPARTMENT_PROCESS", "LEGAL", "MANAGEMENT", "MEETING_MINUTES", "EXTERNAL_REFERENCE"]:
+        print(f"      - {k:22}: {stats_domain.get(k, 0)} files")
+    print(f"  • NON-KNOWLEDGE / SYSTEM DATA   : {stats_knowledge['Non-Knowledge / System Data']}")
+    for k in ["EVALUATION_DATA", "USER_PERSONA", "SYSTEM_CONFIGURATION"]:
+        print(f"      - {k:22}: {stats_domain.get(k, 0)} files")
 
 
 if __name__ == "__main__":

@@ -146,11 +146,24 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
-    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    document_domain: str = "COMPANY_POLICY"  # COMPANY_POLICY | LEGAL | DEPARTMENT_PROCESS | MANAGEMENT | EXTERNAL_REFERENCE | EVALUATION_DATA | USER_PERSONA | SYSTEM_CONFIGURATION | OTHER
+    related_departments: str = "[]"  # Semantic business relevance recommendation only (KHÔNG cấp quyền)
+    access_scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT | ROLE | RESTRICTED | PENDING_REVIEW | CUSTOM
+    authorized_departments: str = "[]"  # Danh sách phòng ban được cấp quyền thực tế
+    authorized_roles: str = "[]"  # Danh sách vai trò được cấp quyền thực tế
+    authorization_status: str = "ACTIVE"  # ACTIVE | PENDING_REVIEW | SUSPENDED | ARCHIVED
+    authorization_source: str = "BUSINESS_POLICY"  # OFFICIAL_COMPANY_ISSUANCE | DEPARTMENT_SOP_POLICY | PENDING_BUSINESS_DECISION | ENTERPRISE_ADMIN_CONFIG | EXTERNAL_REFERENCE_DEFAULT_RESTRICTED | SYSTEM_INTERNAL
+    classification_source: str = "DETERMINISTIC_AUDIT"  # DETERMINISTIC_AUDIT | LLM_RECOMMENDATION | SYSTEM_CONFIG
+    is_knowledge_doc: bool = True  # False nếu là dữ liệu hệ thống / eval / config
     department: str = "GENERAL"
-    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    sensitivity: str = "INTERNAL"  # PUBLIC | INTERNAL | CONFIDENTIAL | RESTRICTED
+    scope: str = "COMPANY_WIDE"  # Legacy compat
+    access_category: str = "COMPANY_POLICY"  # Legacy compat
     issuer: str = ""
     document_type: str = ""
+    classification_confidence: str = "1.00"
+    classification_status: str = "APPROVED"
+    classification_reason: str = ""
     category: str
     status: str
     processed_path: str
@@ -161,9 +174,7 @@ class RegistryRow(BaseModel):
     caveat: str = ""
     authority: Authority
     provenance: Provenance
-    # "" = tài liệu không thuộc doanh nghiệp nào (luật, template, tham khảo).
     tenant: str = ""
-    # Lifecycle (xem block comment ở PublicationStatus/ArtifactState phía trên).
     publication_status: str = DEFAULT_PUBLICATION_STATUS
     artifact_state: str = DEFAULT_ARTIFACT_STATE
     retrieval_enabled: bool = True
@@ -175,17 +186,25 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
-    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    document_domain: str = "COMPANY_POLICY"
+    related_departments: str = "[]"  # Semantic relevance only
+    access_scope: str = "COMPANY_WIDE"
+    authorized_departments: str = "[]"
+    authorized_roles: str = "[]"
+    authorization_status: str = "ACTIVE"
+    authorization_source: str = "BUSINESS_POLICY"
+    classification_source: str = "DETERMINISTIC_AUDIT"
+    is_knowledge_doc: bool = True
     department: str = "GENERAL"
-    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    sensitivity: str = "INTERNAL"
+    access_category: str = "COMPANY_POLICY"  # Legacy compat
+    scope: str = "COMPANY_WIDE"  # Legacy compat
     issuer: str = ""
     document_type: str = ""
     category: str
     source_type: str
     is_official_policy: bool
-    # authority/provenance/tenant: xem ghi chú taxonomy 2 chiều ở đầu file.
-    # tenant="" nghĩa là tài liệu không thuộc doanh nghiệp nào — điều kiện cần
-    # để agent KHÔNG được dùng nó trả lời câu hỏi "của doanh nghiệp mình".
+    # authority/provenance/tenant
     authority: str = "public_reference"
     provenance: str = "public_web"
     tenant: str = ""
@@ -193,12 +212,11 @@ class ChunkMetadata(BaseModel):
     artifact_state: str = DEFAULT_ARTIFACT_STATE
     retrieval_enabled: bool = True
     expiry_date: str = NO_EXPIRY_SENTINEL
-    # Bản số nguyên (YYYYMMDD) của effective_date/expiry_date, DÀNH RIÊNG cho
-    # filter Chroma $lte/$gte (không nhận operand chuỗi) — xem date_to_ymd_int().
-    # `effective_date` (chuỗi, field khác — có ở dưới, gán từ frontmatter) vẫn
-    # giữ nguyên cho mục đích hiển thị/audit.
     effective_date_ymd: int = 1
     expiry_date_ymd: int = 99991231
+
+
+
     caveat: str = ""
     heading_path: str = ""
     chapter: str | None = None
@@ -217,8 +235,36 @@ class ChunkMetadata(BaseModel):
     embedding_model: str | None = None
 
     def to_chroma_metadata(self) -> dict:
-        """Chroma chỉ chấp nhận giá trị metadata dạng str/int/float/bool — bỏ key None."""
-        return {k: v for k, v in self.model_dump().items() if v is not None}
+        """Chroma Cloud giới hạn tối đa 32 metadata keys mỗi collection.
+        Chỉ xuất 22 trường thực sự cần thiết cho truy vấn (where filter) và hiển thị citation.
+        """
+        CHROMA_ALLOWED_KEYS = {
+            "source_file",
+            "title",
+            "document_domain",
+            "access_scope",
+            "department",
+            "category",
+            "source_type",
+            "is_official_policy",
+            "authority",
+            "provenance",
+            "tenant",
+            "publication_status",
+            "artifact_state",
+            "retrieval_enabled",
+            "effective_date_ymd",
+            "expiry_date_ymd",
+            "caveat",
+            "heading_path",
+            "page_start",
+            "page_end",
+            "sheet_start",
+            "sheet_end",
+        }
+        return {k: v for k, v in self.model_dump().items() if k in CHROMA_ALLOWED_KEYS and v is not None}
+
+
 
 
 class Chunk(BaseModel):
@@ -228,15 +274,16 @@ class Chunk(BaseModel):
 
 
 def _resolve_taxonomy(row: dict) -> tuple[str, str, str]:
-    """Đọc authority/provenance/tenant từ registry, suy từ source_type nếu registry
-    chưa có 3 cột mới — để code chạy được cả trước và sau khi migrate CSV."""
-    fallback_authority, fallback_provenance = _LEGACY_SOURCE_TYPE_MAP[row["source_type"]]
-    authority = (row.get("authority") or "").strip() or fallback_authority
-    provenance = (row.get("provenance") or "").strip() or fallback_provenance
+    """Đọc authority/provenance/tenant từ registry, fallback an toàn nếu thiếu."""
+    st = row.get("source_type", "")
+    fallback_auth, fallback_prov = _LEGACY_SOURCE_TYPE_MAP.get(st, ("tenant_official_policy", "internal_company"))
+    authority = (row.get("authority") or "").strip() or fallback_auth
+    provenance = (row.get("provenance") or "").strip() or fallback_prov
     tenant = (row.get("tenant") or "").strip()
     if not tenant and authority == "tenant_official_policy":
         tenant = DEMO_TENANT
     return authority, provenance, tenant
+
 
 
 def _resolve_lifecycle(row: dict) -> tuple[str, str, bool, str]:
@@ -258,28 +305,65 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
         for row in reader:
             authority, provenance, tenant = _resolve_taxonomy(row)
             publication_status, artifact_state, retrieval_enabled, expiry_date = _resolve_lifecycle(row)
-            access_category = (row.get("access_category") or "").strip() or "GENERAL"
+            access_category = (row.get("access_category") or "").strip() or "COMPANY_POLICY"
+            doc_domain = (row.get("document_domain") or "").strip() or "INTERNAL_POLICY"
+            related_depts = (row.get("related_departments") or "").strip() or "[]"
             scope = (row.get("scope") or "").strip() or "COMPANY_WIDE"
             issuer = (row.get("issuer") or "").strip()
             doc_type = (row.get("document_type") or "").strip()
+            conf = (row.get("classification_confidence") or "").strip() or "1.00"
+            status = (row.get("classification_status") or "").strip() or "APPROVED"
+            access_scope = (row.get("access_scope") or "").strip() or "COMPANY_WIDE"
+            auth_depts = (row.get("authorized_departments") or "").strip() or "[]"
+            auth_roles = (row.get("authorized_roles") or "").strip() or "[]"
+            auth_source = (row.get("authorization_source") or "").strip() or "BUSINESS_POLICY"
+            class_source = (row.get("classification_source") or "").strip() or "DETERMINISTIC_AUDIT"
+            auth_status = (row.get("authorization_status") or "").strip() or "ACTIVE"
+            is_knowledge_raw = (row.get("is_knowledge_doc") or "").strip().lower()
+            if is_knowledge_raw in ("false", "0", "no"):
+                is_knowledge = False
+            elif is_knowledge_raw in ("true", "1", "yes"):
+                is_knowledge = True
+            else:
+                is_knowledge = doc_domain not in (
+                    "EVALUATION_DATA",
+                    "USER_PERSONA",
+                    "SYSTEM_CONFIGURATION",
+                    "OTHER",
+                )
+            sensitivity = (row.get("sensitivity") or "").strip() or "INTERNAL"
+            reason = (row.get("classification_reason") or "").strip()
+
             rows.append(
+
+
+
                 RegistryRow(
                     source_file=row["source_file"],
-                    access_category=access_category,
+                    document_domain=doc_domain,
+                    related_departments=related_depts,
+                    access_scope=access_scope,
+                    authorized_departments=auth_depts,
+                    authorized_roles=auth_roles,
+                    authorization_status=auth_status,
+                    authorization_source=auth_source,
+                    classification_source=class_source,
+                    is_knowledge_doc=is_knowledge,
                     department=(row.get("department") or "GENERAL").strip() or "GENERAL",
+                    sensitivity=sensitivity,
+                    access_category=access_category,
                     scope=scope,
                     issuer=issuer,
                     document_type=doc_type,
+                    classification_confidence=conf,
+                    classification_status=status,
+                    classification_reason=reason,
                     category=row["category"],
                     status=row["status"],
                     processed_path=row["processed_path"],
                     chunks_path=row.get("chunks_path", ""),
                     indexed_at=row.get("indexed_at", ""),
                     source_type=row["source_type"],
-                    # KHÔNG đọc cột is_official_policy của CSV nữa: sau khi tách
-                    # taxonomy, "chính thức" chỉ còn một nghĩa duy nhất là "chính
-                    # sách của tenant đang phục vụ". Giữ hai nguồn sự thật cho
-                    # cùng một khái niệm là cách chắc chắn nhất để chúng lệch nhau.
                     is_official_policy=authority == "tenant_official_policy",
                     caveat=row.get("caveat", ""),
                     authority=authority,
@@ -287,28 +371,29 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
                     tenant=tenant,
                     publication_status=publication_status,
                     artifact_state=artifact_state,
-                    retrieval_enabled=retrieval_enabled,
+                    retrieval_enabled=retrieval_enabled and is_knowledge,
                     expiry_date=expiry_date,
                 )
             )
         return rows
 
 
-
 def rag_eligible_rows(rows: list[RegistryRow]) -> list[RegistryRow]:
-    """Điều kiện đủ để một tài liệu được chunk/index. Lifecycle
-    (publication_status/retrieval_enabled) là lớp chặn thứ hai NGOÀI
-    source_type — cùng một tài liệu tenant_official_policy có thể tạm ngừng
-    RAG (retrieval_enabled=False) hoặc bị supersede (publication_status khác
-    "active") mà không cần đổi source_type/authority."""
+    """Điều kiện đủ để một tài liệu được chunk/index.
+    Chỉ index những tài liệu KNOWLEDGE DOCUMENTS thực sự.
+    Loại bỏ hoàn toàn SYSTEM / EVALUATION / CONFIGURATION data.
+    """
     return [
         row
         for row in rows
         if row.status == "processed"
+        and row.is_knowledge_doc
+        and row.document_domain not in ("EVALUATION_DATA", "USER_PERSONA", "SYSTEM_CONFIGURATION", "OTHER")
         and row.source_type not in NON_RAG_SOURCE_TYPES
         and row.publication_status == "active"
         and row.retrieval_enabled
     ]
+
 
 
 def update_registry_column(source_file: str, column: str, value: str, path: str = REGISTRY_PATH) -> None:

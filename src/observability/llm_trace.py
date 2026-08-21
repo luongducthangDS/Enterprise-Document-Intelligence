@@ -108,3 +108,33 @@ class Timer:
             started_at=self._t0,
             extra=self.extra,
         )
+
+
+def summarize_cost_and_metrics(
+    collected_calls: list[dict] | None = None,
+    *,
+    documents_retrieved: int = 0,
+    chunks_used: int = 0,
+    pages_read: int = 0,
+) -> dict[str, Any]:
+    """Tổng hợp số liệu tiêu thụ token, số lần gọi API và ước tính chi phí cho request."""
+    calls = collected_calls if collected_calls is not None else (_calls.get() or [])
+    input_tokens = sum(c.get("prompt_tokens") or 0 for c in calls)
+    output_tokens = sum(c.get("completion_tokens") or 0 for c in calls)
+    total_tokens = input_tokens + output_tokens
+
+    # Ước tính chi phí USD (tham chiếu định mức LLM Cloud: $0.001/1k input, $0.002/1k output)
+    estimated_cost_usd = (input_tokens / 1000.0 * 0.001) + (output_tokens / 1000.0 * 0.002)
+
+    return {
+        "documents_retrieved": documents_retrieved,
+        "chunks_used": chunks_used,
+        "pages_read": pages_read,
+        "llm_calls": len([c for c in calls if c.get("kind") in ("llm", "structured_extraction", "generation")]),
+        "total_calls": len(calls),
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens,
+        "estimated_cost_usd": round(estimated_cost_usd, 6),
+    }
+

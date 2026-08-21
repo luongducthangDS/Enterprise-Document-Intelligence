@@ -131,3 +131,6 @@ def build_graph() -> StateGraph:
 
 
 agent = build_graph()
+rag_agent_graph = agent
+
+

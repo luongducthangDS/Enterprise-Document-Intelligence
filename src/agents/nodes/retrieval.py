@@ -181,13 +181,13 @@ def _to_chunk(
 
 
 async def retrieval_node(state: AgentState) -> dict:
+   """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
     # --- Phân hệ Kế toán: Ủy quyền cho hàm retrieval riêng biệt ---
     from src.domains.accounting.retrieval_ext import accounting_retrieval_node, is_accounting_request
 
     if is_accounting_request(state):
         return await accounting_retrieval_node(state)
 
-    """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
     query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
     settings = get_settings()
 

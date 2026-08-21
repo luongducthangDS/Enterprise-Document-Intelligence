@@ -1,11 +1,4 @@
-"""Dựng danh sách Chunk (kèm metadata + embedding_text) từ 1 tài liệu processed.
-
-Tách khỏi scripts/rag_pipeline/build_chunks.py để ingestion worker
-(src/workers/ingestion.py) chunk file Backend upload lên bằng ĐÚNG logic đang
-dùng cho corpus ngoại tuyến — chunk_id, breadcrumb, page mapping phải giống hệt,
-nếu không citation/qrels/eval sẽ lệch giữa hai đường vào.
-"""
-
+import json
 import os
 import re
 
@@ -47,8 +40,18 @@ def build_chunks_from_text(
     category: str,
     source_type: str,
     is_official_policy: bool,
-    access_category: str = "GENERAL",
+    document_domain: str = "COMPANY_POLICY",
+    related_departments: list[str] | str = "[]",
+    access_scope: str = "COMPANY_WIDE",
+    authorized_departments: list[str] | str = "[]",
+    authorized_roles: list[str] | str = "[]",
+    authorization_status: str = "ACTIVE",
+    authorization_source: str = "BUSINESS_POLICY",
+    classification_source: str = "DETERMINISTIC_AUDIT",
+    is_knowledge_doc: bool = True,
     department: str = "GENERAL",
+    sensitivity: str = "INTERNAL",
+    access_category: str = "COMPANY_POLICY",
     scope: str = "COMPANY_WIDE",
     issuer: str = "",
     document_type: str = "",
@@ -66,9 +69,6 @@ def build_chunks_from_text(
     cleaned = clean_document(raw_text)
     stem = os.path.splitext(source_file)[0]
     title = resolve_title(cleaned.frontmatter, cleaned.text, stem)
-    # `company` chỉ có trong frontmatter của tài liệu policy; ưu tiên tenant do
-    # registry truyền vào (nguồn sự thật) và chỉ dùng frontmatter khi registry
-    # bỏ trống, để một file lẻ không tự khai mình thuộc tenant khác.
     resolved_tenant = tenant or normalize_tenant(cleaned.frontmatter.get("company"))
 
     text_chunks = chunk_text(
@@ -85,6 +85,36 @@ def build_chunks_from_text(
     effective_date_ymd = date_to_ymd_int(resolved_effective_date or DEFAULT_EFFECTIVE_DATE)
     expiry_date_ymd = date_to_ymd_int(resolved_expiry_date)
 
+    # Parse related_departments (Semantic relevance recommendation only)
+    parsed_related_depts: list[str] = []
+    if isinstance(related_departments, list):
+        parsed_related_depts = [str(d).upper().strip() for d in related_departments]
+    elif isinstance(related_departments, str):
+        try:
+            parsed_related_depts = [str(d).upper().strip() for d in json.loads(related_departments)]
+        except Exception:
+            parsed_related_depts = [d.upper().strip() for d in related_departments.split(",") if d.strip()]
+
+    # Parse authorized_departments (Actual authorization)
+    parsed_auth_depts: list[str] = []
+    if isinstance(authorized_departments, list):
+        parsed_auth_depts = [str(d).upper().strip() for d in authorized_departments]
+    elif isinstance(authorized_departments, str):
+        try:
+            parsed_auth_depts = [str(d).upper().strip() for d in json.loads(authorized_departments)]
+        except Exception:
+            parsed_auth_depts = [d.upper().strip() for d in authorized_departments.split(",") if d.strip()]
+
+    # Parse authorized_roles (Actual authorization)
+    parsed_auth_roles: list[str] = []
+    if isinstance(authorized_roles, list):
+        parsed_auth_roles = [str(r).upper().strip() for r in authorized_roles]
+    elif isinstance(authorized_roles, str):
+        try:
+            parsed_auth_roles = [str(r).upper().strip() for r in json.loads(authorized_roles)]
+        except Exception:
+            parsed_auth_roles = [r.upper().strip() for r in authorized_roles.split(",") if r.strip()]
+
     chunks: list[Chunk] = []
     for idx, tc in enumerate(text_chunks):
         page_start = page_for_offset(cleaned.page_offsets, tc.start)
@@ -96,8 +126,18 @@ def build_chunks_from_text(
             source_file=source_file,
             source_stem=stem,
             title=title,
-            access_category=access_category,
+            document_domain=document_domain,
+            related_departments=json.dumps(parsed_related_depts, ensure_ascii=False),
+            access_scope=access_scope,
+            authorized_departments=json.dumps(parsed_auth_depts, ensure_ascii=False),
+            authorized_roles=json.dumps(parsed_auth_roles, ensure_ascii=False),
+            authorization_status=authorization_status,
+            authorization_source=authorization_source,
+            classification_source=classification_source,
+            is_knowledge_doc=is_knowledge_doc,
             department=department,
+            sensitivity=sensitivity,
+            access_category=access_category,
             scope=scope,
             issuer=issuer,
             document_type=document_type,
@@ -107,6 +147,7 @@ def build_chunks_from_text(
             authority=authority,
             provenance=provenance,
             tenant=resolved_tenant,
+
             publication_status=publication_status,
             artifact_state=artifact_state,
             retrieval_enabled=retrieval_enabled,
@@ -114,8 +155,11 @@ def build_chunks_from_text(
             effective_date_ymd=effective_date_ymd,
             expiry_date_ymd=expiry_date_ymd,
             caveat=caveat,
-
             heading_path=tc.heading_path,
+
+
+
+
             chapter=tc.chapter,
             article=tc.article,
             page_start=page_start,
