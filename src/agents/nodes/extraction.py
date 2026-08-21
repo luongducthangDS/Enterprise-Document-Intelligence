@@ -17,26 +17,39 @@ from src.config import get_settings
 from src.observability import llm_trace
 
 
+class ActionItem(BaseModel):
+    """Hạng mục công việc / hành động cần thực hiện."""
+    item_id: str = Field(default="", description="Mã công việc (vd: ACT-01)")
+    task: str = Field(description="Mô tả công việc cụ thể")
+    responsible_person: str = Field(default="", description="Người phụ trách chính")
+    responsible_department: str = Field(default="", description="Phòng ban phụ trách")
+    deadline: str | None = Field(default=None, description="Thời hạn hoàn thành (YYYY-MM-DD hoặc mốc thời gian)")
+    priority: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"] = Field(default="MEDIUM", description="Mức độ ưu tiên")
+    status: str = Field(default="OPEN", description="Trạng thái thực hiện")
+
+
 class DecisionItem(BaseModel):
-    """Mục quyết định hoặc hạng mục hành động được trích xuất."""
-    decision_id: str = Field(description="Mã định danh quyết định (vd: DEC-001)")
-    title: str = Field(description="Tiêu đề hoặc tóm lược quyết định ngắn gọn")
-    content: str = Field(description="Nội dung chi tiết quyết định / chỉ đạo")
-    owner: str = Field(description="Cá nhân hoặc phòng ban chịu trách nhiệm thực hiện")
-    department: str = Field(description="Phòng ban phụ trách chính")
-    deadline: str | None = Field(default=None, description="Hạn chót hoàn thành (YYYY-MM-DD hoặc mốc thời gian)")
-    priority: Literal["HIGH", "MEDIUM", "LOW"] = Field(default="MEDIUM", description="Mức độ ưu tiên")
-    status: Literal["PENDING", "IN_PROGRESS", "COMPLETED", "APPROVED"] = Field(default="PENDING")
-    source_document: str = Field(description="Tên file tài liệu gốc chứa quyết định")
-    section_or_article: str = Field(description="Điều khoản hoặc mục chứa quyết định")
-    evidence_quote: str = Field(description="Đoạn văn bản trích dẫn nguyên văn làm bằng chứng")
+    """Mục quyết định hoặc chỉ đạo từ lãnh đạo."""
+    decision_id: str = Field(description="Mã định danh quyết định (vd: DEC-01)")
+    title: str = Field(default="", description="Tiêu đề hoặc tóm lược quyết định ngắn gọn")
+    statement: str = Field(default="", description="Nội dung chi tiết quyết định / chỉ đạo")
+    owner: str = Field(default="", description="Cá nhân hoặc phòng ban chịu trách nhiệm")
+    department: str = Field(default="", description="Phòng ban phụ trách chính")
+    effective_date: str | None = Field(default=None, description="Ngày hiệu lực của quyết định")
+    deadline: str | None = Field(default=None, description="Hạn chót hoàn thành nếu có")
+    priority: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"] = Field(default="MEDIUM", description="Mức độ ưu tiên")
+    status: str = Field(default="ACTIVE", description="Trạng thái hiệu lực")
+    source_document: str = Field(default="", description="Tên file tài liệu gốc chứa quyết định")
+    section_or_article: str = Field(default="", description="Điều khoản hoặc mục chứa quyết định")
+    evidence_quote: str = Field(default="", description="Đoạn văn bản trích dẫn nguyên văn làm bằng chứng")
     confidence: float = Field(default=1.0, description="Độ tin cậy của trích xuất (0.0 - 1.0)")
 
 
 class StructuredExtractionResult(BaseModel):
     """Kết quả trích xuất tri thức doanh nghiệp."""
     summary: str = Field(description="Tóm tắt tổng quan tri thức / quyết định")
-    decisions: list[DecisionItem] = Field(default_factory=list, description="Danh sách các quyết định và hạng mục hành động")
+    decisions: list[DecisionItem] = Field(default_factory=list, description="Danh sách các quyết định")
+    action_items: list[ActionItem] = Field(default_factory=list, description="Danh sách các hạng mục hành động phân công")
     key_takeaways: list[str] = Field(default_factory=list, description="Các điểm cốt lõi quan trọng")
     cross_document_insights: list[str] = Field(default_factory=list, description="Tổng hợp quan hệ / mâu thuẫn giữa các tài liệu")
     requires_hitl: bool = Field(default=False, description="Cần con người (HITL) phê duyệt trước khi ghi nhận")
@@ -46,27 +59,38 @@ EXTRACTION_SYSTEM_PROMPT = """Bạn là Chuyên gia Trích xuất Tri thức & Q
 Nhiệm vụ của bạn là đọc các đoạn trích tài liệu nội bộ được cung cấp và trích xuất cấu trúc thông tin chính xác theo định dạng JSON.
 
 Quy tắc bắt buộc:
-1. Độ trung thực tuyệt đối: Mọi quyết định/nội dung trích xuất BẮT BUỘC phải có `evidence_quote` là đoạn văn bản gốc và `source_document` cụ thể. Không suy diễn ngoài tài liệu.
-2. Trích xuất đầy đủ: Xác định rõ Người chịu trách nhiệm (`owner`), Phòng ban (`department`), Hạn chót (`deadline`), Mức độ ưu tiên (`priority`).
-3. Đánh giá rủi ro / HITL: Nếu quyết định liên quan đến kỷ luật, cam kết tài chính, hoặc có sự mâu thuẫn/không chắc chắn -> đánh dấu `requires_hitl = true`.
+1. Độ trung thực tuyệt đối: Mọi quyết định và action item BẮT BUỘC phải dựa trên sự thật từ tài liệu. Không suy diễn ngoài tài liệu.
+2. Trích xuất đầy đủ: 
+   - Tách biệt rõ `decisions` (các quyết định, phê duyệt, quy định mới) và `action_items` (các nhiệm vụ phân công, công việc cụ thể).
+   - Xác định rõ Người chịu trách nhiệm (`responsible_person` / `owner`), Phòng ban (`responsible_department`), Hạn chót (`deadline`), Mức độ ưu tiên (`priority`).
+3. Đánh giá rủi ro / HITL: Nếu quyết định liên quan đến kỷ luật, cam kết tài chính, hoặc có sự mâu thuẫn/thay đổi chính sách -> đánh dấu `requires_hitl = true`.
 
 Định dạng JSON trả về:
 {
   "summary": "Tóm tắt tổng quan ngắn gọn...",
   "decisions": [
     {
-      "decision_id": "DEC-001",
+      "decision_id": "DEC-01",
       "title": "Tên quyết định",
-      "content": "Nội dung chỉ đạo cụ thể",
+      "statement": "Nội dung quyết định cụ thể",
       "owner": "Người / Bộ phận phụ trách",
-      "department": "HR / FINANCE / ...",
-      "deadline": "2025-12-31 hoặc 'Định kỳ hàng tháng'",
-      "priority": "HIGH" | "MEDIUM" | "LOW",
-      "status": "PENDING",
+      "department": "HR / FINANCE / IT / ...",
+      "effective_date": "2026-09-01",
+      "deadline": "2026-09-30",
+      "priority": "HIGH",
       "source_document": "tên_file.md",
-      "section_or_article": "Điều 5...",
-      "evidence_quote": "Trích dẫn nguyên văn từ tài liệu",
-      "confidence": 0.95
+      "evidence_quote": "Trích dẫn nguyên văn từ tài liệu"
+    }
+  ],
+  "action_items": [
+    {
+      "item_id": "ACT-01",
+      "task": "Mô tả công việc cụ thể",
+      "responsible_person": "Tên người phụ trách",
+      "responsible_department": "Tên phòng ban",
+      "deadline": "YYYY-MM-DD",
+      "priority": "HIGH" | "MEDIUM" | "LOW",
+      "status": "OPEN" | "IN_PROGRESS" | "COMPLETED"
     }
   ],
   "key_takeaways": ["Điểm 1...", "Điểm 2..."],
@@ -75,6 +99,7 @@ Quy tắc bắt buộc:
 }
 Chỉ trả về JSON thuần túy, không kèm bất kỳ lời giải thích nào.
 """
+
 
 
 async def extraction_node(state: AgentState) -> dict[str, Any]:
@@ -110,13 +135,11 @@ async def extraction_node(state: AgentState) -> dict[str, Any]:
 
     with llm_trace.Timer("structured_extraction", "fpt_llm"):
         response_text = await acall_llm(
-            messages=[
-                {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ],
-            settings=settings,
+            EXTRACTION_SYSTEM_PROMPT,
+            user_prompt,
             temperature=0.0,
         )
+
 
     # Clean JSON markdown fences
     cleaned_json = response_text.strip()

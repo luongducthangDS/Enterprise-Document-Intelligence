@@ -27,9 +27,18 @@ def load_chunks(path: str) -> list[Chunk]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Chroma Vector DB Indexer với Safety Guardrails P0-A")
     parser.add_argument("--force", action="store_true", help="Index lại kể cả đã có indexed_at")
-    parser.add_argument("--reset", action="store_true", help="Xóa và tạo lại collection để làm sạch quota metadata keys của Chroma Cloud")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Yêu cầu xóa toàn bộ collection (BỊ KHÓA MẶC ĐỊNH — yêu cầu cờ admin --allow-destructive-reset-DANGEROUS)",
+    )
+    parser.add_argument(
+        "--allow-destructive-reset-DANGEROUS",
+        action="store_true",
+        help="Cờ admin xác nhận đồng ý thực hiện xóa toàn bộ collection (bị cấm vĩnh viễn trên production)",
+    )
     parser.add_argument("--only", nargs="*", help="Chỉ xử lý các source_file khớp tên")
     parser.add_argument("--category", default=None, help="Chỉ xử lý các tài liệu thuộc category này (vd government_legal)")
     parser.add_argument("--collection", default=None, help="Ghi đè tên collection (mặc định lấy từ config, dùng khi so sánh thực nghiệm 2 embedding model)")
@@ -44,13 +53,22 @@ def main() -> None:
     client = get_chroma_client(settings)
 
     if args.reset:
+        from src.ingestion.indexer import safe_delete_collection
         try:
-            client.delete_collection(collection_name)
-            print(f"[reset] Đã xóa collection cũ '{collection_name}' trên Chroma Cloud.")
+            safe_delete_collection(
+                client,
+                collection_name,
+                allow_destructive=args.allow_destructive_reset_DANGEROUS,
+            )
+            print(f"[reset] Đã thực hiện admin reset collection '{collection_name}' an toàn.")
+        except PermissionError as pe:
+            print(f"\n[SAFETY BLOCKED] Thao tác reset bị từ chối bởi Safety Guardrail: {pe}\n")
+            sys.exit(1)
         except Exception as e:
-            print(f"[reset] Chưa có collection cũ hoặc lỗi xóa: {e}")
+            print(f"[reset] Lỗi khi thực hiện reset collection: {e}")
 
     collection = get_collection(client, collection_name)
+
 
 
     registry_path = args.registry or "data/metadata/document_registry.csv"

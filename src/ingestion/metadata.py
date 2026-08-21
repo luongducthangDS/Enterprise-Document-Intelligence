@@ -274,15 +274,16 @@ class Chunk(BaseModel):
 
 
 def _resolve_taxonomy(row: dict) -> tuple[str, str, str]:
-    """Đọc authority/provenance/tenant từ registry, suy từ source_type nếu registry
-    chưa có 3 cột mới — để code chạy được cả trước và sau khi migrate CSV."""
-    fallback_authority, fallback_provenance = _LEGACY_SOURCE_TYPE_MAP[row["source_type"]]
-    authority = (row.get("authority") or "").strip() or fallback_authority
-    provenance = (row.get("provenance") or "").strip() or fallback_provenance
+    """Đọc authority/provenance/tenant từ registry, fallback an toàn nếu thiếu."""
+    st = row.get("source_type", "")
+    fallback_auth, fallback_prov = _LEGACY_SOURCE_TYPE_MAP.get(st, ("tenant_official_policy", "internal_company"))
+    authority = (row.get("authority") or "").strip() or fallback_auth
+    provenance = (row.get("provenance") or "").strip() or fallback_prov
     tenant = (row.get("tenant") or "").strip()
     if not tenant and authority == "tenant_official_policy":
         tenant = DEMO_TENANT
     return authority, provenance, tenant
+
 
 
 def _resolve_lifecycle(row: dict) -> tuple[str, str, bool, str]:

@@ -18,7 +18,8 @@ from src.ingestion.metadata import DEMO_ONLY_PROVENANCE, load_registry
 from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
-from src.retrieval.hybrid import fuse_candidate_ids
+from src.retrieval.hybrid import fuse_candidate_ids, reciprocal_rank_fusion
+
 from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
@@ -97,30 +98,36 @@ def _provenance_filter(settings: Settings, user_context: UserContext | None = No
     return conditions[0] if len(conditions) == 1 else {"$and": conditions}
 
 
+from src.security.tenant_resolver import resolve_tenant_collection
+from src.security.authorization import get_authorization_engine
+from src.security.models import UserContext
+
+
 @lru_cache
-def _collection():
-    """Cache collection theo tiến trình — tránh tạo lại CloudClient (bắt tay xác
-    thực) ở mỗi request."""
+def _collection(collection_name: str | None = None):
+    """Cache collection theo tên tiến trình — định tuyến linh hoạt theo từng tenant."""
     settings = get_settings()
     client = get_chroma_client(settings)
-    return get_collection(client, settings.chroma_collection_name)
+    name = collection_name or settings.chroma_collection_name
+    return get_collection(client, name)
 
 
 @lru_cache
-def _bm25_index() -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud."""
+def _bm25_index(collection_name: str | None = None) -> BM25 | None:
+    """Corpus BM25 tải MỘT LẦN cho từng collection tenant."""
     try:
-        where = _provenance_filter(get_settings(), user_context=UserContext(department="GENERAL"))
-        result = _collection().get(include=["documents"], **({"where": where} if where else {}))
+        result = _collection(collection_name).get(
+            include=["documents"],
+            where={"$and": [{"publication_status": "active"}, {"retrieval_enabled": True}]},
+        )
     except Exception as e:  # noqa: BLE001
-        print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
+        print(f"[hybrid] không tải được corpus BM25 cho '{collection_name}': {type(e).__name__}: {e}")
         return None
     ids = result.get("ids") or []
     documents = result.get("documents") or []
     if not ids:
         return None
     return BM25(ids, documents)
-
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -174,24 +181,21 @@ def _to_chunk(
 
 
 async def retrieval_node(state: AgentState) -> dict:
-    """Truy vấn Chroma Cloud bằng query embedding, áp provenance filter tại Chroma."""
+    """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
     query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
     settings = get_settings()
+
+    user_context = UserContext.from_state(state)
+    collection_name = resolve_tenant_collection(user_context)
 
     with llm_trace.Timer("embedding", "fpt_cloud"):
         embedding = await _aembed_query(query)
 
-    # Đo riêng hai phần:
-    #   - `_collection()` chỉ tốn thời gian ở lần gọi ĐẦU TIÊN mỗi tiến trình
-    #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
-        collection = _collection()
-    user_context = UserContext.from_state(state)
+        collection = _collection(collection_name)
+
     where = _provenance_filter(settings, user_context=user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
-
-
-
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,
             query_embeddings=[embedding],
@@ -209,48 +213,64 @@ async def retrieval_node(state: AgentState) -> dict:
     }
 
     if settings.use_hybrid and ids:
-        chunk_map = await _amerge_bm25(query, ids, chunk_map, settings)
+        chunk_map = await _amerge_bm25(
+            query, ids, chunk_map, settings, user_context=user_context, collection_name=collection_name
+        )
 
     chunks = list(chunk_map.values())
     if settings.use_reranker and chunks:
         chunks = await _arerank(query, chunks)
 
+    # Observability & Audit Trail Logging
+    req_id = state.get("request_id") or "req_default"
+    print(
+        f"[AUDIT-RETRIEVAL] req_id={req_id} tenant={user_context.tenant_id} "
+        f"user={user_context.user_id} role={user_context.role.value} dept={user_context.department} "
+        f"collection={collection_name} count={len(chunks)}"
+    )
+
     return {"retrieved_chunks": chunks}
 
 
 async def _amerge_bm25(
-    query: str, dense_ids: list[str], chunk_map: dict[str, RetrievedChunk], settings: Settings
+    query: str,
+    dense_ids: list[str],
+    chunk_map: dict[str, RetrievedChunk],
+    settings: Settings,
+    user_context: UserContext | None = None,
+    collection_name: str | None = None,
 ) -> dict[str, RetrievedChunk]:
-    """Trộn thêm ứng viên BM25 (RRF) rồi trả về đúng tập chunk theo thứ tự
-    trộn — ứng viên chỉ đến từ BM25 (không nằm trong dense_ids) cần lấy riêng
-    text/metadata qua collection.get() vì query dense không hề thấy chúng."""
-    bm25 = await asyncio.to_thread(_bm25_index)
-    fused_ids = fuse_candidate_ids(
-        dense_ids=dense_ids,
-        bm25=bm25,
-        query=query,
-        bm25_top_k=settings.bm25_top_k,
-        rrf_k=settings.rrf_k,
-        fused_top_k=settings.retrieval_top_k,
-    )
+    """Trộn thêm ứng viên BM25 (RRF) theo đúng tenant collection và kiểm tra quyền ACL."""
+    bm25 = await asyncio.to_thread(_bm25_index, collection_name)
+    if bm25 is None:
+        return chunk_map
 
-    missing_ids = [cid for cid in fused_ids if cid not in chunk_map]
+    auth_engine = get_authorization_engine()
+    allowed_files = set(auth_engine.get_authorized_source_files(user_context or UserContext(department="GENERAL")))
+
+    # Lấy ứng viên BM25
+    bm25_candidates = [cid for cid, _ in bm25.top_k(query, k=settings.bm25_top_k * 2)]
+    missing_ids = [cid for cid in bm25_candidates if cid not in chunk_map]
     if missing_ids:
+        coll = _collection(collection_name)
         fetched = await asyncio.to_thread(
-            _collection().get, ids=missing_ids, include=["documents", "metadatas"]
+            coll.get, ids=missing_ids, include=["documents", "metadatas"]
         )
-        # Chunk chỉ đến từ BM25 không có cosine distance thật — không có gì để
-        # ước lượng nó tốt hơn "biên ngoài cùng còn được coi là liên quan"
-        # (retrieval_max_distance). Vô hại trong pipeline hiện tại vì distance
-        # chỉ dùng khi reranker tắt/lỗi (fallback ở grade_node/confidence_node);
-        # có use_reranker=True nên score thật của reranker mới quyết định.
         fallback_distance = settings.retrieval_max_distance
         for chunk_id, text, meta in zip(
             fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
         ):
-            chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
+            if meta.get("source_file") in allowed_files:
+                chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
+
+    valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
+    fused = reciprocal_rank_fusion([dense_ids, valid_bm25_ids], k=settings.rrf_k)
+    fused_ids = [cid for cid, _ in fused[: settings.retrieval_top_k]]
 
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
+
+
+
 
 
 async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:

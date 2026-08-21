@@ -25,7 +25,7 @@
     },
     "MANAGER": {
       "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT", "ROLE"],
-      "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS", "MANAGEMENT_DECISION", "MEETING_MINUTES"],
+      "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS", "MANAGEMENT", "MANAGEMENT_DECISION", "MEETING_MINUTES"],
       "allow_cross_department": false
     },
     "LEGAL_COUNSEL": {
@@ -35,9 +35,10 @@
     },
     "EXECUTIVE": {
       "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"],
-      "allowed_domains": ["COMPANY_POLICY", "LEGAL", "DEPARTMENT_PROCESS", "MANAGEMENT_DECISION", "MEETING_MINUTES"],
+      "allowed_domains": ["COMPANY_POLICY", "LEGAL", "DEPARTMENT_PROCESS", "MANAGEMENT", "MANAGEMENT_DECISION", "MEETING_MINUTES"],
       "allow_cross_department": true
     },
+
     "ADMIN": {
       "allowed_scopes": ["*"],
       "allowed_domains": ["*"],

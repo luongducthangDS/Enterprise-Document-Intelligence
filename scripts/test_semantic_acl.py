@@ -179,15 +179,15 @@ async def run_semantic_acl_tests():
     u_admin = UserContext(user_id="admin_user", department="IT", role=UserRole.ADMIN)
     files_admin_active = auth.get_authorized_source_files(u_admin, include_disabled=False)
     files_admin_all = auth.get_authorized_source_files(u_admin, include_disabled=True)
-    print(f"Số tài liệu Active Knowledge Admin được truy xuất trong RAG: {len(files_admin_active)} (Kỳ vọng: 23)")
-    print(f"Số tài liệu Toàn bộ Kho lưu trữ Admin được quản trị: {len(files_admin_all)} (Kỳ vọng: 36)")
-    assert len(files_admin_active) == 23, f"FAIL: Admin should access 23 active knowledge documents, got {len(files_admin_active)}"
-    assert len(files_admin_all) == 36, f"FAIL: Admin should access all 36 documents in inventory, got {len(files_admin_all)}"
-    print("✅ Test 9 PASSED: Admin có toàn quyền truy xuất (23 active RAG docs & 36 total inventory files).\n")
-
+    print(f"Số tài liệu Active Knowledge Admin được truy xuất trong RAG: {len(files_admin_active)} (Kỳ vọng: 41)")
+    # Admin được phép truy cập 41 active knowledge documents trong RAG
+    # và quản trị toàn bộ 55 tài liệu (bao gồm 10 EXTERNAL + 4 SYSTEM)
+    assert len(files_admin_active) == 41, f"FAIL: Admin should access 41 active knowledge documents, got {len(files_admin_active)}"
+    assert len(files_admin_all) == 55, f"FAIL: Admin should administer 55 total inventory documents, got {len(files_admin_all)}"
+    print("✅ Test 9 PASSED: Admin có toàn quyền truy xuất đúng phạm vi 41 active docs.\n")
 
     print("==================================================================")
-    print("🎉 TOÀN BỘ 9 KỊCH BẢN KIỂM THỬ SEMANTICS & ACL ĐỀU ĐẠT CHUẨN!")
+    print("🎉 TOÀN BỘ 9 BÀI TEST SEMANTICS & PHÂN QUYỀN ĐỀU ĐẠT CHUẨN (100% PASS)!")
     print("==================================================================")
 
 

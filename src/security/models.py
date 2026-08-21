@@ -50,6 +50,7 @@ class SensitivityLevel(str, Enum):
 
 class UserContext(BaseModel):
     """Ngữ cảnh định danh và phân quyền của người dùng khi truy vấn."""
+    tenant_id: str = "nexatech"
     user_id: str = "anonymous_user"
     department: str = "GENERAL"
     role: UserRole = UserRole.EMPLOYEE
@@ -58,7 +59,7 @@ class UserContext(BaseModel):
 
     @classmethod
     def from_state(cls, state: dict[str, Any]) -> "UserContext":
-        """Khởi tạo UserContext từ LangGraph AgentState."""
+        """Khởi tạo UserContext từ LangGraph AgentState (tin cậy từ auth session)."""
         role_raw = str(state.get("user_role") or "EMPLOYEE").upper().strip()
         try:
             role = UserRole(role_raw)
@@ -67,16 +68,19 @@ class UserContext(BaseModel):
 
         dept = str(state.get("department") or "GENERAL").upper().strip()
         user_id = str(state.get("user_id") or state.get("request_id") or "user_default")
+        tenant_id = str(state.get("tenant_id") or "nexatech").strip().lower()
         groups = state.get("groups") or []
         permissions = state.get("permissions") or []
 
         return cls(
+            tenant_id=tenant_id,
             user_id=user_id,
             department=dept,
             role=role,
             groups=groups,
             permissions=permissions,
         )
+
 
 
 class DocumentSecurityProfile(BaseModel):
