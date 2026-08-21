@@ -15,6 +15,7 @@ class CitationDocumentDTO(BaseModel):
 
 class CitationLocationDTO(BaseModel):
     page: int | None = Field(default=None, description="Trang chứa trích dẫn")
+    sheet: str | None = Field(default=None, description="Worksheet chứa trích dẫn")
     section: str | None = Field(default=None, description="Mục / Điều khoản chứa trích dẫn")
     chunk_id: str | None = Field(default=None, description="ID chunk trong vector DB")
 

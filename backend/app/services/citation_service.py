@@ -104,6 +104,7 @@ class CitationService:
             },
             "location": {
                 "page": found_item.get("page") or found_item.get("page_start"),
+                "sheet": found_item.get("sheet") or found_item.get("sheet_start"),
                 "section": redact_pii(found_item.get("section")) or None,
                 "chunk_id": found_item.get("chunk_id"),
             },

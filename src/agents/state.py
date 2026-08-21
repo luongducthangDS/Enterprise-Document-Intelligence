@@ -37,6 +37,7 @@ class RetrievedChunk(TypedDict):
     text: str
     source_file: str
     title: str
+    department: str
     category: str
     is_official_policy: bool
     # government_law | official_policy | public_template | synthetic |
@@ -68,6 +69,8 @@ class RetrievedChunk(TypedDict):
     policy_status: str
     page_start: int | None
     page_end: int | None
+    sheet_start: str | None
+    sheet_end: str | None
     distance: float
     score: float | None
 
@@ -76,9 +79,12 @@ class Citation(TypedDict):
     chunk_id: str
     source_file: str
     title: str
+    department: str
     category: str
     page_start: int | None
     page_end: int | None
+    sheet_start: str | None
+    sheet_end: str | None
     is_official_policy: bool
     # government_law | official_policy | public_template | synthetic |
     # public_article — bản đầy đủ của is_official_policy, để backend/FE phân

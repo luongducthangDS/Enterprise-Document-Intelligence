@@ -104,6 +104,7 @@ scripts/build_eval_evidence_docx_*.py
 *.docx
 
 # Tool-specific local/private configuration
+.codex/
 .codex/*.local.*
 .gemini/*.local.*
 .claude/*.local.*

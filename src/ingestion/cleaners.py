@@ -8,6 +8,7 @@ import yaml
 # đoạn (extract, ingest) luôn thống nhất — nhưng ở đây cần bắt được số trang, không
 # chỉ phát hiện ranh giới.
 PAGE_MARKER_RE = re.compile(r"^[ \t]*<!--\s*page\s+(\d+)\s*-->[ \t]*$")
+SHEET_MARKER_RE = re.compile(r"^[ \t]*<!--\s*sheet:\s*(.+?)\s*-->[ \t]*$", re.IGNORECASE)
 SEPARATOR_LINE_RE = re.compile(r"^[ \t]*-{3,}[ \t]*$")
 STRAY_PAGE_NUMBER_RE = re.compile(r"^[ \t]*\d{1,3}[ \t]*$")
 # Header/footer lặp lại trên mọi trang của PDF Công báo (vd luat51.md, luat_bao_hiem_xa_hoi...)
@@ -37,6 +38,8 @@ class CleanedDocument:
     text: str = ""
     # (char_offset trong text, so_trang) — sắp xếp theo char_offset tăng dần
     page_offsets: list[tuple[int, int]] = field(default_factory=list)
+    # (char_offset trong text, tên worksheet) cho XLSX.
+    sheet_offsets: list[tuple[int, str]] = field(default_factory=list)
 
 
 def strip_frontmatter(raw_text: str) -> tuple[dict, str]:
@@ -53,7 +56,7 @@ def strip_frontmatter(raw_text: str) -> tuple[dict, str]:
     return fm, body
 
 
-def extract_page_map(body: str) -> tuple[str, list[tuple[int, int]]]:
+def extract_location_map(body: str) -> tuple[str, list[tuple[int, int]], list[tuple[int, str]]]:
     """Một lượt duyệt theo dòng, làm mọi việc chuẩn hoá trong CÙNG 1 pass để
     page_offsets tính ra luôn khớp với text cuối cùng (không có bước xử lý nào
     sau đó làm lệch offset):
@@ -67,6 +70,7 @@ def extract_page_map(body: str) -> tuple[str, list[tuple[int, int]]]:
     lines = body.splitlines()
     out_lines: list[str] = []
     page_offsets: list[tuple[int, int]] = []
+    sheet_offsets: list[tuple[int, str]] = []
     out_len = 0
     just_saw_page_marker = False
     pending_blank = False
@@ -97,6 +101,14 @@ def extract_page_map(body: str) -> tuple[str, list[tuple[int, int]]]:
             pending_blank = False
             continue
 
+        sheet_match = SHEET_MARKER_RE.match(stripped)
+        if sheet_match:
+            flush_table_run()
+            sheet_offsets.append((out_len, sheet_match.group(1).strip()))
+            just_saw_page_marker = False
+            pending_blank = False
+            continue
+
         if EMPTY_TABLE_ROW_RE.match(stripped) or TABLE_SEPARATOR_ROW_RE.match(stripped):
             table_run_buffer.append(raw_line.rstrip())
             continue
@@ -123,13 +135,24 @@ def extract_page_map(body: str) -> tuple[str, list[tuple[int, int]]]:
 
     flush_table_run()
     text = "\n".join(out_lines) + "\n" if out_lines else ""
+    return text, page_offsets, sheet_offsets
+
+
+def extract_page_map(body: str) -> tuple[str, list[tuple[int, int]]]:
+    """Backward-compatible wrapper cho callers/tests chỉ cần page map."""
+    text, page_offsets, _sheet_offsets = extract_location_map(body)
     return text, page_offsets
 
 
 def clean_document(raw_text: str) -> CleanedDocument:
     frontmatter, body = strip_frontmatter(raw_text)
-    text, page_offsets = extract_page_map(body)
-    return CleanedDocument(frontmatter=frontmatter, text=text, page_offsets=page_offsets)
+    text, page_offsets, sheet_offsets = extract_location_map(body)
+    return CleanedDocument(
+        frontmatter=frontmatter,
+        text=text,
+        page_offsets=page_offsets,
+        sheet_offsets=sheet_offsets,
+    )
 
 
 def page_for_offset(page_offsets: list[tuple[int, int]], offset: int) -> int | None:
@@ -142,3 +165,12 @@ def page_for_offset(page_offsets: list[tuple[int, int]], offset: int) -> int | N
     idx = bisect.bisect_right(starts, offset) - 1
     idx = max(0, idx)
     return page_offsets[idx][1]
+
+
+def sheet_for_offset(sheet_offsets: list[tuple[int, str]], offset: int) -> str | None:
+    """Tên worksheet chứa offset; None với tài liệu không phải XLSX."""
+    if not sheet_offsets:
+        return None
+    starts = [item_offset for item_offset, _ in sheet_offsets]
+    idx = max(0, bisect.bisect_right(starts, offset) - 1)
+    return sheet_offsets[idx][1]
