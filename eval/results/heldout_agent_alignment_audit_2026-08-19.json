@@ -1,0 +1,112 @@
+{
+  "dataset_items": 30,
+  "qrel_queries": 0,
+  "issue_count": 17,
+  "issues_by_kind": {
+    "legacy_scope_conflict": 17
+  },
+  "issues": [
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_004",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_009",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_011",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_013",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_014",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_016",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_017",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_020",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_021",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_022",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_023",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_024",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_025",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_026",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_028",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_029",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    },
+    {
+      "kind": "legacy_scope_conflict",
+      "id": "heldout_030",
+      "dataset_type": "in_scope",
+      "observed_intent": "pure_statutory"
+    }
+  ]
+}

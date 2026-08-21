@@ -1,21 +1,20 @@
 """Comprehensive end-to-end integration & regression test suite for Bug G6,
 multi-turn context resolution, single-turn answering, and step-by-step streaming.
 """
-import pytest
 from unittest.mock import AsyncMock, patch
 
-from src.agents.service import answer, astream_answer
-from src.agents.state import AgentState, RetrievedChunk
-from src.agents.nodes.generation import (
-    generate_node,
-    finalize_node,
-    _resolve_answer_type,
-    ANSWER_TYPE_GENERAL_MARKER,
-    ANSWER_TYPE_PERSONALIZED_MARKER,
-    ANSWER_TYPE_NA_MARKER,
-    INSUFFICIENT_MARKER,
-)
+import pytest
+
 from src.agents.nodes.escalation import confidence_node
+from src.agents.nodes.generation import (
+    ANSWER_TYPE_GENERAL_MARKER,
+    ANSWER_TYPE_NA_MARKER,
+    ANSWER_TYPE_PERSONALIZED_MARKER,
+    INSUFFICIENT_MARKER,
+    finalize_node,
+    generate_node,
+)
+from src.agents.service import astream_answer
 
 
 def _make_chunk(chunk_id: str, text: str, title: str = "Tài liệu HR", source_file: str = "doc.md", **kwargs) -> dict:
@@ -117,7 +116,7 @@ class TestComprehensiveG6AndMultiTurnFlows:
         """Câu trả lời đơn lượt: không leak marker, trích xuất citation sạch sẽ."""
         chunk = _make_chunk("doc::001", "Chính sách nghỉ phép: 12 ngày phép năm tiêu chuẩn.")
         llm_raw = f"{ANSWER_TYPE_GENERAL_MARKER} Theo Chính sách nghỉ phép [Nguồn 1], tiêu chuẩn là 12 ngày phép năm."
-        
+
         with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value=llm_raw)):
             gen_res = await generate_node({"query": "Tôi có bao nhiêu ngày phép?", "retrieved_chunks": [chunk]})
             fin_res = finalize_node(gen_res)
@@ -212,7 +211,7 @@ class TestComprehensiveG6AndMultiTurnFlows:
         deltas = [e["content"] for e in events if e["type"] == "answer_delta"]
         reassembled = "".join(deltas)
         assert reassembled == "Thời gian làm thêm giờ tối đa là 40h/tháng [Nguồn 1]."
-        
+
         # Done event phải chứa đầy đủ Pydantic contract DTO
         done_event = next(e for e in events if e["type"] == "done")
         assert done_event["intent"] == "hr_question"

@@ -82,6 +82,7 @@ class TestLoadRegistry:
     def test_missing_optional_columns_default_empty(self, registry_path):
         rows = load_registry(registry_path)
         b = next(r for r in rows if r.source_file == "b.md")
+        assert b.department == "HR"
         assert b.chunks_path == ""
         assert b.indexed_at == ""
 

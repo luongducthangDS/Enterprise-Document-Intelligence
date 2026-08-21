@@ -41,6 +41,7 @@ class IngestionJobRequest(BaseModel):
     )
     content_base64: str = Field(..., min_length=1, description="Nội dung file, base64")
     category: str = Field(default="GENERAL", max_length=64)
+    department: str = Field(default="HR", max_length=128)
     source_type: str = Field(default="official_policy", max_length=64)
     is_official_policy: bool = True
     caveat: str = Field(default="", max_length=500)
@@ -172,6 +173,9 @@ class Citation(BaseModel):
     title: str
     page_start: int | None = None
     page_end: int | None = None
+    sheet_start: str | None = None
+    sheet_end: str | None = None
+    department: str = "HR"
     category: str
     is_official_policy: bool
     source_type: str = Field(default="", description="government_law | official_policy | public_template | synthetic | public_article — data_origin, KHÔNG phải trạng thái phê duyệt")

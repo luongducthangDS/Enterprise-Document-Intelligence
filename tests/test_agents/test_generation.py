@@ -253,6 +253,10 @@ class TestNumericGroundingCheck:
         claims = _extract_numeric_claims("Thanh toán tối đa 300.000 VNĐ/ngày, phụ cấp 30%.")
         assert claims == ["300.000", "30%"]
 
+    def test_extract_does_not_include_sentence_punctuation(self):
+        claims = _extract_numeric_claims("Ưu tiên P1, release 05/11/2026, tiến độ 66%.")
+        assert claims == ["1", "05", "11", "2026", "66%"]
+
     def test_no_numeric_claims_is_inconclusive(self):
         assert _check_numeric_grounding("Bạn được nghỉ theo quy định chung.", []) is None
 
@@ -271,6 +275,26 @@ class TestNumericGroundingCheck:
         pha loãng vì phần lớn câu trả lời đúng."""
         chunks = [_chunk("a", text="Tối đa 300.000 VNĐ/ngày, phụ cấp lưu trú 250.000 VNĐ/đêm.")]
         result = _check_numeric_grounding("Tối đa 300.000 VNĐ/ngày, phụ cấp lưu trú 500.000 VNĐ/đêm.", chunks)
+        assert result is False
+
+    def test_decimal_comma_and_dot_are_equivalent(self):
+        chunks = [_chunk("a", text="Current CTR 7.4%, target 8.0%.")]
+        result = _check_numeric_grounding("CTR đạt 7,4%, gần mục tiêu 8,0%.", chunks)
+        assert result is True
+
+    def test_percent_unit_in_markdown_column_header_is_grounded(self):
+        chunks = [
+            _chunk(
+                "a",
+                text="| Feature | Progress % |\n|---|---|\n| Recommendation System | 66 |",
+            )
+        ]
+        result = _check_numeric_grounding("Tiến độ Recommendation System là 66%.", chunks)
+        assert result is True
+
+    def test_bare_number_without_percent_column_does_not_ground_percent(self):
+        chunks = [_chunk("a", text="Recommendation System có score 66.")]
+        result = _check_numeric_grounding("Tiến độ Recommendation System là 66%.", chunks)
         assert result is False
 
     def test_number_present_in_a_different_pool_chunk_passes(self):

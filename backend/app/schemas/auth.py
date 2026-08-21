@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class Department(str, Enum):
     HR = "HR"
+    PRODUCT = "Product"
     ENGINEERING = "Engineering"
     IT = "IT"
     FINANCE = "Finance"

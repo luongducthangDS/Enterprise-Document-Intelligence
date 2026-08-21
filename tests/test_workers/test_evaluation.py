@@ -123,6 +123,36 @@ def test_quality_gate_fails_when_threshold_not_met():
     assert [d["passed"] for d in details] == [True, False, True]
 
 
+def test_pure_statutory_passes_only_with_out_of_scope_contract():
+    from src.evaluation.scoring import passed_for_type
+
+    result = {"intent": "pure_statutory", "state": "OUT_OF_SCOPE", "reason_code": "PURE_STATUTORY"}
+    assert passed_for_type("pure_statutory", result, context_ok=False, answer_ok=False) is True
+    assert passed_for_type(
+        "pure_statutory",
+        {"intent": "pure_statutory", "state": "ANSWER"},
+        context_ok=False,
+        answer_ok=False,
+    ) is False
+
+
+@pytest.mark.asyncio
+async def test_judge_answer_uses_dedicated_credentials_when_configured(settings):
+    from src.evaluation.scoring import judge_answer
+
+    dedicated = settings.model_copy(
+        update={
+            "judge_api_key": "judge-secret",
+            "judge_base_url": "https://judge.example.test",
+        }
+    )
+    with patch("src.evaluation.scoring.acall_llm", new=AsyncMock(return_value="CORRECT")) as judge:
+        assert await judge_answer("question", "answer", "expected", dedicated) is True
+
+    assert judge.await_args.kwargs["api_key"] == "judge-secret"
+    assert judge.await_args.kwargs["base_url"] == "https://judge.example.test"
+
+
 @pytest.mark.asyncio
 async def test_run_evaluation_scores_dataset_and_returns_metrics(settings):
     fake_agent = MagicMock()

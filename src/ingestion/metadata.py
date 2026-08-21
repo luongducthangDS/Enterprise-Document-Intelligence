@@ -18,17 +18,19 @@ SourceType = Literal[
 ]
 
 # source_type mà build_chunks phải bỏ qua — không phải nội dung RAG.
-# "government_law"/"official_policy"/"public_template"/"public_article" bị loại
-# có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu NỘI BỘ doanh nghiệp (thật hoặc
-# synthetic đóng vai nội bộ khi chưa có tài liệu công ty thật). Luật, chính sách
-# THẬT của doanh nghiệp khác (vd VinFast/Vingroup), template công khai không gắn
-# công ty nào, và bài viết nghiệp vụ tham khảo đều không phải "chính sách của
-# doanh nghiệp mình" — chỉ còn vai trò nguồn offline để soạn thêm tài liệu nội
-# bộ, không phải nguồn agent được trích dẫn trực tiếp. Sau dòng này chỉ còn
-# "synthetic" (V-NOVA, tenant_official_policy) là RAG-eligible.
+# "official_policy" (chính sách công khai của doanh nghiệp khác), "public_template",
+# "public_article" bị loại có chủ đích vì không gắn với kho tri thức nội bộ của tenant.
+#
+# THAY ĐỔI (2026-08-21): "government_law" được ĐƯA VÀO knowledge database.
+# Lý do: Kho tài liệu nội bộ VinBigData bao gồm cả các văn bản pháp luật (bộ luật,
+# nghị định, thông tư) làm nguồn tham chiếu bổ sung. Agent được phép trích dẫn
+# trực tiếp các văn bản pháp luật này kèm metadata is_official_policy=True và
+# authority="government_law" để người dùng phân biệt được nguồn gốc.
+# Rào chắn provenance filter tại retrieval node vẫn giữ nguyên — chỉ mở rộng
+# allowlist authority cho government_law chunks.
 NON_RAG_SOURCE_TYPES = {
     "eval_asset", "config", "rejected",
-    "government_law", "official_policy", "public_template", "public_article",
+    "official_policy", "public_template", "public_article",
 }
 
 # ---------------------------------------------------------------------------
@@ -144,6 +146,11 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
+    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    department: str = "GENERAL"
+    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    issuer: str = ""
+    document_type: str = ""
     category: str
     status: str
     processed_path: str
@@ -168,6 +175,11 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
+    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    department: str = "GENERAL"
+    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    issuer: str = ""
+    document_type: str = ""
     category: str
     source_type: str
     is_official_policy: bool
@@ -193,6 +205,8 @@ class ChunkMetadata(BaseModel):
     article: str | None = None
     page_start: int | None = None
     page_end: int | None = None
+    sheet_start: str | None = None
+    sheet_end: str | None = None
     chunk_index: int
     char_count: int
     document_code: str | None = None
@@ -244,9 +258,18 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
         for row in reader:
             authority, provenance, tenant = _resolve_taxonomy(row)
             publication_status, artifact_state, retrieval_enabled, expiry_date = _resolve_lifecycle(row)
+            access_category = (row.get("access_category") or "").strip() or "GENERAL"
+            scope = (row.get("scope") or "").strip() or "COMPANY_WIDE"
+            issuer = (row.get("issuer") or "").strip()
+            doc_type = (row.get("document_type") or "").strip()
             rows.append(
                 RegistryRow(
                     source_file=row["source_file"],
+                    access_category=access_category,
+                    department=(row.get("department") or "GENERAL").strip() or "GENERAL",
+                    scope=scope,
+                    issuer=issuer,
+                    document_type=doc_type,
                     category=row["category"],
                     status=row["status"],
                     processed_path=row["processed_path"],
@@ -269,6 +292,7 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
                 )
             )
         return rows
+
 
 
 def rag_eligible_rows(rows: list[RegistryRow]) -> list[RegistryRow]:

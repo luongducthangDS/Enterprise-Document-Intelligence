@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "nexatech_post_mvp_v2_dev",
+  "status": "DRAFT_NEEDS_QREL_AND_ADJUDICATION",
+  "split": "dev",
+  "case_count": 64,
+  "declared_case_count": 58,
+  "declared_count_matches": false,
+  "document_count": 13,
+  "documents_covered": {
+    "01_chinh-sach-lam-them-gio-OT.md": 5,
+    "02_quy-trinh-tuyen-dung.md": 4,
+    "03_quy-trinh-onboarding.md": 4,
+    "04_quy-trinh-offboarding.md": 5,
+    "05_chinh-sach-lam-viec-tu-xa.md": 4,
+    "06_chinh-sach-dao-tao-phat-trien.md": 3,
+    "07_chinh-sach-nghi-phep.md": 7,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md": 3,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md": 3,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong.md": 3,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi.md": 5,
+    "12_quy-che-cong-tac-phi.md": 3,
+    "13_noi-quy-lao-dong-va-ky-luat.md": 5
+  },
+  "multi_turn_rows": 7,
+  "follow_up_cases": 10,
+  "retrieval_cases_pending_qrel": 38,
+  "retrieval_turns_pending_qrel": 45,
+  "behavior_only_cases": 26,
+  "contract_flags": {
+    "conditional_expectation_needs_adjudication": 1,
+    "pure_statutory_scope_conflict": 1,
+    "requires_conflicting_source_fixture": 1
+  },
+  "limitations": [
+    "Dev-only: these visible cases must not be reused as a release held-out set.",
+    "Raw expected behaviors come from the supplied document and are not automatically authoritative.",
+    "Retrieval cases require gold-chunk adjudication before quality metrics are valid."
+  ]
+}

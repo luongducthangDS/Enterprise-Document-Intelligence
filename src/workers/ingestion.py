@@ -138,6 +138,7 @@ async def run_ingestion(
         build_chunks_from_text,
         text,
         source_file=source_file,
+        department=request.department,
         category=request.category,
         source_type=request.source_type,
         is_official_policy=request.is_official_policy,

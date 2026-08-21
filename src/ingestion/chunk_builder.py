@@ -11,7 +11,7 @@ import re
 
 from src.config import Settings
 from src.ingestion.chunkers import chunk_text
-from src.ingestion.cleaners import clean_document, page_for_offset
+from src.ingestion.cleaners import clean_document, page_for_offset, sheet_for_offset
 from src.ingestion.metadata import DEFAULT_EFFECTIVE_DATE, NO_EXPIRY_SENTINEL, Chunk, ChunkMetadata, date_to_ymd_int
 
 H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
@@ -47,6 +47,12 @@ def build_chunks_from_text(
     category: str,
     source_type: str,
     is_official_policy: bool,
+    access_category: str = "GENERAL",
+    department: str = "GENERAL",
+    scope: str = "COMPANY_WIDE",
+    issuer: str = "",
+    document_type: str = "",
+    owner: str | None = None,
     caveat: str = "",
     authority: str = "public_reference",
     provenance: str = "public_web",
@@ -83,11 +89,18 @@ def build_chunks_from_text(
     for idx, tc in enumerate(text_chunks):
         page_start = page_for_offset(cleaned.page_offsets, tc.start)
         page_end = page_for_offset(cleaned.page_offsets, max(tc.start, tc.end - 1))
+        sheet_start = sheet_for_offset(cleaned.sheet_offsets, tc.start)
+        sheet_end = sheet_for_offset(cleaned.sheet_offsets, max(tc.start, tc.end - 1))
         meta = ChunkMetadata(
             chunk_id=f"{stem}::{idx:04d}",
             source_file=source_file,
             source_stem=stem,
             title=title,
+            access_category=access_category,
+            department=department,
+            scope=scope,
+            issuer=issuer,
+            document_type=document_type,
             category=category,
             source_type=source_type,
             is_official_policy=is_official_policy,
@@ -101,17 +114,20 @@ def build_chunks_from_text(
             effective_date_ymd=effective_date_ymd,
             expiry_date_ymd=expiry_date_ymd,
             caveat=caveat,
+
             heading_path=tc.heading_path,
             chapter=tc.chapter,
             article=tc.article,
             page_start=page_start,
             page_end=page_end,
+            sheet_start=sheet_start,
+            sheet_end=sheet_end,
             chunk_index=idx,
             char_count=len(tc.text),
             document_code=cleaned.frontmatter.get("document_code"),
             version=str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None,
             effective_date=resolved_effective_date,
-            owner=cleaned.frontmatter.get("owner"),
+            owner=owner or cleaned.frontmatter.get("owner"),
             legal_basis=cleaned.frontmatter.get("legal_basis"),
         )
         breadcrumb = " — ".join(p for p in (title, tc.heading_path) if p)

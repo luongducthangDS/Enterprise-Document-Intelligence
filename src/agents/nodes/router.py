@@ -12,6 +12,11 @@ from src.agents.state import AgentState, Intent
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal|pure_statutory")
 _EXPLICIT_HYBRID_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN = re.compile(
+    r"\b(?:checkout redesign|recommendation system|notification center|dark mode|"
+    r"subscription upgrade|search improvements|product roadmap)\b",
+    re.IGNORECASE,
+)
 
 # Dấu hiệu người hỏi đang hỏi QUY ĐỊNH CHUNG chứ không hỏi số liệu của riêng
 # mình — dùng làm circuit breaker cho nhánh escalate, KHÔNG dùng để phân loại.
@@ -68,11 +73,11 @@ Chỉ trả về ĐÚNG 1 từ: policy_answerable hoặc personal_data_required.
 def _get_router_system() -> str:
     from src.config import get_settings
     internal_names = ", ".join(get_settings().internal_company_names)
-    return f"""Bạn là bộ phân loại ý định cho chatbot HR nội bộ — chỉ phục vụ NHÂN VIÊN ĐANG LÀM VIỆC và HR Admin của công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 5 nhóm:
+    return f"""Bạn là bộ phân loại ý định cho trợ lý tri thức nội bộ HR và Product — chỉ phục vụ nhân viên công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 5 nhóm:
 
 - greeting: chào hỏi, xã giao, không phải câu hỏi HR thật (vd "chào bạn", "bạn là ai", "cảm ơn nhé").
 
-- hr_question: chủ đề đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chính sách chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nghỉ phép năm theo quy định được mấy ngày?", "Quy trình tuyển dụng có mấy vòng?", "Thủ tục nghỉ thai sản sau khi sinh gồm những giấy tờ gì?", "Đăng ký bảo hiểm sức khỏe cho vợ con thì áp dụng gói nào và chi phí ra sao?").
+- hr_question: nhãn legacy cho mọi câu hỏi tri thức nội bộ HR HOẶC Product đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nghỉ phép năm theo quy định được mấy ngày?", "Checkout Redesign dự kiến release khi nào?", "Recommendation System đang ở trạng thái nào?", "Kết quả experiment Checkout Redesign là gì?").
 
 - ambiguous: câu hỏi THIẾU thông tin cần thiết hoặc đa nghĩa, khiến không biết tra cứu chính xác tài liệu/quy định nào nếu không hỏi lại làm rõ. Ví dụ:
   * "Tôi còn bao nhiêu ngày phép?" — mập mờ giữa ngày phép tiêu chuẩn năm nay và ngày phép cộng dồn từ năm trước.
@@ -176,6 +181,12 @@ async def router_node(state: AgentState) -> dict:
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
     # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
     if _EXPLICIT_HYBRID_PATTERN.search(query):
+        return {"intent": "hr_question"}
+
+    # Product đã dùng chung RAG pipeline với HR. Giữ nhãn intent legacy
+    # `hr_question` để không đổi graph/contract; các feature canonical rõ ràng
+    # đi thẳng vào retrieval thay vì bị router HR cũ đánh nhầm là out-of-scope.
+    if _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query):
         return {"intent": "hr_question"}
 
     # router_model rỗng -> None -> acall_llm dùng llm_model như cũ.

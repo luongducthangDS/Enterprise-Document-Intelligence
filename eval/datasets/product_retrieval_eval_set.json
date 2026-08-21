@@ -1,0 +1,162 @@
+[
+  {
+    "id": "product_001",
+    "question": "Checkout Redesign dự kiến release vào ngày nào?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Management",
+    "feature": "Checkout Redesign",
+    "source_files": ["PRD_Checkout_Redesign.pdf", "Release_Plan_October.xlsx"],
+    "expected_behavior": "Trả lời ngày release 15/10/2026 và nêu nguồn Product."
+  },
+  {
+    "id": "product_002",
+    "question": "Checkout Redesign hiện còn blocker hoặc rủi ro chính nào?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Management",
+    "feature": "Checkout Redesign",
+    "source_files": ["Sprint_Planning_12.docx", "PRD_Checkout_Redesign.pdf"],
+    "expected_behavior": "Truy xuất được blocker/risk của Checkout Redesign, không lấy nhầm rủi ro của feature khác."
+  },
+  {
+    "id": "product_003",
+    "question": "Kết quả experiment Checkout Redesign hiện tại là gì?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Analytics",
+    "feature": "Checkout Redesign",
+    "source_files": ["Checkout_Experiment_Report.pdf"],
+    "expected_behavior": "Truy xuất báo cáo experiment và phân biệt kết quả tích cực với việc target đã đạt."
+  },
+  {
+    "id": "product_004",
+    "question": "Ai là owner của Checkout Redesign?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Mai Nguyen",
+    "feature": "Checkout Redesign",
+    "source_files": ["PRD_Checkout_Redesign.pdf"],
+    "expected_behavior": "Trả lời owner là Mai Nguyen, không suy đoán từ người phụ trách action item."
+  },
+  {
+    "id": "product_005",
+    "question": "Recommendation System đang ở trạng thái nào và release dự kiến khi nào?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Huy Tran",
+    "feature": "Recommendation System",
+    "source_files": ["Product_Weekly_Recommendation.pdf", "PRD_Recommendation_System.docx"],
+    "expected_behavior": "Trả lời đúng trạng thái Beta và mốc release 05/11/2026."
+  },
+  {
+    "id": "product_006",
+    "question": "p95 latency của Recommendation System đang là bao nhiêu so với target?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Analytics",
+    "feature": "Recommendation System",
+    "source_files": ["Recommendation_Latency_Report_Scan.pdf"],
+    "expected_behavior": "Truy xuất đúng p95 hiện tại 280 ms và target <=200 ms."
+  },
+  {
+    "id": "product_007",
+    "question": "Notification Center có open rate hiện tại và target bao nhiêu?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Analytics",
+    "feature": "Notification Center",
+    "source_files": ["Notification_Metrics.pdf"],
+    "expected_behavior": "Trả lời open rate hiện tại 20.5% và target 24.0%."
+  },
+  {
+    "id": "product_008",
+    "question": "Trong design review, scope nào của Notification Center đã được thống nhất?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Design",
+    "feature": "Notification Center",
+    "source_files": ["Design_Review_Notification.docx"],
+    "expected_behavior": "Truy xuất quyết định trong design review, không dùng PRD của feature khác."
+  },
+  {
+    "id": "product_009",
+    "question": "Search Improvements có zero-result rate và quyết định experiment như thế nào?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Analytics",
+    "feature": "Search Improvements",
+    "source_files": ["Search_Experiment_Results.xlsx"],
+    "expected_behavior": "Truy xuất đúng số liệu zero-result rate và decision trong bảng experiment."
+  },
+  {
+    "id": "product_010",
+    "question": "Người dùng đang gặp pain point gì với Search Improvements?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Research Team",
+    "feature": "Search Improvements",
+    "source_files": ["Search_Interview_Notes.docx"],
+    "expected_behavior": "Truy xuất insight từ user research, không biến insight thành metric production."
+  },
+  {
+    "id": "product_011",
+    "question": "Nghiên cứu Subscription Upgrade đề xuất ưu tiên cải thiện gì trước?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Research Team",
+    "feature": "Subscription Upgrade",
+    "source_files": ["Subscription_Research_Scan.pdf"],
+    "expected_behavior": "Truy xuất recommendation ưu tiên tier comparison, billing FAQ và usage-context trigger."
+  },
+  {
+    "id": "product_012",
+    "question": "Feature Launch Process yêu cầu những gate nào trước khi launch?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Operations",
+    "feature": "Cross-feature",
+    "source_files": ["Feature_Launch_Process.pdf"],
+    "expected_behavior": "Truy xuất các required gate trước launch từ process chính thức của Product."
+  },
+  {
+    "id": "product_013",
+    "question": "Dark Mode phase 1 bao gồm nền tảng nào?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Design",
+    "feature": "Dark Mode",
+    "source_files": ["Dark_Mode_Kickoff_Scan.pdf"],
+    "expected_behavior": "Trả lời phase 1 chỉ gồm mobile app; web chuyển phase 2."
+  },
+  {
+    "id": "product_014",
+    "question": "Bộ phận nào là owner của payment timeout trong funnel checkout?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Product Analytics",
+    "feature": "Checkout Redesign",
+    "source_files": ["Funnel_Metrics_August.xlsx"],
+    "expected_behavior": "Trả lời owner là Platform theo bảng error breakdown."
+  },
+  {
+    "id": "product_015",
+    "question": "Ai phê duyệt một initiative P0 theo Product Approval Policy?",
+    "type": "in_scope",
+    "department": "Product",
+    "owner": "Head of Product",
+    "feature": "Cross-feature",
+    "source_files": ["Product_Approval_Policy.docx"],
+    "expected_behavior": "Trả lời P0 cần Head of Product approval."
+  },
+  {
+    "id": "product_016",
+    "question": "Tôi cần tư vấn cách tính thuế thu nhập cá nhân ngoài tài liệu Product.",
+    "type": "out_of_scope",
+    "department": "Product",
+    "owner": "Product Operations",
+    "feature": "Cross-feature",
+    "source_files": [],
+    "expected_behavior": "Không bịa câu trả lời từ Product corpus; nêu ngoài phạm vi hoặc chuyển đúng nơi phụ trách."
+  }
+]

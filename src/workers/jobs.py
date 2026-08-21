@@ -21,7 +21,13 @@ import logging
 import os
 import uuid
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+try:
+    from datetime import UTC
+except ImportError:
+    UTC = timezone.utc
+
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field

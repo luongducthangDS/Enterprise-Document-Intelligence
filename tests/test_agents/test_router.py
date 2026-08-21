@@ -35,6 +35,23 @@ class TestRouterNode:
         llm.assert_not_called()
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Checkout Redesign dự kiến release khi nào?",
+            "Checkout Redesign đang có blocker gì?",
+            "Recommendation System hiện ở trạng thái nào?",
+            "Kết quả experiment của Checkout Redesign là gì?",
+        ],
+    )
+    async def test_explicit_product_question_skips_llm_router(self, query):
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+            result = await router_node({"query": query})
+
+        assert result["intent"] == "hr_question"
+        llm.assert_not_called()
+
+    @pytest.mark.asyncio
     async def test_parses_valid_intent_from_llm_output(self):
         with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")):
             result = await router_node({"query": "Tôi được nghỉ mấy ngày phép?"})

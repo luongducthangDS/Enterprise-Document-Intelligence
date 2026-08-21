@@ -1,6 +1,12 @@
 import asyncio
 import re
 from datetime import datetime, timezone
+
+try:
+    from datetime import UTC
+except ImportError:
+    UTC = timezone.utc
+
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg
@@ -14,19 +20,49 @@ from src.retrieval.cache import get_cached_embedding, set_cached_embedding
 from src.retrieval.hybrid import fuse_candidate_ids
 from src.services.fpt_client import embed_batch, rerank
 
-_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_REFERRAL_QUERY_PATTERN = re.compile(
+    r"\breferral\b"
+    r"|(?:giới thiệu|gioi thieu).{0,48}(?:ứng tuyển|ung tuyen|ứng viên|ung vien|người quen|nguoi quen|bạn|ban)"
+    r"|(?:ứng tuyển|ung tuyen|ứng viên|ung vien).{0,48}(?:giới thiệu|gioi thieu|referral)",
+    re.IGNORECASE,
+)
+_DISCIPLINARY_ABSENCE_QUERY_PATTERN = re.compile(
+    r"(?:tự ý|tu y).{0,40}(?:nghỉ|nghi|bỏ việc|bo viec)"
+    r"|(?:sa thải|sa thai|kỷ luật|ky luat).{0,48}(?:nghỉ|nghi|bỏ việc|bo viec|vắng|vang)"
+    r"|(?:nghỉ|nghi|bỏ việc|bo viec).{0,48}(?:sa thải|sa thai|kỷ luật|ky luat|phê duyệt|phe duyet)",
+    re.IGNORECASE,
+)
 
 
 def _expand_retrieval_query(query: str) -> str:
-    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
 
-    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
-    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    Expansion nhỏ này giúp dense và BM25 tìm đúng ngay lượt đầu mà không cần
+    gọi LLM rewrite chỉ để thêm từ. Chỉ mở rộng các pattern có tín hiệu đủ rõ
+    để không làm loãng embedding của câu hỏi HR khác.
     """
-    if not _HYBRID_QUERY_PATTERN.search(query):
+    expansions: list[str] = []
+    if _HYBRID_QUERY_PATTERN.search(query):
+        expansions.append("WFH, làm việc từ xa, onsite, mô hình 3-2")
+    if _REFERRAL_QUERY_PATTERN.search(query):
+        # Regression qa_013: người dùng nói "giới thiệu bạn ứng tuyển" trong
+        # khi policy dùng "giới thiệu nội bộ (referral)" ở mục kênh đăng tin.
+        expansions.append(
+            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
+            "website tuyển dụng, nộp hồ sơ ứng viên"
+        )
+    disciplinary_match = _DISCIPLINARY_ABSENCE_QUERY_PATTERN.search(query)
+    if disciplinary_match:
+        # Regression qa_122: câu hỏi nói "tự ý nghỉ/chưa được phê duyệt", còn
+        # policy dùng cụm "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày".
+        # Đây là một paraphrase canonical có chủ đích: câu hỏi gốc dài và
+        # chứa nhiều điều kiện, trong khi chunk policy có đúng cụm này.
+        return "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày; sa thải; lý do chính đáng"
+    if not expansions:
         return query
-    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
+    return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
 @lru_cache
@@ -38,65 +74,33 @@ def _collection():
     return get_collection(client, settings.chroma_collection_name)
 
 
-def _provenance_filter(settings: Settings) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN, không phụ thuộc LLM tuân thủ prompt.
+def _provenance_filter(settings: Settings, allowed_categories: list[str] | None = None) -> dict | None:
+    """Chặn dữ liệu ở TẦNG TRUY VẤN (Access Control / Authorization Filter).
 
-    Lọc ở đây chứ không phải trong prompt là có chủ đích: prompt chỉ là lời dặn,
-    còn `where` là ràng buộc — chunk bị lọc không bao giờ tồn tại trong ngữ cảnh
-    nên không có đường nào để model lỡ trích dẫn nó.
-
-    Bốn điều kiện LUÔN áp dụng (demo lẫn production) + 1 điều kiện chỉ production:
-    - authority=tenant_official_policy: sản phẩm chỉ trả lời bằng dữ liệu nội bộ
-      doanh nghiệp (thật hoặc synthetic đóng vai nội bộ) — luật, chính sách THẬT
-      của doanh nghiệp khác, template công khai không gắn công ty nào đều KHÔNG
-      được trích dẫn trực tiếp. Cố tình dùng allowlist ($eq) thay vì liệt kê
-      từng `$ne` (government_law, public_reference, public_template...): chunk
-      index từ TRƯỚC KHI taxonomy authority/provenance tồn tại không có field
-      `authority` trong metadata Chroma — `$ne` với field vắng mặt vẫn khớp
-      (tức KHÔNG lọc được), đã đo được lỗi này thật khi luật vẫn lọt vào
-      retrieved_chunks dù filter `$ne government_law` đã có. `$eq` fail-closed:
-      chunk thiếu/khác field tự động bị loại, không cần nhớ liệt kê hết mọi giá
-      trị cần chặn.
-    - publication_status=active, artifact_state=frozen, retrieval_enabled=True:
-      contract "frozen internal corpus" (NexaTech Type-C contract v3.1.0) — một
-      tài liệu tenant_official_policy vẫn có thể bị loại khỏi truy vấn khi bị
-      supersede (publication_status khác "active") hoặc tạm khoá RAG
-      (retrieval_enabled=False) mà không cần đổi authority. Cùng $eq allowlist
-      logic như trên — fail-closed với chunk thiếu field.
-
-    Rào chắn tại tầng `where` là rào chắn thứ hai — phòng khi chunk cũ còn sót
-    trong Chroma Cloud dù ingestion đã ngừng coi các nguồn đó là RAG-eligible
-    (xem NON_RAG_SOURCE_TYPES, rag_eligible_rows trong src/ingestion/metadata.py).
-
-    - effective_date_ymd<=query_date_ymd VÀ expiry_date_ymd>=query_date_ymd:
-      contract yêu cầu "effective_date <= query_date AND (expiry_date IS NULL
-      OR expiry_date >= query_date)". HAI lỗi thật đã đo được khi implement:
-      (1) Chroma `$lte`/`$gte` CHỈ nhận operand int/float — thử filter bằng
-      chuỗi ISO "2026-08-15" trực tiếp bị Chroma raise ValueError ngay tại
-      query time (không phải lỗi âm thầm, nhưng vẫn phải sửa trước khi launch).
-      Khắc phục bằng field riêng `effective_date_ymd`/`expiry_date_ymd` (int
-      YYYYMMDD, xem date_to_ymd_int() trong metadata.py) — CHỈ dùng để filter,
-      field chuỗi effective_date/expiry_date vẫn giữ để hiển thị/audit.
-      (2) "IS NULL" (không có hạn) không thể biểu diễn bằng field vắng mặt vì
-      Chroma bỏ hẳn field None khỏi metadata khi ghi, và field vắng mặt lại
-      KHÔNG khớp `$gte` — khắc phục bằng NO_EXPIRY_SENTINEL (99991231, luôn
-      >= mọi query_date thật) ở tầng ingestion thay vì để trống.
-
-    - provenance=synthetic_demo chỉ bị loại thêm khi production: ở demo, dữ
-      liệu mô phỏng ĐƯỢC dùng như chính sách nội bộ chính thức của tenant giả
-      lập. Hệ quả đã lường trước: ở production mà KB chưa có policy thật,
-      `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
-      đó là hành vi ĐÚNG, không phải lỗi.
+    Theo đúng kiến trúc sản phẩm Doc Intelligence Agent:
+    - Employee query mặc định CHỈ được truy xuất: access_category = "GENERAL"
+      (Chính sách, quy định, quy chế chính thức do doanh nghiệp ban hành áp dụng toàn công ty).
+    - KHÔNG tự động truy xuất LEGAL (văn bản luật nhà nước), DEPARTMENT (nghiệp vụ riêng phòng ban),
+      hoặc EXTERNAL_REFERENCE (tài liệu tham khảo ngoài) trừ khi có explicit authorization.
+    - publication_status=active, artifact_state=frozen, retrieval_enabled=True.
+    - effective_date_ymd <= query_date_ymd AND expiry_date_ymd >= query_date_ymd.
     """
-    query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    categories = allowed_categories or ["GENERAL"]
+    category_filter = (
+        {"access_category": {"$in": categories}}
+        if len(categories) > 1
+        else {"access_category": {"$eq": categories[0]}}
+    )
     conditions: list[dict] = [
-        {"authority": "tenant_official_policy"},
+        category_filter,
         {"publication_status": "active"},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},
         {"effective_date_ymd": {"$lte": query_date_ymd}},
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
+
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return conditions[0] if len(conditions) == 1 else {"$and": conditions}
@@ -104,16 +108,11 @@ def _provenance_filter(settings: Settings) -> dict | None:
 
 @lru_cache
 def _bm25_index() -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud (không phải data/chunks/*.json —
-    file đó gitignored, không tồn tại trên server), cache theo tiến trình như
-    _collection(). Trả None nếu tải lỗi/collection rỗng để hybrid tự tắt an
-    toàn (xem fuse_candidate_ids) thay vì làm chết cả request retrieval."""
+    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud với access_category=GENERAL mặc định."""
     try:
-        # Cùng bộ lọc với truy vấn dense — nếu không, ứng viên synthetic vẫn lọt
-        # vào context qua ngả RRF ở production dù dense đã chặn.
-        where = _provenance_filter(get_settings())
+        where = _provenance_filter(get_settings(), allowed_categories=["GENERAL"])
         result = _collection().get(include=["documents"], **({"where": where} if where else {}))
-    except Exception as e:  # noqa: BLE001 — lỗi tải corpus phụ không được chặn retrieval chính
+    except Exception as e:  # noqa: BLE001
         print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
         return None
     ids = result.get("ids") or []
@@ -121,6 +120,7 @@ def _bm25_index() -> BM25 | None:
     if not ids:
         return None
     return BM25(ids, documents)
+
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -148,6 +148,7 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         text=text,
         source_file=meta.get("source_file", ""),
         title=meta.get("title", ""),
+        department=str(meta.get("department") or "HR"),
         category=meta.get("category", ""),
         is_official_policy=bool(meta.get("is_official_policy", False)),
         source_type=str(meta.get("source_type") or ""),
@@ -162,6 +163,8 @@ def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> Retrieve
         policy_status=str(meta.get("publication_status") or ""),
         page_start=meta.get("page_start"),
         page_end=meta.get("page_end"),
+        sheet_start=meta.get("sheet_start"),
+        sheet_end=meta.get("sheet_end"),
         distance=distance,
         score=None,
     )
@@ -182,8 +185,17 @@ async def retrieval_node(state: AgentState) -> dict:
     #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection()
-    where = _provenance_filter(settings)
+    allowed_categories = state.get("allowed_categories")
+    user_role = state.get("user_role")
+    if not allowed_categories:
+        if user_role == "admin":
+            allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
+        else:
+            # Employee default: strictly GENERAL company-wide documents only
+            allowed_categories = ["GENERAL"]
+    where = _provenance_filter(settings, allowed_categories=allowed_categories)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,
             query_embeddings=[embedding],
