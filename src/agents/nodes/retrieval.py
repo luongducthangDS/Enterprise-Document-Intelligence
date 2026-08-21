@@ -74,58 +74,25 @@ def _collection():
     return get_collection(client, settings.chroma_collection_name)
 
 
-def _provenance_filter(settings: Settings) -> dict | None:
+def _provenance_filter(settings: Settings, user_department: str | None = None) -> dict | None:
     """Chặn dữ liệu ở TẦNG TRUY VẤN, không phụ thuộc LLM tuân thủ prompt.
 
     Lọc ở đây chứ không phải trong prompt là có chủ đích: prompt chỉ là lời dặn,
     còn `where` là ràng buộc — chunk bị lọc không bao giờ tồn tại trong ngữ cảnh
     nên không có đường nào để model lỡ trích dẫn nó.
 
-    Bốn điều kiện LUÔN áp dụng (demo lẫn production) + 1 điều kiện chỉ production:
+    Điều kiện áp dụng:
     - authority IN [tenant_official_policy, government_law]: sản phẩm trả lời bằng
       (1) dữ liệu nội bộ doanh nghiệp (quy trình, biên bản, quyết định, quy chế)
       và (2) văn bản pháp luật (bộ luật, nghị định, thông tư) — cả hai được index
-      vào knowledge database từ 2026-08-21. Chính sách THẬT của doanh nghiệp KHÁC,
-      template công khai không gắn công ty nào vẫn bị loại. Dùng allowlist ($in)
-      thay vì liệt kê từng $ne: chunk cũ không có field `authority` trong Chroma
-      metadata — $ne với field vắng mặt vẫn khớp (không lọc được); $in fail-closed
-      — chunk thiếu/khác field tự động bị loại.
-    - publication_status=active, artifact_state=frozen, retrieval_enabled=True:
-      contract "frozen internal corpus" (NexaTech Type-C contract v3.1.0) — một
-      tài liệu tenant_official_policy vẫn có thể bị loại khỏi truy vấn khi bị
-      supersede (publication_status khác "active") hoặc tạm khoá RAG
-      (retrieval_enabled=False) mà không cần đổi authority. Cùng $eq allowlist
-      logic như trên — fail-closed với chunk thiếu field.
-
-    Rào chắn tại tầng `where` là rào chắn thứ hai — phòng khi chunk cũ còn sót
-    trong Chroma Cloud dù ingestion đã ngừng coi các nguồn đó là RAG-eligible
-    (xem NON_RAG_SOURCE_TYPES, rag_eligible_rows trong src/ingestion/metadata.py).
-
-    - effective_date_ymd<=query_date_ymd VÀ expiry_date_ymd>=query_date_ymd:
-      contract yêu cầu "effective_date <= query_date AND (expiry_date IS NULL
-      OR expiry_date >= query_date)". HAI lỗi thật đã đo được khi implement:
-      (1) Chroma `$lte`/`$gte` CHỈ nhận operand int/float — thử filter bằng
-      chuỗi ISO "2026-08-15" trực tiếp bị Chroma raise ValueError ngay tại
-      query time (không phải lỗi âm thầm, nhưng vẫn phải sửa trước khi launch).
-      Khắc phục bằng field riêng `effective_date_ymd`/`expiry_date_ymd` (int
-      YYYYMMDD, xem date_to_ymd_int() trong metadata.py) — CHỈ dùng để filter,
-      field chuỗi effective_date/expiry_date vẫn giữ để hiển thị/audit.
-      (2) "IS NULL" (không có hạn) không thể biểu diễn bằng field vắng mặt vì
-      Chroma bỏ hẳn field None khỏi metadata khi ghi, và field vắng mặt lại
-      KHÔNG khớp `$gte` — khắc phục bằng NO_EXPIRY_SENTINEL (99991231, luôn
-      >= mọi query_date thật) ở tầng ingestion thay vì để trống.
-
-    - provenance=synthetic_demo chỉ bị loại thêm khi production: ở demo, dữ
-      liệu mô phỏng ĐƯỢC dùng như chính sách nội bộ chính thức của tenant giả
-      lập. Hệ quả đã lường trước: ở production mà KB chưa có policy thật,
-      `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
-      đó là hành vi ĐÚNG, không phải lỗi.
+      vào knowledge database từ 2026-08-21.
+    - department IN [GENERAL, ALL, user_department]: Nhân viên chỉ được truy vấn
+      dữ liệu DÙNG CHUNG (GENERAL) + dữ liệu chuyên môn của PHÒNG BAN mình (hoặc
+      toàn bộ nếu là ADMIN).
+    - publication_status=active, artifact_state=frozen, retrieval_enabled=True.
+    - effective_date_ymd <= query_date_ymd AND expiry_date_ymd >= query_date_ymd.
     """
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    # authority allowlist: tenant_official_policy = tài liệu nội bộ doanh nghiệp (quy trình,
-    # biên bản, quyết định, quy chế); government_law = văn bản pháp luật (bộ luật, nghị định,
-    # thông tư) — được đưa vào knowledge database từ 2026-08-21, trích dẫn kèm
-    # is_official_policy=True để người dùng phân biệt nguồn nội bộ vs nguồn pháp lý.
     conditions: list[dict] = [
         {"authority": {"$in": ["tenant_official_policy", "government_law"]}},
         {"publication_status": "active"},
@@ -134,9 +101,16 @@ def _provenance_filter(settings: Settings) -> dict | None:
         {"effective_date_ymd": {"$lte": query_date_ymd}},
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
+
+    # Department-based Access Control (ACL / RBAC)
+    if user_department and user_department.upper() not in ("ADMIN", "ALL"):
+        allowed_depts = ["GENERAL", "ALL", user_department, user_department.upper(), user_department.lower()]
+        conditions.append({"department": {"$in": list(set(allowed_depts))}})
+
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
 
 
 @lru_cache
@@ -222,7 +196,7 @@ async def retrieval_node(state: AgentState) -> dict:
     #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection()
-    where = _provenance_filter(settings)
+    where = _provenance_filter(settings, user_department=state.get("department"))
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,

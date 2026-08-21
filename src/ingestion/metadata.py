@@ -146,8 +146,7 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
-    # Registry HR cũ chưa có cột này; default giữ nguyên hành vi hiện tại.
-    department: str = "HR"
+    department: str = "GENERAL"
     category: str
     status: str
     processed_path: str
@@ -172,7 +171,7 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
-    department: str = "HR"
+    department: str = "GENERAL"
     category: str
     source_type: str
     is_official_policy: bool
@@ -254,7 +253,7 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
             rows.append(
                 RegistryRow(
                     source_file=row["source_file"],
-                    department=(row.get("department") or "HR").strip() or "HR",
+                    department=(row.get("department") or "GENERAL").strip() or "GENERAL",
                     category=row["category"],
                     status=row["status"],
                     processed_path=row["processed_path"],
