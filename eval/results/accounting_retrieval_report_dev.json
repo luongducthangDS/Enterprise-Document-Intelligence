@@ -1,0 +1,1387 @@
+{
+  "run_at": "2026-08-21T13:25:49.665946+00:00",
+  "split": "dev",
+  "top_k": 10,
+  "dataset": "eval/datasets/eval_accounting.json",
+  "db_path": "E:\\build\\P-153\\data\\data_accounting\\db_hr",
+  "collection_count": 152,
+  "summary": {
+    "total": 29,
+    "in_scope_n": 24,
+    "no_gt_n": 5,
+    "hit_rate@1": 0.5833,
+    "recall@1": 0.2708,
+    "ndcg@1": 0.5625,
+    "hit_rate@3": 0.7917,
+    "recall@3": 0.6042,
+    "ndcg@3": 0.6045,
+    "hit_rate@5": 0.9167,
+    "recall@5": 0.7292,
+    "ndcg@5": 0.6538,
+    "hit_rate@10": 0.9167,
+    "recall@10": 0.7778,
+    "ndcg@10": 0.6723,
+    "mrr": 0.7188,
+    "doc_hit_rate": 1.0,
+    "by_type": {
+      "multi_chunk": {
+        "n": 5,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.8667
+      },
+      "single_chunk": {
+        "n": 16,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.7812
+      },
+      "scenario_reasoning": {
+        "n": 1,
+        "hit_rate@5": 0.0,
+        "recall@5": 0.0
+      },
+      "cross_document": {
+        "n": 2,
+        "hit_rate@5": 0.5,
+        "recall@5": 0.3333
+      }
+    },
+    "by_category": {
+      "internal_expense_policy": {
+        "n": 4,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.75
+      },
+      "advance_and_payment_sop": {
+        "n": 6,
+        "hit_rate@5": 0.8333,
+        "recall@5": 0.75
+      },
+      "procurement_and_purchasing": {
+        "n": 8,
+        "hit_rate@5": 0.875,
+        "recall@5": 0.6042
+      },
+      "payroll_and_compensation": {
+        "n": 3,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.8333
+      },
+      "financial_report": {
+        "n": 2,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.8334
+      },
+      "fixed_assets_management": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
+      }
+    },
+    "miss_top5": [
+      {
+        "id": "acc_ret_027",
+        "query": "Khi mua sắm một gói thiết bị 25 triệu VNĐ, Trưởng phòng cần làm thủ tục gì theo ",
+        "missed_chunks": [
+          "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+          "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020",
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007"
+        ]
+      },
+      {
+        "id": "acc_ret_035",
+        "query": "Nếu nhà cung cấp xuất hóa đơn giấy viết tay hoặc hóa đơn điện tử không tra cứu đ",
+        "missed_chunks": [
+          "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004",
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
+        ]
+      }
+    ],
+    "no_gt_avg_top1_distance": 0.1619
+  },
+  "results": [
+    {
+      "id": "acc_ret_001",
+      "query": "Nhân viên đi công tác trong nước thì được tạm ứng tối đa bao nhiêu tiền một lần?",
+      "type": "single_chunk",
+      "category": "internal_expense_policy",
+      "split": "dev",
+      "top1_distance": 0.11750578880310059,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0008",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0030",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0002",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.9502,
+        "ndcg@5": 0.9502,
+        "ndcg@10": 0.9502
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_002",
+      "query": "Trưởng phòng hoặc Quản lý cửa hàng được quyền tự phê duyệt khoản chi tối đa là bao nhiêu?",
+      "type": "single_chunk",
+      "category": "internal_expense_policy",
+      "split": "dev",
+      "top1_distance": 0.0970529317855835,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0027",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0034",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.7602,
+        "ndcg@5": 0.7602,
+        "ndcg@10": 0.7602
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_003",
+      "query": "Khoản chi mua sắm từ bao nhiêu tiền trở lên thì bắt buộc phải có tối thiểu 2 báo giá so sánh?",
+      "type": "single_chunk",
+      "category": "internal_expense_policy",
+      "split": "dev",
+      "top1_distance": 0.14260941743850708,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0019",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0009",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0031",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0030",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.1637,
+        "ndcg@10": 0.1637
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_005",
+      "query": "Từ lúc nhận đủ hồ sơ thanh toán hợp lệ thì Phòng Kế toán giải ngân trong bao lâu?",
+      "type": "single_chunk",
+      "category": "internal_expense_policy",
+      "split": "dev",
+      "top1_distance": 0.1391611099243164,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0022",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.4796,
+        "ndcg@5": 0.6267,
+        "ndcg@10": 0.6267
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_006",
+      "query": "Đi công tác về thì sau mấy ngày phải làm thủ tục hoàn ứng, nếu quá hạn thì bị xử lý thế nào?",
+      "type": "multi_chunk",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.14440655708312988,
+      "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+      "retrieved_ids": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0030",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 0.6667,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.7975,
+        "ndcg@5": 0.912,
+        "ndcg@10": 0.912
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_007",
+      "query": "Khoản tạm ứng hoặc thanh toán bao nhiêu tiền thì bắt buộc phải chuyển khoản qua ngân hàng thay vì nhận tiền mặt?",
+      "type": "single_chunk",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.165560781955719,
+      "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+      "retrieved_ids": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0003",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.7602,
+        "ndcg@5": 0.7602,
+        "ndcg@10": 0.7602
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_008",
+      "query": "Hồ sơ thanh toán chi phí công tác cần những giấy tờ, chứng từ gì?",
+      "type": "single_chunk",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.15402215719223022,
+      "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+      "retrieved_ids": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0011",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0030",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.9502,
+        "ndcg@5": 0.9502,
+        "ndcg@10": 0.9502
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_009",
+      "query": "Khi quyết toán hoàn ứng mà tiền thực tế chi ít hơn hoặc nhiều hơn tiền tạm ứng thì xử lý trong mấy ngày?",
+      "type": "single_chunk",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.1318759322166443,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 1,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.6309,
+        "ndcg@5": 0.6309,
+        "ndcg@10": 0.6309
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_010",
+      "query": "Quy trình mua sắm hàng hóa và lựa chọn nhà cung cấp gồm những bước nào?",
+      "type": "multi_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.11861348152160645,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0001",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0022",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0023",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0009",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0000"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 0.6667,
+        "recall@5": 0.6667,
+        "recall@10": 0.6667
+      },
+      "ndcgs": {
+        "ndcg@1": 0.5,
+        "ndcg@3": 0.7224,
+        "ndcg@5": 0.7224,
+        "ndcg@10": 0.7224
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_011",
+      "query": "Trường hợp nào được áp dụng mua sắm khẩn cấp và sau bao lâu phải bổ sung đầy đủ hồ sơ?",
+      "type": "multi_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.1188349723815918,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0031",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0016",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0032",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_012",
+      "query": "AVL trong mua sắm là viết tắt của từ gì và có nguyên tắc ưu tiên như thế nào?",
+      "type": "single_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.14176541566848755,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0009",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0013",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0012",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0005",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0008",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.6131,
+        "ndcg@5": 0.6131,
+        "ndcg@10": 0.8066
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_013",
+      "query": "Lương hàng tháng của công ty được chi trả vào ngày nào và qua hình thức nào?",
+      "type": "single_chunk",
+      "category": "payroll_and_compensation",
+      "split": "dev",
+      "top1_distance": 0.13377392292022705,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0019",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0039",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0006",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0009",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0023",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0015",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0016",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0027"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_014",
+      "query": "Tỷ lệ trích đóng bảo hiểm xã hội, y tế, thất nghiệp của người lao động và công ty là bao nhiêu %?",
+      "type": "single_chunk",
+      "category": "payroll_and_compensation",
+      "split": "dev",
+      "top1_distance": 0.1548578143119812,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0033",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0033",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0005",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0009",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0035",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0018",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0027",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0025",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0004",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0037"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.4796,
+        "ndcg@5": 0.4796,
+        "ndcg@10": 0.4796
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0020"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_016",
+      "query": "Khối Văn phòng và Khối Cửa hàng được đánh giá và chi trả thưởng KPI theo tháng hay theo quý?",
+      "type": "single_chunk",
+      "category": "payroll_and_compensation",
+      "split": "dev",
+      "top1_distance": 0.11030864715576172,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0012",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0006",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0039",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0034",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0030",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0013",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0016"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_017",
+      "query": "Theo báo cáo quản trị chi phí Q3/2026, những nguyên nhân chính nào làm chi phí thực tế vượt ngân sách?",
+      "type": "multi_chunk",
+      "category": "financial_report",
+      "split": "dev",
+      "top1_distance": 0.12755048274993896,
+      "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0000",
+      "retrieved_ids": [
+        "BC-QTCP-Q3-2026_CongtyABC::0000",
+        "BC-QTCP-Q3-2026_CongtyABC::0010",
+        "BC-QTCP-Q3-2026_CongtyABC::0007",
+        "BC-QTCP-Q3-2026_CongtyABC::0001",
+        "BC-QTCP-Q3-2026_CongtyABC::0008",
+        "BC-QTCP-Q3-2026_CongtyABC::0004",
+        "BC-QTCP-Q3-2026_CongtyABC::0006",
+        "BC-QTCP-Q3-2026_CongtyABC::0002",
+        "BC-QTCP-Q3-2026_CongtyABC::0011",
+        "BC-QTCP-Q3-2026_CongtyABC::0015"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 0.3333,
+        "recall@5": 0.6667,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.5317,
+        "ndcg@5": 0.7606,
+        "ndcg@10": 0.8445
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_018",
+      "query": "Phòng Kế toán đưa ra những đề xuất hành động nào để siết chặt kiểm soát chi tiêu trong quý tới?",
+      "type": "multi_chunk",
+      "category": "financial_report",
+      "split": "dev",
+      "top1_distance": 0.14630556106567383,
+      "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0002",
+      "retrieved_ids": [
+        "BC-QTCP-Q3-2026_CongtyABC::0002",
+        "BC-QTCP-Q3-2026_CongtyABC::0003",
+        "BC-QTCP-Q3-2026_CongtyABC::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0024",
+        "BC-QTCP-Q3-2026_CongtyABC::0015",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0035",
+        "BC-QTCP-Q3-2026_CongtyABC::0007",
+        "BC-QTCP-Q3-2026_CongtyABC::0014",
+        "BC-QTCP-Q3-2026_CongtyABC::0008",
+        "BC-QTCP-Q3-2026_CongtyABC::0000"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.6934,
+        "ndcg@5": 0.6934,
+        "ndcg@10": 0.6934
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_020",
+      "query": "Phiếu đề nghị mua hàng PR-2026-0801 đề xuất mua thiết bị gì, cấu hình thế nào và tổng tiền dự toán là bao nhiêu?",
+      "type": "single_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.14508867263793945,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0004",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0015",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0019",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0004",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0034",
+        "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
+        "PO-2026-0810_Don-Dat-Hang::0001"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.1637,
+        "ndcg@10": 0.1637
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_021",
+      "query": "Đơn đặt hàng PO-2026-0810 quy định thời hạn giao hàng và thời hạn thanh toán như thế nào?",
+      "type": "single_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.12830346822738647,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
+        "PO-2026-0810_Don-Dat-Hang::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0036",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0022",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0032",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0031",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0006"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.5,
+        "recall@10": 0.5
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.1637,
+        "ndcg@10": 0.1637
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "PO-2026-0810_Don-Dat-Hang::0001"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_023",
+      "query": "Hóa đơn điện tử số 00000089 ngày 19/08/2026 xuất cho đơn vị nào, mã số thuế và số tiền thanh toán là bao nhiêu?",
+      "type": "single_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.14087766408920288,
+      "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+      "retrieved_ids": [
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0001",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0004",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0034",
+        "PO-2026-0810_Don-Dat-Hang::0002",
+        "BC-QTCP-Q3-2026_CongtyABC::0016"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.6697,
+        "ndcg@5": 0.6697,
+        "ndcg@10": 0.6697
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_024",
+      "query": "Kiểm tra đối chiếu giá trị tiền hàng và thuế GTGT của máy chủ Dell R750 giữa Phiếu đề nghị mua PR-2026-0801, Đơn đặt hàng PO-2026-0810 và Hóa đơn số 00000089.",
+      "type": "cross_document",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.1223188042640686,
+      "top1_chunk_id": "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+      "retrieved_ids": [
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+        "PO-2026-0810_Don-Dat-Hang::0001",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0002",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003",
+        "PO-2026-0810_Don-Dat-Hang::0002",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0034",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0001",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 0.3333,
+        "recall@5": 0.6667,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.4693,
+        "ndcg@5": 0.6714,
+        "ndcg@10": 0.8385
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_025",
+      "query": "Theo Biên bản giao nhận TSCĐ số BBGN-01/2026, hệ thống máy POS tại Cửa hàng Cầu Giấy có nguyên giá bao nhiêu và kèm theo phụ tùng gì?",
+      "type": "single_chunk",
+      "category": "fixed_assets_management",
+      "split": "dev",
+      "top1_distance": 0.1209302544593811,
+      "top1_chunk_id": "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
+      "retrieved_ids": [
+        "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000",
+        "PO-2026-0810_Don-Dat-Hang::0001",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "PO-2026-0810_Don-Dat-Hang::0002",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0004",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 1,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_026",
+      "query": "Giấy đề nghị thanh toán tạm ứng ĐNTT-2026/08-015 do ai lập, thanh toán nội dung gì và số tiền chi bổ sung là bao nhiêu?",
+      "type": "single_chunk",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.12441480159759521,
+      "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+      "retrieved_ids": [
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0004",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0003",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_027",
+      "query": "Khi mua sắm một gói thiết bị 25 triệu VNĐ, Trưởng phòng cần làm thủ tục gì theo SOP-MS-01 và ai là người có thẩm quyền phê duyệt theo QĐ 13?",
+      "type": "cross_document",
+      "category": "procurement_and_purchasing",
+      "split": "dev",
+      "top1_distance": 0.13233906030654907,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0015",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0036",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0033",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0030",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0022",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 4,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 0,
+        "hit@10": 0
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_029",
+      "query": "Em muốn làm thủ tục tạm ứng thì làm thế nào?",
+      "type": "ambiguous",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.16437149047851562,
+      "top1_chunk_id": "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+      "retrieved_ids": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0003",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0001",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    },
+    {
+      "id": "acc_ret_030",
+      "query": "Hạn mức duyệt chi là bao nhiêu?",
+      "type": "ambiguous",
+      "category": "internal_expense_policy",
+      "split": "dev",
+      "top1_distance": 0.14433836936950684,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0023",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    },
+    {
+      "id": "acc_ret_031",
+      "query": "Tháng này tôi còn nợ tạm ứng công ty bao nhiêu tiền chưa hoàn ứng?",
+      "type": "out_of_scope_or_personal",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.1547994613647461,
+      "top1_chunk_id": "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
+      "retrieved_ids": [
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0001",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0012",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0003",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0001",
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 0,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    },
+    {
+      "id": "acc_ret_033",
+      "query": "Công ty có chính sách hỗ trợ vay mua xe ô tô cho nhân viên thâm niên trên 3 năm không?",
+      "type": "edge_case_and_unanswerable",
+      "category": "payroll_and_compensation",
+      "split": "dev",
+      "top1_distance": 0.17237067222595215,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0029",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0029",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0018",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0027",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0002",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0037",
+        "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0000"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 0,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    },
+    {
+      "id": "acc_ret_034",
+      "query": "Cho tôi biết mức lương cụ thể của Trưởng phòng Marketing và Trưởng phòng IT tháng trước là bao nhiêu?",
+      "type": "out_of_scope_or_personal",
+      "category": "payroll_and_compensation",
+      "split": "dev",
+      "top1_distance": 0.17382586002349854,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0036",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0006",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0027",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0034",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0037",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0021",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0029"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    },
+    {
+      "id": "acc_ret_035",
+      "query": "Nếu nhà cung cấp xuất hóa đơn giấy viết tay hoặc hóa đơn điện tử không tra cứu được trên trang web Tổng cục Thuế thì Kế toán có thanh toán không?",
+      "type": "scenario_reasoning",
+      "category": "advance_and_payment_sop",
+      "split": "dev",
+      "top1_distance": 0.15397977828979492,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0026",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0024",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0012",
+        "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0009"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 0,
+        "hit@10": 0
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
+      ],
+      "is_in_scope": true
+    }
+  ]
+}

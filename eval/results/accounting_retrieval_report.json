@@ -1,0 +1,350 @@
+{
+  "run_at": "2026-08-21T13:25:38.221521+00:00",
+  "split": "heldout",
+  "top_k": 10,
+  "dataset": "eval/datasets/eval_accounting.json",
+  "db_path": "E:\\build\\P-153\\data\\data_accounting\\db_hr",
+  "collection_count": 152,
+  "summary": {
+    "total": 6,
+    "in_scope_n": 5,
+    "no_gt_n": 1,
+    "hit_rate@1": 0.4,
+    "recall@1": 0.1667,
+    "ndcg@1": 0.4,
+    "hit_rate@3": 0.4,
+    "recall@3": 0.2667,
+    "ndcg@3": 0.2939,
+    "hit_rate@5": 0.8,
+    "recall@5": 0.6667,
+    "ndcg@5": 0.4661,
+    "hit_rate@10": 0.8,
+    "recall@10": 0.7333,
+    "ndcg@10": 0.4974,
+    "mrr": 0.5,
+    "doc_hit_rate": 1.0,
+    "by_type": {
+      "table_lookup": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
+      },
+      "cross_document": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.3333
+      },
+      "scenario_reasoning": {
+        "n": 1,
+        "hit_rate@5": 0.0,
+        "recall@5": 0.0
+      },
+      "single_chunk": {
+        "n": 2,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
+      }
+    },
+    "by_category": {
+      "internal_expense_policy": {
+        "n": 1,
+        "hit_rate@5": 0.0,
+        "recall@5": 0.0
+      },
+      "payroll_and_compensation": {
+        "n": 2,
+        "hit_rate@5": 1.0,
+        "recall@5": 0.6666
+      },
+      "financial_report": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
+      },
+      "procurement_and_purchasing": {
+        "n": 1,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
+      }
+    },
+    "miss_top5": [
+      {
+        "id": "acc_ret_004",
+        "query": "Quy chế chi tiêu có cho phép chia nhỏ một hợp đồng mua sắm thành nhiều lần dưới ",
+        "missed_chunks": [
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+          "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025"
+        ]
+      }
+    ],
+    "no_gt_avg_top1_distance": 0.1585
+  },
+  "results": [
+    {
+      "id": "acc_ret_004",
+      "query": "Quy chế chi tiêu có cho phép chia nhỏ một hợp đồng mua sắm thành nhiều lần dưới 10 triệu để tự ký không?",
+      "type": "scenario_reasoning",
+      "category": "internal_expense_policy",
+      "split": "heldout",
+      "top1_distance": 0.1591271162033081,
+      "top1_chunk_id": "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+      "retrieved_ids": [
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0021",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0010",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0019",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 0,
+        "hit@10": 0
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_015",
+      "query": "Thang xếp loại đánh giá KPI và hệ số thưởng tương ứng được quy định như thế nào?",
+      "type": "table_lookup",
+      "category": "payroll_and_compensation",
+      "split": "heldout",
+      "top1_distance": 0.12660229206085205,
+      "top1_chunk_id": "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
+      "retrieved_ids": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0012",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0030",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0034",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0039",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0001",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0019"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 2,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_019",
+      "query": "Mức độ vượt ngân sách trong 3 tháng của Quý III năm 2026 cụ thể là bao nhiêu phần trăm?",
+      "type": "single_chunk",
+      "category": "financial_report",
+      "split": "heldout",
+      "top1_distance": 0.14181923866271973,
+      "top1_chunk_id": "BC-QTCP-Q3-2026_CongtyABC::0007",
+      "retrieved_ids": [
+        "BC-QTCP-Q3-2026_CongtyABC::0007",
+        "BC-QTCP-Q3-2026_CongtyABC::0010",
+        "BC-QTCP-Q3-2026_CongtyABC::0006",
+        "BC-QTCP-Q3-2026_CongtyABC::0000",
+        "BC-QTCP-Q3-2026_CongtyABC::0008",
+        "BC-QTCP-Q3-2026_CongtyABC::0004",
+        "BC-QTCP-Q3-2026_CongtyABC::0011",
+        "BC-QTCP-Q3-2026_CongtyABC::0009",
+        "BC-QTCP-Q3-2026_CongtyABC::0001",
+        "BC-QTCP-Q3-2026_CongtyABC::0003"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 1,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.4307,
+        "ndcg@10": 0.4307
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_022",
+      "query": "Nếu nhà cung cấp giao máy chủ trễ hẹn theo đơn hàng PO-2026-0810 thì bị phạt bao nhiêu % mỗi ngày?",
+      "type": "single_chunk",
+      "category": "procurement_and_purchasing",
+      "split": "heldout",
+      "top1_distance": 0.14078271389007568,
+      "top1_chunk_id": "PO-2026-0810_Don-Dat-Hang::0002",
+      "retrieved_ids": [
+        "PO-2026-0810_Don-Dat-Hang::0002",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0035",
+        "PO-2026-0810_Don-Dat-Hang::0000",
+        "PO-2026-0810_Don-Dat-Hang::0001",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0036",
+        "BC-QTCP-Q3-2026_CongtyABC::0015",
+        "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0034",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0038",
+        "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0022"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 1,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "recalls": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0
+      },
+      "ndcgs": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.4307,
+        "ndcg@10": 0.4307
+      },
+      "hits": {
+        "hit@1": 0,
+        "hit@3": 0,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_028",
+      "query": "Đề xuất thưởng đột xuất 20 triệu cho một nhóm dự án thì cần trình ai phê duyệt theo Quy chế lương và Quy chế chi tiêu?",
+      "type": "cross_document",
+      "category": "payroll_and_compensation",
+      "split": "heldout",
+      "top1_distance": 0.15517592430114746,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0016",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+        "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0023",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0034",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0020"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 3,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "recalls": {
+        "recall@1": 0.3333,
+        "recall@3": 0.3333,
+        "recall@5": 0.3333,
+        "recall@10": 0.6667
+      },
+      "ndcgs": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.4693,
+        "ndcg@5": 0.4693,
+        "ndcg@10": 0.6257
+      },
+      "hits": {
+        "hit@1": 1,
+        "hit@3": 1,
+        "hit@5": 1,
+        "hit@10": 1
+      },
+      "doc_hit": true,
+      "missed_chunks": [
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003"
+      ],
+      "is_in_scope": true
+    },
+    {
+      "id": "acc_ret_032",
+      "query": "Hạn mức công tác phí của FPT Software và Viettel quy định cho nhân viên là bao nhiêu?",
+      "type": "out_of_scope_or_personal",
+      "category": "internal_expense_policy",
+      "split": "heldout",
+      "top1_distance": 0.15851545333862305,
+      "top1_chunk_id": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+      "retrieved_ids": [
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0011",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0002",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0036",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0008",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0028",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0025",
+        "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0027",
+        "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017"
+      ],
+      "num_retrieved": 10,
+      "num_relevant": 0,
+      "hit_rank": null,
+      "reciprocal_rank": null,
+      "recalls": null,
+      "ndcgs": null,
+      "hits": null,
+      "doc_hit": null,
+      "missed_chunks": null,
+      "is_in_scope": false
+    }
+  ]
+}

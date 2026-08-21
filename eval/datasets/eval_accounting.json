@@ -1,0 +1,1207 @@
+[
+  {
+    "id": "acc_ret_001",
+    "query": "Nhân viên đi công tác trong nước thì được tạm ứng tối đa bao nhiêu tiền một lần?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0008"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0008": 1
+    },
+    "evidence_spans": [
+      "Nhân viên, Chuyên viên: tối đa 3.000.000 đồng/lần công tác. Trưởng phòng, Quản lý cửa hàng: tối đa 5.000.000 đồng/lần công tác. Giám đốc và thành viên Ban Giám đốc: tối đa 10.000.000 đồng/lần công tác."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Hạn mức tạm ứng tối đa cho Nhân viên/Chuyên viên là 3.000.000 đồng/lần công tác trong nước",
+      "Trưởng phòng/Quản lý cửa hàng tối đa 5.000.000 đồng/lần",
+      "Đi công tác nước ngoài hoặc từ 5 ngày làm việc trở lên áp dụng theo dự trù chi phí do Giám đốc duyệt"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_002",
+    "query": "Trưởng phòng hoặc Quản lý cửa hàng được quyền tự phê duyệt khoản chi tối đa là bao nhiêu?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013": 1
+    },
+    "evidence_spans": [
+      "Trưởng phòng/Trưởng bộ phận/Quản lý cửa hàng có thẩm quyền phê duyệt các khoản chi trong phạm vi ngân sách được giao có giá trị dưới 10.000.000 đồng cho một lần đề nghị."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Được duyệt khoản chi dưới 10.000.000 đồng cho một lần đề nghị",
+      "Khoản chi phải nằm trong phạm vi ngân sách đã được giao"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_003",
+    "query": "Khoản chi mua sắm từ bao nhiêu tiền trở lên thì bắt buộc phải có tối thiểu 2 báo giá so sánh?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017": 1
+    },
+    "evidence_spans": [
+      "Mọi đề nghị mua sắm tài sản phải có căn cứ nhu cầu sử dụng, báo giá tối thiểu của 02 (hai) nhà cung cấp đối với khoản chi từ 15.000.000 đồng trở lên, trừ trường hợp hàng hóa/dịch vụ độc quyền hoặc có tính đặc thù kỹ thuật."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Khoản chi từ 15.000.000 đồng trở lên bắt buộc phải có tối thiểu 02 báo giá của 2 nhà cung cấp khác nhau",
+      "Ngoại lệ: hàng hóa độc quyền hoặc có tính đặc thù kỹ thuật kèm văn bản giải trình"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_004",
+    "query": "Quy chế chi tiêu có cho phép chia nhỏ một hợp đồng mua sắm thành nhiều lần dưới 10 triệu để tự ký không?",
+    "type": "scenario_reasoning",
+    "query_style": "scenario",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0025": 1
+    },
+    "evidence_spans": [
+      "Nghiêm cấm hành vi cố ý chia nhỏ một khoản chi/giao dịch thành nhiều khoản chi nhỏ dưới hạn mức nhằm né tránh thẩm quyền phê duyệt của cấp cao hơn (tách đơn hàng/tách hợp đồng)."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Tuyệt đối nghiêm cấm chia nhỏ khoản chi nhằm né hạn mức duyệt chi của cấp trên",
+      "Vi phạm này sẽ bị xử lý kỷ luật cảnh cáo, thu hồi số tiền chi sai và bồi thường thiệt hại theo Điều 25"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_005",
+    "query": "Từ lúc nhận đủ hồ sơ thanh toán hợp lệ thì Phòng Kế toán giải ngân trong bao lâu?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0019": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0018": 1
+    },
+    "evidence_spans": [
+      "Thời hạn thanh toán: Trong vòng 03 ngày làm việc kể từ ngày nhận đủ hồ sơ đề nghị thanh toán hợp lệ đối với khoản chi dưới 15.000.000 đồng; trong vòng 05 ngày làm việc đối với khoản chi từ 15.000.000 đồng trở lên."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Khoản chi dưới 15.000.000 đồng: thanh toán trong vòng 03 ngày làm việc",
+      "Khoản chi từ 15.000.000 đồng trở lên: thanh toán trong vòng 05 ngày làm việc"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_006",
+    "query": "Đi công tác về thì sau mấy ngày phải làm thủ tục hoàn ứng, nếu quá hạn thì bị xử lý thế nào?",
+    "type": "multi_chunk",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006",
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005": 2,
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0006": 2,
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0003": 1
+    },
+    "evidence_spans": [
+      "Thời hạn hoàn ứng: Chậm nhất trong vòng 05 ngày làm việc sau khi kết thúc chuyến công tác hoặc hoàn thành công việc được giao... Trường hợp quá hạn hoàn ứng 15 ngày mà không có lý do chính đáng được Giám đốc chấp thuận bằng văn bản, Phòng Kế toán sẽ tự động thực hiện khấu trừ số tiền tạm ứng quá hạn vào lương của CBNV trong tháng đó."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01"
+    ],
+    "answer_points": [
+      "Thời hạn hoàn ứng: Chậm nhất 05 ngày làm việc sau khi kết thúc công tác/công việc",
+      "Nếu quá hạn 15 ngày không có lý do chính đáng, Kế toán tự động trừ số tiền tạm ứng vào lương tháng đó",
+      "Không giải quyết tạm ứng mới nếu còn dư nợ quá hạn trên 10 ngày làm việc"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_007",
+    "query": "Khoản tạm ứng hoặc thanh toán bao nhiêu tiền thì bắt buộc phải chuyển khoản qua ngân hàng thay vì nhận tiền mặt?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004": 2,
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0007": 1
+    },
+    "evidence_spans": [
+      "Hạn mức giải ngân bằng tiền mặt: Tối đa 20.000.000 VNĐ/lần. Các khoản tạm ứng trên 20.000.000 VNĐ bắt buộc phải giải ngân qua hình thức chuyển khoản."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01"
+    ],
+    "answer_points": [
+      "Tiền mặt: Chỉ áp dụng tối đa cho khoản chi/tạm ứng đến 20.000.000 VNĐ/lần",
+      "Trên 20.000.000 VNĐ bắt buộc phải thực hiện chuyển khoản qua tài khoản ngân hàng"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_008",
+    "query": "Hồ sơ thanh toán chi phí công tác cần những giấy tờ, chứng từ gì?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017": 1
+    },
+    "evidence_spans": [
+      "Bộ hồ sơ thanh toán bắt buộc bao gồm: 1. Giấy đề nghị thanh toán / Bảng quyết toán tạm ứng; 2. Hóa đơn GTGT điện tử (phải tra cứu được tính hợp lệ trên hệ thống của Tổng cục Thuế); 3. Cuống vé máy bay, Xác nhận phòng khách sạn, Bảng kê chi tiết các khoản chi; 4. Biên bản nghiệm thu/bàn giao (bắt buộc nếu là chi phí mua sắm hàng hóa/dịch vụ)."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01"
+    ],
+    "answer_points": [
+      "Giấy đề nghị thanh toán / Bảng quyết toán tạm ứng",
+      "Hóa đơn GTGT điện tử hợp lệ tra cứu được trên Tổng cục Thuế",
+      "Cuống vé máy bay, xác nhận phòng khách sạn, bảng kê chi tiết công tác"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_009",
+    "query": "Khi quyết toán hoàn ứng mà tiền thực tế chi ít hơn hoặc nhiều hơn tiền tạm ứng thì xử lý trong mấy ngày?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005": 2
+    },
+    "evidence_spans": [
+      "Trường hợp chi thừa (Số tiền tạm ứng > Số tiền thực chi): CBNV phải nộp lại tiền thừa vào quỹ công ty trong vòng 02 ngày làm việc. Trường hợp chi thiếu (Số tiền tạm ứng < Số tiền thực chi): Phòng Kế toán có trách nhiệm thanh toán bổ sung phần thiếu cho CBNV trong vòng 03 ngày làm việc."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01"
+    ],
+    "answer_points": [
+      "Thừa tiền (chi ít hơn tạm ứng): Nhân viên nộp lại tiền thừa vào quỹ trong vòng 02 ngày làm việc",
+      "Thiếu tiền (chi nhiều hơn tạm ứng): Phòng Kế toán thanh toán bổ sung cho nhân viên trong vòng 03 ngày làm việc"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_010",
+    "query": "Quy trình mua sắm hàng hóa và lựa chọn nhà cung cấp gồm những bước nào?",
+    "type": "multi_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0001"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0001",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020"
+    ],
+    "qrels": {
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0001": 2,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0014": 1,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020": 1
+    },
+    "evidence_spans": [
+      "CHƯƠNG III: QUY TRÌNH THỰC HIỆN MUA SẮM: Điều 8. Bước 1 – Tiếp nhận & Kiểm tra PR; Điều 9. Bước 2 – Khảo sát Báo giá (RFQ); Điều 10. Bước 3 – Lập Bảng CBA & Lựa chọn NCC; Điều 11. Bước 4 – Phê duyệt PO/Hợp đồng; Điều 12. Bước 5 – Theo dõi giao hàng & Nghiệm thu; Điều 13. Bước 6 – Chuyển giao hồ sơ Kế toán."
+    ],
+    "source_files": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC.pdf"
+    ],
+    "document_codes": [
+      "SOP-MS-01"
+    ],
+    "answer_points": [
+      "Bước 1: Tiếp nhận và kiểm tra Phiếu yêu cầu mua hàng (PR)",
+      "Bước 2: Khảo sát và thu thập báo giá (RFQ, ưu tiên AVL)",
+      "Bước 3: Lập bảng so sánh báo giá (CBA) và chọn NCC",
+      "Bước 4: Trình phê duyệt Đơn đặt hàng (PO) hoặc Hợp đồng",
+      "Bước 5: Theo dõi giao hàng, kiểm định và nghiệm thu bàn giao",
+      "Bước 6: Chuyển giao bộ hồ sơ chứng từ sang Phòng Kế toán thanh toán"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_011",
+    "query": "Trường hợp nào được áp dụng mua sắm khẩn cấp và sau bao lâu phải bổ sung đầy đủ hồ sơ?",
+    "type": "multi_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029"
+    ],
+    "qrels": {
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0027": 2,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0028": 2,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0029": 1
+    },
+    "evidence_spans": [
+      "Điều kiện áp dụng: Sự cố bất khả kháng, hỏng hóc thiết bị đột xuất làm gián đoạn trực tiếp hoạt động kinh doanh (hỏng máy chủ, đứt kết nối POS, sự cố điện nước)... Trong vòng 48 giờ làm việc kể từ thời điểm phát sinh mua sắm khẩn cấp, bộ phận đề xuất phải hoàn thiện và bổ sung đầy đủ hồ sơ PR, PO, Hóa đơn GTGT và Biên bản bàn giao gửi Phòng Kế toán."
+    ],
+    "source_files": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC.pdf"
+    ],
+    "document_codes": [
+      "SOP-MS-01"
+    ],
+    "answer_points": [
+      "Điều kiện: Sự cố đột xuất, gián đoạn trực tiếp hoạt động bán hàng/hạ tầng IT (hỏng máy chủ, POS, điện nước)",
+      "Thời hạn hoàn tất bổ sung hồ sơ: Trong vòng 48 giờ làm việc"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_012",
+    "query": "AVL trong mua sắm là viết tắt của từ gì và có nguyên tắc ưu tiên như thế nào?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0008"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0008",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017"
+    ],
+    "qrels": {
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0008": 2,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0017": 2
+    },
+    "evidence_spans": [
+      "AVL: Approved Vendor List – Danh sách các NCC đã qua đánh giá và được Trưởng phòng CU&MH phê duyệt... Nhân viên mua hàng ưu tiên gửi RFQ đến NCC đã có trong AVL trước khi tìm kiếm NCC mới, nhằm tận dụng mối quan hệ đã được kiểm chứng và điều khoản ưu đãi hiện hành."
+    ],
+    "source_files": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC.pdf"
+    ],
+    "document_codes": [
+      "SOP-MS-01"
+    ],
+    "answer_points": [
+      "AVL viết tắt của Approved Vendor List (Danh sách nhà cung cấp được duyệt)",
+      "Bắt buộc ưu tiên gửi yêu cầu báo giá cho nhà cung cấp trong AVL trước khi tìm NCC mới bên ngoài"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_013",
+    "query": "Lương hàng tháng của công ty được chi trả vào ngày nào và qua hình thức nào?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0019"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0008": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0019": 1
+    },
+    "evidence_spans": [
+      "Lương hàng tháng được trả vào ngày 10 của tháng kế tiếp (ví dụ: lương tháng 8 trả vào ngày 10/09). Nếu ngày 10 trùng ngày nghỉ lễ/cuối tuần, trả vào ngày làm việc liền trước đó. Hình thức thanh toán: Chuyển khoản ngân hàng đến tài khoản cá nhân... Không áp dụng thanh toán tiền mặt lương hàng tháng."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01"
+    ],
+    "answer_points": [
+      "Ngày trả lương: Ngày 10 của tháng kế tiếp (nếu trùng ngày nghỉ/lễ thì trả vào ngày làm việc liền trước)",
+      "Hình thức: Chuyển khoản 100% qua tài khoản ngân hàng cá nhân đăng ký với HR"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_014",
+    "query": "Tỷ lệ trích đóng bảo hiểm xã hội, y tế, thất nghiệp của người lao động và công ty là bao nhiêu %?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0005"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0005",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0020"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0005": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0020": 1
+    },
+    "evidence_spans": [
+      "Tỷ lệ trích nộp BHXH, BHYT, BHTN theo quy định hiện hành: Người lao động đóng 10,5% (BHXH 8% + BHYT 1,5% + BHTN 1%) trên lương hợp đồng; Công ty đóng 21,5% (BHXH 17,5% + BHYT 3% + BHTN 1%) trên lương hợp đồng."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01"
+    ],
+    "answer_points": [
+      "Người lao động đóng 10,5% (BHXH 8%, BHYT 1,5%, BHTN 1%)",
+      "Công ty đóng 21,5% (BHXH 17,5%, BHYT 3%, BHTN 1%)",
+      "Tổng mức đóng là 32% trên mức lương hợp đồng"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_015",
+    "query": "Thang xếp loại đánh giá KPI và hệ số thưởng tương ứng được quy định như thế nào?",
+    "type": "table_lookup",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0011": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010": 1
+    },
+    "evidence_spans": [
+      "Thang đánh giá KPI: Hạng A (Xuất sắc: ≥ 100% mục tiêu, Hệ số thưởng: 1.2 – 1.5); Hạng B (Đạt yêu cầu: 85% – 99%, Hệ số thưởng: 1.0); Hạng C (Cần cải thiện: 70% – 84%, Hệ số thưởng: 0.5 – 0.7); Hạng D (Không đạt: < 70%, Không có thưởng KPI)."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01"
+    ],
+    "answer_points": [
+      "Loại A (≥ 100% KPI): Hệ số 1.2 – 1.5",
+      "Loại B (85% – 99% KPI): Hệ số 1.0",
+      "Loại C (70% – 84% KPI): Hệ số 0.5 – 0.7",
+      "Loại D (< 70% KPI): Hệ số 0 (không thưởng)"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_016",
+    "query": "Khối Văn phòng và Khối Cửa hàng được đánh giá và chi trả thưởng KPI theo tháng hay theo quý?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0012"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0010": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0012": 1
+    },
+    "evidence_spans": [
+      "Thưởng KPI được tính và thanh toán hàng tháng (đánh giá tháng) hoặc hàng quý (đánh giá quý) tùy theo vị trí. Khối Văn phòng đánh giá theo quý; Khối Cửa hàng đánh giá theo tháng."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01"
+    ],
+    "answer_points": [
+      "Khối Văn phòng: Đánh giá và thanh toán thưởng KPI theo Quý",
+      "Khối Cửa hàng: Đánh giá và thanh toán thưởng KPI theo Tháng"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_017",
+    "query": "Theo báo cáo quản trị chi phí Q3/2026, những nguyên nhân chính nào làm chi phí thực tế vượt ngân sách?",
+    "type": "multi_chunk",
+    "query_style": "natural",
+    "category": "financial_report",
+    "seed_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0000"
+    ],
+    "relevant_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0000",
+      "BC-QTCP-Q3-2026_CongtyABC::0001",
+      "BC-QTCP-Q3-2026_CongtyABC::0002"
+    ],
+    "qrels": {
+      "BC-QTCP-Q3-2026_CongtyABC::0000": 2,
+      "BC-QTCP-Q3-2026_CongtyABC::0001": 2,
+      "BC-QTCP-Q3-2026_CongtyABC::0002": 1
+    },
+    "evidence_spans": [
+      "🔴 NGUYÊN NHÂN 1: Chi phí Nhân sự tăng ngoài kế hoạch (+75.000.000 VNĐ, chiếm 50% tổng vượt)... 🔴 NGUYÊN NHÂN 2: Chi phí Marketing bùng phát do 02 chiến dịch Flash Sale ngoài kế hoạch (+48.000.000 VNĐ, 32% tổng vượt)... 🟡 NGUYÊN NHÂN 3: Mua hàng & Hàng tồn kho tăng do biến động giá đầu vào (+32.000.000 VNĐ, 21,3% tổng vượt)."
+    ],
+    "source_files": [
+      "BC-QTCP-Q3-2026_CongtyABC.docx"
+    ],
+    "document_codes": [
+      "BC-QTCP-Q3-2026"
+    ],
+    "answer_points": [
+      "Chi phí nhân sự tăng ngoài kế hoạch (+75 triệu VNĐ - 50%): Thưởng KPI Q2 chi đầu T7, tăng lương giữa kỳ 7 nhân sự, tuyển dụng 3 nhân sự",
+      "Chi phí Marketing bùng phát (+48 triệu VNĐ - 32%): 2 chiến dịch Flash Sale 2/9 ngoài kế hoạch và vi phạm tách đơn",
+      "Chi phí mua hàng tồn kho (+32 triệu VNĐ - 21.3%): Giá nhập tăng 8-12% và nhập thêm hàng dự trữ"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_018",
+    "query": "Phòng Kế toán đưa ra những đề xuất hành động nào để siết chặt kiểm soát chi tiêu trong quý tới?",
+    "type": "multi_chunk",
+    "query_style": "natural",
+    "category": "financial_report",
+    "seed_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0003"
+    ],
+    "relevant_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0003",
+      "BC-QTCP-Q3-2026_CongtyABC::0004"
+    ],
+    "qrels": {
+      "BC-QTCP-Q3-2026_CongtyABC::0003": 2,
+      "BC-QTCP-Q3-2026_CongtyABC::0004": 2
+    },
+    "evidence_spans": [
+      "🔴 ĐỀ XUẤT 1: Chấn chỉnh ngay vi phạm tách khoản chi (Mức độ: KHẨN CẤP, hạn 15/09/2026)... 🔴 ĐỀ XUẤT 2: Siết chặt quy trình báo giá và phê duyệt chi Marketing (Mức độ: CAO, hạn 01/10/2026, bắt buộc CBA từ 10tr)... 🟡 ĐỀ XUẤT 3: Tích hợp Ngân sách động (Rolling Forecast từ 10/2026)... 🟢 ĐỀ XUẤT 4: Thiết lập Hệ thống Cảnh báo Chi phí sớm (ngưỡng 80% ngân sách tháng)."
+    ],
+    "source_files": [
+      "BC-QTCP-Q3-2026_CongtyABC.docx"
+    ],
+    "document_codes": [
+      "BC-QTCP-Q3-2026"
+    ],
+    "answer_points": [
+      "Đề xuất 1: Xử lý vi phạm tách khoản chi Marketing né hạn mức (Hạn 15/09/2026)",
+      "Đề xuất 2: Bắt buộc nộp bảng CBA cho chi phí Marketing từ 10 triệu đồng trở lên (Hạn 01/10/2026)",
+      "Đề xuất 3: Áp dụng ngân sách động Rolling Forecast cập nhật biến động nhân sự hàng tháng",
+      "Đề xuất 4: Cài đặt hệ thống cảnh báo sớm khi chi phí đạt ngưỡng 80% ngân sách tháng"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_019",
+    "query": "Mức độ vượt ngân sách trong 3 tháng của Quý III năm 2026 cụ thể là bao nhiêu phần trăm?",
+    "type": "single_chunk",
+    "query_style": "keyword",
+    "category": "financial_report",
+    "seed_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0000"
+    ],
+    "relevant_chunk_ids": [
+      "BC-QTCP-Q3-2026_CongtyABC::0000"
+    ],
+    "qrels": {
+      "BC-QTCP-Q3-2026_CongtyABC::0000": 2
+    },
+    "evidence_spans": [
+      "Nhận xét: Xu hướng chi tiêu leo thang rõ rệt qua 3 tháng – Tháng 7 vượt 4,62%, Tháng 8 vượt 5,97% và Tháng 9 bùng phát lên 11,76%."
+    ],
+    "source_files": [
+      "BC-QTCP-Q3-2026_CongtyABC.docx"
+    ],
+    "document_codes": [
+      "BC-QTCP-Q3-2026"
+    ],
+    "answer_points": [
+      "Tháng 7 vượt 4,62%",
+      "Tháng 8 vượt 5,97%",
+      "Tháng 9 vượt 11,76%"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_020",
+    "query": "Phiếu đề nghị mua hàng PR-2026-0801 đề xuất mua thiết bị gì, cấu hình thế nào và tổng tiền dự toán là bao nhiêu?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003"
+    ],
+    "relevant_chunk_ids": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003",
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0002"
+    ],
+    "qrels": {
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003": 2,
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0002": 1
+    },
+    "evidence_spans": [
+      "Máy chủ Dell PowerEdge R750 (2× Xeon Gold 5318Y, RAM 128GB DDR4 ECC, 2× SSD 960GB, iDRAC9 Enterprise, PSU 1100W dự phòng): 85.000.000 VNĐ. Dịch vụ cài đặt & lắp rack: 5.000.000 VNĐ. Tiền trước thuế: 90.000.000 VNĐ, VAT 10%: 9.000.000 VNĐ. Tổng cộng đề nghị chi: 99.000.000 VNĐ."
+    ],
+    "source_files": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2.pdf"
+    ],
+    "document_codes": [
+      "PR-2026-0801"
+    ],
+    "answer_points": [
+      "Thiết bị: Máy chủ Dell PowerEdge R750 (2x Xeon Gold 5318Y, 128GB RAM ECC, 2x SSD 960GB, nguồn đôi 1100W) giá 85tr",
+      "Dịch vụ: Lắp rack & cài đặt OS giá 5tr",
+      "Tổng tiền thanh toán gồm VAT 10% là 99.000.000 VNĐ"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_021",
+    "query": "Đơn đặt hàng PO-2026-0810 quy định thời hạn giao hàng và thời hạn thanh toán như thế nào?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "PO-2026-0810_Don-Dat-Hang::0001"
+    ],
+    "relevant_chunk_ids": [
+      "PO-2026-0810_Don-Dat-Hang::0001",
+      "PO-2026-0810_Don-Dat-Hang::0000"
+    ],
+    "qrels": {
+      "PO-2026-0810_Don-Dat-Hang::0001": 2,
+      "PO-2026-0810_Don-Dat-Hang::0000": 1
+    },
+    "evidence_spans": [
+      "Hạn giao: Trước 17:00 ngày 19/08/2026 tại Tầng 5, Tòa nhà Innovation, Q.1, TP.HCM (Điều kiện DAP). Thời hạn TT: Tối đa 5 ngày làm việc kể từ ngày ký biên bản bàn giao và nhận đủ hóa đơn hợp lệ. Hình thức: Chuyển khoản 100% vào tài khoản MBBank số 1900123456789."
+    ],
+    "source_files": [
+      "PO-2026-0810_Don-Dat-Hang.pdf"
+    ],
+    "document_codes": [
+      "PO-2026-0810"
+    ],
+    "answer_points": [
+      "Thời hạn giao hàng: Trước 17:00 ngày 19/08/2026 tại Tầng 5, Tòa nhà Innovation, Q.1, TP.HCM",
+      "Thời hạn thanh toán: Tối đa 05 ngày làm việc kể từ ngày ký biên bản bàn giao và nhận đủ hóa đơn hợp lệ",
+      "Hình thức chuyển khoản ngân hàng 100%"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_022",
+    "query": "Nếu nhà cung cấp giao máy chủ trễ hẹn theo đơn hàng PO-2026-0810 thì bị phạt bao nhiêu % mỗi ngày?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "PO-2026-0810_Don-Dat-Hang::0001"
+    ],
+    "relevant_chunk_ids": [
+      "PO-2026-0810_Don-Dat-Hang::0001"
+    ],
+    "qrels": {
+      "PO-2026-0810_Don-Dat-Hang::0001": 2
+    },
+    "evidence_spans": [
+      "Giao trễ so với hạn tại mục trên bị phạt 0,05%/ngày trên giá trị PO, tối đa 8%. PO có giá trị tương đương hợp đồng mua bán theo Luật Thương mại 2005."
+    ],
+    "source_files": [
+      "PO-2026-0810_Don-Dat-Hang.pdf"
+    ],
+    "document_codes": [
+      "PO-2026-0810"
+    ],
+    "answer_points": [
+      "Phạt 0,05%/ngày tính trên tổng giá trị PO",
+      "Mức phạt tối đa không quá 8% giá trị đơn hàng"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_023",
+    "query": "Hóa đơn điện tử số 00000089 ngày 19/08/2026 xuất cho đơn vị nào, mã số thuế và số tiền thanh toán là bao nhiêu?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000"
+    ],
+    "relevant_chunk_ids": [
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000",
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0001"
+    ],
+    "qrels": {
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000": 2,
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0001": 1
+    },
+    "evidence_spans": [
+      "Đơn vị bán: CÔNG TY TNHH THIẾT BỊ CÔNG NGHỆ ABC (MST: 0101234567)... Tên đơn vị mua: CÔNG TY CỔ PHẦN GIẢI PHÁP AI (MST: 0309876543)... Tổng cộng tiền thanh toán: 99.000.000 VNĐ (Bằng chữ: Chín mươi chín triệu đồng chẵn)."
+    ],
+    "source_files": [
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang.png"
+    ],
+    "document_codes": [
+      "HDDT-00000089"
+    ],
+    "answer_points": [
+      "Bên mua: Công ty Cổ phần Giải pháp AI (MST: 0309876543)",
+      "Bên bán: Công ty TNHH Thiết bị Công nghệ ABC (MST: 0101234567)",
+      "Tổng tiền thanh toán: 99.000.000 VNĐ (đã gồm 9.000.000 VNĐ tiền thuế GTGT 10%)"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_024",
+    "query": "Kiểm tra đối chiếu giá trị tiền hàng và thuế GTGT của máy chủ Dell R750 giữa Phiếu đề nghị mua PR-2026-0801, Đơn đặt hàng PO-2026-0810 và Hóa đơn số 00000089.",
+    "type": "cross_document",
+    "query_style": "scenario",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003",
+      "PO-2026-0810_Don-Dat-Hang::0000",
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000"
+    ],
+    "relevant_chunk_ids": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003",
+      "PO-2026-0810_Don-Dat-Hang::0000",
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000"
+    ],
+    "qrels": {
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2::0003": 2,
+      "PO-2026-0810_Don-Dat-Hang::0000": 2,
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang::0000": 2
+    },
+    "evidence_spans": [
+      "PR-2026-0801: Máy chủ 85tr + Rack 5tr = 90tr + VAT 9tr = 99tr. PO-2026-0810: Cộng tiền hàng 90tr + VAT 10% 9tr = 99tr. Hóa đơn 00000089: Tiền hàng 90tr + VAT 9tr = 99tr."
+    ],
+    "source_files": [
+      "PR-2026-0801_Phieu-De-Nghi-Mua-Hang_v2.pdf",
+      "PO-2026-0810_Don-Dat-Hang.pdf",
+      "HDDT-GTGT-00000089_Hoa-Don-Gia-Tri-Gia-Tang.png"
+    ],
+    "document_codes": [
+      "PR-2026-0801",
+      "PO-2026-0810",
+      "HDDT-00000089"
+    ],
+    "answer_points": [
+      "Cả 3 chứng từ đều khớp 100% về mặt số liệu: Tiền hàng trước thuế 90.000.000 VNĐ, thuế VAT 9.000.000 VNĐ, tổng thanh toán 99.000.000 VNĐ",
+      "Nhà cung cấp là Công ty TNHH Thiết bị Công nghệ ABC"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 3,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_025",
+    "query": "Theo Biên bản giao nhận TSCĐ số BBGN-01/2026, hệ thống máy POS tại Cửa hàng Cầu Giấy có nguyên giá bao nhiêu và kèm theo phụ tùng gì?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "fixed_assets_management",
+    "seed_chunk_ids": [
+      "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000"
+    ],
+    "relevant_chunk_ids": [
+      "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000"
+    ],
+    "qrels": {
+      "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD::0000": 2
+    },
+    "evidence_spans": [
+      "Hệ thống Máy POS bán hàng 2 màn hình cảm ứng (Mã: POS-2026-01): Giá mua 30.000.000, Chi phí vận chuyển 2.000.000, Chi phí chạy thử 1.000.000, Nguyên giá TSCĐ: 33.000.000 VNĐ. Phụ tùng kèm theo: 01 Đầu đọc quét mã vạch Honeywell 2D (giá trị 2.500.000 VNĐ)."
+    ],
+    "source_files": [
+      "BBGN-01-2026_Bien-Ban-Giao-Nhan-TSCD.jpg"
+    ],
+    "document_codes": [
+      "BBGN-01/2026"
+    ],
+    "answer_points": [
+      "Nguyên giá TSCĐ: 33.000.000 VNĐ (gồm giá mua 30tr + vận chuyển 2tr + chạy thử 1tr)",
+      "Phụ tùng đi kèm: 01 Đầu đọc quét mã vạch Honeywell 2D trị giá 2.500.000 VNĐ"
+    ],
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_026",
+    "query": "Giấy đề nghị thanh toán tạm ứng ĐNTT-2026/08-015 do ai lập, thanh toán nội dung gì và số tiền chi bổ sung là bao nhiêu?",
+    "type": "single_chunk",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000"
+    ],
+    "relevant_chunk_ids": [
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000",
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002",
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0004"
+    ],
+    "qrels": {
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0000": 2,
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0002": 2,
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan::0004": 1
+    },
+    "evidence_spans": [
+      "Người thanh toán: Trần Thị C (Quản lý Cửa hàng Cầu Giấy)... Nội dung: Túi ni-lông thương hiệu và vật tư đóng gói đơn hàng online đợt 1 - T08/2026 theo Hóa đơn C26TAA số 00000152. Số tiền đề nghị thanh toán: 4.850.000 VNĐ. Số thiếu đề nghị chi bổ sung: 4.850.000 VNĐ."
+    ],
+    "source_files": [
+      "DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan.png"
+    ],
+    "document_codes": [
+      "ĐNTT-2026/08-015"
+    ],
+    "answer_points": [
+      "Người lập: Trần Thị C – Quản lý Cửa hàng Bán lẻ Cầu Giấy (CH-CG)",
+      "Nội dung: Mua túi ni-lông thương hiệu và vật tư đóng gói online đợt 1 tháng 8/2026",
+      "Số tiền chi bổ sung: 4.850.000 VNĐ chuyển khoản qua MB Bank"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_027",
+    "query": "Khi mua sắm một gói thiết bị 25 triệu VNĐ, Trưởng phòng cần làm thủ tục gì theo SOP-MS-01 và ai là người có thẩm quyền phê duyệt theo QĐ 13?",
+    "type": "cross_document",
+    "query_style": "scenario",
+    "category": "procurement_and_purchasing",
+    "seed_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018",
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007"
+    ],
+    "qrels": {
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0018": 2,
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC::0020": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0007": 1
+    },
+    "evidence_spans": [
+      "Mua sắm từ 15tr trở lên bắt buộc tối thiểu 2 báo giá và lập bảng so sánh CBA (SOP-MS-01 Điều 9, 10). Khoản chi từ 15tr trở lên vượt hạn mức Trưởng phòng (<10tr) nên bắt buộc trình Giám đốc phê duyệt (QĐ 13 Điều 15)."
+    ],
+    "source_files": [
+      "SOP-MS-01_Quy-Trinh-Mua-Sam-Va-Lua-Chon-NCC.pdf",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "SOP-MS-01",
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Thủ tục: Khảo sát tối thiểu 02 báo giá cạnh tranh, lập Bảng so sánh báo giá (CBA-02) và Đơn đặt hàng (PO)",
+      "Thẩm quyền duyệt: Giám đốc Công ty phê duyệt (vì vượt hạn mức 10 triệu của Trưởng phòng và >= 15 triệu)"
+    ],
+    "num_relevant": 4,
+    "num_highly_relevant": 3,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_028",
+    "query": "Đề xuất thưởng đột xuất 20 triệu cho một nhóm dự án thì cần trình ai phê duyệt theo Quy chế lương và Quy chế chi tiêu?",
+    "type": "cross_document",
+    "query_style": "scenario",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0017": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015": 2
+    },
+    "evidence_spans": [
+      "Các khoản thưởng đột xuất từ 15.000.000 VNĐ/lần phải được Giám đốc phê duyệt theo QĐ 13/QĐ-ABC (QC-LTK-01 Điều 3.5)."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01",
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Thưởng đột xuất từ 15.000.000 VNĐ trở lên bắt buộc phải do Giám đốc Công ty phê duyệt",
+      "Phải có tờ trình nêu rõ thành tích/sáng kiến đóng góp thực tế và nằm trong ngân sách nhân sự"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 3,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_029",
+    "query": "Em muốn làm thủ tục tạm ứng thì làm thế nào?",
+    "type": "ambiguous",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0004": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0010": 1
+    },
+    "evidence_spans": [
+      "Bước 1: Lập Giấy đề nghị tạm ứng nêu rõ mục đích, số tiền và ngày hoàn ứng dự kiến. Tạm ứng công tác phí áp dụng Điều 10 QĐ 13; tạm ứng mua sắm chi phí áp dụng SOP-TCKT-01."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01",
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Agent nhận diện intent ambiguous và đặt câu hỏi làm rõ: Bạn muốn tạm ứng công tác phí hay tạm ứng mua sắm vật tư/hàng hóa?"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_030",
+    "query": "Hạn mức duyệt chi là bao nhiêu?",
+    "type": "ambiguous",
+    "query_style": "keyword",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013"
+    ],
+    "relevant_chunk_ids": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015"
+    ],
+    "qrels": {
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0013": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0014": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0015": 2
+    },
+    "evidence_spans": [
+      "Trưởng phòng duyệt dưới 10 triệu; Kế toán trưởng kiểm soát và duyệt 10-50 triệu; Giám đốc duyệt trên 50 triệu và mọi khoản ngoài ngân sách."
+    ],
+    "source_files": [
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Agent nhận diện intent ambiguous và đặt câu hỏi làm rõ cấp bậc quản lý cần tra cứu"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 3,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_031",
+    "query": "Tháng này tôi còn nợ tạm ứng công ty bao nhiêu tiền chưa hoàn ứng?",
+    "type": "out_of_scope_or_personal",
+    "query_style": "natural",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [],
+    "relevant_chunk_ids": [],
+    "qrels": {},
+    "evidence_spans": [
+      "Dữ liệu công nợ tạm ứng cá nhân thời gian thực thuộc hệ thống ERP/Sổ cái Kế toán sống, ngoài phạm vi tài liệu chính sách tĩnh."
+    ],
+    "source_files": [],
+    "document_codes": [],
+    "answer_points": [
+      "Phân loại intent out_of_scope_or_personal, trả trạng thái ABSTAIN (requires_live_personal_data)",
+      "Đề xuất tạo ticket chuyển tiếp Phòng Kế toán kiểm tra số dư sổ sách"
+    ],
+    "num_relevant": 0,
+    "num_highly_relevant": 0,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_032",
+    "query": "Hạn mức công tác phí của FPT Software và Viettel quy định cho nhân viên là bao nhiêu?",
+    "type": "out_of_scope_or_personal",
+    "query_style": "natural",
+    "category": "internal_expense_policy",
+    "seed_chunk_ids": [],
+    "relevant_chunk_ids": [],
+    "qrels": {},
+    "evidence_spans": [
+      "Chính sách nội bộ của doanh nghiệp ngoài không thuộc phạm vi hỗ trợ."
+    ],
+    "source_files": [],
+    "document_codes": [],
+    "answer_points": [
+      "Phân loại intent out_of_scope_or_personal (Brand Guard), từ chối lịch sự và không tạo ticket",
+      "Khẳng định chỉ hỗ trợ chính sách nội bộ Công ty TNHH ABC"
+    ],
+    "num_relevant": 0,
+    "num_highly_relevant": 0,
+    "split": "heldout"
+  },
+  {
+    "id": "acc_ret_033",
+    "query": "Công ty có chính sách hỗ trợ vay mua xe ô tô cho nhân viên thâm niên trên 3 năm không?",
+    "type": "edge_case_and_unanswerable",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [],
+    "relevant_chunk_ids": [],
+    "qrels": {},
+    "evidence_spans": [
+      "Trong các quy chế hiện hành (13/QĐ-ABC, QC-LTK-01) không có quy định chính sách hỗ trợ vay mua xe ô tô."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01",
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Mô hình phát marker [KHÔNG_ĐỦ_THÔNG_TIN], không tự bịa đặt chính sách",
+      "Hướng dẫn nhân viên liên hệ Ban Giám đốc nếu có đề xuất đặc thù"
+    ],
+    "num_relevant": 0,
+    "num_highly_relevant": 0,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_034",
+    "query": "Cho tôi biết mức lương cụ thể của Trưởng phòng Marketing và Trưởng phòng IT tháng trước là bao nhiêu?",
+    "type": "out_of_scope_or_personal",
+    "query_style": "natural",
+    "category": "payroll_and_compensation",
+    "seed_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003"
+    ],
+    "relevant_chunk_ids": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003",
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0021"
+    ],
+    "qrels": {
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0003": 2,
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong::0021": 2
+    },
+    "evidence_spans": [
+      "Nguyên tắc Bảo mật: Thông tin thu nhập cá nhân là bí mật nội bộ. Nghiêm cấm tiết lộ thông tin lương của người khác dưới bất kỳ hình thức nào (xử lý kỷ luật theo Điều 30)."
+    ],
+    "source_files": [
+      "QC-LTK-01_Quy-che-Luong-Thuong-KPI-HoaHong.docx"
+    ],
+    "document_codes": [
+      "QC-LTK-01"
+    ],
+    "answer_points": [
+      "Từ chối cung cấp vì thông tin lương của cá nhân khác là bí mật nội bộ được bảo vệ nghiêm ngặt"
+    ],
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  },
+  {
+    "id": "acc_ret_035",
+    "query": "Nếu nhà cung cấp xuất hóa đơn giấy viết tay hoặc hóa đơn điện tử không tra cứu được trên trang web Tổng cục Thuế thì Kế toán có thanh toán không?",
+    "type": "scenario_reasoning",
+    "query_style": "scenario",
+    "category": "advance_and_payment_sop",
+    "seed_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005"
+    ],
+    "relevant_chunk_ids": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017"
+    ],
+    "qrels": {
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan::0005": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0004": 2,
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi::0017": 1
+    },
+    "evidence_spans": [
+      "Hóa đơn GTGT điện tử (phải tra cứu được tính hợp lệ trên hệ thống của Tổng cục Thuế)... Khoản chi thiếu chứng từ hợp lệ phải bị từ chối thanh toán hoặc chuyển xử lý ngoại lệ theo Điều 16."
+    ],
+    "source_files": [
+      "SOP-TCKT-01_Quy-Trinh-Tam-Ung-Va-Thanh-Toan.pdf",
+      "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx"
+    ],
+    "document_codes": [
+      "SOP-TCKT-01",
+      "13/QĐ-ABC"
+    ],
+    "answer_points": [
+      "Phòng Kế toán kiên quyết từ chối thanh toán đối với hóa đơn không hợp lệ hoặc không tra cứu được trên hệ thống Tổng cục Thuế",
+      "Bắt buộc yêu cầu nhà cung cấp xuất lại hóa đơn điện tử hợp pháp trước khi giải ngân"
+    ],
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
+    "split": "dev"
+  }
+]
