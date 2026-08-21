@@ -146,11 +146,17 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
-    access_category: str = "COMPANY_POLICY"  # COMPANY_POLICY | DEPARTMENT | LEGAL | EXTERNAL_REFERENCE | NEEDS_REVIEW
-    document_domain: str = "INTERNAL_POLICY"  # LEGAL | INTERNAL_POLICY | INTERNAL_SOP | EXTERNAL_REFERENCE | CONFIG
+    document_domain: str = "COMPANY_POLICY"  # COMPANY_POLICY | LEGAL | DEPARTMENT_PROCESS | MANAGEMENT_DECISION | MEETING_MINUTES | EXTERNAL_REFERENCE | OTHER
+    related_departments: str = "[]"  # Semantic business relevance recommendation only (KHÔNG cấp quyền)
+    access_scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT | ROLE | RESTRICTED | PENDING_REVIEW | CUSTOM
+    authorized_departments: str = "[]"  # Danh sách phòng ban được cấp quyền thực tế
+    authorized_roles: str = "[]"  # Danh sách vai trò được cấp quyền thực tế
+    authorization_source: str = "BUSINESS_POLICY"  # OFFICIAL_COMPANY_ISSUANCE | DEPARTMENT_SOP_POLICY | PENDING_BUSINESS_DECISION | EXTERNAL_REFERENCE_DEFAULT_RESTRICTED | SYSTEM_INTERNAL
+    classification_source: str = "DETERMINISTIC_AUDIT"  # DETERMINISTIC_AUDIT | LLM_RECOMMENDATION | SYSTEM_CONFIG
     department: str = "GENERAL"
-    related_departments: str = "[]"
-    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    sensitivity: str = "INTERNAL"  # PUBLIC | INTERNAL | CONFIDENTIAL | RESTRICTED
+    scope: str = "COMPANY_WIDE"  # Legacy compat
+    access_category: str = "COMPANY_POLICY"  # Legacy compat
     issuer: str = ""
     document_type: str = ""
     classification_confidence: str = "1.00"
@@ -166,9 +172,7 @@ class RegistryRow(BaseModel):
     caveat: str = ""
     authority: Authority
     provenance: Provenance
-    # "" = tài liệu không thuộc doanh nghiệp nào (luật, template, tham khảo).
     tenant: str = ""
-    # Lifecycle (xem block comment ở PublicationStatus/ArtifactState phía trên).
     publication_status: str = DEFAULT_PUBLICATION_STATUS
     artifact_state: str = DEFAULT_ARTIFACT_STATE
     retrieval_enabled: bool = True
@@ -180,11 +184,17 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
-    access_category: str = "COMPANY_POLICY"  # COMPANY_POLICY | DEPARTMENT | LEGAL | EXTERNAL_REFERENCE | NEEDS_REVIEW
-    document_domain: str = "INTERNAL_POLICY"  # LEGAL | INTERNAL_POLICY | INTERNAL_SOP | EXTERNAL_REFERENCE | CONFIG
+    document_domain: str = "COMPANY_POLICY"  # COMPANY_POLICY | LEGAL | DEPARTMENT_PROCESS | MANAGEMENT_DECISION | MEETING_MINUTES | EXTERNAL_REFERENCE | OTHER
+    related_departments: str = "[]"  # Semantic relevance only
+    access_scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT | ROLE | RESTRICTED | PENDING_REVIEW | CUSTOM
+    authorized_departments: str = "[]"  # Authorized departments
+    authorized_roles: str = "[]"  # Authorized roles
+    authorization_source: str = "BUSINESS_POLICY"
+    classification_source: str = "DETERMINISTIC_AUDIT"
     department: str = "GENERAL"
-    related_departments: str = "[]"
-    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    sensitivity: str = "INTERNAL"
+    access_category: str = "COMPANY_POLICY"  # Legacy compat
+    scope: str = "COMPANY_WIDE"  # Legacy compat
     issuer: str = ""
     document_type: str = ""
     category: str
@@ -200,6 +210,7 @@ class ChunkMetadata(BaseModel):
     expiry_date: str = NO_EXPIRY_SENTINEL
     effective_date_ymd: int = 1
     expiry_date_ymd: int = 99991231
+
 
     caveat: str = ""
     heading_path: str = ""
@@ -225,8 +236,8 @@ class ChunkMetadata(BaseModel):
         CHROMA_ALLOWED_KEYS = {
             "source_file",
             "title",
-            "access_category",
             "document_domain",
+            "access_scope",
             "department",
             "category",
             "source_type",
@@ -247,6 +258,7 @@ class ChunkMetadata(BaseModel):
             "sheet_end",
         }
         return {k: v for k, v in self.model_dump().items() if k in CHROMA_ALLOWED_KEYS and v is not None}
+
 
 
 
@@ -295,14 +307,28 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
             doc_type = (row.get("document_type") or "").strip()
             conf = (row.get("classification_confidence") or "").strip() or "1.00"
             status = (row.get("classification_status") or "").strip() or "APPROVED"
+            access_scope = (row.get("access_scope") or "").strip() or "COMPANY_WIDE"
+            auth_depts = (row.get("authorized_departments") or "").strip() or "[]"
+            auth_roles = (row.get("authorized_roles") or "").strip() or "[]"
+            auth_source = (row.get("authorization_source") or "").strip() or "BUSINESS_POLICY"
+            class_source = (row.get("classification_source") or "").strip() or "DETERMINISTIC_AUDIT"
+            sensitivity = (row.get("sensitivity") or "").strip() or "INTERNAL"
             reason = (row.get("classification_reason") or "").strip()
+
             rows.append(
+
                 RegistryRow(
                     source_file=row["source_file"],
-                    access_category=access_category,
                     document_domain=doc_domain,
-                    department=(row.get("department") or "GENERAL").strip() or "GENERAL",
                     related_departments=related_depts,
+                    access_scope=access_scope,
+                    authorized_departments=auth_depts,
+                    authorized_roles=auth_roles,
+                    authorization_source=auth_source,
+                    classification_source=class_source,
+                    department=(row.get("department") or "GENERAL").strip() or "GENERAL",
+                    sensitivity=sensitivity,
+                    access_category=access_category,
                     scope=scope,
                     issuer=issuer,
                     document_type=doc_type,
@@ -327,6 +353,7 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
                 )
             )
         return rows
+
 
 
 

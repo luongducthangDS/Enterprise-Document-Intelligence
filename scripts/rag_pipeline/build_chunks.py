@@ -33,10 +33,16 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
     return build_chunks_from_text(
         raw_text,
         source_file=row.source_file,
-        access_category=row.access_category,
-        document_domain=row.document_domain,
+        document_domain=getattr(row, "document_domain", "COMPANY_POLICY"),
+        related_departments=getattr(row, "related_departments", "[]"),
+        access_scope=getattr(row, "access_scope", "COMPANY_WIDE"),
+        authorized_departments=getattr(row, "authorized_departments", "[]"),
+        authorized_roles=getattr(row, "authorized_roles", "[]"),
+        authorization_source=getattr(row, "authorization_source", "BUSINESS_POLICY"),
+        classification_source=getattr(row, "classification_source", "DETERMINISTIC_AUDIT"),
         department=row.department,
-        related_departments=row.related_departments,
+        sensitivity=getattr(row, "sensitivity", "INTERNAL"),
+        access_category=row.access_category,
         scope=row.scope,
         issuer=row.issuer,
         document_type=row.document_type,
@@ -53,6 +59,8 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         expiry_date=row.expiry_date,
         settings=settings,
     )
+
+
 
 
 

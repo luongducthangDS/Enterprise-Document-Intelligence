@@ -66,48 +66,15 @@ def _expand_retrieval_query(query: str) -> str:
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
-def get_authorized_source_files(user_department: str | None = None, user_role: str | None = None) -> list[str]:
-    """Quyết định danh sách tài liệu được phép truy xuất (Authorization Engine).
-
-    Chính sách phân quyền truy cập:
-    1. COMPANY_POLICY: Chính sách/quy chế chính thức toàn công ty -> Mọi nhân viên được truy xuất.
-    2. DEPARTMENT: Quy trình nghiệp vụ riêng -> Chỉ phòng ban đó được truy xuất.
-    3. LEGAL: Văn bản pháp luật -> Chỉ nhân viên thuộc phòng ban có trong related_departments được truy xuất.
-    4. EXTERNAL_REFERENCE: Biểu mẫu/tham khảo ngoài -> KHÔNG cho phép mặc định.
-    5. ADMIN: Toàn quyền truy xuất.
-    """
-    registry = load_registry()
-    if user_role == "admin":
-        return [r.source_file for r in registry if r.retrieval_enabled and r.publication_status == "active"]
-
-    dept_upper = (user_department or "GENERAL").upper().strip().replace("-", "_")
-    allowed: list[str] = []
-    for r in registry:
-        if not r.retrieval_enabled or r.publication_status != "active":
-            continue
-        # 1. COMPANY_POLICY / GENERAL
-        if r.access_category in ("COMPANY_POLICY", "GENERAL"):
-            allowed.append(r.source_file)
-        # 2. DEPARTMENT SOPs
-        elif r.access_category == "DEPARTMENT":
-            r_dept = r.department.upper().strip().replace("-", "_")
-            if r_dept == dept_upper:
-                allowed.append(r.source_file)
-        # 3. LEGAL (Chỉ khi phòng ban user nằm trong related_departments)
-        elif r.access_category == "LEGAL":
-            try:
-                rel_depts = [str(d).upper().strip().replace("-", "_") for d in json.loads(r.related_departments)]
-            except Exception:
-                rel_depts = [d.upper().strip().replace("-", "_") for d in r.related_departments.split(",") if d.strip()]
-            if dept_upper in rel_depts or "ALL" in rel_depts:
-                allowed.append(r.source_file)
-    return allowed
+from src.security import UserContext, get_authorization_engine
 
 
-def _provenance_filter(settings: Settings, user_department: str | None = None, user_role: str | None = None) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN (Authorization Engine / Access Control Filter)."""
+def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict | None:
+    """Chặn dữ liệu ở TẦNG TRUY VẤN (Enterprise Authorization Engine / Access Control Filter)."""
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    allowed_files = get_authorized_source_files(user_department, user_role)
+    user = user_context or UserContext(department="GENERAL")
+    auth_engine = get_authorization_engine()
+    allowed_files = auth_engine.get_authorized_source_files(user)
     if not allowed_files:
         return {"source_file": "__NO_ACCESS__"}
 
@@ -124,7 +91,6 @@ def _provenance_filter(settings: Settings, user_department: str | None = None, u
         {"effective_date_ymd": {"$lte": query_date_ymd}},
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
-
 
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
@@ -144,7 +110,7 @@ def _collection():
 def _bm25_index() -> BM25 | None:
     """Corpus BM25 tải MỘT LẦN từ Chroma Cloud."""
     try:
-        where = _provenance_filter(get_settings(), user_department="GENERAL")
+        where = _provenance_filter(get_settings(), user_context=UserContext(department="GENERAL"))
         result = _collection().get(include=["documents"], **({"where": where} if where else {}))
     except Exception as e:  # noqa: BLE001
         print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
@@ -154,6 +120,7 @@ def _bm25_index() -> BM25 | None:
     if not ids:
         return None
     return BM25(ids, documents)
+
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -219,10 +186,10 @@ async def retrieval_node(state: AgentState) -> dict:
     #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection()
-    user_department = state.get("department") or "GENERAL"
-    user_role = state.get("user_role")
-    where = _provenance_filter(settings, user_department=user_department, user_role=user_role)
+    user_context = UserContext.from_state(state)
+    where = _provenance_filter(settings, user_context=user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+
 
 
         result = await asyncio.to_thread(
