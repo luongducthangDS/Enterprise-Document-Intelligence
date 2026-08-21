@@ -89,8 +89,12 @@ def _provenance_filter(settings: Settings) -> dict | None:
       đó là hành vi ĐÚNG, không phải lỗi.
     """
     query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
+    # authority allowlist: tenant_official_policy = tài liệu nội bộ doanh nghiệp (quy trình,
+    # biên bản, quyết định, quy chế); government_law = văn bản pháp luật (bộ luật, nghị định,
+    # thông tư) — được đưa vào knowledge database từ 2026-08-21, trích dẫn kèm
+    # is_official_policy=True để người dùng phân biệt nguồn nội bộ vs nguồn pháp lý.
     conditions: list[dict] = [
-        {"authority": "tenant_official_policy"},
+        {"authority": {"$in": ["tenant_official_policy", "government_law"]}},
         {"publication_status": "active"},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},

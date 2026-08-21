@@ -18,17 +18,19 @@ SourceType = Literal[
 ]
 
 # source_type mà build_chunks phải bỏ qua — không phải nội dung RAG.
-# "government_law"/"official_policy"/"public_template"/"public_article" bị loại
-# có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu NỘI BỘ doanh nghiệp (thật hoặc
-# synthetic đóng vai nội bộ khi chưa có tài liệu công ty thật). Luật, chính sách
-# THẬT của doanh nghiệp khác (vd VinFast/Vingroup), template công khai không gắn
-# công ty nào, và bài viết nghiệp vụ tham khảo đều không phải "chính sách của
-# doanh nghiệp mình" — chỉ còn vai trò nguồn offline để soạn thêm tài liệu nội
-# bộ, không phải nguồn agent được trích dẫn trực tiếp. Sau dòng này chỉ còn
-# "synthetic" (V-NOVA, tenant_official_policy) là RAG-eligible.
+# "official_policy" (chính sách công khai của doanh nghiệp khác), "public_template",
+# "public_article" bị loại có chủ đích vì không gắn với kho tri thức nội bộ của tenant.
+#
+# THAY ĐỔI (2026-08-21): "government_law" được ĐƯA VÀO knowledge database.
+# Lý do: Kho tài liệu nội bộ VinBigData bao gồm cả các văn bản pháp luật (bộ luật,
+# nghị định, thông tư) làm nguồn tham chiếu bổ sung. Agent được phép trích dẫn
+# trực tiếp các văn bản pháp luật này kèm metadata is_official_policy=True và
+# authority="government_law" để người dùng phân biệt được nguồn gốc.
+# Rào chắn provenance filter tại retrieval node vẫn giữ nguyên — chỉ mở rộng
+# allowlist authority cho government_law chunks.
 NON_RAG_SOURCE_TYPES = {
     "eval_asset", "config", "rejected",
-    "government_law", "official_policy", "public_template", "public_article",
+    "official_policy", "public_template", "public_article",
 }
 
 # ---------------------------------------------------------------------------
