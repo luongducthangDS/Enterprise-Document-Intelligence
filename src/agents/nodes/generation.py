@@ -3,6 +3,7 @@ import re
 from src.agents.guardrails import detect_injection, redact_pii, strip_injection
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, AnswerType, Citation, RetrievedChunk
+from src.domains import get_matching_domain
 from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
 
 # Model phải phát ra ĐÚNG chuỗi này khi context không trả lời được câu hỏi.
@@ -387,9 +388,14 @@ async def generate_node(state: AgentState) -> dict:
 
     user_prompt = f"Câu hỏi: {query}\n\nCác đoạn trích:\n{context}"
 
+    # --- Domain-Specific Generation Rules (G4: Numeric Grounding Lock) ---
+    domain = get_matching_domain(query, state.get("category"))
+    domain_rules = domain.get_generation_rules() if domain else ""
+    system_prompt = f"{_GENERATE_SYSTEM}\n\n{domain_rules}" if domain_rules else _GENERATE_SYSTEM
+
     answer = (
         await acall_llm(
-            _GENERATE_SYSTEM,
+            system_prompt,
             user_prompt,
             temperature=0.2,
             enable_thinking=thinking_arg(get_settings().thinking_generation),
