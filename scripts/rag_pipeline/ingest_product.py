@@ -35,6 +35,7 @@ DEPARTMENT = "Product"
 REGISTRY_FIELDS = [
     "source_file",
     "department",
+    "owner",
     "category",
     "status",
     "processed_path",
@@ -53,6 +54,45 @@ REGISTRY_FIELDS = [
     "document_id",
     "relative_path",
 ]
+
+# Accountable owner của từng nguồn Product. Đây là owner dữ liệu/tài liệu,
+# không phải người được nhắc tới trong một action item bất kỳ. Giữ mapping ở
+# pipeline để registry sinh ra luôn đầy đủ kể cả khi file nguồn không có
+# frontmatter.
+OWNER_BY_DOCUMENT_ID = {
+    "PRD-001": "Mai Nguyen",
+    "PRD-002": "Huy Tran",
+    "PRD-003": "Linh Pham",
+    "PRD-004": "An Le",
+    "PRD-005": "Khoa Vu",
+    "PRD-006": "Thao Do",
+    "PRD-007": "Bao Nguyen",
+    "UR-001": "Product Research Team",
+    "UR-002": "Product Research Team",
+    "UR-003": "Product Research Team",
+    "UR-004": "Product Research Team",
+    "UR-005": "Product Research Team",
+    "MTG-001": "Product Management",
+    "MTG-002": "Product Management",
+    "MTG-003": "Product Design",
+    "MTG-004": "Product Management",
+    "MTG-005": "Product Management",
+    "MTG-006": "Product Design",
+    "PROC-001": "Product Operations",
+    "PROC-002": "Head of Product",
+    "PROC-003": "Product Operations",
+    "PROC-004": "Engineering Lead",
+    "MET-001": "Product Analytics",
+    "MET-002": "Product Analytics",
+    "MET-003": "Product Analytics",
+    "MET-004": "Product Analytics",
+    "MET-005": "Product Analytics",
+    "MET-006": "Product Analytics",
+    "RDM-001": "Product Management",
+    "RDM-002": "Product Management",
+    "RDM-003": "Head of Product",
+    "RDM-004": "Product Management",
+}
 SMOKE_QUERIES = [
     {
         "question": "Checkout Redesign dự kiến release khi nào?",
@@ -222,6 +262,11 @@ def main() -> None:
 
     for item in manifest:
         source_file = item["filename"].strip()
+        document_id = item["document_id"].strip()
+        owner = OWNER_BY_DOCUMENT_ID.get(document_id)
+        if not owner:
+            failures.append({"source_file": source_file, "error": "missing_owner"})
+            continue
         source_path = os.path.abspath(os.path.join(dataset_dir, item["relative_path"]))
         if os.path.commonpath([dataset_dir, source_path]) != dataset_dir or not os.path.isfile(source_path):
             failures.append({"source_file": source_file, "error": "source_missing_or_outside_dataset"})
@@ -248,6 +293,7 @@ def main() -> None:
                 source_type="synthetic",
                 is_official_policy=True,
                 caveat="Dữ liệu Product mô phỏng dùng cho môi trường demo.",
+                owner=owner,
                 authority="tenant_official_policy",
                 provenance="synthetic_demo",
                 tenant="nexatech",
@@ -279,6 +325,7 @@ def main() -> None:
             {
                 "source_file": source_file,
                 "department": DEPARTMENT,
+                "owner": owner,
                 "category": item["document_type"].strip(),
                 "status": status,
                 "processed_path": processed_path.replace("\\", "/"),
@@ -358,6 +405,7 @@ def main() -> None:
         "embedding_model": settings.embedding_model if vector_count else None,
         "index_error": index_error,
         "metadata_department_valid": bool(all_chunks) and all(c.metadata.department == DEPARTMENT for c in all_chunks),
+        "metadata_owner_valid": bool(all_chunks) and all(bool(c.metadata.owner) for c in all_chunks),
         "citation_locations": {
             "chunks_with_page": sum(c.metadata.page_start is not None for c in all_chunks),
             "chunks_with_sheet": sum(c.metadata.sheet_start is not None for c in all_chunks),
