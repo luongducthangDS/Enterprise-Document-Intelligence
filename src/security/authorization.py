@@ -57,7 +57,7 @@ class AuthorizationEngine:
 
     def evaluate_access(self, user: UserContext, doc: DocumentSecurityProfile) -> bool:
         """Đánh giá quyền truy cập: User có được truy xuất Document không?"""
-        # 1. Admin: Toàn quyền truy xuất
+        # 1. Admin: Toàn quyền truy xuất (trừ khi file là non-knowledge doc và không yêu cầu)
         if user.role == UserRole.ADMIN or "admin" in user.permissions:
             return True
 
@@ -65,6 +65,15 @@ class AuthorizationEngine:
         scope_str = doc.access_scope.value if isinstance(doc.access_scope, AccessScope) else str(doc.access_scope)
         user_role_str = user.role.value if isinstance(user.role, UserRole) else str(user.role)
         user_dept = user.department.upper().strip()
+
+        # 0. Loại bỏ hoàn toàn System / Internal Data khỏi User Knowledge Retrieval
+        if not doc.is_knowledge_doc or domain_str in (
+            DocumentDomain.EVALUATION_DATA.value,
+            DocumentDomain.USER_PERSONA.value,
+            DocumentDomain.SYSTEM_CONFIGURATION.value,
+            DocumentDomain.OTHER.value,
+        ):
+            return False
 
         domain_policies = self.policies.get("domain_policies", {})
 
@@ -81,10 +90,8 @@ class AuthorizationEngine:
             if user_role_str in allowed_roles:
                 return True
 
-            # Kiểm tra nếu doanh nghiệp đã cấu hình cấp quyền cho phòng ban cụ thể
             depts_with_access = [str(d).upper() for d in legal_policy.get("departments_with_access", [])]
-            if (user_dept in depts_with_access or "ALL" in depts_with_access):
-                # Phải kiểm tra authorized_departments (KHÔNG KIỂM TRA related_departments)
+            if user_dept in depts_with_access or "ALL" in depts_with_access:
                 doc_auth_depts = [str(d).upper() for d in doc.authorized_departments]
                 if user_dept in doc_auth_depts or "ALL" in doc_auth_depts:
                     return True
@@ -92,14 +99,13 @@ class AuthorizationEngine:
             return False
 
         # 4. Kiểm tra trạng thái PENDING_REVIEW (Fail-closed)
-        if scope_str == AccessScope.PENDING_REVIEW.value:
+        if scope_str == AccessScope.PENDING_REVIEW.value or doc.authorization_status == "PENDING_REVIEW":
             return False
 
         # 5. Kiểm tra theo cấu hình vai trò (roles_policy)
         roles_policy = self.policies.get("roles_policy", {})
         role_cfg = roles_policy.get(user_role_str)
         if not role_cfg:
-            # Vai trò không xác định -> fallback an toàn chỉ xem COMPANY_WIDE policy
             return scope_str == AccessScope.COMPANY_WIDE.value and domain_str == DocumentDomain.COMPANY_POLICY.value
 
         allowed_scopes = role_cfg.get("allowed_scopes", [])
@@ -109,24 +115,41 @@ class AuthorizationEngine:
         if "*" not in allowed_domains and domain_str not in allowed_domains:
             return False
 
-        # Kiểm tra access_scope
         if "*" in allowed_scopes:
             return True
 
         if scope_str == AccessScope.COMPANY_WIDE.value:
             return "COMPANY_WIDE" in allowed_scopes
 
+        # DEPARTMENT Scope: BẮT BUỘC Department AND Role (Chính xác theo yêu cầu)
         if scope_str == AccessScope.DEPARTMENT.value:
             if "DEPARTMENT" not in allowed_scopes:
                 return False
-            # Kiểm tra danh sách authorized_departments thực tế
+
+            # Điều kiện 1: Department match
             doc_auth_depts = [str(d).upper() for d in doc.authorized_departments]
-            if user_dept in doc_auth_depts or "ALL" in doc_auth_depts:
-                return True
             doc_dept = doc.department.upper().strip()
-            if allow_cross_dept or user_dept == doc_dept:
-                return True
-            return False
+            dept_matches = (
+                user_dept in doc_auth_depts
+                or "ALL" in doc_auth_depts
+                or (not doc_auth_depts and user_dept == doc_dept)
+                or allow_cross_dept
+            )
+            if not dept_matches:
+                return False
+
+            # Điều kiện 2: Role match
+            doc_auth_roles = [str(r).upper() for r in doc.authorized_roles]
+            role_matches = (
+                user_role_str in doc_auth_roles
+                or "ALL" in doc_auth_roles
+                or not doc_auth_roles
+                or allow_cross_dept
+            )
+            if not role_matches:
+                return False
+
+            return True
 
         if scope_str == AccessScope.ROLE.value:
             if "ROLE" not in allowed_scopes:
@@ -139,10 +162,12 @@ class AuthorizationEngine:
 
         return False
 
+
     def get_authorized_source_files(
         self,
         user: UserContext,
         registry_rows: list[Any] | None = None,
+        include_disabled: bool = False,
     ) -> list[str]:
         """Trả về danh sách source_file được phép truy xuất cho User hiện tại."""
         if registry_rows is None:
@@ -151,8 +176,10 @@ class AuthorizationEngine:
 
         allowed_files: list[str] = []
         for r in registry_rows:
-            if not getattr(r, "retrieval_enabled", True) or getattr(r, "publication_status", "active") != "active":
-                continue
+            if not include_disabled:
+                if not getattr(r, "retrieval_enabled", True) or getattr(r, "publication_status", "active") != "active":
+                    continue
+
 
             domain_val = getattr(r, "document_domain", "COMPANY_POLICY")
             try:
@@ -199,6 +226,14 @@ class AuthorizationEngine:
                 except Exception:
                     parsed_auth_roles = [rl.upper().strip() for rl in raw_auth_roles.split(",") if rl.strip()]
 
+            is_knowledge = domain in (
+                DocumentDomain.COMPANY_POLICY,
+                DocumentDomain.DEPARTMENT_PROCESS,
+                DocumentDomain.LEGAL,
+                DocumentDomain.MANAGEMENT,
+                DocumentDomain.EXTERNAL_REFERENCE,
+            )
+
             doc_profile = DocumentSecurityProfile(
                 source_file=r.source_file,
                 domain=domain,
@@ -207,15 +242,18 @@ class AuthorizationEngine:
                 access_scope=scope,
                 authorized_departments=parsed_auth_depts,
                 authorized_roles=parsed_auth_roles,
-                is_official=getattr(r, "is_official_policy", True),
+                authorization_status=getattr(r, "authorization_status", "ACTIVE"),
                 authorization_source=getattr(r, "authorization_source", "BUSINESS_POLICY"),
                 classification_source=getattr(r, "classification_source", "DETERMINISTIC_AUDIT"),
+                is_official=getattr(r, "is_official_policy", True),
+                is_knowledge_doc=is_knowledge,
             )
 
             if self.evaluate_access(user, doc_profile):
                 allowed_files.append(r.source_file)
 
         return allowed_files
+
 
 
 

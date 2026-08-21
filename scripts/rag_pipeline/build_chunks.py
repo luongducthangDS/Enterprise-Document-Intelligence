@@ -38,8 +38,10 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         access_scope=getattr(row, "access_scope", "COMPANY_WIDE"),
         authorized_departments=getattr(row, "authorized_departments", "[]"),
         authorized_roles=getattr(row, "authorized_roles", "[]"),
+        authorization_status=getattr(row, "authorization_status", "ACTIVE"),
         authorization_source=getattr(row, "authorization_source", "BUSINESS_POLICY"),
         classification_source=getattr(row, "classification_source", "DETERMINISTIC_AUDIT"),
+        is_knowledge_doc=getattr(row, "is_knowledge_doc", True),
         department=row.department,
         sensitivity=getattr(row, "sensitivity", "INTERNAL"),
         access_category=row.access_category,
@@ -59,6 +61,7 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         expiry_date=row.expiry_date,
         settings=settings,
     )
+
 
 
 

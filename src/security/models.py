@@ -17,13 +17,17 @@ class UserRole(str, Enum):
 
 class DocumentDomain(str, Enum):
     """Phân loại bản chất nội dung tài liệu (Document Classification)."""
+    # 1. Knowledge Documents (Tài liệu tri thức doanh nghiệp)
     COMPANY_POLICY = "COMPANY_POLICY"          # Chính sách / Quy chế chính thức toàn công ty
-    LEGAL = "LEGAL"                            # Văn bản quy phạm pháp luật nhà nước
     DEPARTMENT_PROCESS = "DEPARTMENT_PROCESS"  # Quy trình SOP vận hành nội bộ phòng ban
-    MANAGEMENT_DECISION = "MANAGEMENT_DECISION"# Quyết định của Ban điều hành
-    MEETING_MINUTES = "MEETING_MINUTES"        # Biên bản họp Ban lãnh đạo / Dự án
+    LEGAL = "LEGAL"                            # Văn bản quy phạm pháp luật nhà nước
+    MANAGEMENT = "MANAGEMENT"                  # Quyết định điều hành & Biên bản họp lãnh đạo
     EXTERNAL_REFERENCE = "EXTERNAL_REFERENCE"  # Tài liệu tham khảo ngoài / Template
-    OTHER = "OTHER"                            # Tài liệu khác
+    # 2. System / Internal Data (Loại hoàn toàn khỏi Knowledge Retrieval & Citation)
+    EVALUATION_DATA = "EVALUATION_DATA"        # Bộ dữ liệu đánh giá mô hình / Benchmark
+    USER_PERSONA = "USER_PERSONA"              # Dữ liệu Persona thử nghiệm
+    SYSTEM_CONFIGURATION = "SYSTEM_CONFIGURATION" # Cấu hình logic ứng dụng (vd: ticket routing)
+    OTHER = "OTHER"                            # Dữ liệu nội bộ khác
 
 
 class AccessScope(str, Enum):
@@ -85,8 +89,11 @@ class DocumentSecurityProfile(BaseModel):
     authorized_departments: list[str] = Field(default_factory=list, description="Danh sách phòng ban được doanh nghiệp CẤP QUYỀN thực tế.")
     authorized_roles: list[str] = Field(default_factory=list, description="Danh sách vai trò được doanh nghiệp CẤP QUYỀN thực tế.")
     authorized_groups: list[str] = Field(default_factory=list)
-    sensitivity: SensitivityLevel = SensitivityLevel.INTERNAL
-    is_official: bool = True
+    authorization_status: str = "ACTIVE"  # ACTIVE | PENDING_REVIEW | SUSPENDED | ARCHIVED
     authorization_source: str = "BUSINESS_POLICY"
     classification_source: str = "DETERMINISTIC_AUDIT"
+    sensitivity: SensitivityLevel = SensitivityLevel.INTERNAL
+    is_official: bool = True
+    is_knowledge_doc: bool = True
+
 
