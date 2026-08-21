@@ -33,7 +33,11 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
     return build_chunks_from_text(
         raw_text,
         source_file=row.source_file,
+        access_category=row.access_category,
         department=row.department,
+        scope=row.scope,
+        issuer=row.issuer,
+        document_type=row.document_type,
         category=row.category,
         source_type=row.source_type,
         is_official_policy=row.is_official_policy,
@@ -47,6 +51,7 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         expiry_date=row.expiry_date,
         settings=settings,
     )
+
 
 
 def main() -> None:

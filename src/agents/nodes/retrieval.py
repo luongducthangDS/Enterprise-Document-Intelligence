@@ -74,27 +74,26 @@ def _collection():
     return get_collection(client, settings.chroma_collection_name)
 
 
-def _provenance_filter(settings: Settings, user_department: str | None = None) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN, không phụ thuộc LLM tuân thủ prompt.
+def _provenance_filter(settings: Settings, allowed_categories: list[str] | None = None) -> dict | None:
+    """Chặn dữ liệu ở TẦNG TRUY VẤN (Access Control / Authorization Filter).
 
-    Lọc ở đây chứ không phải trong prompt là có chủ đích: prompt chỉ là lời dặn,
-    còn `where` là ràng buộc — chunk bị lọc không bao giờ tồn tại trong ngữ cảnh
-    nên không có đường nào để model lỡ trích dẫn nó.
-
-    Điều kiện áp dụng:
-    - authority IN [tenant_official_policy, government_law]: sản phẩm trả lời bằng
-      (1) dữ liệu nội bộ doanh nghiệp (quy trình, biên bản, quyết định, quy chế)
-      và (2) văn bản pháp luật (bộ luật, nghị định, thông tư) — cả hai được index
-      vào knowledge database từ 2026-08-21.
-    - department IN [GENERAL, ALL, user_department]: Nhân viên chỉ được truy vấn
-      dữ liệu DÙNG CHUNG (GENERAL) + dữ liệu chuyên môn của PHÒNG BAN mình (hoặc
-      toàn bộ nếu là ADMIN).
+    Theo đúng kiến trúc sản phẩm Doc Intelligence Agent:
+    - Employee query mặc định CHỈ được truy xuất: access_category = "GENERAL"
+      (Chính sách, quy định, quy chế chính thức do doanh nghiệp ban hành áp dụng toàn công ty).
+    - KHÔNG tự động truy xuất LEGAL (văn bản luật nhà nước), DEPARTMENT (nghiệp vụ riêng phòng ban),
+      hoặc EXTERNAL_REFERENCE (tài liệu tham khảo ngoài) trừ khi có explicit authorization.
     - publication_status=active, artifact_state=frozen, retrieval_enabled=True.
     - effective_date_ymd <= query_date_ymd AND expiry_date_ymd >= query_date_ymd.
     """
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    categories = allowed_categories or ["GENERAL"]
+    category_filter = (
+        {"access_category": {"$in": categories}}
+        if len(categories) > 1
+        else {"access_category": {"$eq": categories[0]}}
+    )
     conditions: list[dict] = [
-        {"authority": {"$in": ["tenant_official_policy", "government_law"]}},
+        category_filter,
         {"publication_status": "active"},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},
@@ -102,30 +101,18 @@ def _provenance_filter(settings: Settings, user_department: str | None = None) -
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
 
-    # Department-based Access Control (ACL / RBAC)
-    if user_department and user_department.upper() not in ("ADMIN", "ALL"):
-        allowed_depts = ["GENERAL", "ALL", "LEGAL", user_department, user_department.upper(), user_department.lower()]
-        conditions.append({"department": {"$in": list(set(allowed_depts))}})
-
-
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return conditions[0] if len(conditions) == 1 else {"$and": conditions}
 
 
-
 @lru_cache
 def _bm25_index() -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud (không phải data/chunks/*.json —
-    file đó gitignored, không tồn tại trên server), cache theo tiến trình như
-    _collection(). Trả None nếu tải lỗi/collection rỗng để hybrid tự tắt an
-    toàn (xem fuse_candidate_ids) thay vì làm chết cả request retrieval."""
+    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud với access_category=GENERAL mặc định."""
     try:
-        # Cùng bộ lọc với truy vấn dense — nếu không, ứng viên synthetic vẫn lọt
-        # vào context qua ngả RRF ở production dù dense đã chặn.
-        where = _provenance_filter(get_settings())
+        where = _provenance_filter(get_settings(), allowed_categories=["GENERAL"])
         result = _collection().get(include=["documents"], **({"where": where} if where else {}))
-    except Exception as e:  # noqa: BLE001 — lỗi tải corpus phụ không được chặn retrieval chính
+    except Exception as e:  # noqa: BLE001
         print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
         return None
     ids = result.get("ids") or []
@@ -133,6 +120,7 @@ def _bm25_index() -> BM25 | None:
     if not ids:
         return None
     return BM25(ids, documents)
+
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -197,8 +185,17 @@ async def retrieval_node(state: AgentState) -> dict:
     #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection()
-    where = _provenance_filter(settings, user_department=state.get("department"))
+    allowed_categories = state.get("allowed_categories")
+    user_role = state.get("user_role")
+    if not allowed_categories:
+        if user_role == "admin":
+            allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
+        else:
+            # Employee default: strictly GENERAL company-wide documents only
+            allowed_categories = ["GENERAL"]
+    where = _provenance_filter(settings, allowed_categories=allowed_categories)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,
             query_embeddings=[embedding],

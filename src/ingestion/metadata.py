@@ -146,7 +146,11 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
+    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
     department: str = "GENERAL"
+    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    issuer: str = ""
+    document_type: str = ""
     category: str
     status: str
     processed_path: str
@@ -171,7 +175,11 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
+    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
     department: str = "GENERAL"
+    scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
+    issuer: str = ""
+    document_type: str = ""
     category: str
     source_type: str
     is_official_policy: bool
@@ -250,10 +258,18 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
         for row in reader:
             authority, provenance, tenant = _resolve_taxonomy(row)
             publication_status, artifact_state, retrieval_enabled, expiry_date = _resolve_lifecycle(row)
+            access_category = (row.get("access_category") or "").strip() or "GENERAL"
+            scope = (row.get("scope") or "").strip() or "COMPANY_WIDE"
+            issuer = (row.get("issuer") or "").strip()
+            doc_type = (row.get("document_type") or "").strip()
             rows.append(
                 RegistryRow(
                     source_file=row["source_file"],
+                    access_category=access_category,
                     department=(row.get("department") or "GENERAL").strip() or "GENERAL",
+                    scope=scope,
+                    issuer=issuer,
+                    document_type=doc_type,
                     category=row["category"],
                     status=row["status"],
                     processed_path=row["processed_path"],
@@ -276,6 +292,7 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
                 )
             )
         return rows
+
 
 
 def rag_eligible_rows(rows: list[RegistryRow]) -> list[RegistryRow]:
