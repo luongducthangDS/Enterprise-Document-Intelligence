@@ -146,11 +146,16 @@ def date_to_ymd_int(date_str: str) -> int:
 
 class RegistryRow(BaseModel):
     source_file: str
-    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    access_category: str = "COMPANY_POLICY"  # COMPANY_POLICY | DEPARTMENT | LEGAL | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    document_domain: str = "INTERNAL_POLICY"  # LEGAL | INTERNAL_POLICY | INTERNAL_SOP | EXTERNAL_REFERENCE | CONFIG
     department: str = "GENERAL"
+    related_departments: str = "[]"
     scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
     issuer: str = ""
     document_type: str = ""
+    classification_confidence: str = "1.00"
+    classification_status: str = "APPROVED"
+    classification_reason: str = ""
     category: str
     status: str
     processed_path: str
@@ -175,17 +180,17 @@ class ChunkMetadata(BaseModel):
     source_file: str
     source_stem: str
     title: str
-    access_category: str = "GENERAL"  # GENERAL | LEGAL | DEPARTMENT | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    access_category: str = "COMPANY_POLICY"  # COMPANY_POLICY | DEPARTMENT | LEGAL | EXTERNAL_REFERENCE | NEEDS_REVIEW
+    document_domain: str = "INTERNAL_POLICY"  # LEGAL | INTERNAL_POLICY | INTERNAL_SOP | EXTERNAL_REFERENCE | CONFIG
     department: str = "GENERAL"
+    related_departments: str = "[]"
     scope: str = "COMPANY_WIDE"  # COMPANY_WIDE | DEPARTMENT_ONLY | EXTERNAL
     issuer: str = ""
     document_type: str = ""
     category: str
     source_type: str
     is_official_policy: bool
-    # authority/provenance/tenant: xem ghi chú taxonomy 2 chiều ở đầu file.
-    # tenant="" nghĩa là tài liệu không thuộc doanh nghiệp nào — điều kiện cần
-    # để agent KHÔNG được dùng nó trả lời câu hỏi "của doanh nghiệp mình".
+    # authority/provenance/tenant
     authority: str = "public_reference"
     provenance: str = "public_web"
     tenant: str = ""
@@ -193,12 +198,9 @@ class ChunkMetadata(BaseModel):
     artifact_state: str = DEFAULT_ARTIFACT_STATE
     retrieval_enabled: bool = True
     expiry_date: str = NO_EXPIRY_SENTINEL
-    # Bản số nguyên (YYYYMMDD) của effective_date/expiry_date, DÀNH RIÊNG cho
-    # filter Chroma $lte/$gte (không nhận operand chuỗi) — xem date_to_ymd_int().
-    # `effective_date` (chuỗi, field khác — có ở dưới, gán từ frontmatter) vẫn
-    # giữ nguyên cho mục đích hiển thị/audit.
     effective_date_ymd: int = 1
     expiry_date_ymd: int = 99991231
+
     caveat: str = ""
     heading_path: str = ""
     chapter: str | None = None
@@ -217,8 +219,35 @@ class ChunkMetadata(BaseModel):
     embedding_model: str | None = None
 
     def to_chroma_metadata(self) -> dict:
-        """Chroma chỉ chấp nhận giá trị metadata dạng str/int/float/bool — bỏ key None."""
-        return {k: v for k, v in self.model_dump().items() if v is not None}
+        """Chroma Cloud giới hạn tối đa 32 metadata keys mỗi collection.
+        Chỉ xuất 22 trường thực sự cần thiết cho truy vấn (where filter) và hiển thị citation.
+        """
+        CHROMA_ALLOWED_KEYS = {
+            "source_file",
+            "title",
+            "access_category",
+            "document_domain",
+            "department",
+            "category",
+            "source_type",
+            "is_official_policy",
+            "authority",
+            "provenance",
+            "tenant",
+            "publication_status",
+            "artifact_state",
+            "retrieval_enabled",
+            "effective_date_ymd",
+            "expiry_date_ymd",
+            "caveat",
+            "heading_path",
+            "page_start",
+            "page_end",
+            "sheet_start",
+            "sheet_end",
+        }
+        return {k: v for k, v in self.model_dump().items() if k in CHROMA_ALLOWED_KEYS and v is not None}
+
 
 
 class Chunk(BaseModel):
@@ -258,28 +287,34 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
         for row in reader:
             authority, provenance, tenant = _resolve_taxonomy(row)
             publication_status, artifact_state, retrieval_enabled, expiry_date = _resolve_lifecycle(row)
-            access_category = (row.get("access_category") or "").strip() or "GENERAL"
+            access_category = (row.get("access_category") or "").strip() or "COMPANY_POLICY"
+            doc_domain = (row.get("document_domain") or "").strip() or "INTERNAL_POLICY"
+            related_depts = (row.get("related_departments") or "").strip() or "[]"
             scope = (row.get("scope") or "").strip() or "COMPANY_WIDE"
             issuer = (row.get("issuer") or "").strip()
             doc_type = (row.get("document_type") or "").strip()
+            conf = (row.get("classification_confidence") or "").strip() or "1.00"
+            status = (row.get("classification_status") or "").strip() or "APPROVED"
+            reason = (row.get("classification_reason") or "").strip()
             rows.append(
                 RegistryRow(
                     source_file=row["source_file"],
                     access_category=access_category,
+                    document_domain=doc_domain,
                     department=(row.get("department") or "GENERAL").strip() or "GENERAL",
+                    related_departments=related_depts,
                     scope=scope,
                     issuer=issuer,
                     document_type=doc_type,
+                    classification_confidence=conf,
+                    classification_status=status,
+                    classification_reason=reason,
                     category=row["category"],
                     status=row["status"],
                     processed_path=row["processed_path"],
                     chunks_path=row.get("chunks_path", ""),
                     indexed_at=row.get("indexed_at", ""),
                     source_type=row["source_type"],
-                    # KHÔNG đọc cột is_official_policy của CSV nữa: sau khi tách
-                    # taxonomy, "chính thức" chỉ còn một nghĩa duy nhất là "chính
-                    # sách của tenant đang phục vụ". Giữ hai nguồn sự thật cho
-                    # cùng một khái niệm là cách chắc chắn nhất để chúng lệch nhau.
                     is_official_policy=authority == "tenant_official_policy",
                     caveat=row.get("caveat", ""),
                     authority=authority,
@@ -292,6 +327,7 @@ def load_registry(path: str = REGISTRY_PATH) -> list[RegistryRow]:
                 )
             )
         return rows
+
 
 
 

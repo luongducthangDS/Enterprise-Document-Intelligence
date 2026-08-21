@@ -34,7 +34,9 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         raw_text,
         source_file=row.source_file,
         access_category=row.access_category,
+        document_domain=row.document_domain,
         department=row.department,
+        related_departments=row.related_departments,
         scope=row.scope,
         issuer=row.issuer,
         document_type=row.document_type,
@@ -51,6 +53,7 @@ def build_chunks_for_doc(row, settings) -> list[Chunk]:
         expiry_date=row.expiry_date,
         settings=settings,
     )
+
 
 
 

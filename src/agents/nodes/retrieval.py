@@ -1,4 +1,5 @@
 import asyncio
+import json
 import re
 from datetime import datetime, timezone
 
@@ -13,7 +14,7 @@ from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import get_chroma_client, get_collection
-from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
+from src.ingestion.metadata import DEMO_ONLY_PROVENANCE, load_registry
 from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
@@ -65,6 +66,71 @@ def _expand_retrieval_query(query: str) -> str:
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
+def get_authorized_source_files(user_department: str | None = None, user_role: str | None = None) -> list[str]:
+    """Quyết định danh sách tài liệu được phép truy xuất (Authorization Engine).
+
+    Chính sách phân quyền truy cập:
+    1. COMPANY_POLICY: Chính sách/quy chế chính thức toàn công ty -> Mọi nhân viên được truy xuất.
+    2. DEPARTMENT: Quy trình nghiệp vụ riêng -> Chỉ phòng ban đó được truy xuất.
+    3. LEGAL: Văn bản pháp luật -> Chỉ nhân viên thuộc phòng ban có trong related_departments được truy xuất.
+    4. EXTERNAL_REFERENCE: Biểu mẫu/tham khảo ngoài -> KHÔNG cho phép mặc định.
+    5. ADMIN: Toàn quyền truy xuất.
+    """
+    registry = load_registry()
+    if user_role == "admin":
+        return [r.source_file for r in registry if r.retrieval_enabled and r.publication_status == "active"]
+
+    dept_upper = (user_department or "GENERAL").upper().strip().replace("-", "_")
+    allowed: list[str] = []
+    for r in registry:
+        if not r.retrieval_enabled or r.publication_status != "active":
+            continue
+        # 1. COMPANY_POLICY / GENERAL
+        if r.access_category in ("COMPANY_POLICY", "GENERAL"):
+            allowed.append(r.source_file)
+        # 2. DEPARTMENT SOPs
+        elif r.access_category == "DEPARTMENT":
+            r_dept = r.department.upper().strip().replace("-", "_")
+            if r_dept == dept_upper:
+                allowed.append(r.source_file)
+        # 3. LEGAL (Chỉ khi phòng ban user nằm trong related_departments)
+        elif r.access_category == "LEGAL":
+            try:
+                rel_depts = [str(d).upper().strip().replace("-", "_") for d in json.loads(r.related_departments)]
+            except Exception:
+                rel_depts = [d.upper().strip().replace("-", "_") for d in r.related_departments.split(",") if d.strip()]
+            if dept_upper in rel_depts or "ALL" in rel_depts:
+                allowed.append(r.source_file)
+    return allowed
+
+
+def _provenance_filter(settings: Settings, user_department: str | None = None, user_role: str | None = None) -> dict | None:
+    """Chặn dữ liệu ở TẦNG TRUY VẤN (Authorization Engine / Access Control Filter)."""
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    allowed_files = get_authorized_source_files(user_department, user_role)
+    if not allowed_files:
+        return {"source_file": "__NO_ACCESS__"}
+
+    file_condition = (
+        {"source_file": {"$in": allowed_files}}
+        if len(allowed_files) > 1
+        else {"source_file": allowed_files[0]}
+    )
+    conditions: list[dict] = [
+        file_condition,
+        {"publication_status": "active"},
+        {"artifact_state": "frozen"},
+        {"retrieval_enabled": True},
+        {"effective_date_ymd": {"$lte": query_date_ymd}},
+        {"expiry_date_ymd": {"$gte": query_date_ymd}},
+    ]
+
+
+    if settings.data_mode == "production":
+        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
+    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
+
 @lru_cache
 def _collection():
     """Cache collection theo tiến trình — tránh tạo lại CloudClient (bắt tay xác
@@ -74,43 +140,11 @@ def _collection():
     return get_collection(client, settings.chroma_collection_name)
 
 
-def _provenance_filter(settings: Settings, allowed_categories: list[str] | None = None) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN (Access Control / Authorization Filter).
-
-    Theo đúng kiến trúc sản phẩm Doc Intelligence Agent:
-    - Employee query mặc định CHỈ được truy xuất: access_category = "GENERAL"
-      (Chính sách, quy định, quy chế chính thức do doanh nghiệp ban hành áp dụng toàn công ty).
-    - KHÔNG tự động truy xuất LEGAL (văn bản luật nhà nước), DEPARTMENT (nghiệp vụ riêng phòng ban),
-      hoặc EXTERNAL_REFERENCE (tài liệu tham khảo ngoài) trừ khi có explicit authorization.
-    - publication_status=active, artifact_state=frozen, retrieval_enabled=True.
-    - effective_date_ymd <= query_date_ymd AND expiry_date_ymd >= query_date_ymd.
-    """
-    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    categories = allowed_categories or ["GENERAL"]
-    category_filter = (
-        {"access_category": {"$in": categories}}
-        if len(categories) > 1
-        else {"access_category": {"$eq": categories[0]}}
-    )
-    conditions: list[dict] = [
-        category_filter,
-        {"publication_status": "active"},
-        {"artifact_state": "frozen"},
-        {"retrieval_enabled": True},
-        {"effective_date_ymd": {"$lte": query_date_ymd}},
-        {"expiry_date_ymd": {"$gte": query_date_ymd}},
-    ]
-
-    if settings.data_mode == "production":
-        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
-    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
-
-
 @lru_cache
 def _bm25_index() -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud với access_category=GENERAL mặc định."""
+    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud."""
     try:
-        where = _provenance_filter(get_settings(), allowed_categories=["GENERAL"])
+        where = _provenance_filter(get_settings(), user_department="GENERAL")
         result = _collection().get(include=["documents"], **({"where": where} if where else {}))
     except Exception as e:  # noqa: BLE001
         print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
@@ -120,7 +154,6 @@ def _bm25_index() -> BM25 | None:
     if not ids:
         return None
     return BM25(ids, documents)
-
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -138,63 +171,59 @@ async def _aembed_query(text: str) -> list[float]:
         base_url=settings.fpt_base_url,
         api_key=settings.fpt_api_key,
     )
-    set_cached_embedding(text, vectors[0])
-    return vectors[0]
+    vec = vectors[0]
+    set_cached_embedding(text, vec)
+    return vec
 
 
-def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> RetrievedChunk:
-    return RetrievedChunk(
-        chunk_id=chunk_id,
-        text=text,
-        source_file=meta.get("source_file", ""),
-        title=meta.get("title", ""),
-        department=str(meta.get("department") or "HR"),
-        category=meta.get("category", ""),
-        is_official_policy=bool(meta.get("is_official_policy", False)),
-        source_type=str(meta.get("source_type") or ""),
-        # Chunk index từ trước đợt migrate taxonomy chưa có 3 khoá này. Mặc định
-        # về nhóm THẤP quyền nhất thay vì đoán cao lên: một chunk chưa phân loại
-        # không được thừa hưởng thẩm quyền của chính sách nội bộ.
-        authority=str(meta.get("authority") or "public_reference"),
-        provenance=str(meta.get("provenance") or "public_web"),
-        tenant=str(meta.get("tenant") or ""),
-        caveat=str(meta.get("caveat") or ""),
-        heading_path=str(meta.get("heading_path") or ""),
-        policy_status=str(meta.get("publication_status") or ""),
-        page_start=meta.get("page_start"),
-        page_end=meta.get("page_end"),
-        sheet_start=meta.get("sheet_start"),
-        sheet_end=meta.get("sheet_end"),
-        distance=distance,
-        score=None,
-    )
+def _to_chunk(
+    chunk_id: str,
+    text: str,
+    meta: dict,
+    distance: float,
+) -> RetrievedChunk:
+    return {
+        "chunk_id": chunk_id,
+        "text": text,
+        "source_file": meta.get("source_file", ""),
+        "title": meta.get("title", ""),
+        "department": meta.get("department", "HR"),
+        "category": meta.get("category", ""),
+        "is_official_policy": bool(meta.get("is_official_policy", False)),
+        "source_type": meta.get("source_type", "public_reference"),
+        "authority": meta.get("authority", "public_reference"),
+        "provenance": meta.get("provenance", "public_web"),
+        "tenant": meta.get("tenant", ""),
+        "caveat": meta.get("caveat", ""),
+        "heading_path": meta.get("heading_path", ""),
+        "policy_status": meta.get("publication_status", "active"),
+        "page_start": meta.get("page_start"),
+        "page_end": meta.get("page_end"),
+        "sheet_start": meta.get("sheet_start"),
+        "sheet_end": meta.get("sheet_end"),
+        "distance": distance,
+        "score": None,
+    }
 
 
 async def retrieval_node(state: AgentState) -> dict:
+    """Truy vấn Chroma Cloud bằng query embedding, áp provenance filter tại Chroma."""
+    query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
     settings = get_settings()
-    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
-    query = _expand_retrieval_query(raw_query)
-    embedding = await _aembed_query(query)
 
-    # Đo riêng hai phần, vì chúng có bản chất khác hẳn nhau và trước đây cùng
-    # nằm trong một khối "retrieve" không bóc được:
+    with llm_trace.Timer("embedding", "fpt_cloud"):
+        embedding = await _aembed_query(query)
+
+    # Đo riêng hai phần:
     #   - `_collection()` chỉ tốn thời gian ở lần gọi ĐẦU TIÊN mỗi tiến trình
-    #     (dựng CloudClient + bắt tay xác thực), sau đó lru_cache trả ngay.
-    #     Đo thực tế: request đầu của một lần profiling tốn ~18,8s cho riêng
-    #     bước này, đủ để bóp méo mọi thống kê nếu bị trộn vào latency truy vấn.
     #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection()
-    allowed_categories = state.get("allowed_categories")
+    user_department = state.get("department") or "GENERAL"
     user_role = state.get("user_role")
-    if not allowed_categories:
-        if user_role == "admin":
-            allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
-        else:
-            # Employee default: strictly GENERAL company-wide documents only
-            allowed_categories = ["GENERAL"]
-    where = _provenance_filter(settings, allowed_categories=allowed_categories)
+    where = _provenance_filter(settings, user_department=user_department, user_role=user_role)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+
 
         result = await asyncio.to_thread(
             partial(collection.query, where=where) if where else collection.query,

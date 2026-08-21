@@ -1,11 +1,4 @@
-"""Dựng danh sách Chunk (kèm metadata + embedding_text) từ 1 tài liệu processed.
-
-Tách khỏi scripts/rag_pipeline/build_chunks.py để ingestion worker
-(src/workers/ingestion.py) chunk file Backend upload lên bằng ĐÚNG logic đang
-dùng cho corpus ngoại tuyến — chunk_id, breadcrumb, page mapping phải giống hệt,
-nếu không citation/qrels/eval sẽ lệch giữa hai đường vào.
-"""
-
+import json
 import os
 import re
 
@@ -47,8 +40,10 @@ def build_chunks_from_text(
     category: str,
     source_type: str,
     is_official_policy: bool,
-    access_category: str = "GENERAL",
+    access_category: str = "COMPANY_POLICY",
+    document_domain: str = "INTERNAL_POLICY",
     department: str = "GENERAL",
+    related_departments: list[str] | str = "[]",
     scope: str = "COMPANY_WIDE",
     issuer: str = "",
     document_type: str = "",
@@ -66,9 +61,6 @@ def build_chunks_from_text(
     cleaned = clean_document(raw_text)
     stem = os.path.splitext(source_file)[0]
     title = resolve_title(cleaned.frontmatter, cleaned.text, stem)
-    # `company` chỉ có trong frontmatter của tài liệu policy; ưu tiên tenant do
-    # registry truyền vào (nguồn sự thật) và chỉ dùng frontmatter khi registry
-    # bỏ trống, để một file lẻ không tự khai mình thuộc tenant khác.
     resolved_tenant = tenant or normalize_tenant(cleaned.frontmatter.get("company"))
 
     text_chunks = chunk_text(
@@ -85,6 +77,15 @@ def build_chunks_from_text(
     effective_date_ymd = date_to_ymd_int(resolved_effective_date or DEFAULT_EFFECTIVE_DATE)
     expiry_date_ymd = date_to_ymd_int(resolved_expiry_date)
 
+    parsed_related_depts: list[str] = []
+    if isinstance(related_departments, list):
+        parsed_related_depts = [str(d).upper().strip() for d in related_departments]
+    elif isinstance(related_departments, str):
+        try:
+            parsed_related_depts = [str(d).upper().strip() for d in json.loads(related_departments)]
+        except Exception:
+            parsed_related_depts = [d.upper().strip() for d in related_departments.split(",") if d.strip()]
+
     chunks: list[Chunk] = []
     for idx, tc in enumerate(text_chunks):
         page_start = page_for_offset(cleaned.page_offsets, tc.start)
@@ -97,7 +98,9 @@ def build_chunks_from_text(
             source_stem=stem,
             title=title,
             access_category=access_category,
+            document_domain=document_domain,
             department=department,
+            related_departments=json.dumps(parsed_related_depts, ensure_ascii=False),
             scope=scope,
             issuer=issuer,
             document_type=document_type,
@@ -114,8 +117,9 @@ def build_chunks_from_text(
             effective_date_ymd=effective_date_ymd,
             expiry_date_ymd=expiry_date_ymd,
             caveat=caveat,
-
             heading_path=tc.heading_path,
+
+
             chapter=tc.chapter,
             article=tc.article,
             page_start=page_start,
