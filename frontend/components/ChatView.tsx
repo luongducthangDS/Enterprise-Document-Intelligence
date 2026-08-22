@@ -407,6 +407,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       setConversations((current) => current.map((conversation) => conversation.conversation_id === item.conversation_id
         ? { ...conversation, title: updated.title, updated_at: new Date().toISOString() }
         : conversation));
+      await loadConversations();
     } catch (reason) {
       setError(reason instanceof ApiClientError ? reason.message : "Không thể đổi tên hội thoại.");
     }
@@ -572,7 +573,7 @@ function AssistantMessage({ result, onCitation, onRetry }: {
         : <AnswerMarkdown content={result.answer ?? result.failure?.message ?? ""} />}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
       {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
-      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Yêu cầu không đủ bằng chứng có thể đã được Backend chuyển thành ticket theo kết quả Agent.</div>}
+      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Chưa tìm thấy đủ bằng chứng trong tài liệu chính sách nội bộ. Nếu cần được giải đáp trực tiếp, bạn có thể tạo yêu cầu hỗ trợ (Ticket) để HR tiếp nhận và xử lý.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
     </div>
   </div>;

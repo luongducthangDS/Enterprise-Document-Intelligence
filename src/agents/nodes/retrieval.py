@@ -38,6 +38,16 @@ _DISCIPLINARY_ABSENCE_QUERY_PATTERN = re.compile(
 )
 
 
+_KPI_QUERY_PATTERN = re.compile(
+    r"đánh giá.{0,24}(?:hiệu suất|thành tích|kết quả|năng lực|nhân viên)|kpi|okr|performance review|xếp loại",
+    re.IGNORECASE,
+)
+_RECRUITMENT_QUERY_PATTERN = re.compile(
+    r"quy trình tuyển dụng|kế hoạch tuyển dụng|hội đồng tuyển dụng|tiêu chuẩn tuyển dụng|tuyển dụng nhân sự",
+    re.IGNORECASE,
+)
+
+
 def _expand_retrieval_query(query: str) -> str:
     """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
 
@@ -55,6 +65,10 @@ def _expand_retrieval_query(query: str) -> str:
             "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
             "website tuyển dụng, nộp hồ sơ ứng viên"
         )
+    if _KPI_QUERY_PATTERN.search(query):
+        expansions.append("đánh giá hiệu suất, KPI, OKR, kết quả công việc, kỳ đánh giá, xếp loại thành tích")
+    if _RECRUITMENT_QUERY_PATTERN.search(query):
+        expansions.append("quy trình tuyển dụng, tiếp nhận nhân sự, phỏng vấn, thử việc, tiêu chuẩn tuyển dụng")
     disciplinary_match = _DISCIPLINARY_ABSENCE_QUERY_PATTERN.search(query)
     if disciplinary_match:
         # Regression qa_122: câu hỏi nói "tự ý nghỉ/chưa được phê duyệt", còn
