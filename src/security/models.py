@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -56,6 +57,11 @@ class UserContext(BaseModel):
     role: UserRole = UserRole.EMPLOYEE
     groups: list[str] = Field(default_factory=list)
     permissions: list[str] = Field(default_factory=list)
+
+    def __init__(self, **data: Any):
+        if "user_role" in data and "role" not in data:
+            data["role"] = data.pop("user_role")
+        super().__init__(**data)
 
     @classmethod
     def from_state(cls, state: dict[str, Any]) -> "UserContext":

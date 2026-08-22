@@ -196,9 +196,10 @@ async def router_node(state: AgentState) -> dict:
     # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
     # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
     _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
+    _HR_SPECIFIC_TERMS = re.compile(r"\b(bảo hiểm|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b", re.IGNORECASE)
     if domain and getattr(domain, "domain_name", None) == "accounting":
         query_words = query.split()
-        if len(query_words) >= 6 and not _G10_AMBIGUOUS_REFS.search(query):
+        if len(query_words) >= 6 and not _G10_AMBIGUOUS_REFS.search(query) and not _HR_SPECIFIC_TERMS.search(query):
             return {"intent": "hr_question"}
 
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không

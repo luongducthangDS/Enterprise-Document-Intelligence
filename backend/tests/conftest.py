@@ -1,4 +1,9 @@
 import os
+import sys
+
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if sys.path[0] != BACKEND_DIR:
+    sys.path.insert(0, BACKEND_DIR)
 
 import pytest_asyncio
 from app.api.dependencies.db_deps import get_db

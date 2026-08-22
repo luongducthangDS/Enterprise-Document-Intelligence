@@ -1,6 +1,16 @@
+import os
+import sys
 import time
 import uuid
 from contextlib import asynccontextmanager
+
+# Đảm bảo import được cả 'app' (backend) và 'src' (root project)
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 import uvicorn
 from app.api.v1.router import api_v1_router

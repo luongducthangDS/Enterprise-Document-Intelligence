@@ -29,6 +29,7 @@ from sqlalchemy import (
     Index,
     Integer,
     JSON,
+    MetaData,
     String,
     Text,
     UniqueConstraint,
@@ -37,7 +38,16 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
-    pass
+    """Base cho toàn bộ Knowledge Layer tables."""
+    metadata = MetaData()
+
+
+def apply_schema(schema: str = "knowledge") -> None:
+    """Chuyển toàn bộ tables sang PostgreSQL schema chỉ định.
+    Gọi một lần khi khởi động production (trước create_all), không gọi trong pytest.
+    """
+    for table in Base.metadata.tables.values():
+        table.schema = schema
 
 
 class AuthorityLevel(str, enum.Enum):
@@ -307,4 +317,31 @@ class EvidenceRecord(Base):
         ),
         Index("idx_evidence_knowledge", "tenant_id", "knowledge_id"),
         Index("idx_evidence_chunk", "tenant_id", "chunk_id"),
+    )
+
+
+class AuditLog(Base):
+    """Bảng lưu vết kiểm toán (Audit Trail) các hành động trên Knowledge Layer."""
+    __tablename__ = "audit_logs"
+
+    log_id = Column(String(64), primary_key=True)
+    tenant_id = Column(String(64), nullable=False)
+    actor_user_id = Column(String(128), nullable=False)
+    actor_role = Column(String(64), nullable=False)
+    action = Column(String(64), nullable=False)  # KNOWLEDGE_EXTRACTED | RELATION_DETECTED | HITL_APPROVED | HITL_REJECTED | HITL_EDITED | QUERY_ANSWERED
+    entity_type = Column(String(64), nullable=False)  # knowledge_item | relation | evidence | query
+    entity_id = Column(String(128), nullable=False)
+    payload = Column(JSON, default=dict, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["tenant_id"],
+            ["tenants.tenant_id"],
+            ondelete="CASCADE",
+            name="fk_audit_tenant",
+        ),
+        Index("idx_audit_tenant_action", "tenant_id", "action"),
+        Index("idx_audit_tenant_entity", "tenant_id", "entity_type", "entity_id"),
+        Index("idx_audit_created_at", "tenant_id", "created_at"),
     )

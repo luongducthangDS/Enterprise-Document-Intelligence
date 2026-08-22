@@ -239,6 +239,7 @@ class ChunkMetadata(BaseModel):
         Chỉ xuất 22 trường thực sự cần thiết cho truy vấn (where filter) và hiển thị citation.
         """
         CHROMA_ALLOWED_KEYS = {
+            "chunk_id",
             "source_file",
             "title",
             "document_domain",

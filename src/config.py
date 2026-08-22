@@ -31,7 +31,9 @@ class Settings(BaseSettings):
     agent_service_token: str = ""
 
     # Database (dữ liệu quan hệ: user/RBAC, chat history, ticket, document metadata)
-    database_url: str = "sqlite:///./data/app.db"
+    # URL Supabase PostgreSQL — đọc từ .env; không có default SQLite nữa.
+    database_url: str = ""
+    knowledge_database_url: str = ""  # Optional override riêng cho lới thức layer
     supabase_url: str = ""
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""

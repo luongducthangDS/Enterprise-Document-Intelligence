@@ -33,6 +33,12 @@ def normalize_tenant(value: str | None) -> str:
     return normalized
 
 
+def tenant_scoped_chunk_id(tenant: str, stem: str, index: int) -> str:
+    """New writes use tenant-qualified IDs; legacy tenantless artifacts remain readable."""
+    safe_tenant = normalize_tenant(tenant)
+    return f"{safe_tenant}:{stem}::{index:04d}" if safe_tenant else f"{stem}::{index:04d}"
+
+
 def build_chunks_from_text(
     raw_text: str,
     *,
@@ -122,7 +128,7 @@ def build_chunks_from_text(
         sheet_start = sheet_for_offset(cleaned.sheet_offsets, tc.start)
         sheet_end = sheet_for_offset(cleaned.sheet_offsets, max(tc.start, tc.end - 1))
         meta = ChunkMetadata(
-            chunk_id=f"{stem}::{idx:04d}",
+            chunk_id=tenant_scoped_chunk_id(resolved_tenant, stem, idx),
             source_file=source_file,
             source_stem=stem,
             title=title,

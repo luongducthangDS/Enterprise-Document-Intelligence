@@ -4,7 +4,6 @@
 .venv
 .worktrees/
 .pnpm-store/
-backend/
 frontend/
 __pycache__
 *.pyc

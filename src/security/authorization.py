@@ -7,7 +7,6 @@ from src.security.models import (
     AccessScope,
     DocumentDomain,
     DocumentSecurityProfile,
-    SensitivityLevel,
     UserContext,
     UserRole,
 )
@@ -30,7 +29,7 @@ class AuthorizationEngine:
         """Tải cấu hình chính sách từ file JSON hoặc dùng fallback an toàn."""
         if os.path.exists(self.config_path):
             try:
-                with open(self.config_path, "r", encoding="utf-8") as f:
+                with open(self.config_path, encoding="utf-8") as f:
                     return json.load(f)
             except Exception as e:
                 print(f"[auth] Cảnh báo: Không đọc được file policy ({e}), dùng default.")
@@ -41,7 +40,7 @@ class AuthorizationEngine:
                 "EMPLOYEE": {
                     "allowed_scopes": ["COMPANY_WIDE"],
                     "allowed_domains": ["COMPANY_POLICY"],
-                    "allow_cross_department": false,
+                    "allow_cross_department": False,
                 },
                 "ADMIN": {"allowed_scopes": ["*"], "allowed_domains": ["*"], "allow_cross_department": True},
             },
@@ -261,3 +260,21 @@ class AuthorizationEngine:
 def get_authorization_engine(config_path: str | None = None) -> AuthorizationEngine:
     """Singleton AuthorizationEngine instance."""
     return AuthorizationEngine(config_path=config_path)
+
+
+def runtime_upload_access_condition(user: UserContext) -> dict:
+    """Return Chroma where-clause filter condition for runtime upload documents matching user context."""
+    conditions: list[dict] = [{"tenant": user.tenant_id}]
+    if user.role != UserRole.ADMIN:
+        conditions.append({
+            "$or": [
+                {"access_scope": "COMPANY_WIDE"},
+                {"authorized_departments": {"$contains": user.department}},
+            ]
+        })
+    return {"$and": conditions} if len(conditions) > 1 else conditions[0]
+
+
+def runtime_upload_access_filters(user: UserContext) -> list[dict]:
+    """Return list of Chroma filter dictionaries for runtime uploads for user."""
+    return [runtime_upload_access_condition(user)]

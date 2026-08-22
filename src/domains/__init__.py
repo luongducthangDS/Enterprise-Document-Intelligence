@@ -64,6 +64,11 @@ def get_domain(domain_name: str) -> DomainPlugin | None:
     return _REGISTRY.get(domain_name)
 
 
+def get_conversation_domain(query: str, category: str | None = None, history: list | None = None) -> DomainPlugin | None:
+    """Tìm domain plugin phù hợp với query, category và history."""
+    return get_matching_domain(query, category)
+
+
 # Tự động đăng ký các built-in domain plugins
 import src.domains.accounting  # noqa: F401, E402
 import src.domains.hr  # noqa: F401, E402

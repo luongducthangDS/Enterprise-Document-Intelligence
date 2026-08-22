@@ -28,10 +28,16 @@ env/
 .DS_Store
 Thumbs.db
 
-# Data (never commit large data)
-data/
+# Data (never commit large data; allow only deterministic ACL registries)
+data/*
+!data/metadata/
+data/metadata/*
 !data/metadata/document_registry.csv
+!data/metadata/accounting_document_registry.csv
+!data/metadata/product_document_registry.csv
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 *.zip
 

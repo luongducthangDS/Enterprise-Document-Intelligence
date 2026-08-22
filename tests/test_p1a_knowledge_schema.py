@@ -27,10 +27,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from sqlalchemy.exc import IntegrityError
 
-from src.knowledge.database import create_knowledge_engine, get_session, init_db
+from src.knowledge.database import create_all_tables, create_knowledge_engine, drop_all_tables, get_session, init_db
 from src.knowledge.models import (
     AuthorityLevel,
-    Base,
     KnowledgeType,
     RelationType,
     ReviewStatus,
@@ -52,8 +51,8 @@ class TestP1AKnowledgeSchema(unittest.TestCase):
         init_db(cls.engine)
 
     def setUp(self):
-        Base.metadata.drop_all(bind=self.engine)
-        Base.metadata.create_all(bind=self.engine)
+        drop_all_tables(self.engine)
+        create_all_tables(self.engine)
 
     def test_01_to_07_end_to_end_knowledge_lifecycle(self):
         """1-7: Vòng đời tạo Tenant -> Doc -> Version -> Chunks -> Knowledge -> Evidence -> Relation."""
