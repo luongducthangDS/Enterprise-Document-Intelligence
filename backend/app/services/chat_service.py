@@ -17,6 +17,7 @@ from app.core.logging import logger
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.messages import MessageDB
+from app.domain.models.profile import ProfileDB
 from app.schemas.agent import AgentAnswerDTO
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
@@ -24,6 +25,21 @@ from app.services.content_safety import sanitize_citations_for_client
 from app.services.conversation_service import DEFAULT_CONVERSATION_TITLE, make_conversation_title
 from app.services.ticket_service import TicketService
 
+
+
+
+def _agent_role(profile_role: str) -> str:
+    """Map Backend administrative roles to the Agent's canonical authorization roles."""
+    normalized = str(profile_role or "").upper().strip()
+    aliases = {"HR_ADMIN": "ADMIN", "SUPER_ADMIN": "ADMIN"}
+    mapped = aliases.get(normalized, normalized)
+    allowed = {
+        "EMPLOYEE", "MANAGER", "DEPARTMENT_USER", "HR_OPERATOR",
+        "LEGAL_COUNSEL", "FINANCE_OFFICER", "EXECUTIVE", "ADMIN",
+    }
+    if mapped not in allowed:
+        raise AIAgentClientError("IDENTITY_ROLE_INVALID", f"Unsupported profile role: {normalized}", False)
+    return mapped
 
 class ChatService:
     session_factory = AsyncSessionLocal
@@ -241,6 +257,15 @@ class ChatService:
                 chat_req = await db.get(ChatRequestDB, chat_request_id)
                 if not chat_req or chat_req.assistant_message_id is not None:
                     return
+                # Authorization identity comes from Backend DB, never frontend.
+                profile = await db.get(ProfileDB, user_id)
+                if profile is None:
+                    raise AIAgentClientError("IDENTITY_PROFILE_MISSING", "Authenticated profile no longer exists", False)
+                if not str(profile.department or "").strip() or not str(profile.role or "").strip():
+                    raise AIAgentClientError("IDENTITY_PROFILE_INCOMPLETE", "Profile role/department is incomplete", False)
+                effective_department = str(profile.department).upper().strip()
+                effective_role = _agent_role(profile.role)
+                effective_tenant = get_settings().active_tenant
                 history = await cls._load_agent_history(
                     db,
                     conversation_id,
@@ -256,8 +281,10 @@ class ChatService:
                     agent_answer = await cls.agent_client.query_agent(
                         user_id=str(user_id),
                         query=question,
-                        department=department,
+                        department=effective_department,
                         request_id=str(chat_request_id),
+                        user_role=effective_role,
+                        tenant_id=effective_tenant,
                         history=history,
                     )
                 else:
@@ -265,8 +292,10 @@ class ChatService:
                     async for event in cls.agent_client.stream_query_agent(
                         user_id=str(user_id),
                         query=question,
-                        department=department,
+                        department=effective_department,
                         request_id=str(chat_request_id),
+                        user_role=effective_role,
+                        tenant_id=effective_tenant,
                         history=history,
                     ):
                         if event["type"] == "error":

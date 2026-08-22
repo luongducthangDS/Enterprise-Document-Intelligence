@@ -103,6 +103,7 @@ def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) 
         "title": meta.get("title", ""),
         "department": str(meta.get("department") or "accounting"),
         "category": meta.get("category", ""),
+        "owner": meta.get("owner", ""),
         "is_official_policy": bool(meta.get("is_official_policy", True)),
         "source_type": str(meta.get("source_type") or "internal_policy"),
         "authority": str(meta.get("authority") or "tenant_official_policy"),
@@ -120,30 +121,57 @@ def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) 
     }
 
 
-def _accounting_provenance_filter(settings, allowed_categories: list[str] | None = None) -> dict:
-    """Bộ lọc quyền truy xuất chuẩn doanh nghiệp cho Kế toán."""
+def _accounting_provenance_filter(settings, user_context) -> dict:
+    """Registry corpus branch, below Chroma's 8-predicate quota."""
     from datetime import datetime, timezone
     try:
         from datetime import UTC
     except ImportError:
         UTC = timezone.utc
+    from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
+    from src.security import get_authorization_engine
+
+    allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
+    if not allowed_files:
+        return {"source_file": "__NO_ACCESS__"}
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    categories = allowed_categories or ["GENERAL"]
-    category_filter = (
-        {"access_category": {"$in": categories}}
-        if len(categories) > 1
-        else {"access_category": {"$eq": categories[0]}}
-    )
-    return {
-        "$and": [
-            category_filter,
-            {"publication_status": "active"},
-            {"artifact_state": "frozen"},
-            {"retrieval_enabled": True},
-            {"effective_date_ymd": {"$lte": query_date_ymd}},
-            {"expiry_date_ymd": {"$gte": query_date_ymd}},
-        ]
-    }
+    conditions = [
+        {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]},
+        {"publication_status": "active"},
+        {"artifact_state": "frozen"},
+        {"retrieval_enabled": True},
+        {"effective_date_ymd": {"$lte": query_date_ymd}},
+        {"expiry_date_ymd": {"$gte": query_date_ymd}},
+    ]
+    if settings.data_mode == "production":
+        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
+    return {"$and": conditions}
+
+
+def _accounting_retrieval_filters(settings, user_context) -> list[dict]:
+    from datetime import datetime, timezone
+    try:
+        from datetime import UTC
+    except ImportError:
+        UTC = timezone.utc
+    from src.security import runtime_upload_access_filters
+
+    filters: list[dict] = []
+    offline = _accounting_provenance_filter(settings, user_context)
+    if offline != {"source_file": "__NO_ACCESS__"}:
+        filters.append(offline)
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    lifecycle = [
+        {"publication_status": "active"},
+        {"artifact_state": "frozen"},
+        {"retrieval_enabled": True},
+        {"effective_date_ymd": {"$lte": query_date_ymd}},
+        {"expiry_date_ymd": {"$gte": query_date_ymd}},
+    ]
+    for access in runtime_upload_access_filters(user_context):
+        access_conditions = access["$and"] if "$and" in access else [access]
+        filters.append({"$and": [*access_conditions, *lifecycle]})
+    return filters or [{"source_file": "__NO_ACCESS__"}]
 
 
 async def accounting_retrieval_node(state: dict) -> dict:
@@ -159,7 +187,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
     import asyncio
     from functools import partial
     from src.config import get_settings
-    from src.ingestion.indexer import get_chroma_client, get_collection
+    from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
     from src.observability import llm_trace
     from src.services.fpt_client import embed_batch, rerank
 
@@ -179,31 +207,27 @@ async def accounting_retrieval_node(state: dict) -> dict:
         )
         embedding = vectors[0]
 
-    # 2. Kết nối collection Kế toán trên Chroma Cloud
+    # 2. Kết nối collection Kế toán tenant-scoped trên Chroma Cloud
+    from src.security import UserContext
+    user_context = UserContext.from_state(state)
     client = get_chroma_client(settings)
-    collection_name = "accounting_documents"
-    try:
-        col = get_collection(client, collection_name)
-    except Exception:
-        col = get_collection(client, settings.chroma_collection_name)
+    collection_name = collection_name_for_department("Accounting", settings, user_context.tenant_id)
+    # Dedicated domain collection is mandatory. Never fall back across domains.
+    col = get_collection(client, collection_name)
+    filters = _accounting_retrieval_filters(settings, user_context)
 
-    allowed_categories = state.get("allowed_categories")
-    user_role = state.get("user_role")
-    if not allowed_categories:
-        if user_role == "admin":
-            allowed_categories = ["GENERAL", "LEGAL", "DEPARTMENT", "EXTERNAL_REFERENCE"]
-        else:
-            allowed_categories = ["GENERAL"]
-
-    where = _accounting_provenance_filter(settings, allowed_categories=allowed_categories)
-
-    # 3. Vector search
+    # 3. Vector search: one quota-safe branch per access grant, then deduplicate.
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
-        result = await asyncio.to_thread(
-            partial(col.query, where=where) if where else col.query,
-            query_embeddings=[embedding],
-            n_results=effective_top_k,
-        )
+        branch_results = await asyncio.gather(*[
+            asyncio.to_thread(
+                partial(col.query, where=where),
+                query_embeddings=[embedding],
+                n_results=effective_top_k,
+            )
+            for where in filters
+        ])
+        from src.agents.nodes.retrieval import _merge_query_results
+        result = _merge_query_results(branch_results, effective_top_k)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]

@@ -191,6 +191,8 @@ class ChunkMetadata(BaseModel):
     access_scope: str = "COMPANY_WIDE"
     authorized_departments: str = "[]"
     authorized_roles: str = "[]"
+    authorized_role: str = ""
+    owner_user_id: str = ""
     authorization_status: str = "ACTIVE"
     authorization_source: str = "BUSINESS_POLICY"
     classification_source: str = "DETERMINISTIC_AUDIT"
@@ -239,10 +241,16 @@ class ChunkMetadata(BaseModel):
         Chỉ xuất 22 trường thực sự cần thiết cho truy vấn (where filter) và hiển thị citation.
         """
         CHROMA_ALLOWED_KEYS = {
+            "chunk_id",
             "source_file",
+            "source_stem",
             "title",
             "document_domain",
             "access_scope",
+            "authorization_source",
+            "authorized_role",
+            "owner_user_id",
+            "access_category",
             "department",
             "category",
             "source_type",
@@ -261,6 +269,9 @@ class ChunkMetadata(BaseModel):
             "page_end",
             "sheet_start",
             "sheet_end",
+            "owner",
+            "document_code",
+            "version",
         }
         return {k: v for k, v in self.model_dump().items() if k in CHROMA_ALLOWED_KEYS and v is not None}
 

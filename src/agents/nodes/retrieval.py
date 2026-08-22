@@ -13,7 +13,7 @@ from functools import lru_cache, partial
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
-from src.ingestion.indexer import get_chroma_client, get_collection
+from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
 from src.ingestion.metadata import DEMO_ONLY_PROVENANCE, load_registry
 from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
@@ -67,25 +67,11 @@ def _expand_retrieval_query(query: str) -> str:
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
-from src.security import UserContext, get_authorization_engine
+from src.security import UserContext, get_authorization_engine, runtime_upload_access_filters
 
 
-def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN (Enterprise Authorization Engine / Access Control Filter)."""
-    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    user = user_context or UserContext(department="GENERAL")
-    auth_engine = get_authorization_engine()
-    allowed_files = auth_engine.get_authorized_source_files(user)
-    if not allowed_files:
-        return {"source_file": "__NO_ACCESS__"}
-
-    file_condition = (
-        {"source_file": {"$in": allowed_files}}
-        if len(allowed_files) > 1
-        else {"source_file": allowed_files[0]}
-    )
-    conditions: list[dict] = [
-        file_condition,
+def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
+    return [
         {"publication_status": "active"},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},
@@ -93,10 +79,52 @@ def _provenance_filter(settings: Settings, user_context: UserContext | None = No
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
 
+
+def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict:
+    """Registry corpus filter; kept below Chroma's 8-predicate query quota."""
+    if user_context is None:
+        return {"source_file": "__NO_ACCESS__"}
+    allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
+    if not allowed_files:
+        return {"source_file": "__NO_ACCESS__"}
+    file_condition = {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
+    conditions = [file_condition, *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d")))]
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
-    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+    return {"$and": conditions}
 
+
+def _retrieval_filters(settings: Settings, user_context: UserContext) -> list[dict]:
+    """Return independent authorized queries; each has at most 8 leaf predicates."""
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    filters: list[dict] = []
+    offline = _provenance_filter(settings, user_context)
+    if offline != {"source_file": "__NO_ACCESS__"}:
+        filters.append(offline)
+    lifecycle = _lifecycle_conditions(query_date_ymd)
+    for access in runtime_upload_access_filters(user_context):
+        access_conditions = access["$and"] if "$and" in access else [access]
+        filters.append({"$and": [*access_conditions, *lifecycle]})
+    return filters or [{"source_file": "__NO_ACCESS__"}]
+
+
+def _merge_query_results(results: list[dict], limit: int) -> dict:
+    best: dict[str, tuple[str, dict, float]] = {}
+    for result in results:
+        ids = (result.get("ids") or [[]])[0]
+        documents = (result.get("documents") or [[]])[0]
+        metadatas = (result.get("metadatas") or [[]])[0]
+        distances = (result.get("distances") or [[]])[0]
+        for chunk_id, document, metadata, distance in zip(ids, documents, metadatas, distances):
+            if chunk_id not in best or distance < best[chunk_id][2]:
+                best[chunk_id] = (document, metadata, distance)
+    ranked = sorted(best.items(), key=lambda item: item[1][2])[:limit]
+    return {
+        "ids": [[item[0] for item in ranked]],
+        "documents": [[item[1][0] for item in ranked]],
+        "metadatas": [[item[1][1] for item in ranked]],
+        "distances": [[item[1][2] for item in ranked]],
+    }
 
 from src.security.tenant_resolver import resolve_tenant_collection
 from src.security.authorization import get_authorization_engine
@@ -163,6 +191,7 @@ def _to_chunk(
         "title": meta.get("title", ""),
         "department": meta.get("department", "HR"),
         "category": meta.get("category", ""),
+        "owner": meta.get("owner", ""),
         "is_official_policy": bool(meta.get("is_official_policy", False)),
         "source_type": meta.get("source_type", "public_reference"),
         "authority": meta.get("authority", "public_reference"),
@@ -181,18 +210,23 @@ def _to_chunk(
 
 
 async def retrieval_node(state: AgentState) -> dict:
-   """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
+    """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
     # --- Phân hệ Kế toán: Ủy quyền cho hàm retrieval riêng biệt ---
-    from src.domains.accounting.retrieval_ext import accounting_retrieval_node, is_accounting_request
-
-    if is_accounting_request(state):
-        return await accounting_retrieval_node(state)
+    from src.domains import get_conversation_domain
+    from src.domains.accounting.retrieval_ext import accounting_retrieval_node
 
     query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
+    domain = get_conversation_domain(query, state.get("category"), state.get("history"))
+    if domain and domain.domain_name == "accounting":
+        return await accounting_retrieval_node(state)
     settings = get_settings()
 
     user_context = UserContext.from_state(state)
-    collection_name = resolve_tenant_collection(user_context)
+    collection_name = (
+        collection_name_for_department("Product", settings, user_context.tenant_id)
+        if (domain and domain.domain_name == "product")
+        else resolve_tenant_collection(user_context)
+    )
 
     with llm_trace.Timer("embedding", "fpt_cloud"):
         embedding = await _aembed_query(query)
@@ -200,13 +234,17 @@ async def retrieval_node(state: AgentState) -> dict:
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection(collection_name)
 
-    where = _provenance_filter(settings, user_context=user_context)
+    filters = _retrieval_filters(settings, user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
-        result = await asyncio.to_thread(
-            partial(collection.query, where=where) if where else collection.query,
-            query_embeddings=[embedding],
-            n_results=settings.retrieval_top_k,
-        )
+        branch_results = await asyncio.gather(*[
+            asyncio.to_thread(
+                partial(collection.query, where=where),
+                query_embeddings=[embedding],
+                n_results=settings.retrieval_top_k,
+            )
+            for where in filters
+        ])
+        result = _merge_query_results(branch_results, settings.retrieval_top_k)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]

@@ -33,6 +33,11 @@ def normalize_tenant(value: str | None) -> str:
     return normalized
 
 
+def tenant_scoped_chunk_id(tenant: str, stem: str, index: int) -> str:
+    """New writes use tenant-qualified IDs; legacy tenantless artifacts remain readable."""
+    safe_tenant = normalize_tenant(tenant)
+    return f"{safe_tenant}:{stem}::{index:04d}" if safe_tenant else f"{stem}::{index:04d}"
+
 def build_chunks_from_text(
     raw_text: str,
     *,
@@ -45,6 +50,8 @@ def build_chunks_from_text(
     access_scope: str = "COMPANY_WIDE",
     authorized_departments: list[str] | str = "[]",
     authorized_roles: list[str] | str = "[]",
+    authorized_role: str = "",
+    owner_user_id: str = "",
     authorization_status: str = "ACTIVE",
     authorization_source: str = "BUSINESS_POLICY",
     classification_source: str = "DETERMINISTIC_AUDIT",
@@ -122,7 +129,7 @@ def build_chunks_from_text(
         sheet_start = sheet_for_offset(cleaned.sheet_offsets, tc.start)
         sheet_end = sheet_for_offset(cleaned.sheet_offsets, max(tc.start, tc.end - 1))
         meta = ChunkMetadata(
-            chunk_id=f"{stem}::{idx:04d}",
+            chunk_id=tenant_scoped_chunk_id(resolved_tenant, stem, idx),
             source_file=source_file,
             source_stem=stem,
             title=title,
@@ -131,6 +138,8 @@ def build_chunks_from_text(
             access_scope=access_scope,
             authorized_departments=json.dumps(parsed_auth_depts, ensure_ascii=False),
             authorized_roles=json.dumps(parsed_auth_roles, ensure_ascii=False),
+            authorized_role=authorized_role.upper().strip(),
+            owner_user_id=owner_user_id.strip(),
             authorization_status=authorization_status,
             authorization_source=authorization_source,
             classification_source=classification_source,

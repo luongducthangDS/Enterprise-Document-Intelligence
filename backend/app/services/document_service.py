@@ -9,13 +9,36 @@ from fastapi import UploadFile
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
+from app.domain.models.audit import AuditLogDB
 from app.domain.models.documents import DocumentDB, IngestionJobDB
 from app.schemas.documents import DocumentMetadataUpdate
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".md"}
+
+_PRODUCT_CATEGORIES = {"PRD", "ROADMAP", "USER_RESEARCH", "PRODUCT_METRICS"}
+_ACCOUNTING_CATEGORIES = {
+    "ADVANCE_AND_PAYMENT_SOP",
+    "FIXED_ASSETS_MANAGEMENT",
+    "INTERNAL_EXPENSE_POLICY",
+    "INVOICES_AND_TAX",
+    "PAYROLL_AND_COMPENSATION",
+    "PROCUREMENT_AND_PURCHASING",
+}
+
+
+def _resolve_document_department(department: str | None, category: str) -> str:
+    if department and department.strip():
+        return department.strip()
+    normalized_category = category.strip().upper()
+    if normalized_category in _PRODUCT_CATEGORIES:
+        return "Product"
+    if normalized_category in _ACCOUNTING_CATEGORIES:
+        return "ACCOUNTING"
+    return "HR"
 
 
 class DocumentService:
@@ -30,16 +53,19 @@ class DocumentService:
         file: UploadFile,
         title: str | None = None,
         category: str | None = None,
+        department: str | None = None,
         version: str | None = None,
         effective_date: str | None = None,
         confidentiality: str | None = None,
         status: str | None = None,
+        access_scope: str = "RESTRICTED",
+        authorized_role: str | None = None,
     ) -> dict[str, Any]:
         uploader_id_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
         try:
             uploader_id = uuid.UUID(str(uploader_id_raw))
-        except (ValueError, TypeError):
-            uploader_id = uuid.uuid4()
+        except (ValueError, TypeError) as exc:
+            raise AppException(status_code=401, code="IDENTITY_REQUIRED", message="Không xác định được người tải tài liệu.") from exc
 
 
         filename = file.filename or "document.pdf"
@@ -69,13 +95,32 @@ class DocumentService:
 
         doc_title = title.strip() if title and title.strip() else filename
         doc_category = category.strip() if category and category.strip() else "GENERAL"
+        doc_department = _resolve_document_department(department, doc_category)
         doc_confidentiality = confidentiality.strip() if confidentiality and confidentiality.strip() else "INTERNAL"
-        doc_status = status.strip() if status and status.strip() else "ACTIVE"
+        doc_status = status.strip().upper() if status and status.strip() else "ACTIVE"
+        normalized_scope = access_scope.strip().upper()
+        allowed_scopes = {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}
+        if normalized_scope not in allowed_scopes:
+            raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
+        normalized_role = authorized_role.strip().upper() if authorized_role and authorized_role.strip() else None
+        if normalized_scope == "ROLE" and not normalized_role:
+            raise AppException(status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role.")
+        if normalized_scope != "ROLE":
+            normalized_role = None
+        tenant = get_settings().active_tenant
 
         doc = DocumentDB(
             title=doc_title,
             source_file=filename,
             category=doc_category,
+            tenant=tenant,
+            department=doc_department.upper(),
+            access_scope=normalized_scope,
+            authorized_role=normalized_role,
+            owner_user_id=uploader_id,
+            authorization_source="RUNTIME_UPLOAD",
+            authority="tenant_official_policy",
+            provenance="customer_provided",
             version=version,
             effective_date=effective_date,
             confidentiality=doc_confidentiality,
@@ -105,6 +150,16 @@ class DocumentService:
                         "source_file": filename,
                         "content_base64": base64.b64encode(contents).decode("ascii"),
                         "category": doc.category,
+                        "department": doc_department,
+                        "tenant": doc.tenant,
+                        "access_scope": doc.access_scope,
+                        "authorized_role": doc.authorized_role or "",
+                        "owner_user_id": str(doc.owner_user_id),
+                        "authorization_source": doc.authorization_source,
+                        "publication_status": "active" if doc.status == "ACTIVE" else "draft",
+                        "artifact_state": "frozen" if doc.status == "ACTIVE" else "draft",
+                        "retrieval_enabled": doc.status == "ACTIVE",
+                        "expiry_date": "9999-12-31",
                         "source_type": "official_policy",
                         "is_official_policy": True,
                         "caveat": doc.caveat or "",
@@ -122,6 +177,7 @@ class DocumentService:
             "document_id": str(doc.id),
             "ingestion_job_id": str(job.id),
             "status": doc.status,
+            "access_scope": doc.access_scope,
         }
 
     @classmethod
@@ -285,6 +341,25 @@ class DocumentService:
                 message="Bạn không có quyền cập nhật metadata cho tài liệu này.",
             )
 
+        before_acl = {
+            "department": doc.department,
+            "access_scope": doc.access_scope,
+            "authorized_role": doc.authorized_role,
+        }
+        if data.access_scope is not None:
+            normalized_scope = data.access_scope.upper().strip()
+            if normalized_scope not in {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}:
+                raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
+            doc.access_scope = normalized_scope
+        if data.department is not None:
+            doc.department = data.department.upper().strip()
+        if data.authorized_role is not None:
+            doc.authorized_role = data.authorized_role.upper().strip() or None
+        if doc.access_scope == "ROLE" and not doc.authorized_role:
+            raise AppException(status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role.")
+        if doc.access_scope != "ROLE":
+            doc.authorized_role = None
+
         if data.title is not None:
             doc.title = data.title
         if data.category is not None:
@@ -299,6 +374,21 @@ class DocumentService:
             doc.confidentiality = data.confidentiality
 
         doc.updated_at = datetime.now(UTC)
+        after_acl = {
+            "department": doc.department,
+            "access_scope": doc.access_scope,
+            "authorized_role": doc.authorized_role,
+        }
+        if after_acl != before_acl:
+            db.add(AuditLogDB(
+                tenant=doc.tenant,
+                actor_id=uuid.UUID(str(user["user_id"])),
+                action="DOCUMENT_ACL_UPDATED",
+                resource_type="document",
+                resource_id=str(doc.id),
+                before_state=before_acl,
+                after_state=after_acl,
+            ))
         await db.commit()
         await db.refresh(doc)
 

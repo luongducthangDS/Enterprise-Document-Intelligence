@@ -23,7 +23,9 @@ class AgentQueryRequest(BaseModel):
     query: str = Field(..., min_length=1)
     request_id: str = Field(..., min_length=1, max_length=128)
     user_id: str = Field(..., min_length=1, max_length=128)
-    department: str = Field(default="GENERAL", max_length=128)
+    tenant_id: str = Field(..., min_length=1, max_length=128)
+    department: str = Field(..., min_length=1, max_length=128)
+    user_role: str = Field(..., min_length=1, max_length=64)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
 
 
@@ -50,7 +52,15 @@ class IngestionJobRequest(BaseModel):
     # được nạp offline bằng scripts/rag_pipeline/build_chunks.py từ registry).
     authority: str = Field(default="tenant_official_policy", max_length=64)
     provenance: str = Field(default="customer_provided", max_length=64)
-    tenant: str = Field(default="", max_length=128, description="Slug doanh nghiệp sở hữu tài liệu")
+    tenant: str = Field(..., min_length=1, max_length=128, description="Slug tenant đã xác thực; bắt buộc cho mọi write")
+    access_scope: Literal["COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"] = "RESTRICTED"
+    authorized_role: str = Field(default="", max_length=64)
+    owner_user_id: str = Field(..., min_length=1, max_length=128)
+    authorization_source: Literal["RUNTIME_UPLOAD"] = "RUNTIME_UPLOAD"
+    publication_status: Literal["active", "draft", "superseded", "archived"] = "active"
+    artifact_state: Literal["frozen", "draft"] = "frozen"
+    retrieval_enabled: bool = True
+    expiry_date: str = Field(default="9999-12-31", max_length=10)
 
 
 class IndexRebuildTarget(BaseModel):
@@ -60,6 +70,7 @@ class IndexRebuildTarget(BaseModel):
 
 class IndexRebuildJobRequest(BaseModel):
     job_id: str = Field(..., min_length=1, max_length=128)
+    tenant: str = Field(..., min_length=1, max_length=128)
     documents: list[IndexRebuildTarget] = Field(
         default_factory=list, description="Rỗng = rebuild toàn bộ tài liệu đã có chunk"
     )

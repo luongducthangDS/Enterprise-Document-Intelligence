@@ -9,7 +9,7 @@ from src.agents.nodes.escalation import (
     _strip_diacritics,
 )
 from src.agents.state import AgentState, Intent
-from src.domains import get_matching_domain
+from src.domains import get_conversation_domain
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal|pure_statutory")
 _EXPLICIT_HYBRID_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
@@ -179,7 +179,7 @@ async def router_node(state: AgentState) -> dict:
         return {"intent": "out_of_scope_or_personal"}
 
     # --- Domain-Specific Personal Data / ABSTAIN Guardrail (G5) ---
-    domain = get_matching_domain(query, state.get("category"))
+    domain = get_conversation_domain(query, state.get("category"), state.get("history"))
     if domain:
         is_personal, reason_code = domain.check_personal_data_query(query)
         if is_personal:

@@ -4,6 +4,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.exceptions import AppException, ConflictError, NotFoundError
 from app.domain.models.documents import DocumentDB
 from app.domain.models.index_job import IndexJobDB
@@ -25,8 +26,10 @@ class IndexService:
         requested_by_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
         try:
             requested_by = uuid.UUID(str(requested_by_raw))
-        except (ValueError, TypeError):
-            requested_by = uuid.uuid4()
+        except (ValueError, TypeError) as exc:
+            raise AppException(status_code=401, code="IDENTITY_REQUIRED", message="Không xác định được người yêu cầu rebuild.") from exc
+
+        tenant = get_settings().active_tenant
 
         # Check if another rebuild job is currently active (QUEUED or PROCESSING)
         active_stmt = select(IndexJobDB).where(IndexJobDB.state.in_(["QUEUED", "PROCESSING"]))
@@ -52,7 +55,7 @@ class IndexService:
                         message=f"Tài liệu ID '{doc_id_str}' không hợp lệ hoặc chưa sẵn sàng.",
                     )
 
-                doc_stmt = select(DocumentDB).where(DocumentDB.id == doc_uuid)
+                doc_stmt = select(DocumentDB).where(DocumentDB.id == doc_uuid, DocumentDB.tenant == tenant)
                 doc_res = await db.execute(doc_stmt)
                 doc = doc_res.scalars().first()
 
@@ -82,6 +85,7 @@ class IndexService:
                 await cls.worker_client.submit_index_rebuild(
                     {
                         "job_id": str(job.id),
+                        "tenant": tenant,
                         "documents": targets,
                         "strategy": job.strategy,
                     }

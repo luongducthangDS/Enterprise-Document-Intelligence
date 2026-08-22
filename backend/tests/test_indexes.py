@@ -54,6 +54,12 @@ async def setup_indexes_test_data():
             )
             session.add(archived_doc)
 
+        employee_id = uuid.UUID("61616161-6161-4616-8616-616161616161")
+        if await session.get(UserDB, employee_id) is None:
+            employee = UserDB(id=employee_id, email="idx_employee@company.com", hashed_password=hash_password("password123"))
+            employee.profile = ProfileDB(id=employee_id, display_name="Index Employee", role="EMPLOYEE", department="HR")
+            session.add(employee)
+
         await session.commit()
 
 
@@ -89,7 +95,7 @@ def test_create_index_rebuild_success():
 
 
 def test_employee_cannot_create_index_rebuild():
-    headers = get_auth_header(role="EMPLOYEE")
+    headers = get_auth_header(user_id="61616161-6161-4616-8616-616161616161", email="idx_employee@company.com", role="EMPLOYEE")
     response = client.post(
         "/api/v1/indexes/rebuilds",
         headers=headers,

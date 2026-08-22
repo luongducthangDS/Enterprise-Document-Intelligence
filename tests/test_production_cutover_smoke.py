@@ -30,6 +30,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
             department="GENERAL",
             history=[],
             request_id="smoke-test-a",
+            user_id="cutover-smoke-user",
         )
         res = await retrieval_node(state)
         chunks = res.get("retrieved_chunks", [])
@@ -46,6 +47,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
             department="HR",
             history=[],
             request_id="smoke-test-b",
+            user_id="cutover-smoke-user",
         )
         res = await retrieval_node(state)
         chunks = res.get("retrieved_chunks", [])
@@ -61,6 +63,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
             department="FINANCE",
             history=[],
             request_id="smoke-test-c",
+            user_id="cutover-smoke-user",
         )
         res = await retrieval_node(state)
         chunks = res.get("retrieved_chunks", [])
@@ -70,8 +73,8 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
 
     def test_smoke_d_cross_tenant_isolation(self):
         """Test D: NexaTech user không thể truy cập Tenant B collection."""
-        user_nexatech = UserContext(tenant_id="nexatech", role=UserRole.EMPLOYEE)
-        user_tenant_b = UserContext(tenant_id="client_b", role=UserRole.EMPLOYEE)
+        user_nexatech = UserContext(tenant_id="nexatech", user_id="nexa-user", department="GENERAL", role=UserRole.EMPLOYEE)
+        user_tenant_b = UserContext(tenant_id="client_b", user_id="client-b-user", department="GENERAL", role=UserRole.EMPLOYEE)
 
         self.assertEqual(resolve_tenant_collection(user_nexatech), "tenant_nexatech_knowledge")
         self.assertEqual(resolve_tenant_collection(user_tenant_b), "tenant_client_b_knowledge")
@@ -85,7 +88,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
         """Test F: Thiếu tenant_id trong môi trường PRODUCTION phải ném PermissionError (Fail-Closed)."""
         with patch.object(self.settings, "app_env", "production"):
             with self.assertRaises(PermissionError) as ctx:
-                resolve_tenant_collection(user_context=UserContext(tenant_id=""))
+                resolve_tenant_collection(user_context=UserContext.model_construct(tenant_id="", user_id="missing-tenant", department="GENERAL", role=UserRole.EMPLOYEE))
             self.assertIn("Missing authenticated tenant_id", str(ctx.exception))
 
     async def test_smoke_g_observability_audit_logging(self):
@@ -97,6 +100,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
             department="EXECUTIVE",
             history=[],
             request_id="smoke-test-g-audit",
+            user_id="cutover-smoke-user",
         )
         captured = io.StringIO()
         with patch("sys.stdout", captured):

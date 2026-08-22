@@ -1,0 +1,2268 @@
+{
+  "run_at": "2026-08-22T04:44:44.447493+00:00",
+  "top_k": 10,
+  "reranked": false,
+  "hybrid": false,
+  "dataset": "eval/datasets/retrieval_eval_set.json",
+  "qrels": "eval/datasets/retrieval_eval_qrels.json",
+  "min_relevance": 1,
+  "alignment": {
+    "benchmark_valid": true,
+    "scored_queries": 29,
+    "qrel_chunk_labels": 59,
+    "available_qrel_chunk_labels": 59,
+    "missing_qrel_chunk_labels": 0,
+    "qrel_chunk_label_coverage": 1.0,
+    "queries_with_any_available_qrel": 29,
+    "query_coverage": 1.0,
+    "fully_available_queries": 29,
+    "partially_available_queries": [],
+    "unavailable_queries": [],
+    "missing_qrel_ids_by_query": {},
+    "index_chunk_count": 269,
+    "index_source_count": 0,
+    "qrel_source_count": 0,
+    "available_qrel_sources": [],
+    "missing_qrel_sources": []
+  },
+  "summary": {
+    "in_scope_n": 29,
+    "excluded_no_qrel": 0,
+    "recall@1": 0.245,
+    "precision@1": 0.655,
+    "ndcg@1": 0.655,
+    "multi_chunk_recall@1": 0.034,
+    "hit_rate@1": 0.655,
+    "hit_rate@1_ci": [
+      0.483,
+      0.828
+    ],
+    "recall@1_ci": [
+      0.159,
+      0.34
+    ],
+    "recall@3": 0.645,
+    "precision@3": 0.552,
+    "ndcg@3": 0.689,
+    "multi_chunk_recall@3": 0.448,
+    "hit_rate@3": 0.828,
+    "hit_rate@3_ci": [
+      0.69,
+      0.966
+    ],
+    "recall@3_ci": [
+      0.507,
+      0.777
+    ],
+    "recall@5": 0.749,
+    "precision@5": 0.421,
+    "ndcg@5": 0.708,
+    "multi_chunk_recall@5": 0.552,
+    "hit_rate@5": 0.862,
+    "hit_rate@5_ci": [
+      0.724,
+      0.966
+    ],
+    "recall@5_ci": [
+      0.616,
+      0.868
+    ],
+    "recall@10": 0.881,
+    "precision@10": 0.262,
+    "ndcg@10": 0.749,
+    "multi_chunk_recall@10": 0.793,
+    "hit_rate@10": 0.897,
+    "hit_rate@10_ci": [
+      0.759,
+      1.0
+    ],
+    "recall@10_ci": [
+      0.753,
+      0.975
+    ],
+    "recall@15": 0.881,
+    "precision@15": 0.175,
+    "ndcg@15": 0.749,
+    "multi_chunk_recall@15": 0.793,
+    "hit_rate@15": 0.897,
+    "hit_rate@15_ci": [
+      0.759,
+      1.0
+    ],
+    "recall@15_ci": [
+      0.753,
+      0.975
+    ],
+    "recall@20": 0.881,
+    "precision@20": 0.131,
+    "ndcg@20": 0.749,
+    "multi_chunk_recall@20": 0.793,
+    "hit_rate@20": 0.897,
+    "hit_rate@20_ci": [
+      0.759,
+      1.0
+    ],
+    "recall@20_ci": [
+      0.753,
+      0.975
+    ],
+    "mrr": 0.744,
+    "doc_hit_rate@1": 0.759,
+    "doc_hit_rate@3": 0.897,
+    "doc_hit_rate@5": 0.966,
+    "doc_hit_rate@10": 1.0,
+    "doc_hit_rate@15": 1.0,
+    "doc_hit_rate@20": 1.0
+  },
+  "results": [
+    {
+      "id": "rq_002",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Kết quả phỏng vấn ứng viên thì mình ghi vào biểu mẫu nào nhỉ?",
+      "top1_distance": 0.1568796,
+      "top1_source_file": "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0011",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0000",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0005",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009",
+        "nexatech:2f214bb4-5b6b-5edb-9175-bb1c4bddf4f5:0116bc10-7a60-525f-b236-d9f99993b3b6:0003",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0007",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0012"
+      ],
+      "retrieved_source_files": [
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "prd_mm_01_hop-sprint-review-doc-intelligence.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "02_quy-trinh-tuyen-dung.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.631,
+        "ndcg@5": 0.631,
+        "ndcg@10": 0.631,
+        "ndcg@15": 0.631,
+        "ndcg@20": 0.631
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_007",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Em sắp hết 90 ngày thử việc, nếu mà không đạt thì công ty có phải báo trước cho em hay bồi thường gì không?",
+      "top1_distance": 0.1283412,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0012",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0004",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0013",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0006",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0023"
+      ],
+      "retrieved_source_files": [
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "04_quy-trinh-offboarding.md",
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "03_quy-trinh-onboarding"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_012",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "bàn giao công việc tài sản nghỉ việc",
+      "top1_distance": 0.13813317,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0006",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0009",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0008",
+        "nexatech:9a509f15-60b4-5038-ab64-20e6e25da7b7:620b1b39-2048-5174-8049-9da9726d4e6b:0002",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0010",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0001",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0000",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0007",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0003",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0002"
+      ],
+      "retrieved_source_files": [
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 6,
+      "recall_at_k": {
+        "recall@1": 0.167,
+        "recall@3": 0.5,
+        "recall@5": 0.667,
+        "recall@10": 0.833,
+        "recall@15": 0.833,
+        "recall@20": 0.833
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.5,
+        "precision@15": 0.333,
+        "precision@20": 0.25
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 0.854,
+        "ndcg@10": 0.87,
+        "ndcg@15": 0.87,
+        "ndcg@20": 0.87
+      },
+      "expected_source_stems": [
+        "04_quy-trinh-offboarding",
+        "05_chinh-sach-lam-viec-tu-xa"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_014",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình tuyển dụng đang áp dụng cho những khối nào trong công ty vậy?",
+      "top1_distance": 0.13894784,
+      "top1_source_file": "02_quy-trinh-tuyen-dung.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0000",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0002",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0005",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0011",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0001",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003"
+      ],
+      "retrieved_source_files": [
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.333,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.469,
+        "ndcg@5": 0.651,
+        "ndcg@10": 0.799,
+        "ndcg@15": 0.799,
+        "ndcg@20": 0.799
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_018",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "cộng dồn phép năm chưa dùng hết",
+      "top1_distance": 0.10195941,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0019",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0020",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0021",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0024",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0005",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:11d5ab1b-0a22-540e-b04c-6a71b03c4eb9:e98cf77b-1e4e-5b22-ad1d-81205768fc40:0003",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0002",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0006",
+        "nexatech:11d5ab1b-0a22-540e-b04c-6a71b03c4eb9:e98cf77b-1e4e-5b22-ad1d-81205768fc40:0001"
+      ],
+      "retrieved_source_files": [
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "fin_mm_01_hop-kiem-toan-noi-bo-cong-tac-phi.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "fin_mm_01_hop-kiem-toan-noi-bo-cong-tac-phi.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 5,
+      "recall_at_k": {
+        "recall@1": 0.2,
+        "recall@3": 0.6,
+        "recall@5": 0.8,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.5,
+        "precision@15": 0.333,
+        "precision@20": 0.25
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.735,
+        "ndcg@5": 0.786,
+        "ndcg@10": 0.926,
+        "ndcg@15": 0.926,
+        "ndcg@20": 0.926
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_027",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "hành vi bị nghiêm cấm nơi làm việc",
+      "top1_distance": 0.10171628,
+      "top1_source_file": "13_noi-quy-lao-dong-va-ky-luat.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0004",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0003",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0005",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0020",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0019",
+        "nexatech:d9b57efa-853d-57ac-bbea-30a641aeaaef:a9b7c8fa-7b59-5483-9e8b-b0167be6a222:0004",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0012",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0024",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0018",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0006"
+      ],
+      "retrieved_source_files": [
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "mgt_dec_03_siet-chat-an-toan-thong-tin-byod.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "expected_source_stems": [
+        "05_chinh-sach-lam-viec-tu-xa"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 4,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_029",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Sắp tới mình xin nghỉ việc, vậy cái gói bảo hiểm sức khỏe tự nguyện công ty đang mua cho mình sẽ bị cắt khi nào? Muốn giữ lại để dùng tiếp thì mình phải làm sao?",
+      "top1_distance": 0.11461735,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0005",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0018",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0016",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0004",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0000",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0003",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0012",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0010",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0014"
+      ],
+      "retrieved_source_files": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_035",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Em muốn xin nghỉ phép dài 5 ngày thì phải báo trước bao lâu?",
+      "top1_distance": 0.13430095,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0016",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0007",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0017",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0005",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0012",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0011",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0003"
+      ],
+      "retrieved_source_files": [
+        "07_chinh-sach-nghi-phep.md",
+        "04_quy-trinh-offboarding.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "04_quy-trinh-offboarding.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 3,
+      "reciprocal_rank": 0.3333333333333333,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.5,
+        "ndcg@5": 0.5,
+        "ndcg@10": 0.5,
+        "ndcg@15": 0.5,
+        "ndcg@20": 0.5
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_036",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "quy trình phê duyệt làm thêm giờ",
+      "top1_distance": 0.09653872,
+      "top1_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0007",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0004",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0003",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0001",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0005",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0000",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0002",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0006",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0008",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0010"
+      ],
+      "retrieved_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "01_chinh-sach-lam-them-gio-ot"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_039",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "các loại hình đào tạo công ty",
+      "top1_distance": 0.13197184,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0007",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0000",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0001",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0005",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0002"
+      ],
+      "retrieved_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "03_quy-trinh-onboarding.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 0.667,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.84,
+        "ndcg@5": 0.84,
+        "ndcg@10": 0.954,
+        "ndcg@15": 0.954,
+        "ndcg@20": 0.954
+      },
+      "expected_source_stems": [
+        "06_chinh-sach-dao-tao-phat-trien"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_040",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Muốn xin nghỉ phép thì mình cần làm thủ tục gì, và khi quay lại làm việc sau khi nghỉ phép có cần làm thêm gì không?",
+      "top1_distance": 0.13508844,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0016",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0017",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0011",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0003",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0015",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0005",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0008",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0007",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0008"
+      ],
+      "retrieved_source_files": [
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "04_quy-trinh-offboarding.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.5,
+        "recall@5": 0.75,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.797,
+        "ndcg@5": 0.818,
+        "ndcg@10": 0.894,
+        "ndcg@15": 0.894,
+        "ndcg@20": 0.894
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_041",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Hợp đồng của mình có thời hạn 2 năm, nếu muốn nghỉ việc thì mình cần báo trước cho công ty bao lâu?",
+      "top1_distance": 0.1356532,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0009",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0002",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009"
+      ],
+      "retrieved_source_files": [
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "07_chinh-sach-nghi-phep.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "07_chinh-sach-nghi-phep.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "04_quy-trinh-offboarding"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_045",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "thành phần hội đồng phỏng vấn vòng 1",
+      "top1_distance": 0.17986369,
+      "top1_source_file": "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0012",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0001",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0000",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003",
+        "nexatech:2f214bb4-5b6b-5edb-9175-bb1c4bddf4f5:0116bc10-7a60-525f-b236-d9f99993b3b6:0000",
+        "nexatech:9ca3f1a8-626c-5f0a-bf15-14cb08553efd:92e6d1fc-1dc3-5dcd-b51c-d8e2f632759c:0000",
+        "nexatech:cc6d8035-88d9-5b46-9ef9-a86611740f9e:b07d830a-7cd6-5b23-9aa2-0561901341b5:0001",
+        "nexatech:2f214bb4-5b6b-5edb-9175-bb1c4bddf4f5:0116bc10-7a60-525f-b236-d9f99993b3b6:0003"
+      ],
+      "retrieved_source_files": [
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "prd_mm_01_hop-sprint-review-doc-intelligence.md",
+        "sec_mm_01_hop-ra-soat-su-co-an-ninh-mang.md",
+        "bod_mm_01_hop-giao-ban-ban-giam-doc-082026.md",
+        "prd_mm_01_hop-sprint-review-doc-intelligence.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.631,
+        "ndcg@5": 0.631,
+        "ndcg@10": 0.631,
+        "ndcg@15": 0.631,
+        "ndcg@20": 0.631
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_046",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Chính sách đào tạo và phát triển của công ty có hiệu lực từ khi nào vậy?",
+      "top1_distance": 0.1369319,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0000",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0001",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0007",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0002",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0006"
+      ],
+      "retrieved_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 9,
+      "recall_at_k": {
+        "recall@1": 0.111,
+        "recall@3": 0.333,
+        "recall@5": 0.556,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 1.0,
+        "precision@10": 0.9,
+        "precision@15": 0.6,
+        "precision@20": 0.45
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "06_chinh-sach-dao-tao-phat-trien"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_056",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Nếu công ty mình nhờ Talentnet hỗ trợ xử lý chấm dứt hợp đồng lao động thì họ đảm bảo được những gì cho mình?",
+      "top1_distance": 0.17580861,
+      "top1_source_file": "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:b28a2da5-39dd-5665-9521-fd53484ca8f1:13376fa9-9bbd-51ad-ade7-04b354b36710:0002",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0004",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0005",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0009",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0004",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0004",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011"
+      ],
+      "retrieved_source_files": [
+        "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "04_quy-trinh-offboarding.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "expected_source_stems": [
+        "03_quy-trinh-onboarding",
+        "04_quy-trinh-offboarding"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 10,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_058",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho mình hỏi chính sách hybrid working của công ty bắt đầu áp dụng từ ngày nào vậy?",
+      "top1_distance": 0.09492725,
+      "top1_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0005",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0007",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0003",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0004",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0000",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0008",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0009",
+        "nexatech:fe938b72-88d1-55a2-8f06-ba68f2134f18:87246aa2-d00f-542d-b68d-d20bc10336b2:0003",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0006"
+      ],
+      "retrieved_source_files": [
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "mgt_dec_02_dieu-chinh-hybrid-wfh-2026.md",
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 6,
+      "reciprocal_rank": 0.16666666666666666,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.356,
+        "ndcg@15": 0.356,
+        "ndcg@20": 0.356
+      },
+      "expected_source_stems": [
+        "05_chinh-sach-lam-viec-tu-xa"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_065",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Em mới được giao phụ trách tuyển dụng, muốn hỏi từ lúc ứng viên nộp hồ sơ đến khi ký hợp đồng thì mình cần làm những bước gì và thu thập loại giấy tờ nào?",
+      "top1_distance": 0.1404196,
+      "top1_source_file": "02_quy-trinh-tuyen-dung.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0008",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0007",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0010",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0005",
+        "nexatech:b28a2da5-39dd-5665-9521-fd53484ca8f1:13376fa9-9bbd-51ad-ade7-04b354b36710:0002",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004",
+        "nexatech:9a509f15-60b4-5038-ab64-20e6e25da7b7:620b1b39-2048-5174-8049-9da9726d4e6b:0001"
+      ],
+      "retrieved_source_files": [
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "03_quy-trinh-onboarding.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_069",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu nhân viên trong tháng không hưởng lương 14 ngày làm việc trở lên thì công ty và nhân viên đó có phải đóng BHXH cho tháng đó không?",
+      "top1_distance": 0.12782717,
+      "top1_source_file": "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0004",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0008",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0010",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0009",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0006",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0024",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0011",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019"
+      ],
+      "retrieved_source_files": [
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 3,
+      "reciprocal_rank": 0.3333333333333333,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.5,
+        "ndcg@5": 0.5,
+        "ndcg@10": 0.5,
+        "ndcg@15": 0.5,
+        "ndcg@20": 0.5
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 3,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_071",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Tuần đầu tiên nhân viên mới onboard thì cần làm những gì và ai phụ trách phần nào?",
+      "top1_distance": 0.13153976,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0006",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0003",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0007",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0005",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0001",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0008",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0004",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0000",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0002"
+      ],
+      "retrieved_source_files": [
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.75,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.4,
+        "precision@15": 0.267,
+        "precision@20": 0.2
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "03_quy-trinh-onboarding"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_073",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Em đang tư vấn cho một bạn ứng viên, bạn ấy hỏi nộp hồ sơ vào công ty thì cần chuẩn bị những giấy tờ gì và sau khi nộp xong bao lâu thì được liên hệ phỏng vấn?",
+      "top1_distance": 0.15168619,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0012",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0007",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0010",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0008",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0006",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0010",
+        "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0004"
+      ],
+      "retrieved_source_files": [
+        "03_quy-trinh-onboarding.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "03_quy-trinh-onboarding.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "03_quy-trinh-onboarding.md",
+        "03_quy-trinh-onboarding.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 4,
+      "reciprocal_rank": 0.25,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.333,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.2,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.202,
+        "ndcg@10": 0.526,
+        "ndcg@15": 0.526,
+        "ndcg@20": 0.526
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 2,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_076",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Mình đang rà soát lại quy định tăng ca cho nhân viên. Khi tính tổng số giờ làm thêm trong tháng và trong năm để đảm bảo đúng giới hạn quy định, thì có khoảng thời gian nào được phép giảm trừ không, và nếu nhân viên tăng ca vào ngày nghỉ hằng tuần hay ngày lễ thì giới hạn thời gian làm việc và làm thêm trong ngày đó là bao nhiêu?",
+      "top1_distance": 0.1295231,
+      "top1_source_file": "01_chinh-sach-lam-them-gio-OT.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0005",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0006",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0003",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0019",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0008",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0005",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0009"
+      ],
+      "retrieved_source_files": [
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "07_chinh-sach-nghi-phep.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "07_chinh-sach-nghi-phep.md",
+        "12_quy-che-cong-tac-phi.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.95,
+        "ndcg@5": 0.95,
+        "ndcg@10": 0.95,
+        "ndcg@15": 0.95,
+        "ndcg@20": 0.95
+      },
+      "expected_source_stems": [
+        "01_chinh-sach-lam-them-gio-ot"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_080",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho em hỏi nhân viên vi phạm quy định chấm công nhiều lần trong tháng thì bị xử lý thế nào, có ảnh hưởng đến quyền làm việc từ xa không ạ?",
+      "top1_distance": 0.12438434,
+      "top1_source_file": "05_chinh-sach-lam-viec-tu-xa.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0024",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0021",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0005",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0012",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0007",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0003",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0025",
+        "nexatech:d9b57efa-853d-57ac-bbea-30a641aeaaef:a9b7c8fa-7b59-5483-9e8b-b0167be6a222:0004",
+        "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0009"
+      ],
+      "retrieved_source_files": [
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "05_chinh-sach-lam-viec-tu-xa.md",
+        "mgt_dec_03_siet-chat-an-toan-thong-tin-byod.md",
+        "05_chinh-sach-lam-viec-tu-xa.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "05_chinh-sach-lam-viec-tu-xa"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_084",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Em mới vào, chưa rành cách xài thẻ bảo hiểm sức khỏe tự nguyện lắm. Anh/chị hướng dẫn em từ lúc đi khám ngoại trú tới lúc phải nhập viện luôn, trường hợp cấp cứu gấp thì tính sao?",
+      "top1_distance": 0.1296919,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0015",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0011",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0008",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0003",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0018",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0010",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0007",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0012",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0014"
+      ],
+      "retrieved_source_files": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 7,
+      "recall_at_k": {
+        "recall@1": 0.143,
+        "recall@3": 0.429,
+        "recall@5": 0.571,
+        "recall@10": 0.857,
+        "recall@15": 0.857,
+        "recall@20": 0.857
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 0.8,
+        "precision@10": 0.6,
+        "precision@15": 0.4,
+        "precision@20": 0.3
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.735,
+        "ndcg@5": 0.701,
+        "ndcg@10": 0.772,
+        "ndcg@15": 0.772,
+        "ndcg@20": 0.772
+      },
+      "expected_source_stems": [
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_090",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Mình đang tư vấn cho một nhân viên muốn nghỉ việc ngay lập tức. Trong quy trình công ty có nêu ví dụ bị quấy rối tình dục là được nghỉ không cần báo trước, nhưng mà đối chiếu luật lao động gốc thì cụ thể những hành vi ngược đãi hoặc vi phạm nào được pháp luật cho phép đơn phương chấm dứt hợp đồng ngay vậy?",
+      "top1_distance": 0.13491213,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0005",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0012",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0005",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0009",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0003",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011",
+        "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0004",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0007",
+        "nexatech:d9b57efa-853d-57ac-bbea-30a641aeaaef:a9b7c8fa-7b59-5483-9e8b-b0167be6a222:0004"
+      ],
+      "retrieved_source_files": [
+        "04_quy-trinh-offboarding.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+        "04_quy-trinh-offboarding.md",
+        "04_quy-trinh-offboarding.md",
+        "13_noi-quy-lao-dong-va-ky-luat.md",
+        "07_chinh-sach-nghi-phep.md",
+        "mgt_dec_03_siet-chat-an-toan-thong-tin-byod.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "04_quy-trinh-offboarding"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_091",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Cho mình hỏi tổng quan về chính sách đào tạo của công ty mình, nội dung quy định những gì và khi đi đào tạo thì nhân viên với quản lý và HR mỗi bên chịu trách nhiệm phần nào?",
+      "top1_distance": 0.114756465,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0008",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0000",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0007",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0008",
+        "nexatech:1aacbedd-8590-58b4-96ff-710b7bc8070c:ac1043c6-9527-5bd8-b626-6ced93a08dcf:0008"
+      ],
+      "retrieved_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "10_chinh-sach-an-toan-ve-sinh-lao-dong.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 7,
+      "recall_at_k": {
+        "recall@1": 0.143,
+        "recall@3": 0.429,
+        "recall@5": 0.714,
+        "recall@10": 0.857,
+        "recall@15": 0.857,
+        "recall@20": 0.857
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 1.0,
+        "precision@5": 1.0,
+        "precision@10": 0.6,
+        "precision@15": 0.4,
+        "precision@20": 0.3
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.832,
+        "ndcg@5": 0.862,
+        "ndcg@10": 0.813,
+        "ndcg@15": 0.813,
+        "ndcg@20": 0.813
+      },
+      "expected_source_stems": [
+        "06_chinh-sach-dao-tao-phat-trien"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_094",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Chị sắp sinh bé đầu lòng, muốn biết mình được nghỉ thai sản tổng cộng bao lâu, trong thời gian nghỉ thì BHXH trả bao nhiêu tiền, và công ty mình có hỗ trợ thêm gì ngoài phần BHXH không?",
+      "top1_distance": 0.11405444,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0014",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0013",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0015",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0003",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0010",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0009",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009",
+        "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0007"
+      ],
+      "retrieved_source_files": [
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "07_chinh-sach-nghi-phep.md",
+        "07_chinh-sach-nghi-phep.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "07_chinh-sach-nghi-phep.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+        "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.867,
+        "ndcg@5": 0.982,
+        "ndcg@10": 0.982,
+        "ndcg@15": 0.982,
+        "ndcg@20": 0.982
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_095",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Quy trình tuyển dụng bên mình từ lúc lên kế hoạch đến khi bắt đầu tìm ứng viên thì gồm những bước nào, ai phụ trách gì ở từng bước?",
+      "top1_distance": 0.13875812,
+      "top1_source_file": "02_quy-trinh-tuyen-dung.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0001",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0008",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0009",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0005",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0003",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0007",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0005",
+        "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0010"
+      ],
+      "retrieved_source_files": [
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "02_quy-trinh-tuyen-dung.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.48,
+        "ndcg@5": 0.627,
+        "ndcg@10": 0.627,
+        "ndcg@15": 0.627,
+        "ndcg@20": 0.627
+      },
+      "expected_source_stems": [
+        "02_quy-trinh-tuyen-dung"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_096",
+      "type": "in_scope",
+      "category": "compensation_policies",
+      "question": "Anh/chị ơi em mới vào công ty, muốn hỏi công ty mình ngoài lương thì còn có những khoản thưởng và chế độ đãi ngộ nào cho nhân viên không ạ?",
+      "top1_distance": 0.15506321,
+      "top1_source_file": "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0002",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0003",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0007",
+        "nexatech:b572fbdf-2872-58d3-aea8-b6c1822a4155:915e2f2c-7017-5cae-bd23-f581bd6c383a:0003",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0004",
+        "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0006",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0004"
+      ],
+      "retrieved_source_files": [
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "12_quy-che-cong-tac-phi.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "07_chinh-sach-nghi-phep.md",
+        "hr_mm_01_hop-hoi-dong-tuyen-dung-dai-ngo-q3.md",
+        "12_quy-che-cong-tac-phi.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+        "01_chinh-sach-lam-them-gio-OT.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "expected_source_stems": [
+        "07_chinh-sach-nghi-phep"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 5,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_099",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Nếu mình được cử đi đào tạo nâng cao mà sau đó nghỉ việc trước thời hạn cam kết thì có phải bồi hoàn không, và số tiền đó tính thế nào?",
+      "top1_distance": 0.11278385,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 10,
+      "retrieved_chunk_ids": [
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009",
+        "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+        "nexatech:2c5677af-1616-5d81-8d85-84c3dd4eeea1:f3308821-f049-53bf-bb47-39017f41eb59:0004",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0006",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008",
+        "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011",
+        "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0004",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0014",
+        "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0015",
+        "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009"
+      ],
+      "retrieved_source_files": [
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "06_chinh-sach-dao-tao-phat-trien.md",
+        "mgt_dec_05_tieu-chuan-tuyen-dung-tech-lead.md",
+        "12_quy-che-cong-tac-phi.md",
+        "12_quy-che-cong-tac-phi.md",
+        "04_quy-trinh-offboarding.md",
+        "12_quy-che-cong-tac-phi.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+        "11_chinh-sach-danh-gia-hieu-suat-kpi.md"
+      ],
+      "reranker_scores": null,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "expected_source_stems": [
+        "06_chinh-sach-dao-tao-phat-trien"
+      ],
+      "expected_source_label": "dataset",
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    }
+  ]
+}

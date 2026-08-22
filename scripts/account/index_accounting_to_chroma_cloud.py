@@ -2,22 +2,21 @@
 """Script đẩy toàn bộ vector và metadata của phòng Kế toán lên Chroma Cloud.
 
 Các bước:
-1. Đọc dữ liệu 152 chunks kèm embeddings từ `data/data_accounting/accounting_chunks_with_embeddings.json`.
+1. Đọc dữ liệu 152 chunks kèm embeddings từ `data/data_accounting/process/accounting_chunks_with_embeddings.json`.
 2. Chuẩn hóa metadata (gán access_category="GENERAL", department="accounting", lifecycle frozen/active).
 3. Kết nối Chroma Cloud qua CloudClient (sử dụng thông tin cấu hình trong .env / settings).
-4. Upsert toàn bộ 152 chunks vào các collections:
-   - hr_documents (collection mặc định trong settings)
-   - tenant_nexatech_knowledge (collection kiến thức tenant chung)
-   - accounting_documents (collection chuyên biệt kế toán)
+4. Upsert toàn bộ 152 chunks vào collection chuyên biệt:
+   - accounting_documents (không ghi chéo vào core/HR)
 5. Kiểm tra và in ra số lượng vector trên Chroma Cloud sau khi đẩy.
 """
+import argparse
 import json
 import os
 import sys
 from pathlib import Path
 
 # Thêm workspace root vào sys.path
-WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(WORKSPACE_ROOT))
 
 # Thiết lập stdout UTF-8 cho Windows console
@@ -30,6 +29,13 @@ from src.ingestion.metadata import ChunkMetadata
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Validate bundle and live target count without mutating Chroma",
+    )
+    args = parser.parse_args()
     settings = get_settings()
     print("=" * 80)
     print("🚀 ĐẨY DỮ LIỆU PHÒNG KẾ TOÁN LÊN CHROMA CLOUD")
@@ -41,7 +47,7 @@ def main():
     print("-" * 80)
 
     # 1. Đọc file JSON đã nhúng sẵn vector
-    json_path = WORKSPACE_ROOT / "data" / "data_accounting" / "accounting_chunks_with_embeddings.json"
+    json_path = WORKSPACE_ROOT / "data" / "data_accounting" / "process" / "accounting_chunks_with_embeddings.json"
     if not json_path.exists():
         print(f"❌ Không tìm thấy file dữ liệu: {json_path}")
         sys.exit(1)
@@ -51,6 +57,8 @@ def main():
 
     chunks_data = data.get("chunks", [])
     print(f"📦 Đã nạp thành công {len(chunks_data)} chunks từ file JSON.")
+    if len(chunks_data) != 152:
+        raise RuntimeError(f"Accounting bundle phải có đúng 152 chunks, thực tế {len(chunks_data)}")
 
     # 2. Chuẩn hóa metadata, ids, embeddings, documents
     ids: list[str] = []
@@ -90,10 +98,16 @@ def main():
     print("\n🌐 Đang kết nối tới Chroma Cloud...")
     client = get_chroma_client(settings)
 
-    target_collections = [
-        "accounting_documents",
-        "tenant_nexatech_knowledge",
-    ]
+    target_collections = [settings.chroma_accounting_collection_name]
+
+    if args.verify_only:
+        live = get_collection(client, settings.chroma_accounting_collection_name)
+        if live.count() != len(ids):
+            raise RuntimeError(
+                f"Live Accounting count {live.count()} != bundle count {len(ids)}"
+            )
+        print(f"✅ VERIFY PASS: bundle={len(ids)}, live={live.count()}, collection={live.name}")
+        return
 
     for col_name in target_collections:
         print(f"\n📤 Đang đẩy {len(ids)} chunks vào collection '{col_name}' trên Chroma Cloud...")

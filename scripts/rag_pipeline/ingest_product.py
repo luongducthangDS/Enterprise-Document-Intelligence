@@ -27,15 +27,17 @@ from src.config import get_settings
 from src.ingestion.chunk_builder import build_chunks_from_text
 from src.ingestion.embeddings import embed_batch, embed_texts
 from src.ingestion.extractors.documents import extract_document
-from src.ingestion.indexer import delete_by_source_stem, get_chroma_client, get_collection, upsert_chunks
-from src.ingestion.metadata import Chunk
+from src.ingestion.indexer import get_chroma_client, get_collection, upsert_chunks
+from src.ingestion.metadata import Chunk, date_to_ymd_int
 from src.retrieval.bm25 import BM25
 
 DEPARTMENT = "Product"
 REGISTRY_FIELDS = [
     "source_file",
     "department",
-    "owner",
+    "document_domain",
+    "access_scope",
+    "access_category",
     "category",
     "status",
     "processed_path",
@@ -53,6 +55,7 @@ REGISTRY_FIELDS = [
     "expiry_date",
     "document_id",
     "relative_path",
+    "owner",
 ]
 
 # Accountable owner của từng nguồn Product. Đây là owner dữ liệu/tài liệu,
@@ -125,7 +128,7 @@ def atomic_write_registry(path: str, rows: list[dict]) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp_path = f"{path}.tmp"
     with open(tmp_path, "w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=REGISTRY_FIELDS)
+        writer = csv.DictWriter(handle, fieldnames=REGISTRY_FIELDS, quoting=csv.QUOTE_ALL)
         writer.writeheader()
         writer.writerows(rows)
     os.replace(tmp_path, path)
@@ -242,6 +245,11 @@ def main() -> None:
     parser.add_argument("--force", action="store_true", help="Extract lại output đã tồn tại")
     parser.add_argument("--skip-index", action="store_true", help="Chỉ extract + chunk, không embed/index")
     parser.add_argument("--skip-retrieval", action="store_true", help="Không chạy 4 retrieval smoke tests")
+    parser.add_argument(
+        "--include-existing",
+        action="store_true",
+        help="Embed/upsert lại cả ID đã có. Mặc định chỉ restore ID Product còn thiếu.",
+    )
     args = parser.parse_args()
 
     dataset_dir = os.path.abspath(args.dataset_dir)
@@ -289,6 +297,9 @@ def main() -> None:
                 content,
                 source_file=source_file,
                 department=DEPARTMENT,
+                document_domain="COMPANY_POLICY",
+                access_scope="COMPANY_WIDE",
+                access_category="GENERAL",
                 category=item["document_type"].strip(),
                 source_type="synthetic",
                 is_official_policy=True,
@@ -302,6 +313,15 @@ def main() -> None:
                 retrieval_enabled=True,
                 settings=settings,
             )
+            # Dataset Product có ngày tạo/version chuẩn trong manifest. Không để
+            # fallback 0001-01-01 vì metadata đó bị production cleanup coi là
+            # ngày giả và có thể làm corpus Product bị loại khỏi baseline.
+            created_date = item["created_date"].strip()
+            for chunk in chunks:
+                chunk.metadata.effective_date = created_date
+                chunk.metadata.effective_date_ymd = date_to_ymd_int(created_date)
+                chunk.metadata.document_code = document_id
+                chunk.metadata.version = item["version"].strip()
             if not chunks:
                 raise RuntimeError("0 chunk sau khi làm sạch")
             atomic_write_json(chunks_path, [chunk.model_dump() for chunk in chunks])
@@ -325,6 +345,9 @@ def main() -> None:
             {
                 "source_file": source_file,
                 "department": DEPARTMENT,
+                "document_domain": "COMPANY_POLICY",
+                "access_scope": "COMPANY_WIDE",
+                "access_category": "GENERAL",
                 "owner": owner,
                 "category": item["document_type"].strip(),
                 "status": status,
@@ -348,29 +371,63 @@ def main() -> None:
 
     atomic_write_registry(registry_path, registry_rows)
 
-    collection_name = args.collection or settings.chroma_collection_name
+    collection_name = args.collection or settings.chroma_product_collection_name
     vector_count = 0
     collection_count = None
     indexed_at = ""
     index_error = None
+    existing_vector_count = 0
+    skipped_existing_count = 0
+    metadata_refreshed_count = 0
     retrieval_results: list[dict] = []
     if not args.skip_index and chunks_by_source:
         try:
             collection = get_collection(get_chroma_client(settings), collection_name)
+            chunks_to_index: list[Chunk] = []
             for source_file, chunks in chunks_by_source.items():
+                missing_chunks = chunks
+                if not args.include_existing:
+                    chunk_ids = [chunk.metadata.chunk_id for chunk in chunks]
+                    existing = collection.get(ids=chunk_ids, include=[])
+                    existing_ids = set(existing.get("ids") or [])
+                    existing_vector_count += len(existing_ids)
+                    existing_chunks = [
+                        chunk for chunk in chunks if chunk.metadata.chunk_id in existing_ids
+                    ]
+                    if existing_chunks:
+                        # Metadata-only refresh: preserve existing embeddings and
+                        # documents while reconciling owner/access/citation keys.
+                        collection.update(
+                            ids=[chunk.metadata.chunk_id for chunk in existing_chunks],
+                            metadatas=[
+                                chunk.metadata.to_chroma_metadata() for chunk in existing_chunks
+                            ],
+                        )
+                        metadata_refreshed_count += len(existing_chunks)
+                    missing_chunks = [
+                        chunk for chunk in chunks if chunk.metadata.chunk_id not in existing_ids
+                    ]
+                    skipped_existing_count += len(chunks) - len(missing_chunks)
+
+                if not missing_chunks:
+                    print(f"[skip] {source_file}: tất cả {len(chunks)} vectors đã tồn tại")
+                    continue
+                chunks_to_index.extend(missing_chunks)
+                print(f"[restore-plan] {source_file}: {len(missing_chunks)} vectors thiếu")
+
+            if chunks_to_index:
                 embeddings = embed_texts(
-                    [chunk.embedding_text for chunk in chunks],
+                    [chunk.embedding_text for chunk in chunks_to_index],
                     model=settings.embedding_model,
                     base_url=settings.fpt_base_url,
                     api_key=settings.fpt_api_key,
                     batch_size=settings.embedding_batch_size,
                 )
-                for chunk in chunks:
+                for chunk in chunks_to_index:
                     chunk.metadata.embedding_model = settings.embedding_model
-                delete_by_source_stem(collection, chunks[0].metadata.source_stem)
-                upsert_chunks(collection, chunks, embeddings)
-                vector_count += len(chunks)
-                print(f"[indexed] {source_file}: {len(chunks)} vectors")
+                upsert_chunks(collection, chunks_to_index, embeddings)
+                vector_count = len(chunks_to_index)
+                print(f"[indexed] Đã restore {vector_count} Product vectors còn thiếu")
             indexed_at = datetime.now(UTC).isoformat()
             for row in registry_rows:
                 if row["status"] == "processed":
@@ -400,6 +457,9 @@ def main() -> None:
         "extract_methods": dict(method_counts),
         "chunk_count": len(all_chunks),
         "vector_count": vector_count,
+        "existing_vector_count": existing_vector_count,
+        "skipped_existing_count": skipped_existing_count,
+        "metadata_refreshed_count": metadata_refreshed_count,
         "collection": collection_name,
         "collection_count": collection_count,
         "embedding_model": settings.embedding_model if vector_count else None,

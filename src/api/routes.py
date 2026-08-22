@@ -10,6 +10,7 @@ from src.agents.service import answer as agent_answer
 from src.agents.service import astream_answer as agent_stream_answer
 from src.agents.service import sanitize_citations
 from src.config import get_settings
+from src.security.identity_signature import verify_identity_signature
 from src.models.schemas import (
     AgentAnswer,
     AgentQueryRequest,
@@ -45,25 +46,35 @@ def _verify_service_token(x_service_token: str | None) -> None:
 async def query_agent(
     request: AgentQueryRequest,
     x_service_token: str | None = Header(default=None),
+    x_identity_signature: str | None = Header(default=None),
 ) -> AgentAnswer:
     """Internal Backend-to-Agent contract. Identity fields are trace context only."""
     _verify_service_token(x_service_token)
     logger.info("Processing agent request %s for user %s", request.request_id, request.user_id)
     history = [turn.model_dump() for turn in request.history]
-    return await agent_answer(request.query, history=history)
+    identity = request.model_dump(
+        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+    )
+    verify_identity_signature(identity, x_identity_signature, get_settings())
+    return await agent_answer(request.query, history=history, identity=identity)
 
 
 @router.post("/agent/query/stream")
 async def stream_agent_query(
     request: AgentQueryRequest,
     x_service_token: str | None = Header(default=None),
+    x_identity_signature: str | None = Header(default=None),
 ) -> StreamingResponse:
     """Phát tiến trình và câu trả lời đã qua guardrail bằng SSE."""
     _verify_service_token(x_service_token)
     history = [turn.model_dump() for turn in request.history]
+    identity = request.model_dump(
+        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+    )
+    verify_identity_signature(identity, x_identity_signature, get_settings())
 
     async def events() -> AsyncIterator[str]:
-        async for event in agent_stream_answer(request.query, history=history):
+        async for event in agent_stream_answer(request.query, history=history, identity=identity):
             yield _encode_sse(event)
 
     return StreamingResponse(
@@ -89,14 +100,10 @@ async def chat(
     escalate/ticket_draft — `ticket_draft` là payload legacy, backend chỉ insert
     ticket ở đường không có `boundary`; agent KHÔNG ghi Supabase)."""
     _verify_service_token(x_service_token)
-    try:
-        history = [h.model_dump() for h in request.history]
-        result = await agent_answer(request.message, history=history)
-        response = result.model_dump()
-        response["citations"] = [item.model_dump() for item in sanitize_citations(response["citations"])]
-        return ChatResponse(**response)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail="Legacy /chat is disabled; use the signed /agent/query contract.",
+    )
 
 
 @router.get("/status")

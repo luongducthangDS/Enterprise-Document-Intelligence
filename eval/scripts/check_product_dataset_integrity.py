@@ -28,6 +28,10 @@ def main() -> None:
     for row in registry:
         if row.get("department") != "Product":
             errors.append(f"{row.get('source_file')}: department != Product")
+        if row.get("document_domain") != "COMPANY_POLICY":
+            errors.append(f"{row.get('source_file')}: document_domain != COMPANY_POLICY")
+        if row.get("access_scope") != "COMPANY_WIDE":
+            errors.append(f"{row.get('source_file')}: access_scope != COMPANY_WIDE")
         if not row.get("owner", "").strip():
             errors.append(f"{row.get('source_file')}: missing owner")
 
@@ -38,8 +42,12 @@ def main() -> None:
             chunks[metadata["chunk_id"]] = metadata
             if metadata.get("department") != "Product":
                 errors.append(f"{metadata['chunk_id']}: department != Product")
+            if metadata.get("document_domain") != "COMPANY_POLICY":
+                errors.append(f"{metadata['chunk_id']}: document_domain != COMPANY_POLICY")
             if not metadata.get("owner"):
                 errors.append(f"{metadata['chunk_id']}: missing owner")
+            if metadata.get("effective_date_ymd") in (None, 1, 10101):
+                errors.append(f"{metadata['chunk_id']}: invalid effective_date_ymd")
 
     dataset = json.loads(Path(args.dataset).read_text(encoding="utf-8"))
     qrels = json.loads(Path(args.qrels).read_text(encoding="utf-8"))

@@ -152,6 +152,7 @@ def main() -> int:
     rb_qrels = _load("eval/datasets/retrieval_eval_qrels.json")
     rb_anchors = _load("eval/datasets/retrieval_eval_anchors.json")
     if rb and rb_qrels:
+        rb = [item for item in rb if not item.get("retired")]
         problems += check_ids_unique_and_complete(rb, "retrieval_benchmark", ("query", "type", "split"))
         problems += check_coverage(rb, rb_qrels, "retrieval_benchmark")
         problems += check_splits(rb, "retrieval_benchmark")

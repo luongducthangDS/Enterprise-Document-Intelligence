@@ -1,3 +1,6 @@
+
+__test__ = False
+
 import asyncio
 import sys
 

@@ -7,6 +7,8 @@ Kiến trúc mở rộng:
 """
 from __future__ import annotations
 
+import re
+
 from typing import Protocol, runtime_checkable
 
 
@@ -60,6 +62,34 @@ def get_domain(domain_name: str) -> DomainPlugin | None:
     return _REGISTRY.get(domain_name)
 
 
+_FOLLOWUP_PATTERN = re.compile(
+    r"^\s*(?:vậy|còn|quay lại|trong tài liệu|bỏ qua|thế còn)"
+    r"|(?:đúng không|câu đầu|trường hợp đó|làm theo câu này)",
+    re.IGNORECASE,
+)
+
+
+def get_conversation_domain(
+    query: str,
+    category: str | None = None,
+    history: list[dict] | None = None,
+) -> DomainPlugin | None:
+    """Resolve domain from the current turn, inheriting only ambiguous follow-ups."""
+    current = get_matching_domain(query, category)
+    if current and current.domain_name != "hr":
+        return current
+    if not _FOLLOWUP_PATTERN.search(query):
+        return current
+
+    for turn in reversed(history or []):
+        if turn.get("role") != "user":
+            continue
+        previous = get_matching_domain(str(turn.get("content") or ""), None)
+        if previous and previous.domain_name != "hr":
+            return previous
+    return current
+
 # Tự động đăng ký các built-in domain plugins
 import src.domains.accounting  # noqa: F401, E402
+import src.domains.product  # noqa: F401, E402
 import src.domains.hr  # noqa: F401, E402

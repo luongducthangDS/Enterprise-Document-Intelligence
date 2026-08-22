@@ -56,6 +56,9 @@ class DocumentMetadataUpdate(BaseModel):
     status: str | None = Field(default=None, description="Trạng thái mới")
     language: str | None = Field(default=None, description="Ngôn ngữ tài liệu")
     confidentiality: str | None = Field(default=None, description="Cấp độ bảo mật")
+    department: str | None = Field(default=None, min_length=1, max_length=128)
+    access_scope: str | None = Field(default=None, min_length=1, max_length=32)
+    authorized_role: str | None = Field(default=None, max_length=64)
 
 
 class DocumentMetadataUpdateResponseData(BaseModel):
