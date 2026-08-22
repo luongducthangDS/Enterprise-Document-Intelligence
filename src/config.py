@@ -336,8 +336,8 @@ class Settings(BaseSettings):
     # Đo trên 140 câu eval (eval/results/rerank_score_distribution.json): top-1
     # score của in_scope có median 0.975 / p10 0.490, còn out_of_scope median
     # 0.010 và competitor 0.034 — tách bạch tốt hơn hẳn khoảng cách cosine.
-    # 0.05 giữ lại 99% câu in_scope mà vẫn loại 67% câu out_of_scope.
-    rerank_min_score: float = 0.05
+    # 0.01 giữ lại đầy đủ các chunk liên quan trong câu hỏi so sánh nhiều chính sách (multi-policy).
+    rerank_min_score: float = 0.01
     # Chỉ dùng khi reranker tắt/lỗi — ngưỡng khoảng cách cosine.
     retrieval_max_distance: float = 0.18
     # Neo cho confidence tính từ distance (nhánh fallback khi không có rerank

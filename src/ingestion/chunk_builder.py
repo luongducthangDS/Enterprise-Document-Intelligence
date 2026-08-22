@@ -16,7 +16,9 @@ def resolve_title(frontmatter: dict, text: str, stem: str) -> str:
     m = H1_RE.search(text)
     if m:
         return m.group(1).strip()
-    return stem
+    clean = re.sub(r"^\d+[\-_]", "", stem)
+    clean = clean.replace("-", " ").replace("_", " ").strip()
+    return clean.title() if clean else stem
 
 
 def normalize_tenant(value: str | None) -> str:

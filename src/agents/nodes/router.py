@@ -326,12 +326,12 @@ async def direct_node(state: AgentState) -> dict:
         answer = await acall_llm(
             _DIRECT_SYSTEM,
             query,
-            temperature=0.5,
+            temperature=0.0,
             model=settings.router_model or None,
             enable_thinking=False,
         )
     else:
-        answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.5)
+        answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.0)
     return {"response": answer.strip()}
 
 
@@ -344,7 +344,7 @@ async def clarify_node(state: AgentState) -> dict:
         await acall_llm(
             _CLARIFY_SYSTEM,
             query,
-            temperature=0.4,
+            temperature=0.0,
             model=settings.clarify_model or None,
             enable_thinking=thinking_arg(settings.thinking_clarify),
         )
