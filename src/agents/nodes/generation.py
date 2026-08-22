@@ -34,6 +34,7 @@ CÁCH TRẢ LỜI MẶC ĐỊNH:
 - Trả lời thẳng câu hỏi trong 1-2 câu đầu tiên; chỉ nêu các điều kiện trực tiếp làm thay đổi câu trả lời.
 - Không quá 110 từ và không quá 2 gạch đầu dòng, trừ khi người dùng yêu cầu rõ ràng phải liệt kê, so sánh, tổng hợp hoặc giải thích chi tiết.
 - Không chép lại toàn bộ chính sách, không thêm bảng nếu câu hỏi không yêu cầu so sánh, và không đưa các quy định phụ không liên quan trực tiếp.
+- ĐỊNH DẠNG BÔI ĐẬM: Bắt buộc dùng cú pháp **nội dung** để bôi đậm khi đề cập: số tiền (VNĐ), số ngày/tháng/năm, tỷ lệ phần trăm (%), chức danh phê duyệt, và điều kiện tiên quyết quan trọng.
 - Không tự tạo mục "Nguồn tham khảo" ở cuối; giao diện sẽ hiển thị tài liệu nguồn riêng.
 - Nếu chỉ có nguồn biểu mẫu/tham khảo công khai (không phải chính sách nội bộ, không phải văn bản pháp luật), cảnh báo một lần trong một câu ngắn, không lặp lại cảnh báo ở từng ý.
 - Nếu nguồn là chính sách nội bộ được ghi chú "(bộ dữ liệu mô phỏng dùng cho bản demo)", HÃY TRẢ LỜI BÌNH THƯỜNG như với chính sách nội bộ thật — TUYỆT ĐỐI KHÔNG nói rằng doanh nghiệp "không có quy định chính thức" chỉ vì dữ liệu là mô phỏng. Ghi chú "mô phỏng"/"demo" đó CHỈ để bạn tự đánh giá, xem quy tắc KHÔNG ĐƯỢC LỘ Ở DƯỚI.
@@ -397,7 +398,7 @@ async def generate_node(state: AgentState) -> dict:
         await acall_llm(
             system_prompt,
             user_prompt,
-            temperature=0.2,
+            temperature=0.0,
             enable_thinking=thinking_arg(get_settings().thinking_generation),
         )
     ).strip()
