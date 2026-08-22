@@ -10,7 +10,7 @@ from app.domain.models.profile import ProfileDB
 from app.domain.models.user import UserDB
 from app.schemas.evaluation import EvaluationRunRequest
 from app.schemas.indexes import IndexRebuildRequest
-from app.services.document_service import DocumentService
+from app.services.document_service import DocumentService, _resolve_document_department
 from app.services.evaluation_service import EvaluationService
 from app.services.index_service import IndexService
 from app.services.worker_job_client import WorkerJobClient
@@ -25,10 +25,15 @@ class FakeWorkerClient:
     async def submit_ingestion(self, payload: dict) -> dict:
         self.kinds[payload["job_id"]] = "INGESTION"
         assert payload["content_base64"]
+        assert payload["tenant"] == "nexatech"
+        assert payload["access_scope"] == "RESTRICTED"
+        assert payload["owner_user_id"]
+        assert payload["authorization_source"] == "RUNTIME_UPLOAD"
         return {"job_id": payload["job_id"], "state": "QUEUED"}
 
     async def submit_index_rebuild(self, payload: dict) -> dict:
         self.kinds[payload["job_id"]] = "INDEX_REBUILD"
+        assert payload["tenant"] == "nexatech"
         return {"job_id": payload["job_id"], "state": "QUEUED"}
 
     async def submit_evaluation(self, payload: dict) -> dict:
@@ -130,3 +135,10 @@ async def test_worker_client_uses_agent_worker_contract_paths():
         "/api/v1/agent/jobs/job-1",
     ]
     assert all(request.headers["X-Service-Token"] == "secret" for request in requests)
+
+
+def test_document_department_routing():
+    assert _resolve_document_department("Product", "GENERAL") == "Product"
+    assert _resolve_document_department(None, "PRD") == "Product"
+    assert _resolve_document_department(None, "invoices_and_tax") == "ACCOUNTING"
+    assert _resolve_document_department(None, "LEAVE") == "HR"

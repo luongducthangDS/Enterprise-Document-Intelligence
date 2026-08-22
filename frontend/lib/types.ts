@@ -230,3 +230,27 @@ export type EvaluationRun = AsyncJob & {
   } | null;
   quality_gate: string | null;
 };
+
+export type AccessModel = {
+  roles: Record<string, string[]>;
+  scopes: string[];
+};
+
+export type AccessUser = {
+  user_id: string;
+  email: string;
+  display_name: string;
+  role: string;
+  department: string;
+};
+
+export type AuditLog = {
+  audit_id: string;
+  actor_id: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  created_at: string;
+};

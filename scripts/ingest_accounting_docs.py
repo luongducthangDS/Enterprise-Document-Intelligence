@@ -204,6 +204,10 @@ def main():
             doc_chunks = build_chunks_from_text(
                 raw_text,
                 source_file=file_path.name,
+                department="ACCOUNTING",
+                document_domain="COMPANY_POLICY",
+                access_scope="COMPANY_WIDE",
+                access_category="GENERAL",
                 category=meta_info["category"],
                 source_type=meta_info["source_type"],
                 is_official_policy=meta_info["is_official_policy"],

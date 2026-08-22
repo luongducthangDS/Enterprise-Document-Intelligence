@@ -25,6 +25,8 @@ async def test_internal_agent_query_returns_agent_answer(client):
         "request_id": "req-123",
         "user_id": "user-123",
         "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
         "history": [
             {"role": "user", "content": "Previous question"},
             {"role": "assistant", "content": "Previous answer"},
@@ -36,7 +38,17 @@ async def test_internal_agent_query_returns_agent_answer(client):
 
     assert response.status_code == 200
     assert response.json()["response"] == "Policy answer"
-    mocked.assert_awaited_once_with(payload["query"], history=payload["history"])
+    mocked.assert_awaited_once_with(
+        payload["query"],
+        history=payload["history"],
+        identity={
+            "request_id": "req-123",
+            "user_id": "user-123",
+            "tenant_id": "nexatech",
+            "department": "Engineering",
+            "user_role": "EMPLOYEE",
+        },
+    )
 
 
 @pytest.mark.asyncio
@@ -60,6 +72,8 @@ async def test_internal_agent_query_returns_citation_excerpt(client):
         "request_id": "req-excerpt-123",
         "user_id": "user-123",
         "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)):
@@ -77,13 +91,25 @@ async def test_internal_agent_query_keeps_history_optional(client):
         "request_id": "req-124",
         "user_id": "user-123",
         "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
         response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
 
     assert response.status_code == 200
-    mocked.assert_awaited_once_with("Hello", history=[])
+    mocked.assert_awaited_once_with(
+        "Hello",
+        history=[],
+        identity={
+            "request_id": "req-124",
+            "user_id": "user-123",
+            "tenant_id": "nexatech",
+            "department": "Engineering",
+            "user_role": "EMPLOYEE",
+        },
+    )
 
 
 @pytest.mark.asyncio
@@ -100,6 +126,8 @@ async def test_internal_agent_query_rejects_invalid_service_token(client):
         "request_id": "req-123",
         "user_id": "user-123",
         "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
     }
     with patch("src.api.routes.get_settings", return_value=settings):
         response = await client.post(
@@ -112,7 +140,9 @@ async def test_internal_agent_query_rejects_invalid_service_token(client):
 
 @pytest.mark.asyncio
 async def test_internal_agent_query_streams_sse_events(client):
-    async def fake_stream(query, history=None):
+    async def fake_stream(query, history=None, identity=None):
+        assert identity["user_id"] == "user-123"
+        assert identity["department"] == "Engineering"
         assert query == "Leave policy"
         assert history == []
         yield {"type": "status", "value": "Đang tìm trong tài liệu HR..."}
@@ -126,6 +156,8 @@ async def test_internal_agent_query_streams_sse_events(client):
         "request_id": "req-stream",
         "user_id": "user-123",
         "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
     }
     with patch("src.api.routes.agent_stream_answer", new=fake_stream):
         response = await client.post("/api/v1/agent/query/stream", json=payload, headers=service_headers())
@@ -137,3 +169,84 @@ async def test_internal_agent_query_streams_sse_events(client):
     ]
     assert [item["type"] for item in payloads] == ["status", "done"]
     assert payloads[-1]["answer"]["response"] == "Policy answer"
+
+
+@pytest.mark.asyncio
+async def test_internal_agent_query_rejects_invalid_identity_signature(client):
+    settings = type(
+        "Settings",
+        (),
+        {"agent_service_token": "expected-token", "app_env": "test"},
+    )()
+    payload = {
+        "query": "Leave policy",
+        "request_id": "req-signed",
+        "user_id": "user-123",
+        "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
+    }
+    with patch("src.api.routes.get_settings", return_value=settings):
+        response = await client.post(
+            "/api/v1/agent/query",
+            json=payload,
+            headers={
+                "X-Service-Token": "expected-token",
+                "X-Identity-Signature": "tampered",
+            },
+        )
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_internal_agent_query_accepts_valid_identity_signature(client):
+    from src.security.identity_signature import sign_identity
+
+    settings = type(
+        "Settings",
+        (),
+        {"agent_service_token": "expected-token", "app_env": "test"},
+    )()
+    payload = {
+        "query": "Leave policy",
+        "request_id": "req-signed-ok",
+        "user_id": "user-123",
+        "tenant_id": "nexatech",
+        "department": "Engineering",
+        "user_role": "EMPLOYEE",
+    }
+    answer = AgentAnswer(response="Allowed", intent="hr_question", citations=[])
+    signature = sign_identity(payload, settings.agent_service_token)
+    with (
+        patch("src.api.routes.get_settings", return_value=settings),
+        patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)),
+    ):
+        response = await client.post(
+            "/api/v1/agent/query",
+            json=payload,
+            headers={
+                "X-Service-Token": "expected-token",
+                "X-Identity-Signature": signature,
+            },
+        )
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_internal_agent_query_fails_closed_without_production_secret(client):
+    settings = type(
+        "Settings",
+        (),
+        {"agent_service_token": "", "app_env": "production"},
+    )()
+    payload = {
+        "query": "Leave policy",
+        "request_id": "req-prod-no-secret",
+        "user_id": "user-123",
+        "department": "Engineering",
+        "user_role": "EMPLOYEE",
+        "tenant_id": "nexatech",
+    }
+    with patch("src.api.routes.get_settings", return_value=settings):
+        response = await client.post("/api/v1/agent/query", json=payload)
+    assert response.status_code == 503

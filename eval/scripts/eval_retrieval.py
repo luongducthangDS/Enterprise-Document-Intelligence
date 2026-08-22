@@ -53,11 +53,21 @@ from src.evaluation.retrieval_metrics import (  # noqa: E402
 )
 from src.retrieval.hybrid import fuse_candidate_ids  # noqa: E402
 from src.services.fpt_client import rerank  # noqa: E402
+from src.security.models import UserContext, UserRole  # noqa: E402
 
 EVAL_SET_PATH = "eval/datasets/qa_eval_set.json"
 QRELS_PATH = "eval/datasets/retrieval_qrels.json"
 RESULTS_PATH = "eval/results/retrieval_eval_report.json"
 HIT_RATE_KS = (1, 3, 5, 10, 15, 20)
+
+# Retrieval-quality benchmark phải nhìn thấy toàn bộ gold corpus. Đây chỉ là
+# identity audit của evaluator; production retrieval vẫn dùng identity thật.
+_EVAL_AUDIT_USER = UserContext(
+    user_id="eval_retrieval",
+    department="EXECUTIVE",
+    role=UserRole.ADMIN,
+    tenant_id="nexatech",
+)
 
 
 def _recall_at_k(relevant: dict[str, int], retrieved_ids: list[str], k: int) -> float:
@@ -103,7 +113,7 @@ async def _retrieve_raw(
         query = _expand_retrieval_query(query)
         embedding = await _aembed_query(query)
         collection = _collection()
-        where = _provenance_filter(settings)
+        where = _provenance_filter(settings, user_context=_EVAL_AUDIT_USER)
         query_kwargs = {"query_embeddings": [embedding], "n_results": top_k}
         if where:
             query_kwargs["where"] = where
@@ -260,6 +270,7 @@ async def main() -> None:
 
     with open(args.dataset, encoding="utf-8") as f:
         items = json.load(f)
+    items = [item for item in items if not item.get("retired")]
     # Bộ retrieval eval set riêng dùng field `query` và `type` = single_chunk /
     # multi_chunk; bộ qa_eval_set dùng `question` và type = in_scope/... — quy
     # về một dạng để cùng 1 script đo được cả hai.

@@ -245,7 +245,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `842059170-...Vingroup.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (Vingroup), không phải dữ liệu nội bộ NexaTech (xem quyết định 2026-08-15: KB chỉ giữ authority=tenant_official_policy). Câu hỏi này hỏi đúng con số/quy trình cụ thể của Vingroup (4 vòng tuyển dụng, kênh nộp hồ sơ...) — MÂU THUẪN với quy trình tuyển dụng NexaTech đã có sẵn tại `02_quy-trinh-tuyen-dung.md` (tối đa 3 vòng, quy trình khác). Không remap vì ép NexaTech 'giống' một công ty khác là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty có những hình thức tuyển dụng nào?",
@@ -263,7 +263,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `842059170-...Vingroup.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (Vingroup), không phải dữ liệu nội bộ NexaTech (xem quyết định 2026-08-15: KB chỉ giữ authority=tenant_official_policy). Câu hỏi này hỏi đúng con số/quy trình cụ thể của Vingroup (4 vòng tuyển dụng, kênh nộp hồ sơ...) — MÂU THUẪN với quy trình tuyển dụng NexaTech đã có sẵn tại `02_quy-trinh-tuyen-dung.md` (tối đa 3 vòng, quy trình khác). Không remap vì ép NexaTech 'giống' một công ty khác là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Mục tiêu của quy trình tuyển dụng là gì?",
@@ -281,7 +281,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `842059170-...Vingroup.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (Vingroup), không phải dữ liệu nội bộ NexaTech (xem quyết định 2026-08-15: KB chỉ giữ authority=tenant_official_policy). Câu hỏi này hỏi đúng con số/quy trình cụ thể của Vingroup (4 vòng tuyển dụng, kênh nộp hồ sơ...) — MÂU THUẪN với quy trình tuyển dụng NexaTech đã có sẵn tại `02_quy-trinh-tuyen-dung.md` (tối đa 3 vòng, quy trình khác). Không remap vì ép NexaTech 'giống' một công ty khác là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Nếu mình giới thiệu bạn ứng tuyển thì họ cần nộp hồ sơ qua những kênh nào?",
@@ -299,7 +299,7 @@
     "evidence_source": "deterministic_fallback",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `842059170-...Vingroup.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (Vingroup), không phải dữ liệu nội bộ NexaTech (xem quyết định 2026-08-15: KB chỉ giữ authority=tenant_official_policy). Câu hỏi này hỏi đúng con số/quy trình cụ thể của Vingroup (4 vòng tuyển dụng, kênh nộp hồ sơ...) — MÂU THUẪN với quy trình tuyển dụng NexaTech đã có sẵn tại `02_quy-trinh-tuyen-dung.md` (tối đa 3 vòng, quy trình khác). Không remap vì ép NexaTech 'giống' một công ty khác là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hồ sơ bản cứng ứng viên nộp cần gồm những giấy tờ gì?",
@@ -317,7 +317,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `842059170-...Vingroup.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (Vingroup), không phải dữ liệu nội bộ NexaTech (xem quyết định 2026-08-15: KB chỉ giữ authority=tenant_official_policy). Câu hỏi này hỏi đúng con số/quy trình cụ thể của Vingroup (4 vòng tuyển dụng, kênh nộp hồ sơ...) — MÂU THUẪN với quy trình tuyển dụng NexaTech đã có sẵn tại `02_quy-trinh-tuyen-dung.md` (tối đa 3 vòng, quy trình khác). Không remap vì ép NexaTech 'giống' một công ty khác là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Người buddy hỗ trợ mình trong bao lâu vậy?",
@@ -649,7 +649,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `bộ luật lao động.pdf` bị loại khỏi RAG index có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu nội bộ doanh nghiệp (thật hoặc synthetic đóng vai nội bộ), văn bản pháp luật chỉ còn là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent được trích dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES, src/ingestion/metadata.py và _provenance_filter, src/agents/nodes/retrieval.py). 5 câu này là kiến thức pháp luật lao động tổng quát (tuổi lao động tối thiểu, cưỡng bức lao động, phân biệt đối xử, tổ chức đại diện NLĐ) không map tự nhiên vào 1 tài liệu chính sách nội bộ cụ thể nào, nên KHÔNG remap — retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Cá nhân tự kinh doanh có quyền thuê người làm việc không?",
@@ -667,7 +667,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `bộ luật lao động.pdf` bị loại khỏi RAG index có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu nội bộ doanh nghiệp (thật hoặc synthetic đóng vai nội bộ), văn bản pháp luật chỉ còn là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent được trích dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES, src/ingestion/metadata.py và _provenance_filter, src/agents/nodes/retrieval.py). 5 câu này là kiến thức pháp luật lao động tổng quát (tuổi lao động tối thiểu, cưỡng bức lao động, phân biệt đối xử, tổ chức đại diện NLĐ) không map tự nhiên vào 1 tài liệu chính sách nội bộ cụ thể nào, nên KHÔNG remap — retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Sếp dùng lời đe dọa ép mình làm việc ngoài giờ có bị coi là cưỡng bức lao động không?",
@@ -685,7 +685,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `bộ luật lao động.pdf` bị loại khỏi RAG index có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu nội bộ doanh nghiệp (thật hoặc synthetic đóng vai nội bộ), văn bản pháp luật chỉ còn là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent được trích dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES, src/ingestion/metadata.py và _provenance_filter, src/agents/nodes/retrieval.py). 5 câu này là kiến thức pháp luật lao động tổng quát (tuổi lao động tối thiểu, cưỡng bức lao động, phân biệt đối xử, tổ chức đại diện NLĐ) không map tự nhiên vào 1 tài liệu chính sách nội bộ cụ thể nào, nên KHÔNG remap — retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty ưu tiên tuyển người chưa có gia đình thì có bị coi là phân biệt đối xử không?",
@@ -703,7 +703,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `bộ luật lao động.pdf` bị loại khỏi RAG index có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu nội bộ doanh nghiệp (thật hoặc synthetic đóng vai nội bộ), văn bản pháp luật chỉ còn là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent được trích dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES, src/ingestion/metadata.py và _provenance_filter, src/agents/nodes/retrieval.py). 5 câu này là kiến thức pháp luật lao động tổng quát (tuổi lao động tối thiểu, cưỡng bức lao động, phân biệt đối xử, tổ chức đại diện NLĐ) không map tự nhiên vào 1 tài liệu chính sách nội bộ cụ thể nào, nên KHÔNG remap — retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tại công ty mình có những tổ chức nào đại diện và bảo vệ quyền lợi cho người lao động?",
@@ -721,7 +721,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `bộ luật lao động.pdf` bị loại khỏi RAG index có chủ đích: sản phẩm chỉ trả lời bằng dữ liệu nội bộ doanh nghiệp (thật hoặc synthetic đóng vai nội bộ), văn bản pháp luật chỉ còn là nguồn offline để soạn tài liệu nội bộ, không phải nguồn agent được trích dẫn trực tiếp (xem NON_RAG_SOURCE_TYPES, src/ingestion/metadata.py và _provenance_filter, src/agents/nodes/retrieval.py). 5 câu này là kiến thức pháp luật lao động tổng quát (tuổi lao động tối thiểu, cưỡng bức lao động, phân biệt đối xử, tổ chức đại diện NLĐ) không map tự nhiên vào 1 tài liệu chính sách nội bộ cụ thể nào, nên KHÔNG remap — retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hợp đồng lao động thời hạn bao lâu thì mình phải đóng bảo hiểm xã hội bắt buộc?",
@@ -830,7 +830,9 @@
         "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
         "evidence_source": "deterministic_fallback"
       }
-    }
+    },
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Slogan của Vingroup là gì nhỉ?",
@@ -859,7 +861,9 @@
         "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001",
         "evidence_source": "llm_verbatim"
       }
-    }
+    },
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Quy định nội bộ chung của VinFast áp dụng cho đối tượng nào?",
@@ -888,7 +892,9 @@
         "evidence_chunk_id": "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000",
         "evidence_source": "llm_verbatim"
       }
-    }
+    },
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty rà soát đánh giá xếp bậc cán bộ lãnh đạo bao lâu một lần?",
@@ -906,7 +912,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `1050517962-...VinFast.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (VinFast), không phải dữ liệu nội bộ NexaTech. Câu hỏi hỏi đúng thuật ngữ xếp bậc cán bộ lãnh đạo riêng của VinFast ('Chính danh'/'Quyền') mà NexaTech không có hệ thống tương đương — không remap vì gán ghép thuật ngữ riêng của công ty khác vào NexaTech là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Cán bộ lãnh đạo xếp loại 'Quyền' thì xếp bậc thế nào so với chức danh?",
@@ -924,7 +930,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-15",
-    "retired_reason": "Nguồn `1050517962-...VinFast.pdf` bị loại khỏi RAG index có chủ đích: đây là chính sách THẬT của một doanh nghiệp khác (VinFast), không phải dữ liệu nội bộ NexaTech. Câu hỏi hỏi đúng thuật ngữ xếp bậc cán bộ lãnh đạo riêng của VinFast ('Chính danh'/'Quyền') mà NexaTech không có hệ thống tương đương — không remap vì gán ghép thuật ngữ riêng của công ty khác vào NexaTech là sai — retire và loại khỏi phép tính metric."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Mình làm mảng kinh doanh thì chu kỳ đánh giá hiệu suất thế nào?",
@@ -1013,7 +1019,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_061"
+    "id": "qa_061",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Đơn xin nghỉ phép của tôi tuần trước đã được phê duyệt chưa?",
@@ -1022,7 +1030,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_062"
+    "id": "qa_062",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi còn bao nhiêu ngày phép năm nay?",
@@ -1031,7 +1041,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_063"
+    "id": "qa_063",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Sổ bảo hiểm xã hội của tôi hiện đang được lưu ở phòng nhân sự hay đã trả lại cho tôi?",
@@ -1040,7 +1052,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_064"
+    "id": "qa_064",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hôm qua tôi quên chấm công, hệ thống có ghi nhận giờ ra về của tôi không?",
@@ -1049,7 +1063,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_065"
+    "id": "qa_065",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hợp đồng lao động của Trần Thị B sắp hết hạn vào ngày nào?",
@@ -1058,7 +1074,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_066"
+    "id": "qa_066",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tổng tiền thưởng KPI quý vừa rồi của tôi là bao nhiêu?",
@@ -1067,7 +1085,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_067"
+    "id": "qa_067",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hôm nay thời tiết ở thành phố Hồ Chí Minh có mưa không?",
@@ -1076,7 +1096,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_068"
+    "id": "qa_068",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Làm thế nào để fix lỗi NullReferenceException trong code C#?",
@@ -1085,7 +1107,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_069"
+    "id": "qa_069",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công thức nấu món phở bò ngon là gì?",
@@ -1094,7 +1118,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_070"
+    "id": "qa_070",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hãy gợi ý cho tôi một bài thơ nói về mùa thu.",
@@ -1103,7 +1129,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_071"
+    "id": "qa_071",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Đội tuyển Việt Nam có thắng trận bóng đá tối qua không?",
@@ -1112,7 +1140,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_072"
+    "id": "qa_072",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Hướng dẫn tôi cách cấu hình mạng LAN cho văn phòng.",
@@ -1121,7 +1151,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_073"
+    "id": "qa_073",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công thức tính đạo hàm của hàm số f(x) = x^3 + 2x là gì?",
@@ -1130,7 +1162,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_074"
+    "id": "qa_074",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Cho tôi xem báo cáo tài chính của công ty quý 3 vừa rồi.",
@@ -1139,7 +1173,9 @@
     "type": "out_of_scope",
     "expected_answer": null,
     "expected_behavior": "escalate_to_ticket",
-    "id": "qa_075"
+    "id": "qa_075",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi muốn nghỉ 3 ngày tuần sau.",
@@ -1149,7 +1185,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_076"
+    "id": "qa_076",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty có hỗ trợ tiền khám bệnh không?",
@@ -1159,7 +1197,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_077"
+    "id": "qa_077",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi khi nào được nhận tiền thưởng?",
@@ -1169,7 +1209,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_078"
+    "id": "qa_078",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi muốn xin chuyển công tác.",
@@ -1179,7 +1221,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_079"
+    "id": "qa_079",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi làm cuối tuần thì được tính sao?",
@@ -1189,7 +1233,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_080"
+    "id": "qa_080",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty có đóng bảo hiểm cho mình không?",
@@ -1199,7 +1245,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_081"
+    "id": "qa_081",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi còn bao nhiêu ngày phép?",
@@ -1209,7 +1257,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_082"
+    "id": "qa_082",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi khi nào được ký hợp đồng mới?",
@@ -1219,7 +1269,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_083"
+    "id": "qa_083",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi có được nhận phụ cấp không?",
@@ -1229,7 +1281,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_084"
+    "id": "qa_084",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi muốn nghỉ thai sản thì làm thủ tục gì?",
@@ -1239,7 +1293,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_085"
+    "id": "qa_085",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Lương của tôi tháng này bị thiếu.",
@@ -1249,7 +1305,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_086"
+    "id": "qa_086",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Nếu tôi quit thì có được nhận tiền không?",
@@ -1259,7 +1317,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_087"
+    "id": "qa_087",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi muốn xin nghỉ một thời gian.",
@@ -1269,7 +1329,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_088"
+    "id": "qa_088",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Công ty có hỗ trợ học tập không?",
@@ -1279,7 +1341,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_089"
+    "id": "qa_089",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tôi bị ốm có được trả lương không?",
@@ -1289,7 +1353,9 @@
     "type": "ambiguous",
     "expected_answer": null,
     "expected_behavior": "ask_clarification",
-    "id": "qa_090"
+    "id": "qa_090",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Cho mình hỏi mức thưởng Tết 2024 của nhân viên FPT Software là bao nhiêu tháng lương?",
@@ -1298,7 +1364,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_091"
+    "id": "qa_091",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Samsung Electronics Vietnam trả lương cho kỹ sư mới tốt nghiệp khoảng bao nhiêu triệu/tháng?",
@@ -1307,7 +1375,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_092"
+    "id": "qa_092",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Vingroup có chính sách cho nhân viên mua xe VinFast với giá ưu đãi không?",
@@ -1316,7 +1386,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_093"
+    "id": "qa_093",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Viettel cấp bao nhiêu ngày nghỉ phép năm cho nhân viên mới thử việc?",
@@ -1325,7 +1397,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_094"
+    "id": "qa_094",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Shopee Việt Nam có trợ cấp ăn trưa cho nhân viên văn phòng không, mức bao nhiêu?",
@@ -1334,7 +1408,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_095"
+    "id": "qa_095",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Unilever Việt Nam cho nhân viên nghỉ thai sản bao nhiêu tuần, có trả thêm phụ cấp không?",
@@ -1343,7 +1419,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_096"
+    "id": "qa_096",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Grab Việt Nam có trả thưởng KPI hàng quý cho tài xế đối tác không?",
@@ -1352,7 +1430,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_097"
+    "id": "qa_097",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Vinamilk có chính sách cho nhân viên mua sữa nội bộ với giá giảm không?",
@@ -1361,7 +1441,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_098"
+    "id": "qa_098",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "Tiki có hỗ trợ chi phí khám sức khỏe định kỳ cho nhân viên và người thân không?",
@@ -1370,7 +1452,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_099"
+    "id": "qa_099",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "question": "MoMo có phụ cấp đi lại cho nhân viên làm ca tối không, mức bao nhiêu?",
@@ -1379,7 +1463,9 @@
     "type": "competitor_comparison",
     "expected_answer": null,
     "expected_behavior": "decline_politely",
-    "id": "qa_100"
+    "id": "qa_100",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_101",
@@ -1602,7 +1688,7 @@
     "evidence_chunk_id": "161-ndcp.signed::0000",
     "evidence_source": "deterministic_fallback",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_114",
@@ -1621,7 +1707,7 @@
     "evidence_chunk_id": "161-ndcp.signed::0006",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_115",
@@ -1640,7 +1726,7 @@
     "evidence_chunk_id": "161-ndcp.signed::0011",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_116",
@@ -1659,7 +1745,7 @@
       "161-ndcp.signed::0015"
     ],
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_117",
@@ -1679,7 +1765,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-12",
-    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_118",
@@ -1699,7 +1785,7 @@
     "evidence_source": "deterministic_fallback",
     "retired": true,
     "retired_at": "2026-08-12",
-    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_119",
@@ -1719,7 +1805,7 @@
     "evidence_source": "llm_verbatim",
     "retired": true,
     "retired_at": "2026-08-12",
-    "retired_reason": "Tài liệu nguồn `amis_mau-thong-bao-quy-dinh-nghi-phep.docx` là file MẪU RỖNG (toàn '…………' để điền), đã bị loại khỏi corpus có chủ đích ngày 06/08 và thay bằng `07_chinh-sach-nghi-phep.md`. Ba câu này được sinh từ chính các dòng trống đó — ground_truth_context của chúng là dấu chấm, không phải nội dung. Qrel chỉ trỏ tới đúng chunk đã mất, nên không có evidence nào để map sang. KHÔNG remap (map theo embedding sẽ chấm agent dựa trên nguồn không phải nguồn gốc của câu hỏi); retire và loại khỏi phép tính metric, giữ lại trong file để truy vết."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_120",
@@ -1756,7 +1842,7 @@
     "evidence_chunk_id": "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Nguồn duy nhất hỗ trợ khoản 'mừng cưới hỏi' bằng tiền là base_mau-quy-che-luong-thuong-phu-cap-xu-phat.md (public_template, đã loại khỏi RAG index). Không tài liệu nội bộ sống nào (07/08/11/12/13) đề cập chế độ này bằng tiền — 07 chỉ có 'nghỉ phép cưới 3 ngày có lương' (khác chủ đề: ngày nghỉ, không phải tiền mừng). Không invent qrel — loại khỏi current benchmark theo Phase F.1."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_122",
@@ -1826,7 +1912,7 @@
     "evidence_chunk_id": "leanh_mau-noi-quy-lao-dong::0042",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Nguồn duy nhất hỗ trợ 'chi nhánh/đơn vị thành viên được tự cụ thể hóa nội quy riêng' là leanh_mau-noi-quy-lao-dong.md (public_template, đã loại khỏi RAG index). Tài liệu 13_noi-quy-lao-dong-va-ky-luat.md (thay thế sống) không có điều khoản phân quyền cho đơn vị thành viên. Không invent qrel — loại khỏi current benchmark theo Phase F.1."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_126",
@@ -1879,7 +1965,7 @@
     "evidence_chunk_id": "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004",
     "evidence_source": "deterministic_fallback",
     "retired": true,
-    "retired_reason": "Câu hỏi yêu cầu breakdown cụ thể của 'tổng chi phí đào tạo' (học phí/tài liệu/lệ phí thi/di chuyển) và thứ tự ưu tiên khấu trừ (lương/phụ cấp/trợ cấp) — chi tiết này chỉ có trong mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md Điều 5-6 (public_template, đã loại khỏi RAG index). Tài liệu sống 06_chinh-sach-dao-tao-phat-trien.md §6.2 chỉ có công thức 'Chi phí đền bù = Tổng chi phí đào tạo × (...)', không itemize, không nêu thứ tự khấu trừ. Không invent qrel — loại khỏi current benchmark theo Phase F.1."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_129",
@@ -1949,7 +2035,7 @@
     "evidence_chunk_id": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0033",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_133",
@@ -1968,7 +2054,7 @@
     "evidence_chunk_id": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0077",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_134",
@@ -1987,7 +2073,7 @@
     "evidence_chunk_id": "nghi_dinh_158_2025_nd_cp_bhxh_bat_buoc::0095",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_135",
@@ -2006,7 +2092,7 @@
     "evidence_chunk_id": "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0005",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_136",
@@ -2025,7 +2111,7 @@
     "evidence_chunk_id": "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0021",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_137",
@@ -2044,7 +2130,7 @@
     "evidence_chunk_id": "nghi_dinh_293_2025_nd_cp_luong_toi_thieu::0034",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "Câu hỏi thuộc nhóm PURE STATUTORY (đã xác nhận qua Phase F triage: hỏi phạm vi/nội dung nghị định/luật áp dụng cho khu vực công/CBCC/viên chức hoặc tra cứu vùng lương tối thiểu theo địa giới hành chính — không liên quan chính sách nội bộ NexaTech). Router phân loại pure_statutory -> OUT_OF_SCOPE đúng theo Type-C contract v3.1 đã được chấp nhận (KHÔNG phải router bug). Dataset 'type=in_scope' cũ có trước khi contract này tồn tại — chuyển sang eval/datasets/type_c_pure_statutory_holdout.json làm additional/holdout statutory case, KHÔNG đưa vào canonical 20 Type-C, KHÔNG tính vào regression 125-case chính."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_138",
@@ -2080,7 +2166,7 @@
     "evidence_chunk_id": "04_quy-trinh-offboarding::0004",
     "evidence_source": "llm_verbatim",
     "retired": true,
-    "retired_reason": "TỰ SỬA SAI SÓT của lần remap F.1 đầu tiên: em từng giả định các mốc 45/30/3 ngày (Điều 35, áp dụng khi NLĐ xin nghỉ) cũng áp dụng đối xứng cho trường hợp CÔNG TY đơn phương chấm dứt vì NLĐ không hoàn thành công việc (Điều 36) — giả định này KHÔNG có căn cứ trong tài liệu sống. Phát hiện qua chính response thật của agent (chạy live sau khi remap): agent trả lời trung thực rằng 'các đoạn trích chỉ nêu thời hạn áp dụng khi NLĐ tự xin nghỉ, không nêu thời hạn khi công ty đơn phương chấm dứt' — đúng, vì doc 04 không có câu đó. Không invent qrel — loại khỏi current benchmark. Đây không phải product bug, là lỗi authoring của chính migration F.1, đã tự phát hiện và sửa qua live regression run."
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "qa_140",

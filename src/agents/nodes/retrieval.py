@@ -82,19 +82,13 @@ def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
 
 def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict:
     """Registry corpus filter; kept below Chroma's 8-predicate query quota."""
-    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-    lifecycle = _lifecycle_conditions(query_date_ymd)
     if user_context is None:
-        conditions = [
-            {"access_category": {"$eq": "GENERAL"}},
-            *lifecycle,
-        ]
-    else:
-        allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
-        if not allowed_files:
-            return {"source_file": "__NO_ACCESS__"}
-        file_condition = {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
-        conditions = [file_condition, *lifecycle]
+        return {"source_file": "__NO_ACCESS__"}
+    allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
+    if not allowed_files:
+        return {"source_file": "__NO_ACCESS__"}
+    file_condition = {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
+    conditions = [file_condition, *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d")))]
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return {"$and": conditions}

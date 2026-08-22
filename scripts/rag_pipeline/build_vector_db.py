@@ -105,7 +105,7 @@ def main() -> None:
         for c in chunks:
             c.metadata.embedding_model = embedding_model
 
-        delete_by_source_stem(collection, stem)
+        delete_by_source_stem(collection, stem, chunks[0].metadata.tenant)
         upsert_chunks(collection, chunks, embeddings)
 
         if not args.skip_registry_update:

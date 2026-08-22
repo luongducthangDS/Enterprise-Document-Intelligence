@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import json
 from collections.abc import AsyncIterator
 
@@ -9,6 +11,19 @@ from app.core.logging import logger
 from app.schemas.agent import AgentAnswerDTO
 
 settings = get_settings()
+
+_IDENTITY_FIELDS = ("request_id", "user_id", "tenant_id", "department", "user_role")
+
+
+def _identity_signature(payload: dict, secret: str) -> str:
+    identity = {field: payload.get(field) for field in _IDENTITY_FIELDS}
+    canonical = json.dumps(
+        identity,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hmac.new(secret.encode("utf-8"), canonical, hashlib.sha256).hexdigest()
 
 
 class AIAgentClientError(Exception):
@@ -39,6 +54,8 @@ class AIAgentClient:
         query: str,
         department: str,
         request_id: str,
+        user_role: str,
+        tenant_id: str,
         history: list[dict[str, str]] | None = None,
     ) -> AgentAnswerDTO:
         async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
@@ -47,12 +64,15 @@ class AIAgentClient:
                     "user_id": user_id,
                     "query": query,
                     "department": department,
+                    "user_role": user_role,
+                    "tenant_id": tenant_id,
                     "request_id": request_id,
                     "history": history or [],
                 }
                 headers = {"X-Request-ID": request_id}
                 if self.service_token:
                     headers["X-Service-Token"] = self.service_token
+                    headers["X-Identity-Signature"] = _identity_signature(payload, self.service_token)
                 response = await client.post(f"{self.base_url}/query", json=payload, headers=headers)
                 response.raise_for_status()
                 return AgentAnswerDTO.model_validate(response.json())
@@ -78,6 +98,8 @@ class AIAgentClient:
         query: str,
         department: str,
         request_id: str,
+        user_role: str,
+        tenant_id: str,
         history: list[dict[str, str]] | None = None,
     ) -> AsyncIterator[dict]:
         """Đọc SSE từ Agent Core và trả từng event đã parse cho ChatService."""
@@ -85,12 +107,15 @@ class AIAgentClient:
             "user_id": user_id,
             "query": query,
             "department": department,
+            "user_role": user_role,
+            "tenant_id": tenant_id,
             "request_id": request_id,
             "history": history or [],
         }
         headers = {"X-Request-ID": request_id, "Accept": "text/event-stream"}
         if self.service_token:
             headers["X-Service-Token"] = self.service_token
+            headers["X-Identity-Signature"] = _identity_signature(payload, self.service_token)
 
         async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
             try:

@@ -12,6 +12,44 @@ from src.security.models import (
 )
 
 
+def runtime_upload_access_filters(user: UserContext) -> list[dict]:
+    """One Chroma predicate per runtime grant, keeping every query under quota."""
+    combined = runtime_upload_access_condition(user)
+    if combined.get("authorization_source") == "RUNTIME_UPLOAD":
+        return [combined]
+    runtime, grants = combined["$and"]
+    return [{"$and": [runtime, grant]} for grant in grants["$or"]]
+
+def runtime_upload_access_condition(user: UserContext) -> dict:
+    """Build a fail-closed Chroma predicate for documents uploaded at runtime."""
+    runtime = {"authorization_source": "RUNTIME_UPLOAD"}
+    role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
+    if role == UserRole.ADMIN.value or "admin" in {str(p).lower() for p in user.permissions}:
+        return runtime
+
+    grants: list[dict] = [
+        {"access_scope": AccessScope.COMPANY_WIDE.value},
+        {
+            "$and": [
+                {"access_scope": AccessScope.DEPARTMENT.value},
+                {"department": user.department.upper().strip()},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.ROLE.value},
+                {"authorized_role": role},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.RESTRICTED.value},
+                {"owner_user_id": user.user_id},
+            ]
+        },
+    ]
+    return {"$and": [runtime, {"$or": grants}]}
+
 class AuthorizationEngine:
     """Enterprise Authorization Engine.
 
@@ -171,7 +209,18 @@ class AuthorizationEngine:
         """Trả về danh sách source_file được phép truy xuất cho User hiện tại."""
         if registry_rows is None:
             from src.ingestion.metadata import load_registry
-            registry_rows = load_registry()
+
+            # HR/core và Product được ingest song song. Product có registry
+            # riêng nên authorization phải hợp nhất các registry hiện có;
+            # thiếu một file không được làm chết toàn bộ retrieval.
+            registry_rows = []
+            for registry_path in (
+                "data/metadata/document_registry.csv",
+                "data/metadata/accounting_document_registry.csv",
+                "data/metadata/product_document_registry.csv",
+            ):
+                if os.path.exists(registry_path):
+                    registry_rows.extend(load_registry(registry_path))
 
         allowed_files: list[str] = []
         for r in registry_rows:

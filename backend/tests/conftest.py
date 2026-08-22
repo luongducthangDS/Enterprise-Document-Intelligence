@@ -49,6 +49,8 @@ class FakeAgentClient:
         query: str,
         department: str,
         request_id: str,
+        user_role: str = "EMPLOYEE",
+        tenant_id: str = "nexatech",
         history: list[dict[str, str]] | None = None,
     ) -> AgentAnswerDTO:
         normalized_query = query.lower()

@@ -1,4 +1,7 @@
 import type {
+  AccessModel,
+  AccessUser,
+  AuditLog,
   ApiResponse,
   AsyncJob,
   ChatResult,
@@ -355,4 +358,12 @@ export const api = {
       body: JSON.stringify({ dataset_id: datasetId, index_version: indexVersion, model_config_id: modelConfigId }),
     }).then((response) => response.data!),
   getEvaluation: (runId: string) => request<EvaluationRun>(`/evaluation/runs/${runId}`).then((response) => response.data!),
+  getAccessModel: () => request<AccessModel>("/admin/access-model").then((response) => response.data!),
+  listAccessUsers: () => request<AccessUser[]>("/admin/users").then((response) => response.data!),
+  updateUserAccess: (userId: string, payload: { role: string; department: string }) =>
+    request<{ user_id: string; role: string; department: string }>(`/admin/users/${userId}/access`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }).then((response) => response.data!),
+  listAuditLogs: () => request<AuditLog[]>("/admin/audit-logs?limit=100").then((response) => response.data!),
 };

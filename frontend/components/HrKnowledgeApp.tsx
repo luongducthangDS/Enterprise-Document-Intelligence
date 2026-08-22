@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Activity, BookOpen, Database, FileText, FlaskConical, MessageSquare, Ticket } from "lucide-react";
+import { Activity, BookOpen, Database, FileText, FlaskConical, MessageSquare, ShieldCheck, Ticket } from "lucide-react";
 import { api, clearSession, hasSession } from "@/lib/api";
 import type { User } from "@/lib/types";
+import { AccessAdmin } from "./AccessAdmin";
 import { ChatView } from "./ChatView";
 import { DocumentsView, OperationsView } from "./KnowledgeAdmin";
 import { LoginView } from "./LoginView";
 import { TicketsView } from "./TicketsView";
 
-type View = "chat" | "tickets" | "documents" | "index" | "evaluation" | "monitoring";
+type View = "chat" | "tickets" | "documents" | "access" | "index" | "evaluation" | "monitoring";
 
 const employeeItems = [{ id: "chat" as const, label: "Trợ lý AI HR", icon: MessageSquare }, { id: "tickets" as const, label: "Ticket của tôi", icon: Ticket }];
-const adminItems = [{ id: "documents" as const, label: "Kho tài liệu", icon: FileText }, { id: "index" as const, label: "Index & RAG", icon: Database }, { id: "evaluation" as const, label: "Đánh giá chất lượng", icon: FlaskConical }, { id: "monitoring" as const, label: "Giám sát truy vấn", icon: Activity }];
+const adminItems = [{ id: "documents" as const, label: "Kho tài liệu", icon: FileText }, { id: "access" as const, label: "Phân quyền", icon: ShieldCheck }, { id: "index" as const, label: "Index & RAG", icon: Database }, { id: "evaluation" as const, label: "Đánh giá chất lượng", icon: FlaskConical }, { id: "monitoring" as const, label: "Giám sát truy vấn", icon: Activity }];
 
 export function HrKnowledgeApp() {
   const [user, setUser] = useState<User | null>(null);
@@ -72,6 +73,7 @@ export function HrKnowledgeApp() {
         <ChatView user={user} onLogout={logout} hidden={view !== "chat"} />
         {view === "tickets" && <TicketsView user={user} />}
         {view === "documents" && <DocumentsView />}
+        {view === "access" && <AccessAdmin canManage={user.role === "SUPER_ADMIN"} />}
         {view === "index" && <OperationsView mode="index" />}
         {view === "evaluation" && <OperationsView mode="evaluation" />}
         {view === "monitoring" && <DeferredView title="Giám sát truy vấn" detail="Monitoring được giữ lại cho phase sau theo quyết định hiện tại." />}

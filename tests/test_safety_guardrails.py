@@ -65,6 +65,7 @@ class TestSafetyGuardrailsP0A(unittest.TestCase):
             "user_role": "EMPLOYEE",
             "department": "IT",
             "tenant_id": "NexaTech",
+            "user_id": "security-test-user",
         })
         self.assertEqual(user.tenant_id, "nexatech")
         resolved = resolve_tenant_collection(user)
@@ -79,10 +80,9 @@ class TestSafetyGuardrailsP0A(unittest.TestCase):
         )
 
         mock_collection_global = MagicMock()
-        delete_by_source_stem(mock_collection_global, "bộ luật lao động", tenant_id=None)
-        mock_collection_global.delete.assert_called_once_with(
-            where={"source_stem": "bộ luật lao động"}
-        )
+        with self.assertRaises(ValueError):
+            delete_by_source_stem(mock_collection_global, "bộ luật lao động", tenant_id="")
+        mock_collection_global.delete.assert_not_called()
 
 
 if __name__ == "__main__":

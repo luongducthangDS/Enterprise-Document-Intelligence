@@ -1,4 +1,5 @@
 from app.core.database import Base
+from app.domain.models.audit import AuditLogDB
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB, IngestionJobDB
@@ -24,6 +25,7 @@ from app.domain.models.knowledge import (
 
 __all__ = [
     "Base",
+    "AuditLogDB",
     "ProfileDB",
     "TicketDB",
     "ConversationDB",

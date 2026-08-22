@@ -23,11 +23,18 @@ import os
 
 from src.config import Settings, get_settings
 from src.ingestion.embeddings import embed_texts
-from src.ingestion.indexer import delete_by_source_stem, get_chroma_client, get_collection, upsert_chunks
+from src.ingestion.indexer import (
+    collection_name_for_chunks,
+    delete_by_source_stem,
+    get_chroma_client,
+    get_collection,
+    upsert_chunks,
+)
 from src.ingestion.metadata import Chunk
 from src.models.schemas import IndexRebuildJobRequest
 from src.workers.ingestion import chunks_dir
 from src.workers.jobs import ProgressCallback
+from src.security.tenant_resolver import validate_tenant_id
 
 logger = logging.getLogger(__name__)
 
@@ -44,18 +51,25 @@ def _load_chunks(path: str) -> list[Chunk]:
 def resolve_targets(request: IndexRebuildJobRequest, settings: Settings) -> list[tuple[str | None, str]]:
     """Trả về [(document_id, chunks_path)] theo đúng thứ tự Backend yêu cầu."""
     root = chunks_dir(settings)
+    tenant = validate_tenant_id(request.tenant)
+    tenant_root = os.path.join(root, tenant)
 
     if not request.documents:
-        paths = sorted(glob.glob(os.path.join(root, "*.json")))
+        paths = glob.glob(os.path.join(tenant_root, "*.json"))
+        # Legacy offline corpus predates tenant directories and belongs only to
+        # the configured active tenant. External tenants never scan this root.
+        if tenant == validate_tenant_id(settings.active_tenant):
+            paths.extend(glob.glob(os.path.join(root, "*.json")))
+        paths = sorted(set(paths))
         if not paths:
-            raise IndexRebuildError(f"Không tìm thấy file chunk nào trong {root} để rebuild.")
+            raise IndexRebuildError(f"Không tìm thấy file chunk nào cho tenant {tenant} để rebuild.")
         return [(None, p) for p in paths]
 
     targets: list[tuple[str | None, str]] = []
     missing: list[str] = []
     for target in request.documents:
         stem = os.path.splitext(os.path.basename(target.source_file.replace("\\", "/")))[0]
-        path = os.path.join(root, f"{stem}.json")
+        path = os.path.join(tenant_root, f"{stem}.json")
         if not os.path.exists(path):
             missing.append(target.source_file)
             continue
@@ -81,7 +95,9 @@ def _reindex_one(chunks: list[Chunk], collection, settings: Settings, replace: b
         c.metadata.embedding_model = settings.embedding_model
 
     if replace:
-        delete_by_source_stem(collection, chunks[0].metadata.source_stem)
+        delete_by_source_stem(
+            collection, chunks[0].metadata.source_stem, chunks[0].metadata.tenant
+        )
     upsert_chunks(collection, chunks, embeddings)
     return len(chunks)
 
@@ -97,7 +113,7 @@ async def run_index_rebuild(
 
     progress("PREPARING", 5)
     client = await asyncio.to_thread(get_chroma_client, settings)
-    collection = await asyncio.to_thread(get_collection, client, settings.chroma_collection_name)
+    collections: dict[str, object] = {}
 
     documents: list[dict] = []
     total_vectors = 0
@@ -109,6 +125,10 @@ async def run_index_rebuild(
             )
             continue
 
+        collection_name = collection_name_for_chunks(chunks, settings)
+        if collection_name not in collections:
+            collections[collection_name] = await asyncio.to_thread(get_collection, client, collection_name)
+        collection = collections[collection_name]
         vectors = await asyncio.to_thread(_reindex_one, chunks, collection, settings, replace)
         total_vectors += vectors
         documents.append(
@@ -117,27 +137,31 @@ async def run_index_rebuild(
                 "source_file": chunks[0].metadata.source_file,
                 "source_stem": chunks[0].metadata.source_stem,
                 "chunk_count": vectors,
+                "collection": collection_name,
             }
         )
         # 5% khởi động + 90% cho vòng index, 5% còn lại cho bước đếm cuối.
         progress("INDEXING", 5 + int(90 * (i + 1) / len(targets)))
 
-    collection_count = await asyncio.to_thread(collection.count)
+    collection_counts = {
+        name: await asyncio.to_thread(collection.count) for name, collection in collections.items()
+    }
     logger.info(
         "Index rebuild %s: %d tài liệu / %d vector, strategy=%s, collection=%s",
         request.job_id,
         len(documents),
         total_vectors,
         request.strategy,
-        settings.chroma_collection_name,
+        ",".join(collections),
     )
     return {
         "strategy": request.strategy,
         "documents": documents,
         "document_count": len(documents),
         "vector_count": total_vectors,
-        "collection": settings.chroma_collection_name,
-        "collection_count": collection_count,
+        "collection": next(iter(collections)) if len(collections) == 1 else "multiple",
+        "collection_count": sum(collection_counts.values()),
+        "collection_counts": collection_counts,
         "embedding_model": settings.embedding_model,
         "active_index_version": settings.index_version,
     }

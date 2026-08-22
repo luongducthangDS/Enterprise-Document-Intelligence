@@ -122,7 +122,7 @@ class AgentAnswerAdapter:
                 boundary=boundary,
             )
 
-        if answer.escalate or answer.intent == "out_of_scope_or_personal":
+        if answer.escalate or answer.intent in ("out_of_scope_or_personal", "pure_statutory"):
             warnings = []
             if answer.escalate_reason == "low_confidence":
                 warnings.append(
@@ -142,7 +142,7 @@ class AgentAnswerAdapter:
                 citations=citations,
                 warnings=warnings,
                 clarification=None,
-                retryable=True,
+                retryable=answer.intent != "pure_statutory",
                 boundary=boundary,
             )
 

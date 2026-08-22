@@ -90,7 +90,7 @@ async def test_hr_question_flow_returns_grounded_answer_with_citations():
             new=AsyncMock(side_effect=["Bạn được nghỉ 12 ngày phép năm [Nguồn 1].", "PASS"]),
         ),
     ):
-        result = await agent.ainvoke({"query": "Tôi được nghỉ bao nhiêu ngày phép năm?"})
+        result = await agent.ainvoke({"query": "Tôi được nghỉ bao nhiêu ngày phép năm?", "tenant_id": "nexatech", "user_id": "graph-test-user", "department": "HR", "user_role": "EMPLOYEE"})
 
     assert result.get("escalate") is not True
     assert "12 ngày" in result["response"]
@@ -129,7 +129,7 @@ async def test_unanswerable_generation_skips_hallucination_check_and_escalates()
             new=AsyncMock(side_effect=[f"{INSUFFICIENT_MARKER} Đoạn trích không nói về phụ cấp."]),
         ),
     ):
-        result = await agent.ainvoke({"query": "Phụ cấp ăn trưa là bao nhiêu?"})
+        result = await agent.ainvoke({"query": "Phụ cấp ăn trưa là bao nhiêu?", "tenant_id": "nexatech", "user_id": "graph-test-user", "department": "HR", "user_role": "EMPLOYEE"})
 
     assert result["answerable"] is False
     assert "hallucination_retry_count" not in result  # node check chưa từng chạy
@@ -153,7 +153,7 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
             new=AsyncMock(side_effect=["Chưa đủ thông tin để trả lời.", "PASS"]),
         ),
     ):
-        result = await agent.ainvoke({"query": "Câu hỏi không có tài liệu liên quan"})
+        result = await agent.ainvoke({"query": "Câu hỏi không có tài liệu liên quan", "tenant_id": "nexatech", "user_id": "graph-test-user", "department": "HR", "user_role": "EMPLOYEE"})
 
     # max_rewrite_retries mặc định = 1 -> retrieve -> grade -> rewrite -> retrieve -> grade -> generate
     assert result["rewrite_count"] == 1

@@ -1,322 +1,208 @@
 {
   "qa_001": {
-    "01_chinh-sach-lam-them-gio-OT::0005": 2
+    "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0005": 2
   },
   "qa_002": {
-    "01_chinh-sach-lam-them-gio-OT::0006": 2
+    "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0006": 2
   },
   "qa_003": {
-    "01_chinh-sach-lam-them-gio-OT::0010": 2
+    "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0010": 2
   },
   "qa_004": {
-    "01_chinh-sach-lam-them-gio-OT::0006": 2
+    "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0006": 2
   },
   "qa_005": {
-    "01_chinh-sach-lam-them-gio-OT::0004": 2
+    "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0004": 2
   },
   "qa_006": {
-    "12_quy-che-cong-tac-phi::0003": 1,
-    "12_quy-che-cong-tac-phi::0008": 2
+    "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0003": 2
   },
   "qa_007": {
-    "12_quy-che-cong-tac-phi::0003": 1,
-    "12_quy-che-cong-tac-phi::0008": 2
+    "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008": 2
   },
   "qa_008": {
-    "12_quy-che-cong-tac-phi::0005": 1,
-    "12_quy-che-cong-tac-phi::0008": 2
+    "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008": 2
   },
   "qa_009": {
-    "12_quy-che-cong-tac-phi::0006": 1,
-    "12_quy-che-cong-tac-phi::0008": 2
+    "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008": 2
   },
   "qa_010": {
-    "12_quy-che-cong-tac-phi::0006": 1,
-    "12_quy-che-cong-tac-phi::0008": 2
+    "nexatech:ab0c4793-8fdc-5f8b-b3bf-0a9db1e6c093:6f7c6506-64ad-5e0b-98ae-d25ffefc0afd:0008": 2
   },
   "qa_011": {
-    "02_quy-trinh-tuyen-dung::0004": 2
+    "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004": 2
   },
   "qa_012": {
-    "02_quy-trinh-tuyen-dung::0006": 2
+    "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006": 2
   },
   "qa_013": {
-    "02_quy-trinh-tuyen-dung::0005": 2
+    "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0005": 2
   },
   "qa_014": {
-    "02_quy-trinh-tuyen-dung::0012": 2
+    "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0012": 2
   },
   "qa_015": {
-    "02_quy-trinh-tuyen-dung::0003": 2
+    "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0003": 2
   },
   "qa_021": {
-    "03_quy-trinh-onboarding::0003": 2
+    "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0003": 2
   },
   "qa_022": {
-    "03_quy-trinh-onboarding::0012": 2
+    "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0012": 2
   },
   "qa_023": {
-    "03_quy-trinh-onboarding::0005": 2
+    "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0005": 2
   },
   "qa_024": {
-    "03_quy-trinh-onboarding::0006": 2
+    "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0006": 2
   },
   "qa_025": {
-    "03_quy-trinh-onboarding::0008": 2
+    "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0008": 2
   },
   "qa_026": {
-    "04_quy-trinh-offboarding::0004": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004": 2
   },
   "qa_027": {
-    "04_quy-trinh-offboarding::0006": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0006": 2
   },
   "qa_028": {
-    "04_quy-trinh-offboarding::0011": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011": 2
   },
   "qa_029": {
-    "04_quy-trinh-offboarding::0007": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0007": 2
   },
   "qa_030": {
-    "04_quy-trinh-offboarding::0006": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0006": 2
   },
   "qa_031": {
-    "07_chinh-sach-nghi-phep::0023": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023": 2
   },
   "qa_032": {
-    "07_chinh-sach-nghi-phep::0005": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0005": 2
   },
   "qa_033": {
-    "07_chinh-sach-nghi-phep::0023": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023": 2
   },
   "qa_034": {
-    "07_chinh-sach-nghi-phep::0007": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0007": 2
   },
   "qa_035": {
-    "07_chinh-sach-nghi-phep::0006": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0006": 2
   },
   "qa_036": {
-    "07_chinh-sach-nghi-phep::0017": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0017": 2
   },
   "qa_037": {
-    "07_chinh-sach-nghi-phep::0024": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0024": 2
   },
   "qa_038": {
-    "07_chinh-sach-nghi-phep::0023": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023": 2
   },
   "qa_039": {
-    "07_chinh-sach-nghi-phep::0023": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023": 2
   },
   "qa_040": {
-    "07_chinh-sach-nghi-phep::0024": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0024": 2
   },
   "qa_046": {
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
+    "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009": 2
   },
   "qa_047": {
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
+    "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009": 2
   },
   "qa_048": {
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
+    "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009": 2
   },
   "qa_049": {
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
+    "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009": 2
   },
   "qa_050": {
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0004": 1,
-    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc::0009": 2
-  },
-  "qa_051": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": 2
-  },
-  "qa_052": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0001": 2
-  },
-  "qa_053": {
-    "1050517962-VF-I-4-1-001-V5-Quy-định-nội-bộ-Cong-ty-VinFast-08-08-2019::0000": 2
+    "nexatech:578507bd-4303-5385-afba-d23a62d76f08:465847c2-20f4-5e78-a4ee-86d0d2077ef8:0009": 2
   },
   "qa_056": {
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0002": 1,
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
+    "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009": 2
   },
   "qa_057": {
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0002": 1,
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
+    "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009": 2
   },
   "qa_058": {
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0004": 1,
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
+    "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009": 2
   },
   "qa_059": {
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0006": 1,
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
+    "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009": 2
   },
   "qa_060": {
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0007": 1,
-    "11_chinh-sach-danh-gia-hieu-suat-kpi::0009": 2
+    "nexatech:b75328ae-179f-57c4-8f30-8bf4420cbc8c:001ad163-20ac-5c4c-9373-ea72265dbde6:0009": 2
   },
   "qa_101": {
-    "05_chinh-sach-lam-viec-tu-xa::0003": 2
+    "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0003": 2
   },
   "qa_102": {
-    "05_chinh-sach-lam-viec-tu-xa::0009": 2
+    "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0009": 2
   },
   "qa_103": {
-    "05_chinh-sach-lam-viec-tu-xa::0021": 2
+    "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0021": 2
   },
   "qa_104": {
-    "05_chinh-sach-lam-viec-tu-xa::0031": 2
+    "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031": 2
   },
   "qa_105": {
-    "06_chinh-sach-dao-tao-phat-trien::0003": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003": 2
   },
   "qa_106": {
-    "06_chinh-sach-dao-tao-phat-trien::0005": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005": 2
   },
   "qa_107": {
-    "06_chinh-sach-dao-tao-phat-trien::0006": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006": 2
   },
   "qa_108": {
-    "06_chinh-sach-dao-tao-phat-trien::0009": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009": 2
   },
   "qa_109": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0003": 2
+    "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0003": 2
   },
   "qa_110": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019": 2
+    "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019": 2
   },
   "qa_111": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0014": 2
+    "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0014": 2
   },
   "qa_112": {
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0018": 2
+    "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0018": 2
   },
   "qa_120": {
-    "07_chinh-sach-nghi-phep::0014": 2,
-    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0010": 2
+    "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0014": 2,
+    "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0010": 2
   },
   "qa_122": {
-    "13_noi-quy-lao-dong-va-ky-luat::0007": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0007": 2
   },
   "qa_123": {
-    "13_noi-quy-lao-dong-va-ky-luat::0002": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0002": 2
   },
   "qa_124": {
-    "13_noi-quy-lao-dong-va-ky-luat::0005": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0005": 2
   },
   "qa_126": {
-    "06_chinh-sach-dao-tao-phat-trien::0006": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006": 2
   },
   "qa_127": {
-    "06_chinh-sach-dao-tao-phat-trien::0006": 2
+    "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006": 2
   },
   "qa_129": {
-    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0009": 2
   },
   "qa_130": {
-    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0009": 2
   },
   "qa_131": {
-    "13_noi-quy-lao-dong-va-ky-luat::0009": 2
+    "nexatech:71dc1ba7-08c5-5239-9114-d5c48f8eb729:9c6d1a7b-e52e-5171-a481-6ec813b14045:0009": 2
   },
   "qa_138": {
-    "04_quy-trinh-offboarding::0004": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004": 2
   },
   "qa_140": {
-    "04_quy-trinh-offboarding::0007": 2,
-    "04_quy-trinh-offboarding::0008": 2
-  },
-  "heldout_001": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0014": 2
-  },
-  "heldout_002": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0039": 2
-  },
-  "heldout_003": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0047": 2
-  },
-  "heldout_004": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0051": 2
-  },
-  "heldout_005": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0082": 2
-  },
-  "heldout_006": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0092": 2
-  },
-  "heldout_007": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0101": 2
-  },
-  "heldout_008": {
-    "luat_an_toan_ve_sinh_lao_dong_84_2015_qh13::0109": 2
-  },
-  "heldout_009": {
-    "luat51::0001": 2
-  },
-  "heldout_010": {
-    "luat51::0007": 2
-  },
-  "heldout_011": {
-    "luat51::0015": 2
-  },
-  "heldout_012": {
-    "luat51::0022": 2
-  },
-  "heldout_013": {
-    "luat51::0031": 2
-  },
-  "heldout_014": {
-    "luat51::0037": 2
-  },
-  "heldout_015": {
-    "luat51::0044": 2
-  },
-  "heldout_016": {
-    "luat51::0053": 2
-  },
-  "heldout_017": {
-    "112-vbhn-vpqh_luat_thue_tncn::0013": 2
-  },
-  "heldout_018": {
-    "112-vbhn-vpqh_luat_thue_tncn::0022": 2
-  },
-  "heldout_019": {
-    "112-vbhn-vpqh_luat_thue_tncn::0027": 2
-  },
-  "heldout_020": {
-    "112-vbhn-vpqh_luat_thue_tncn::0029": 2
-  },
-  "heldout_021": {
-    "112-vbhn-vpqh_luat_thue_tncn::0033": 2
-  },
-  "heldout_022": {
-    "112-vbhn-vpqh_luat_thue_tncn::0035": 2
-  },
-  "heldout_023": {
-    "112-vbhn-vpqh_luat_thue_tncn::0028": 2
-  },
-  "heldout_024": {
-    "thong-tu-60-2025-TT-BHYT-2026::0004": 2
-  },
-  "heldout_025": {
-    "thong-tu-60-2025-TT-BHYT-2026::0007": 2
-  },
-  "heldout_026": {
-    "thong-tu-60-2025-TT-BHYT-2026::0009": 2
-  },
-  "heldout_027": {
-    "thong-tu-60-2025-TT-BHYT-2026::0011": 2
-  },
-  "heldout_028": {
-    "thong-tu-60-2025-TT-BHYT-2026::0014": 2
-  },
-  "heldout_029": {
-    "thong-tu-60-2025-TT-BHYT-2026::0016": 2
-  },
-  "heldout_030": {
-    "thong-tu-60-2025-TT-BHYT-2026::0018": 2
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0007": 2,
+    "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0008": 2
   }
 }

@@ -80,7 +80,7 @@ class AgentBoundaryDecisionDTO(BaseModel):
 
 class AgentAnswerDTO(BaseModel):
     response: str
-    intent: Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal"]
+    intent: Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
     confidence_score: float | None = Field(default=None, ge=0.0, le=1.0)
     citations: list[AgentCitationDTO] = Field(default_factory=list)
     needs_clarification: bool = False
