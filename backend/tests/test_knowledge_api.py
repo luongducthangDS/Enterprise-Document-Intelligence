@@ -1,11 +1,10 @@
 import pytest
+from app.core.knowledge_db import create_all_tables, create_knowledge_engine, drop_all_tables, get_knowledge_session as get_session
 from app.core.security import create_access_token
+from app.domain.models.knowledge import ReviewStatus
+from app.services.knowledge_service import KnowledgeRepository, log_audit
 from fastapi.testclient import TestClient
 from main import app
-
-from src.knowledge.database import create_all_tables, create_knowledge_engine, drop_all_tables, get_session
-from src.knowledge.models import ReviewStatus
-from src.knowledge.service import KnowledgeService
 
 client = TestClient(app)
 
@@ -17,12 +16,77 @@ def setup_knowledge_db():
     create_all_tables(engine)
 
     with get_session(engine) as session:
-        service = KnowledgeService(session)
-        service.bootstrap_target_slice(
+        repo = KnowledgeRepository(session)
+        repo.create_tenant(tenant_id="nexatech", slug="nexatech", name="NexaTech Corporation")
+        doc = repo.create_document(
             tenant_id="nexatech",
-            initial_review_status=ReviewStatus.CANDIDATE.value,
+            document_code="12_quy-che-cong-tac-phi.md",
+            title="Quy chế Công tác phí và Phụ cấp Di chuyển",
+            document_domain="COMPANY_POLICY",
         )
-        from src.knowledge.audit import log_audit
+        ver = repo.create_version(
+            tenant_id="nexatech",
+            document_id=doc.document_id,
+            version_number="1.0",
+            raw_content="Quy định hạn mức khách sạn tại HN/HCM là 800.000 VNĐ.",
+        )
+        chunk = repo.create_chunk(
+            tenant_id="nexatech",
+            version_id=ver.version_id,
+            chunk_index=1,
+            chunk_text="Hạn mức khách sạn 800.000 VNĐ.",
+        )
+        k_item = repo.create_knowledge_item(
+            tenant_id="nexatech",
+            version_id=ver.version_id,
+            item_type="POLICY_RULE",
+            statement="Hạn mức khách sạn nhân viên là 800.000 VNĐ/đêm",
+            subject="khách_sạn",
+            predicate="hạn_mức_phòng_đêm",
+            object_value="800000 VND",
+            value_numeric=800000,
+            review_status=ReviewStatus.CANDIDATE.value,
+        )
+        repo.create_evidence(
+            tenant_id="nexatech",
+            knowledge_id=k_item.knowledge_id,
+            chunk_id=chunk.chunk_id,
+            exact_quote_span="Hạn mức khách sạn 800.000 VNĐ.",
+            start_char=0,
+            end_char=30,
+        )
+
+        doc2 = repo.create_document(
+            tenant_id="nexatech",
+            document_code="mgt_dec_04.md",
+            title="Quyết định số 04 điều chỉnh hạn mức chi tiêu",
+            document_domain="MANAGEMENT_DECISION",
+        )
+        ver2 = repo.create_version(
+            tenant_id="nexatech",
+            document_id=doc2.document_id,
+            version_number="1.0",
+            raw_content="Điều chỉnh hạn mức khách sạn HCM lên 1.200.000 VNĐ.",
+        )
+        k_item2 = repo.create_knowledge_item(
+            tenant_id="nexatech",
+            version_id=ver2.version_id,
+            item_type="DECISION",
+            statement="Hạn mức khách sạn nhân viên tại HCM là 1.200.000 VNĐ/đêm",
+            subject="khách_sạn",
+            predicate="hạn_mức_phòng_đêm",
+            object_value="1200000 VND",
+            value_numeric=1200000,
+            review_status=ReviewStatus.CANDIDATE.value,
+        )
+        repo.create_relation(
+            tenant_id="nexatech",
+            source_knowledge_id=k_item2.knowledge_id,
+            target_knowledge_id=k_item.knowledge_id,
+            relation_type="MODIFIES",
+            explanation="Điều chỉnh hạn mức từ 800k lên 1.2M",
+        )
+
         log_audit(
             session=session,
             tenant_id="nexatech",

@@ -14,16 +14,19 @@ from app.schemas.knowledge import (
     KnowledgeRelationDTO,
     RejectKnowledgeItemRequest,
 )
-from src.knowledge.audit import get_audit_trail, log_audit
-from src.knowledge.database import get_session
-from src.knowledge.models import (
+from app.core.knowledge_db import get_knowledge_session as get_session
+from app.domain.models.knowledge import (
     AuditLog,
     EvidenceRecord,
     KnowledgeItem,
     KnowledgeRelation,
     ReviewStatus,
 )
-from src.knowledge.repository import KnowledgeRepository
+from app.services.knowledge_service import (
+    KnowledgeRepository,
+    get_audit_trail,
+    log_audit,
+)
 
 router = APIRouter()
 

@@ -5,6 +5,7 @@
 .worktrees/
 .pnpm-store/
 frontend/
+backend/
 __pycache__
 *.pyc
 .pytest_cache

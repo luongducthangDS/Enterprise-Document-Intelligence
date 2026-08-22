@@ -9,6 +9,19 @@ from app.domain.models.profile import ProfileDB
 from app.domain.models.ticket import TicketDB
 from app.domain.models.user import UserDB
 
+from app.domain.models.knowledge import (
+    AuditLog,
+    ChunkRecord,
+    Document,
+    DocumentVersion,
+    EvidenceRecord,
+    KnowledgeBase,
+    KnowledgeItem,
+    KnowledgeRelation,
+    ReviewStatus,
+    Tenant,
+)
+
 __all__ = [
     "Base",
     "ProfileDB",
@@ -21,6 +34,16 @@ __all__ = [
     "MessageDB",
     "ChatRequestDB",
     "UserDB",
+    "KnowledgeBase",
+    "Tenant",
+    "Document",
+    "DocumentVersion",
+    "ChunkRecord",
+    "KnowledgeItem",
+    "KnowledgeRelation",
+    "EvidenceRecord",
+    "AuditLog",
+    "ReviewStatus",
 ]
 
 
