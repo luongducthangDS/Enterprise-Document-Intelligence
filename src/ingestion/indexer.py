@@ -24,7 +24,10 @@ def collection_name_for_department(
         if tenant == active_tenant:
             return settings.chroma_product_collection_name
         return f"tenant_{tenant}_product_documents"
-    return settings.chroma_collection_name if tenant == active_tenant else get_tenant_collection_name(tenant)
+    # SSOT: department "mặc định" (HR/IT/...) resolve về đúng collection mà
+    # retrieval đọc (tenant resolver) — không dùng settings.chroma_collection_name
+    # vì env đó drift được (đã gây BUG-02: ghi hr_documents, đọc tenant_*_knowledge).
+    return get_tenant_collection_name(tenant)
 
 
 def collection_name_for_chunks(chunks: list[Chunk], settings: Settings) -> str:
