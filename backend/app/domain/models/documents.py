@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Uuid
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class DocumentDB(Base):
     __tablename__ = "documents"
+    __table_args__ = (UniqueConstraint("tenant", "source_file", name="uq_documents_tenant_source_file"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
@@ -29,7 +30,6 @@ class DocumentDB(Base):
     source_file: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        unique=True,
     )
 
     category: Mapped[str] = mapped_column(
@@ -37,6 +37,15 @@ class DocumentDB(Base):
         nullable=False,
         default="GENERAL",
     )
+
+    tenant: Mapped[str] = mapped_column(String, nullable=False, default="nexatech")
+    department: Mapped[str] = mapped_column(String, nullable=False, default="HR")
+    access_scope: Mapped[str] = mapped_column(String, nullable=False, default="RESTRICTED")
+    authorized_role: Mapped[str | None] = mapped_column(String, nullable=True)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
+    authorization_source: Mapped[str] = mapped_column(String, nullable=False, default="RUNTIME_UPLOAD")
+    authority: Mapped[str] = mapped_column(String, nullable=False, default="tenant_official_policy")
+    provenance: Mapped[str] = mapped_column(String, nullable=False, default="customer_provided")
 
     version: Mapped[str | None] = mapped_column(
         String,

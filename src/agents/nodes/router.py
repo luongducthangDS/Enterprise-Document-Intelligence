@@ -9,7 +9,7 @@ from src.agents.nodes.escalation import (
     _strip_diacritics,
 )
 from src.agents.state import AgentState, Intent
-from src.domains import get_matching_domain
+from src.domains import get_conversation_domain
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal|pure_statutory")
 _EXPLICIT_HYBRID_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
@@ -179,7 +179,7 @@ async def router_node(state: AgentState) -> dict:
         return {"intent": "out_of_scope_or_personal"}
 
     # --- Domain-Specific Personal Data / ABSTAIN Guardrail (G5) ---
-    domain = get_matching_domain(query, state.get("category"))
+    domain = get_conversation_domain(query, state.get("category"), state.get("history"))
     if domain:
         is_personal, reason_code = domain.check_personal_data_query(query)
         if is_personal:
@@ -195,13 +195,19 @@ async def router_node(state: AgentState) -> dict:
     # nhầm thành out_of_scope_or_personal (đo được: "phòng nào vượt ngân sách" bị router nhầm).
     # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
     # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
-    _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
-    _HR_SPECIFIC_TERMS = re.compile(r"\b(bảo hiểm|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b", re.IGNORECASE)
+    # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
+    _G10_HR_EXCLUSIONS = re.compile(
+        r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
+        re.IGNORECASE,
+    )
     if domain and getattr(domain, "domain_name", None) == "accounting":
         query_words = query.split()
-        if len(query_words) >= 6 and not _G10_AMBIGUOUS_REFS.search(query) and not _HR_SPECIFIC_TERMS.search(query):
+        if (
+            len(query_words) >= 6
+            and not _G10_AMBIGUOUS_REFS.search(query)
+            and not _G10_HR_EXCLUSIONS.search(query)
+        ):
             return {"intent": "hr_question"}
-
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
     # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
@@ -343,3 +349,4 @@ async def clarify_node(state: AgentState) -> dict:
         )
     ).strip()
     return {"needs_clarification": True, "clarifying_question": question, "response": question}
+

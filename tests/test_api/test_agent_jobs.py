@@ -26,6 +26,8 @@ INGESTION_PAYLOAD = {
     "document_id": "doc-1",
     "source_file": "policy.md",
     "content_base64": base64.b64encode("# Policy\n\nNội dung".encode()).decode(),
+    "tenant": "nexatech",
+    "owner_user_id": "worker-test-user",
 }
 
 
@@ -70,7 +72,7 @@ async def test_job_failure_is_reported_with_error_message(client, job_store):
     with patch("src.api.routes.run_index_rebuild", new=runner):
         response = await client.post(
             "/api/v1/agent/jobs/index-rebuild",
-            json={"job_id": "job-idx-1", "strategy": "REPLACE"},
+            json={"job_id": "job-idx-1", "tenant": "nexatech", "strategy": "REPLACE"},
             headers=service_headers(),
         )
         assert response.status_code == 202
@@ -111,7 +113,7 @@ async def test_unknown_job_returns_404(client, job_store):
     ("method", "path", "payload"),
     [
         ("post", "/api/v1/agent/jobs/ingestion", INGESTION_PAYLOAD),
-        ("post", "/api/v1/agent/jobs/index-rebuild", {"job_id": "job-idx-2"}),
+        ("post", "/api/v1/agent/jobs/index-rebuild", {"job_id": "job-idx-2", "tenant": "nexatech"}),
         ("post", "/api/v1/agent/jobs/evaluation", {"job_id": "job-eval-2"}),
         ("get", "/api/v1/agent/jobs/job-eval-2", None),
     ],

@@ -51,10 +51,10 @@ class SensitivityLevel(str, Enum):
 
 class UserContext(BaseModel):
     """Ngữ cảnh định danh và phân quyền của người dùng khi truy vấn."""
-    tenant_id: str = "nexatech"
-    user_id: str = "anonymous_user"
-    department: str = "GENERAL"
-    role: UserRole = UserRole.EMPLOYEE
+    tenant_id: str = Field(..., min_length=1)
+    user_id: str = Field(..., min_length=1)
+    department: str = Field(..., min_length=1)
+    role: UserRole
     groups: list[str] = Field(default_factory=list)
     permissions: list[str] = Field(default_factory=list)
 
@@ -66,15 +66,21 @@ class UserContext(BaseModel):
     @classmethod
     def from_state(cls, state: dict[str, Any]) -> "UserContext":
         """Khởi tạo UserContext từ LangGraph AgentState (tin cậy từ auth session)."""
-        role_raw = str(state.get("user_role") or "EMPLOYEE").upper().strip()
-        try:
-            role = UserRole(role_raw)
-        except ValueError:
-            role = UserRole.EMPLOYEE
+        required = ("tenant_id", "user_id", "department", "user_role")
+        missing = [field for field in required if not str(state.get(field) or "").strip()]
+        if missing:
+            raise ValueError(f"Missing authenticated identity fields: {', '.join(missing)}")
 
-        dept = str(state.get("department") or "GENERAL").upper().strip()
-        user_id = str(state.get("user_id") or state.get("request_id") or "user_default")
-        tenant_id = str(state.get("tenant_id") or "nexatech").strip().lower()
+        role_raw = str(state["user_role"]).upper().strip()
+        role_aliases = {"SUPER_ADMIN": "ADMIN", "HR_ADMIN": "ADMIN"}
+        try:
+            role = UserRole(role_aliases.get(role_raw, role_raw))
+        except ValueError as exc:
+            raise ValueError(f"Unsupported authenticated role: {role_raw}") from exc
+
+        dept = str(state["department"]).upper().strip()
+        user_id = str(state["user_id"]).strip()
+        tenant_id = str(state["tenant_id"]).strip().lower()
         groups = state.get("groups") or []
         permissions = state.get("permissions") or []
 

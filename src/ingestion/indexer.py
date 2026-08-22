@@ -3,6 +3,40 @@ from chromadb.api.models.Collection import Collection
 
 from src.config import Settings
 from src.ingestion.metadata import Chunk
+from src.security.tenant_resolver import get_tenant_collection_name, validate_tenant_id
+
+
+def collection_name_for_department(
+    department: str | None,
+    settings: Settings,
+    tenant_id: str | None = None,
+) -> str:
+    """Map a department to a tenant-isolated collection without moving the active baseline."""
+    tenant = validate_tenant_id(tenant_id or settings.active_tenant)
+    active_tenant = validate_tenant_id(settings.active_tenant)
+    normalized = (department or "").strip().upper().replace("&", "AND")
+
+    if normalized in {"ACCOUNTING", "FINANCE", "FINANCE_ACCOUNTING"}:
+        if tenant == active_tenant:
+            return settings.chroma_accounting_collection_name
+        return f"tenant_{tenant}_accounting_documents"
+    if normalized in {"PRODUCT", "PRODUCT_MANAGEMENT"}:
+        if tenant == active_tenant:
+            return settings.chroma_product_collection_name
+        return f"tenant_{tenant}_product_documents"
+    # SSOT: department "mặc định" (HR/IT/...) resolve về đúng collection mà
+    # retrieval đọc (tenant resolver) — không dùng settings.chroma_collection_name
+    # vì env đó drift được (đã gây BUG-02: ghi hr_documents, đọc tenant_*_knowledge).
+    return get_tenant_collection_name(tenant)
+
+
+def collection_name_for_chunks(chunks: list[Chunk], settings: Settings) -> str:
+    if not chunks:
+        raise ValueError("Không thể chọn collection cho danh sách chunk rỗng")
+    tenant = str(chunks[0].metadata.tenant or "").strip()
+    if not tenant:
+        raise ValueError("Chunk write/rebuild bắt buộc có tenant")
+    return collection_name_for_department(chunks[0].metadata.department, settings, tenant)
 
 
 def get_chroma_client(settings: Settings) -> chromadb.ClientAPI:
@@ -52,46 +86,10 @@ def safe_delete_collection(
 
     client.delete_collection(collection_name)
 
-
-from src.security.tenant_resolver import get_tenant_collection_name, validate_tenant_id
-
-
-def collection_name_for_department(
-    department: str,
-    settings: Settings,
-    tenant_id: str | None = None,
-) -> str:
-    """Map department to proper collection name with tenant namespace."""
-    dept = (department or "").upper().strip()
-    safe_tenant = validate_tenant_id(tenant_id) if tenant_id else (settings.active_tenant or "nexatech")
-    if dept in ("ACCOUNTING", "FINANCE", "KE_TOAN", "TAI_CHINH"):
-        return f"tenant_{safe_tenant}_accounting_documents" if safe_tenant else settings.chroma_collection_name
-    return get_tenant_collection_name(safe_tenant)
-
-
-def collection_name_for_chunks(
-    chunks: list[Chunk],
-    settings: Settings,
-    tenant_id: str | None = None,
-) -> str:
-    """Determine tenant-scoped collection from chunks metadata."""
-    if not chunks:
-        return settings.chroma_collection_name
-    first_chunk = chunks[0]
-    dept = getattr(first_chunk.metadata, "department", "GENERAL") or "GENERAL"
-    resolved_tenant = tenant_id or getattr(first_chunk.metadata, "tenant", "") or settings.active_tenant
-    return collection_name_for_department(dept, settings, resolved_tenant)
-
-
-def delete_by_source_stem(collection: Collection, source_stem: str, tenant_id: str | None = None) -> None:
-    """Xóa toàn bộ chunk cũ của 1 tài liệu trước khi upsert lại —
-    nếu có tenant_id, giới hạn phạm vi xóa bên trong tenant đó để không xóa chéo file trùng tên."""
-    if tenant_id == "":
-        raise ValueError("tenant_id cannot be an empty string for scoped deletion")
-    if tenant_id:
-        collection.delete(where={"$and": [{"source_stem": source_stem}, {"tenant": tenant_id}]})
-    else:
-        collection.delete(where={"source_stem": source_stem})
+def delete_by_source_stem(collection: Collection, source_stem: str, tenant_id: str) -> None:
+    """Delete one document only inside an explicitly authenticated tenant."""
+    tenant = validate_tenant_id(tenant_id)
+    collection.delete(where={"$and": [{"source_stem": source_stem}, {"tenant": tenant}]})
 
 
 def upsert_chunks(collection: Collection, chunks: list[Chunk], embeddings: list[list[float]]) -> None:

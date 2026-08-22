@@ -5,6 +5,9 @@ Cách dùng:
     python scripts/test_query_accounting_db.py "Hạn mức duyệt chi của Giám đốc tài chính là bao nhiêu?"
 """
 
+__test__ = False
+
+
 import sys
 from pathlib import Path
 

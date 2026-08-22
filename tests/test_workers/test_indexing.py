@@ -22,6 +22,7 @@ def _chunk(stem: str, idx: int) -> dict:
             "category": "LEAVE",
             "source_type": "official_policy",
             "is_official_policy": True,
+            "tenant": "nexatech",
             "chunk_index": idx,
             "char_count": 12,
         },
@@ -31,7 +32,7 @@ def _chunk(stem: str, idx: int) -> dict:
 @pytest.fixture
 def settings(tmp_path):
     settings = get_settings().model_copy(update={"data_dir": str(tmp_path / "data")})
-    chunks_root = os.path.join(settings.data_dir, "chunks")
+    chunks_root = os.path.join(settings.data_dir, "chunks", "nexatech")
     os.makedirs(chunks_root)
     for stem in ("policy_a", "policy_b"):
         with open(os.path.join(chunks_root, f"{stem}.json"), "w", encoding="utf-8") as f:
@@ -44,7 +45,7 @@ def _noop_progress(stage: str, percent: int) -> None:
 
 
 def test_resolve_targets_defaults_to_every_chunk_file(settings):
-    request = IndexRebuildJobRequest(job_id="idx-1")
+    request = IndexRebuildJobRequest(job_id="idx-1", tenant="nexatech")
     targets = resolve_targets(request, settings)
     assert [os.path.basename(path) for _doc_id, path in targets] == ["policy_a.json", "policy_b.json"]
 
@@ -52,6 +53,7 @@ def test_resolve_targets_defaults_to_every_chunk_file(settings):
 def test_resolve_targets_keeps_backend_document_ids(settings):
     request = IndexRebuildJobRequest(
         job_id="idx-1",
+        tenant="nexatech",
         documents=[IndexRebuildTarget(document_id="doc-b", source_file="policy_b.md")],
     )
     targets = resolve_targets(request, settings)
@@ -62,6 +64,7 @@ def test_resolve_targets_keeps_backend_document_ids(settings):
 def test_resolve_targets_reports_documents_without_chunks(settings):
     request = IndexRebuildJobRequest(
         job_id="idx-1",
+        tenant="nexatech",
         documents=[IndexRebuildTarget(document_id="doc-x", source_file="chua_ingest.md")],
     )
     with pytest.raises(IndexRebuildError, match="chua_ingest.md"):
@@ -71,7 +74,7 @@ def test_resolve_targets_reports_documents_without_chunks(settings):
 def test_resolve_targets_errors_when_no_chunks_at_all(tmp_path):
     empty = get_settings().model_copy(update={"data_dir": str(tmp_path / "empty")})
     with pytest.raises(IndexRebuildError, match="Không tìm thấy file chunk"):
-        resolve_targets(IndexRebuildJobRequest(job_id="idx-1"), empty)
+        resolve_targets(IndexRebuildJobRequest(job_id="idx-1", tenant="nexatech"), empty)
 
 
 @pytest.mark.asyncio
@@ -87,7 +90,7 @@ async def test_run_index_rebuild_replaces_then_upserts(settings):
         patch("src.workers.indexing.delete_by_source_stem") as delete,
         patch("src.workers.indexing.upsert_chunks") as upsert,
     ):
-        result = await run_index_rebuild(IndexRebuildJobRequest(job_id="idx-1"), _noop_progress, settings=settings)
+        result = await run_index_rebuild(IndexRebuildJobRequest(job_id="idx-1", tenant="nexatech"), _noop_progress, settings=settings)
 
     assert result["document_count"] == 2
     assert result["vector_count"] == 4
@@ -110,7 +113,7 @@ async def test_incremental_strategy_does_not_delete_existing_vectors(settings):
         patch("src.workers.indexing.delete_by_source_stem") as delete,
         patch("src.workers.indexing.upsert_chunks"),
     ):
-        request = IndexRebuildJobRequest(job_id="idx-2", strategy="INCREMENTAL")
+        request = IndexRebuildJobRequest(job_id="idx-2", tenant="nexatech", strategy="INCREMENTAL")
         result = await run_index_rebuild(request, _noop_progress, settings=settings)
 
     assert delete.call_count == 0

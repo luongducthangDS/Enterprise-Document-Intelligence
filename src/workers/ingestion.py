@@ -28,10 +28,17 @@ from src.ingestion.extractors.documents import (
     UnsupportedDocumentError,
     extract_document,
 )
-from src.ingestion.indexer import delete_by_source_stem, get_chroma_client, get_collection, upsert_chunks
+from src.ingestion.indexer import (
+    collection_name_for_chunks,
+    delete_by_source_stem,
+    get_chroma_client,
+    get_collection,
+    upsert_chunks,
+)
 from src.ingestion.metadata import Chunk
 from src.models.schemas import IngestionJobRequest
 from src.workers.jobs import ProgressCallback
+from src.security.tenant_resolver import validate_tenant_id
 
 logger = logging.getLogger(__name__)
 
@@ -102,9 +109,10 @@ def _index_chunks(chunks: list[Chunk], settings: Settings) -> int:
         c.metadata.embedding_model = settings.embedding_model
 
     client = get_chroma_client(settings)
-    collection = get_collection(client, settings.chroma_collection_name)
+    collection_name = collection_name_for_chunks(chunks, settings)
+    collection = get_collection(client, collection_name)
     stem = chunks[0].metadata.source_stem
-    delete_by_source_stem(collection, stem)
+    delete_by_source_stem(collection, stem, chunks[0].metadata.tenant)
     upsert_chunks(collection, chunks, embeddings)
     return len(chunks)
 
@@ -117,15 +125,17 @@ async def run_ingestion(
     settings = settings or get_settings()
     source_file = _safe_source_file(request.source_file)
     stem = os.path.splitext(source_file)[0]
+    tenant = validate_tenant_id(request.tenant)
 
     progress("EXTRACTING", 10)
     content = _decode_content(request.content_base64)
-    raw_path = os.path.join(upload_dir(settings), source_file)
+    raw_path = os.path.join(upload_dir(settings), tenant, source_file)
     os.makedirs(os.path.dirname(raw_path), exist_ok=True)
     with open(raw_path, "wb") as f:
         f.write(content)
 
-    processed_path = os.path.join(processed_dir(settings), f"{stem}.md")
+    processed_path = os.path.join(processed_dir(settings), tenant, f"{stem}.md")
+    os.makedirs(os.path.dirname(processed_path), exist_ok=True)
     try:
         text, method = await asyncio.to_thread(extract_document, raw_path, processed_path)
     except UnsupportedDocumentError as exc:
@@ -146,16 +156,26 @@ async def run_ingestion(
         authority=request.authority,
         provenance=request.provenance,
         tenant=request.tenant,
+        access_scope=request.access_scope,
+        authorized_role=request.authorized_role,
+        authorized_roles=[request.authorized_role] if request.authorized_role else [],
+        owner_user_id=request.owner_user_id,
+        authorization_source=request.authorization_source,
+        publication_status=request.publication_status,
+        artifact_state=request.artifact_state,
+        retrieval_enabled=request.retrieval_enabled,
+        expiry_date=request.expiry_date,
         settings=settings,
     )
     if not chunks:
         raise IngestionError("Tài liệu không tạo được chunk nào sau khi làm sạch.")
 
-    chunks_path = os.path.join(chunks_dir(settings), f"{stem}.json")
+    chunks_path = os.path.join(chunks_dir(settings), tenant, f"{stem}.json")
     _atomic_write_json(chunks_path, [c.model_dump() for c in chunks])
 
     progress("EMBEDDING", 60)
     vector_count = await asyncio.to_thread(_index_chunks, chunks, settings)
+    collection_name = collection_name_for_chunks(chunks, settings)
 
     progress("INDEXING", 90)
     logger.info(
@@ -164,7 +184,7 @@ async def run_ingestion(
         source_file,
         vector_count,
         method,
-        settings.chroma_collection_name,
+        collection_name,
     )
     return {
         "document_id": request.document_id,
@@ -176,7 +196,7 @@ async def run_ingestion(
         "vector_count": vector_count,
         "chunks_path": chunks_path.replace("\\", "/"),
         "processed_path": processed_path.replace("\\", "/"),
-        "collection": settings.chroma_collection_name,
+        "collection": collection_name,
         "embedding_model": settings.embedding_model,
         "index_version": settings.index_version,
     }

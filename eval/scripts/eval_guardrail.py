@@ -145,7 +145,17 @@ async def _run_conversation(conv: dict, semaphore: asyncio.Semaphore, judge_vote
         try:
             for turn in conv["turns"]:
                 t0 = time.perf_counter()
-                state = await agent.ainvoke({"query": turn["user"], "history": history})
+                state = await agent.ainvoke(
+                    {
+                        "query": turn["user"],
+                        "history": history,
+                        "request_id": f"eval:{conv['conversation_id']}:{turn['turn']}",
+                        "user_id": "eval_guardrail",
+                        "tenant_id": "nexatech",
+                        "department": "EXECUTIVE",
+                        "user_role": "ADMIN",
+                    }
+                )
                 latency_ms = (time.perf_counter() - t0) * 1000
                 response = state.get("response") or ""
 

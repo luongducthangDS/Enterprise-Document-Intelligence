@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     vector_db_backend: Literal["cloud", "local"] = "cloud"
     chroma_persist_dir: str = "./storage/vector_db"
     chroma_collection_name: str = "tenant_nexatech_knowledge"
+    chroma_product_collection_name: str = "product_documents"
+    chroma_accounting_collection_name: str = "accounting_documents"
 
     chroma_cloud_api_key: str = ""
     chroma_cloud_tenant: str = ""

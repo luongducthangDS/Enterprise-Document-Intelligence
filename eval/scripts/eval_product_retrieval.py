@@ -59,12 +59,13 @@ def main() -> None:
     qrels = json.loads(Path(args.qrels).read_text(encoding="utf-8"))
     if args.dense:
         from src.agents.nodes.retrieval import _aembed_query, _collection  # noqa: PLC0415
+        from src.config import get_settings  # noqa: PLC0415
 
         import asyncio
 
         async def retrieve(question: str) -> list[str]:
             result = await asyncio.to_thread(
-                _collection().query,
+                _collection(get_settings().chroma_product_collection_name).query,
                 query_embeddings=[await _aembed_query(question)],
                 n_results=args.top_k,
                 where={"department": "Product"},

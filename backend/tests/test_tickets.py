@@ -36,9 +36,11 @@ async def setup_tickets_test_data():
     async with TestingSessionLocal() as session:
         user_id = uuid.UUID("33333333-3333-3333-3333-333333333333")
         admin_id = uuid.UUID("44444444-4444-4444-4444-444444444444")
+        other_user_id = uuid.UUID("35353535-3535-4535-8535-353535353535")
 
         await ensure_user_and_profile(session, user_id, "ticket_emp@company.com", "Ticket Employee", "EMPLOYEE", "Sales")
         await ensure_user_and_profile(session, admin_id, "ticket_admin@company.com", "Ticket Admin", "HR_ADMIN", "HR")
+        await ensure_user_and_profile(session, other_user_id, "other@company.com", "Other Employee", "EMPLOYEE", "Engineering")
 
         await session.commit()
 
@@ -207,7 +209,7 @@ def test_requester_closes_resolved_ticket_and_ticket_remains_in_history():
     assert resolved.status_code == 200
 
     other_user_headers = get_auth_header(
-        user_id="55555555-5555-5555-5555-555555555555",
+        user_id="35353535-3535-4535-8535-353535353535",
         email="other@company.com",
     )
     forbidden = client.patch(

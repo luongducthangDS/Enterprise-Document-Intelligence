@@ -39,6 +39,7 @@ class RetrievedChunk(TypedDict):
     title: str
     department: str
     category: str
+    owner: str
     is_official_policy: bool
     # government_law | official_policy | public_template | synthetic |
     # public_article — cần bản đầy đủ (không chỉ cờ is_official_policy nhị phân)
