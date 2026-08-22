@@ -196,11 +196,19 @@ async def router_node(state: AgentState) -> dict:
     # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
     # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
     _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
+    # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
+    _G10_HR_EXCLUSIONS = re.compile(
+        r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái)\b",
+        re.IGNORECASE,
+    )
     if domain and getattr(domain, "domain_name", None) == "accounting":
         query_words = query.split()
-        if len(query_words) >= 6 and not _G10_AMBIGUOUS_REFS.search(query):
+        if (
+            len(query_words) >= 6
+            and not _G10_AMBIGUOUS_REFS.search(query)
+            and not _G10_HR_EXCLUSIONS.search(query)
+        ):
             return {"intent": "hr_question"}
-
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
     # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
@@ -342,3 +350,4 @@ async def clarify_node(state: AgentState) -> dict:
         )
     ).strip()
     return {"needs_clarification": True, "clarifying_question": question, "response": question}
+
