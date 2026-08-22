@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-08-21T17:18:31.762544+00:00",
+  "run_at": "2026-08-22T05:20:56.938515+00:00",
   "split": "heldout",
   "top_k": 10,
   "dataset": "eval/datasets/eval_accounting.json",
@@ -25,15 +25,15 @@
     "mrr": 0.54,
     "doc_hit_rate": 1.0,
     "by_type": {
-      "single_chunk": {
-        "n": 2,
-        "hit_rate@5": 1.0,
-        "recall@5": 1.0
-      },
       "cross_document": {
         "n": 1,
         "hit_rate@5": 1.0,
         "recall@5": 0.3333
+      },
+      "single_chunk": {
+        "n": 2,
+        "hit_rate@5": 1.0,
+        "recall@5": 1.0
       },
       "table_lookup": {
         "n": 1,

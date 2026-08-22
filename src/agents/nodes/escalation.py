@@ -235,6 +235,15 @@ def confidence_node(state: AgentState) -> dict:
     if not answerable:
         score = min(score, fail_cap)
 
+    # G11: Domain-specific confidence floor override (ví dụ: OCR docs kế toán
+    # có reranker score thấp do noise text nhưng câu trả lời vẫn đúng).
+    # Chỉ các domain implement adjust_confidence() mới ảnh hưởng; HR không đụng.
+    from src.domains import get_matching_domain
+    query = state.get("condensed_query") or state.get("query", "")
+    domain = get_matching_domain(query, state.get("category"))
+    if domain and hasattr(domain, "adjust_confidence"):
+        score = domain.adjust_confidence(score, chunks, answerable)
+
     result: dict = {"confidence_score": round(score, 3)}
     if score < settings.low_confidence_threshold:
         result["escalate"] = True

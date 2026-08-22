@@ -48,10 +48,14 @@ def register_domain(plugin: DomainPlugin) -> None:
 
 
 def get_matching_domain(query: str, category: str | None = None) -> DomainPlugin | None:
-    """Tìm domain plugin phù hợp với query và category hiện tại."""
-    for plugin in _REGISTRY.values():
-        if plugin.match(query, category):
+    """Tìm domain plugin phù hợp với query và category hiện tại (ưu tiên domain chuyên biệt trước fallback)."""
+    # 1. Kiểm tra các domain chuyên biệt trước (vd: accounting, procurement...)
+    for name, plugin in _REGISTRY.items():
+        if name != "hr" and plugin.match(query, category):
             return plugin
+    # 2. Fallback về domain mặc định (hr)
+    if "hr" in _REGISTRY and _REGISTRY["hr"].match(query, category):
+        return _REGISTRY["hr"]
     return None
 
 
