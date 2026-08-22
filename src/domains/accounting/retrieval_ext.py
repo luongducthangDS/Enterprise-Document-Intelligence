@@ -14,10 +14,18 @@ _ACCOUNTING_KEYWORD_PATTERN = re.compile(
     r"\b(?:tạm ứng|hoàn ứng|duyệt chi|mua sắm|báo giá|hóa đơn|kế toán"
     r"|thuế|gtgt|vat|po|pr|cba|avl|tiền mặt|chuyển khoản|thanh toán"
     r"|ngân sách|chi phí|quyết toán|phiếu chi|phiếu thu|sop-tckt|sop-ms"
-    r"|13/qđ-abc|13-qd-abc|qc-ltk|bbgn|đntt|dntt|chứng từ)\b",
+    r"|13/qđ-abc|13-qd-abc|qc-ltk|bbgn|đntt|dntt|chứng từ"
+    r"|lương thưởng|thưởng kpi|thưởng hiệu suất|hệ số kpi|hệ số thưởng"
+    r"|tài sản cố định|tscđ|biên bản bàn giao|biên bản giao nhận"
+    r"|quyết toán chi phí|báo cáo quyết toán|bc-qtcp|vượt ngân sách"
+    r"|hoa hồng|phụ cấp|khấu hao|định khoản|bảng lương)\b",
     re.IGNORECASE,
 )
-_ACCOUNTING_CATEGORY_PREFIX = ("accounting", "finance", "procurement", "internal_expense", "payroll_and_compensation", "advance_and_payment")
+_ACCOUNTING_CATEGORY_PREFIX = (
+    "accounting", "finance", "procurement", "internal_expense",
+    "payroll_and_compensation", "advance_and_payment",
+    "fixed_assets_management", "invoices_and_tax",
+)
 
 
 def _is_accounting_query(query: str, category: str | None = None) -> bool:
@@ -174,6 +182,42 @@ def _accounting_retrieval_filters(settings, user_context) -> list[dict]:
     return filters or [{"source_file": "__NO_ACCESS__"}]
 
 
+# ─── G6: Adversarial Pattern Hard-Block ──────────────────────────────────────
+_ADVERSARIAL_ACCOUNTING_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (
+        re.compile(
+            r"\b(?:tách đơn|chia nhỏ|tách làm|chia ra)\b.{0,60}?\b(?:dưới|không quá|né|lách)\b",
+            re.IGNORECASE | re.DOTALL,
+        ),
+        (
+            "Hành vi cố ý chia nhỏ khoản mua sắm/chi tiêu có cùng nội dung, cùng nhà cung cấp và cùng "
+            "thời điểm nhằm né tránh thẩm quyền phê duyệt cao hơn là **vi phạm nghiêm trọng** "
+            "Quy chế Chi tiêu nội bộ (13/QĐ-ABC) và SOP Mua sắm (SOP-MS-01). "
+            "Người thực hiện hành vi này có thể bị xử lý kỷ luật theo quy định."
+        ),
+    ),
+    (
+        re.compile(
+            r"\b(?:lách luật|lách quy định|né quy trình|bỏ qua phê duyệt|tự ký duyệt)\b",
+            re.IGNORECASE,
+        ),
+        (
+            "Mọi hành vi bỏ qua quy trình phê duyệt hoặc né tránh thẩm quyền đều bị "
+            "nghiêm cấm theo Quy chế Chi tiêu nội bộ. Vui lòng thực hiện đúng quy trình "
+            "hoặc liên hệ Phòng Kế toán để được hướng dẫn."
+        ),
+    ),
+]
+
+
+def _check_adversarial_accounting(query: str) -> tuple[bool, str]:
+    """Phát hiện ý định lách luật/né thẩm quyền Kế toán. Chỉ dùng cho Kế toán."""
+    for pattern, hard_response in _ADVERSARIAL_ACCOUNTING_PATTERNS:
+        if pattern.search(query):
+            return True, hard_response
+    return False, ""
+
+
 async def accounting_retrieval_node(state: dict) -> dict:
     """Node retrieval độc lập 100% cho phân hệ Kế toán.
 
@@ -183,6 +227,8 @@ async def accounting_retrieval_node(state: dict) -> dict:
     - Tự động lọc metadata quyền truy cập Kế toán
     - Kết nối trực tiếp Chroma Cloud collection accounting_documents
     - Tái xếp hạng bằng Reranker (G7)
+    - Chặn sớm câu hỏi lách luật bằng Synthetic Hard-Block (G6)
+    - Early-Exit Grade bypass rewrite loop khi chunks đạt chuẩn (G9)
     """
     import asyncio
     from functools import partial
@@ -193,6 +239,42 @@ async def accounting_retrieval_node(state: dict) -> dict:
 
     settings = get_settings()
     raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
+
+    # G6: Early-exit cho câu hỏi lách luật — không gọi RAG, trả synthetic chunk rõ ràng
+    is_adversarial, hard_response = _check_adversarial_accounting(raw_query)
+    if is_adversarial:
+        synthetic_chunk = {
+            "chunk_id": "G6_HARD_BLOCK",
+            "text": (
+                f"Quy định về việc tách đơn, chia nhỏ gói mua sắm và thẩm quyền phê duyệt "
+                f"(liên quan đến yêu cầu: {raw_query}):\n"
+                f"{hard_response}\n"
+                f"Nghiêm cấm chia nhỏ khoản chi dưới mọi hình thức để né tránh thẩm quyền cấp trên."
+            ),
+            "title": "Quy chế Chi tiêu nội bộ — Điều khoản nghiêm cấm",
+            "source_file": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo",
+            "department": "accounting",
+            "score": 1.0,
+            "distance": 0.0,
+            "is_official_policy": True,
+            "category": "compliance",
+            "source_type": "internal_policy",
+            "authority": "tenant_official_policy",
+            "provenance": "internal_company",
+            "tenant": "",
+            "caveat": "",
+            "heading_path": "",
+            "policy_status": "active",
+            "page_start": None,
+            "page_end": None,
+            "sheet_start": None,
+            "sheet_end": None,
+        }
+        return {
+            "retrieved_chunks": [synthetic_chunk],
+            "rewrite_count": 999,
+        }
+
     query = _expand_accounting_query(raw_query)
     effective_top_k = _get_accounting_top_k(raw_query, settings.retrieval_top_k)
 
@@ -264,6 +346,30 @@ async def accounting_retrieval_node(state: dict) -> dict:
             print(f"[accounting_rerank] lỗi {type(e).__name__}: {e}")
             chunks = chunks[: settings.rerank_top_k]
 
-    return {"retrieved_chunks": chunks}
+    # G9: Early-Exit Grade — bypass rewrite loop nếu đã có đủ chunk chất lượng tốt.
+    # Ngưỡng được hiệu chỉnh theo loại tài liệu:
+    # - Tài liệu OCR từ ảnh/scan (fixed_assets_management, invoices_and_tax) có điểm reranker
+    #   thấp hơn chuẩn do chất lượng text thô — hạ ngưỡng để vẫn kích hoạt early-exit.
+    # - Tài liệu text gốc (pdf/docx) dùng ngưỡng chuẩn chặt hơn.
+    _is_ocr_category = any(
+        c.get("category", "") in ("fixed_assets_management", "invoices_and_tax")
+        for c in chunks
+    )
+    _EARLY_EXIT_MIN_CHUNKS = 2 if _is_ocr_category else 3
+    _EARLY_EXIT_DISTANCE_CAP = 0.37 if _is_ocr_category else 0.30
+    _EARLY_EXIT_SCORE_FLOOR = 0.30 if _is_ocr_category else 0.70
+    high_quality_chunks = [
+        c for c in chunks
+        if (c.get("distance") is not None and c["distance"] <= _EARLY_EXIT_DISTANCE_CAP)
+        or (c.get("score") is not None and c["score"] >= _EARLY_EXIT_SCORE_FLOOR)
+    ]
+    should_early_exit = len(high_quality_chunks) >= _EARLY_EXIT_MIN_CHUNKS
+
+    return {
+        "retrieved_chunks": chunks,
+        "rewrite_count": 999 if should_early_exit else 0,
+    }
+
+
 
 

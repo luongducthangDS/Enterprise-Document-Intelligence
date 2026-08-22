@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 from src.domains import DomainPlugin, register_domain
-from src.domains.accounting.generation_ext import ACCOUNTING_GENERATION_RULES
+from src.domains.accounting.generation_ext import (
+    ACCOUNTING_GENERATION_RULES,
+    adjust_confidence_for_ocr_docs,
+)
 from src.domains.accounting.retrieval_ext import (
     _expand_accounting_query,
     _get_accounting_top_k,
@@ -31,6 +34,15 @@ class AccountingDomain:
 
     def get_generation_rules(self) -> str:
         return ACCOUNTING_GENERATION_RULES
+
+    def adjust_confidence(
+        self,
+        confidence: float,
+        chunks: list[dict],
+        answerable: bool,
+    ) -> float:
+        """G11: Nâng confidence floor cho OCR docs để tránh escalate nhầm."""
+        return adjust_confidence_for_ocr_docs(confidence, chunks, answerable)
 
 
 # Đăng ký singleton instance vào Domain Registry
