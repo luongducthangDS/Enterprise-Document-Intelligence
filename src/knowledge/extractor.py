@@ -189,11 +189,163 @@ def extract_knowledge_from_mgt_dec_04(raw_content: str, source_file: str = "mgt_
     return items
 
 
-def extract_document_knowledge(document_code: str, raw_content: str) -> list[ExtractedKnowledgeItem]:
-    """Router trích xuất tri thức theo document code."""
+import json
+import logging
+from src.config import get_settings
+from src.services.fpt_client import chat_completion
+
+logger = logging.getLogger(__name__)
+
+_EXTRACTION_SYSTEM_PROMPT = """Bạn là Chuyên gia Trích xuất Tri thức Doanh nghiệp (Enterprise Knowledge Intelligence Extractor).
+Nhiệm vụ của bạn là đọc toàn văn tài liệu chính sách / quyết định nội bộ và trích xuất các tri thức có cấu trúc (Structured Knowledge Items).
+
+Mỗi tri thức phải được định dạng theo schema JSON sau:
+[
+  {
+    "item_type": "POLICY_RULE | DECISION | ACTION_ITEM | RESPONSIBILITY | EXCEPTION | REQUIREMENT",
+    "subject": "chu_de_snake_case (ví dụ: hotel_allowance, overtime_rate, probation_period, work_from_home)",
+    "predicate": "thuoc_tinh (ví dụ: maximum_amount_per_night, multiplier_weekend, max_days_per_month)",
+    "object_value": "gia_tri_kem_don_vi (ví dụ: 800000 VND, 200%, 2 ngày)",
+    "value_numeric": 800000.0,
+    "currency": "VND",
+    "unit": "VND/phòng/đêm",
+    "scope": ["ALL"],
+    "role_scope": ["STAFF"],
+    "effective_from_ymd": 20250101,
+    "effective_to_ymd": 99991231,
+    "statement": "Câu phát biểu tường minh, đầy đủ ngữ cảnh của tri thức này.",
+    "exact_quote": "Đoạn văn bản trích dẫn NGUYÊN VĂN từ tài liệu chứa thông tin này.",
+    "section_heading": "Tiêu đề điều khoản hoặc mục chứa câu trích dẫn này",
+    "modifies_document_code": null,
+    "relation_explanation": ""
+  }
+]
+
+Yêu cầu nghiêm ngặt:
+1. CHỈ trích xuất các quy tắc/định mức quan trọng có tính ràng buộc hoặc định lượng.
+2. exact_quote BẮT BUỘC phải là chuỗi có thật nguyên văn trong tài liệu.
+3. Chỉ trả về JSON array hợp lệ, không bọc thêm văn bản giải thích.
+"""
+
+
+def _extract_json_array(text_output: str) -> list[dict[str, Any]]:
+    """Trích xuất mảng JSON từ phản hồi LLM an toàn."""
+    text_clean = text_output.strip()
+    if text_clean.startswith("```json"):
+        text_clean = text_clean[7:]
+    elif text_clean.startswith("```"):
+        text_clean = text_clean[3:]
+    if text_clean.endswith("```"):
+        text_clean = text_clean[:-3]
+    text_clean = text_clean.strip()
+
+    try:
+        data = json.loads(text_clean)
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict) and "items" in data:
+            return data["items"]
+    except json.JSONDecodeError:
+        # Fallback: tìm [ ... ]
+        start = text_clean.find("[")
+        end = text_clean.rfind("]")
+        if start >= 0 and end > start:
+            try:
+                data = json.loads(text_clean[start : end + 1])
+                if isinstance(data, list):
+                    return data
+            except Exception:
+                pass
+    return []
+
+
+def extract_document_knowledge_via_llm(
+    raw_content: str,
+    source_file: str,
+    settings: Any | None = None,
+) -> list[ExtractedKnowledgeItem]:
+    """Trích xuất tri thức cấu trúc tổng quát từ tài liệu bất kỳ bằng LLM."""
+    if not settings:
+        settings = get_settings()
+
+    user_prompt = f"TÀI LIỆU CẦN TRÍCH XUẤT (Mã tài liệu: {source_file}):\n\n{raw_content}"
+    
+    try:
+        response_text = chat_completion(
+            system=_EXTRACTION_SYSTEM_PROMPT,
+            user=user_prompt,
+            model=settings.llm_model,
+            base_url=settings.fpt_base_url,
+            api_key=settings.fpt_api_key,
+            temperature=0.1,
+        )
+    except Exception as e:
+        logger.warning("Lỗi khi gọi LLM trích xuất tri thức cho %s: %s", source_file, e)
+        return []
+
+    raw_items = _extract_json_array(response_text)
+    items: list[ExtractedKnowledgeItem] = []
+
+    for raw in raw_items:
+        if not isinstance(raw, dict):
+            continue
+        quote = raw.get("exact_quote", "").strip()
+        if not quote:
+            continue
+
+        start_c, end_c = find_quote_span(raw_content, quote)
+        quote_hash = compute_sha256(normalize_canonical_text(quote))
+
+        val_numeric = raw.get("value_numeric")
+        if val_numeric is not None:
+            try:
+                val_numeric = float(val_numeric)
+            except (ValueError, TypeError):
+                val_numeric = None
+
+        item = ExtractedKnowledgeItem(
+            item_type=str(raw.get("item_type", "POLICY_RULE")),
+            subject=str(raw.get("subject", "general_policy")),
+            predicate=str(raw.get("predicate", "rule")),
+            object_value=str(raw.get("object_value", "")),
+            value_numeric=val_numeric,
+            currency=str(raw.get("currency", "VND")),
+            unit=str(raw.get("unit", "")),
+            scope=raw.get("scope") if isinstance(raw.get("scope"), list) else ["ALL"],
+            role_scope=raw.get("role_scope") if isinstance(raw.get("role_scope"), list) else ["STAFF"],
+            effective_from_ymd=int(raw.get("effective_from_ymd", 1)),
+            effective_to_ymd=int(raw.get("effective_to_ymd", 99991231)),
+            statement=str(raw.get("statement", quote)),
+            structured_payload=raw,
+            confidence=0.95 if val_numeric is not None else 0.85,
+            evidence=ExtractedEvidence(
+                exact_quote=quote,
+                start_char=start_c,
+                end_char=end_c,
+                quote_hash=quote_hash,
+                section_heading=str(raw.get("section_heading", "")),
+            ),
+            modifies_document_code=raw.get("modifies_document_code"),
+            relation_explanation=str(raw.get("relation_explanation", "")),
+        )
+        items.append(item)
+
+    return items
+
+
+def extract_document_knowledge(
+    document_code: str,
+    raw_content: str,
+    use_llm_fallback: bool = False,
+) -> list[ExtractedKnowledgeItem]:
+    """Router trích xuất tri thức theo document code.
+    Fallback sang LLM extraction nếu use_llm_fallback=True.
+    """
     if "12_quy-che-cong-tac-phi" in document_code or "HR-POL-TRAVEL" in document_code:
         return extract_knowledge_from_travel_policy(raw_content, document_code)
     elif "mgt_dec_04" in document_code or "MGT-DEC-2026-04" in document_code:
         return extract_knowledge_from_mgt_dec_04(raw_content, document_code)
+    elif use_llm_fallback:
+        return extract_document_knowledge_via_llm(raw_content, document_code)
     else:
         return []

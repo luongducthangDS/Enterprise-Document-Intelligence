@@ -64,7 +64,11 @@ class KnowledgeRepository:
         return tenant
 
     def get_tenant(self, tenant_id: str) -> Tenant | None:
-        return self.session.get(Tenant, tenant_id)
+        tenant = self.session.get(Tenant, tenant_id)
+        if not tenant:
+            stmt = select(Tenant).where(Tenant.slug == tenant_id)
+            tenant = self.session.execute(stmt).scalar_one_or_none()
+        return tenant
 
     # -------------------------------------------------------------------------
     # 2. Document Operations
@@ -80,6 +84,10 @@ class KnowledgeRepository:
         owner_department: str = "GENERAL",
         document_id: str | None = None,
     ) -> Document:
+        tenant = self.get_tenant(tenant_id)
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' không tồn tại trong hệ thống")
+
         doc_id = document_id or str(uuid.uuid4())
         doc = Document(
             document_id=doc_id,
@@ -119,7 +127,10 @@ class KnowledgeRepository:
         version_source: str = "OFFICIAL",
         version_id: str | None = None,
     ) -> DocumentVersion:
-        # Kiểm tra document có thuộc tenant_id hay không
+        existing = self.get_version_by_number(tenant_id, document_id, version_number)
+        if existing:
+            return existing
+
         doc = self.get_document(tenant_id, document_id)
         if not doc:
             raise ValueError(f"Document '{document_id}' không tồn tại hoặc không thuộc tenant '{tenant_id}'")
@@ -174,6 +185,10 @@ class KnowledgeRepository:
         norm_text = normalize_canonical_text(chunk_text)
         cid = chunk_id or f"{tenant_id}:{ver.document_id}:{version_id}:{chunk_index:04d}"
 
+        existing = self.get_chunk(tenant_id, cid)
+        if existing:
+            return existing
+
         chunk = ChunkRecord(
             chunk_id=cid,
             version_id=version_id,
@@ -221,6 +236,20 @@ class KnowledgeRepository:
         valid_types = {t.value for t in KnowledgeType}
         if item_type not in valid_types:
             raise ValueError(f"Invalid KnowledgeType '{item_type}'. Must be one of {valid_types}")
+
+        if knowledge_id:
+            existing = self.get_knowledge_item(tenant_id, knowledge_id)
+            if existing:
+                return existing
+        else:
+            stmt = select(KnowledgeItem).where(
+                KnowledgeItem.tenant_id == tenant_id,
+                KnowledgeItem.version_id == version_id,
+                KnowledgeItem.statement == statement.strip(),
+            )
+            existing = self.session.execute(stmt).scalar_one_or_none()
+            if existing:
+                return existing
 
         kid = knowledge_id or str(uuid.uuid4())
         item = KnowledgeItem(
@@ -319,6 +348,25 @@ class KnowledgeRepository:
 
         norm_quote = normalize_canonical_text(exact_quote_span)
         quote_hash = compute_sha256(norm_quote)
+
+        if evidence_id:
+            stmt = select(EvidenceRecord).where(
+                EvidenceRecord.tenant_id == tenant_id,
+                EvidenceRecord.evidence_id == evidence_id,
+            )
+            existing = self.session.execute(stmt).scalar_one_or_none()
+            if existing:
+                return existing
+        else:
+            stmt = select(EvidenceRecord).where(
+                EvidenceRecord.tenant_id == tenant_id,
+                EvidenceRecord.knowledge_id == knowledge_id,
+                EvidenceRecord.chunk_id == chunk_id,
+                EvidenceRecord.exact_quote_span == norm_quote,
+            )
+            existing = self.session.execute(stmt).scalar_one_or_none()
+            if existing:
+                return existing
         eid = evidence_id or str(uuid.uuid4())
 
         evidence = EvidenceRecord(
@@ -371,6 +419,16 @@ class KnowledgeRepository:
         if relation_type not in valid_relations:
             raise ValueError(f"Invalid RelationType '{relation_type}'. Must be one of {valid_relations}")
 
+        stmt = select(KnowledgeRelation).where(
+            KnowledgeRelation.tenant_id == tenant_id,
+            KnowledgeRelation.source_knowledge_id == source_knowledge_id,
+            KnowledgeRelation.target_knowledge_id == target_knowledge_id,
+            KnowledgeRelation.relation_type == relation_type,
+        )
+        existing = self.session.execute(stmt).scalar_one_or_none()
+        if existing:
+            return existing
+
         rel_id = relation_id or str(uuid.uuid4())
         relation = KnowledgeRelation(
             relation_id=rel_id,
@@ -406,6 +464,22 @@ class KnowledgeRepository:
             stmt = stmt.where(KnowledgeRelation.relation_type == relation_type)
         if active_only:
             stmt = stmt.where(KnowledgeRelation.status == "ACTIVE")
+        return list(self.session.execute(stmt).scalars().all())
+
+    def get_relation_by_id(self, tenant_id: str, relation_id: str) -> KnowledgeRelation | None:
+        """Lấy chi tiết một quan hệ tri thức theo ID."""
+        stmt = select(KnowledgeRelation).where(
+            KnowledgeRelation.tenant_id == tenant_id,
+            KnowledgeRelation.relation_id == relation_id,
+        )
+        return self.session.execute(stmt).scalar_one_or_none()
+
+    def get_evidences_by_knowledge_id(self, tenant_id: str, knowledge_id: str) -> list[EvidenceRecord]:
+        """Lấy tất cả bằng chứng liên kết với Knowledge Item."""
+        stmt = select(EvidenceRecord).where(
+            EvidenceRecord.tenant_id == tenant_id,
+            EvidenceRecord.knowledge_id == knowledge_id,
+        )
         return list(self.session.execute(stmt).scalars().all())
 
     # -------------------------------------------------------------------------

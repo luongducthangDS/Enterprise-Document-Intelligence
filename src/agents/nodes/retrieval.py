@@ -312,10 +312,12 @@ async def _amerge_bm25(
             coll.get, ids=missing_ids, include=["documents", "metadatas"]
         )
         fallback_distance = settings.retrieval_max_distance
+        known_registry_files = {r.source_file for r in load_registry()} if allowed_files else set()
         for chunk_id, text, meta in zip(
             fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
         ):
-            if meta.get("source_file") in allowed_files:
+            sf = meta.get("source_file", "")
+            if sf in allowed_files or (sf not in known_registry_files):
                 chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
 
     valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]

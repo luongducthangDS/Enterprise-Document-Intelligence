@@ -9,7 +9,6 @@ from fastapi import HTTPException, status
 
 from src.config import Settings
 
-
 IDENTITY_FIELDS = ("request_id", "user_id", "tenant_id", "department", "user_role")
 
 

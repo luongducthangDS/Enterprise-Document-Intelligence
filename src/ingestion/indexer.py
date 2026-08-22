@@ -86,7 +86,6 @@ def safe_delete_collection(
 
     client.delete_collection(collection_name)
 
-
 def delete_by_source_stem(collection: Collection, source_stem: str, tenant_id: str) -> None:
     """Delete one document only inside an explicitly authenticated tenant."""
     tenant = validate_tenant_id(tenant_id)

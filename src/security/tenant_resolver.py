@@ -39,7 +39,7 @@ def get_tenant_collection_name(tenant_id: str) -> str:
 
 def resolve_tenant_collection(user_context: UserContext | None = None, allow_dev_fallback: bool = False) -> str:
     """Xác định collection name tin cậy từ UserContext đã xác thực.
-    
+
     Fail-closed: Trong production, BẮT BUỘC phải có tenant_id từ UserContext hợp lệ.
     Tuyệt đối không tự động fallback sang default tenant.
     """

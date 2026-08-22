@@ -7,7 +7,6 @@ from src.security.models import (
     AccessScope,
     DocumentDomain,
     DocumentSecurityProfile,
-    SensitivityLevel,
     UserContext,
     UserRole,
 )
@@ -68,7 +67,7 @@ class AuthorizationEngine:
         """Tải cấu hình chính sách từ file JSON hoặc dùng fallback an toàn."""
         if os.path.exists(self.config_path):
             try:
-                with open(self.config_path, "r", encoding="utf-8") as f:
+                with open(self.config_path, encoding="utf-8") as f:
                     return json.load(f)
             except Exception as e:
                 print(f"[auth] Cảnh báo: Không đọc được file policy ({e}), dùng default.")
@@ -79,7 +78,7 @@ class AuthorizationEngine:
                 "EMPLOYEE": {
                     "allowed_scopes": ["COMPANY_WIDE"],
                     "allowed_domains": ["COMPANY_POLICY"],
-                    "allow_cross_department": false,
+                    "allow_cross_department": False,
                 },
                 "ADMIN": {"allowed_scopes": ["*"], "allowed_domains": ["*"], "allow_cross_department": True},
             },
@@ -310,3 +309,43 @@ class AuthorizationEngine:
 def get_authorization_engine(config_path: str | None = None) -> AuthorizationEngine:
     """Singleton AuthorizationEngine instance."""
     return AuthorizationEngine(config_path=config_path)
+
+
+def runtime_upload_access_filters(user: UserContext) -> list[dict]:
+    """One Chroma predicate per runtime grant, keeping every query under quota."""
+    combined = runtime_upload_access_condition(user)
+    if combined.get("authorization_source") == "RUNTIME_UPLOAD":
+        return [combined]
+    runtime, grants = combined["$and"]
+    return [{"$and": [runtime, grant]} for grant in grants["$or"]]
+
+
+def runtime_upload_access_condition(user: UserContext) -> dict:
+    """Build a fail-closed Chroma predicate for documents uploaded at runtime."""
+    runtime = {"authorization_source": "RUNTIME_UPLOAD"}
+    role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
+    if role == UserRole.ADMIN.value or "admin" in {str(p).lower() for p in user.permissions}:
+        return runtime
+
+    grants: list[dict] = [
+        {"access_scope": AccessScope.COMPANY_WIDE.value},
+        {
+            "$and": [
+                {"access_scope": AccessScope.DEPARTMENT.value},
+                {"department": user.department.upper().strip()},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.ROLE.value},
+                {"authorized_role": role},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.RESTRICTED.value},
+                {"owner_user_id": user.user_id},
+            ]
+        },
+    ]
+    return {"$and": [runtime, {"$or": grants}]}
