@@ -141,7 +141,7 @@ async def approve_knowledge_item(
     item_id: str,
     request: Request,
     tenant_id: str = Query(default="nexatech"),
-    current_user: dict = Depends(require_role(["ADMIN", "HR_OPERATOR"])),
+    current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Phê duyệt tri thức (HITL Review -> APPROVED / ACTIVE)."""
     user_id = current_user.get("user_id", "admin")
@@ -177,7 +177,7 @@ async def reject_knowledge_item(
     payload: RejectKnowledgeItemRequest,
     request: Request,
     tenant_id: str = Query(default="nexatech"),
-    current_user: dict = Depends(require_role(["ADMIN", "HR_OPERATOR"])),
+    current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Từ chối tri thức kèm lý do."""
     user_id = current_user.get("user_id", "admin")
@@ -212,7 +212,7 @@ async def edit_knowledge_item(
     payload: EditKnowledgeItemRequest,
     request: Request,
     tenant_id: str = Query(default="nexatech"),
-    current_user: dict = Depends(require_role(["ADMIN", "HR_OPERATOR"])),
+    current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Chỉnh sửa thông số tri thức trước khi duyệt."""
     user_id = current_user.get("user_id", "admin")
@@ -299,7 +299,7 @@ async def approve_knowledge_relation(
     relation_id: str,
     request: Request,
     tenant_id: str = Query(default="nexatech"),
-    current_user: dict = Depends(require_role(["ADMIN", "HR_OPERATOR"])),
+    current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Xác nhận quan hệ tri thức."""
     user_id = current_user.get("user_id", "admin")
@@ -334,7 +334,7 @@ async def list_audit_trail(
     entity_id: str | None = Query(default=None),
     action: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
-    current_user: dict = Depends(require_role(["ADMIN", "HR_OPERATOR"])),
+    current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Truy vấn nhật ký kiểm toán (Audit Trail) phục vụ governance và tuân thủ."""
     with get_session() as session:

@@ -311,19 +311,41 @@ def get_authorization_engine(config_path: str | None = None) -> AuthorizationEng
     return AuthorizationEngine(config_path=config_path)
 
 
-def runtime_upload_access_condition(user: UserContext) -> dict:
-    """Return Chroma where-clause filter condition for runtime upload documents matching user context."""
-    conditions: list[dict] = [{"tenant": user.tenant_id}]
-    if user.role != UserRole.ADMIN:
-        conditions.append({
-            "$or": [
-                {"access_scope": "COMPANY_WIDE"},
-                {"authorized_departments": {"$contains": user.department}},
-            ]
-        })
-    return {"$and": conditions} if len(conditions) > 1 else conditions[0]
-
-
 def runtime_upload_access_filters(user: UserContext) -> list[dict]:
-    """Return list of Chroma filter dictionaries for runtime uploads for user."""
-    return [runtime_upload_access_condition(user)]
+    """One Chroma predicate per runtime grant, keeping every query under quota."""
+    combined = runtime_upload_access_condition(user)
+    if combined.get("authorization_source") == "RUNTIME_UPLOAD":
+        return [combined]
+    runtime, grants = combined["$and"]
+    return [{"$and": [runtime, grant]} for grant in grants["$or"]]
+
+
+def runtime_upload_access_condition(user: UserContext) -> dict:
+    """Build a fail-closed Chroma predicate for documents uploaded at runtime."""
+    runtime = {"authorization_source": "RUNTIME_UPLOAD"}
+    role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
+    if role == UserRole.ADMIN.value or "admin" in {str(p).lower() for p in user.permissions}:
+        return runtime
+
+    grants: list[dict] = [
+        {"access_scope": AccessScope.COMPANY_WIDE.value},
+        {
+            "$and": [
+                {"access_scope": AccessScope.DEPARTMENT.value},
+                {"department": user.department.upper().strip()},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.ROLE.value},
+                {"authorized_role": role},
+            ]
+        },
+        {
+            "$and": [
+                {"access_scope": AccessScope.RESTRICTED.value},
+                {"owner_user_id": user.user_id},
+            ]
+        },
+    ]
+    return {"$and": [runtime, {"$or": grants}]}

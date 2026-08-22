@@ -102,15 +102,39 @@ def setup_knowledge_db():
     drop_all_tables(engine)
 
 
+import uuid
+import pytest_asyncio
+from app.domain.models.profile import ProfileDB
+from app.domain.models.user import UserDB
+from tests.conftest import TestingSessionLocal
+
+ADMIN_ID = uuid.UUID("11111111-1111-4111-8111-111111111111")
+EMP_ID = uuid.UUID("22222222-2222-4222-8222-222222222222")
+
+
+@pytest_asyncio.fixture(scope="module", autouse=True)
+async def setup_auth_users():
+    async with TestingSessionLocal() as db:
+        for u_id, email, role, dept in (
+            (ADMIN_ID, "admin@nexatech.com", "ADMIN", "IT"),
+            (EMP_ID, "emp@nexatech.com", "EMPLOYEE", "SALES"),
+        ):
+            if await db.get(UserDB, u_id) is None:
+                u = UserDB(id=u_id, email=email, hashed_password="hash")
+                u.profile = ProfileDB(id=u_id, display_name=email.split("@")[0], role=role, department=dept)
+                db.add(u)
+        await db.commit()
+
+
 @pytest.fixture
 def admin_headers():
-    token = create_access_token({"sub": "admin_1", "email": "admin@nexatech.com", "role": "ADMIN"})
+    token = create_access_token({"sub": str(ADMIN_ID), "email": "admin@nexatech.com", "role": "ADMIN", "department": "IT"})
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
 def employee_headers():
-    token = create_access_token({"sub": "emp_1", "email": "emp@nexatech.com", "role": "EMPLOYEE"})
+    token = create_access_token({"sub": str(EMP_ID), "email": "emp@nexatech.com", "role": "EMPLOYEE", "department": "SALES"})
     return {"Authorization": f"Bearer {token}"}
 
 

@@ -213,32 +213,54 @@ class E2ETestRunner:
         self.record("Guardrails", "Prompt Injection Attack Defense", passed_injection, f"Hits: {detected_hits}", (time.perf_counter() - t1) * 1000)
 
     async def test_backend_api_layer(self):
-        admin_token = create_access_token({"sub": "admin_e2e", "email": "admin@nexatech.com", "role": "ADMIN"})
-        emp_token = create_access_token({"sub": "emp_e2e", "email": "emp@nexatech.com", "role": "EMPLOYEE"})
+        import uuid
+        from app.core.database import AsyncSessionLocal
+        from app.domain.models.profile import ProfileDB
+        from app.domain.models.user import UserDB
+
+        admin_id = uuid.UUID("11111111-1111-4111-8111-111111111111")
+        emp_id = uuid.UUID("22222222-2222-4222-8222-222222222222")
+
+        async with AsyncSessionLocal() as db:
+            for u_id, email, role, dept in (
+                (admin_id, "admin@nexatech.com", "super_admin", "IT"),
+                (emp_id, "emp@nexatech.com", "employee", "SALES"),
+            ):
+                if await db.get(UserDB, u_id) is None:
+                    u = UserDB(id=u_id, email=email, hashed_password="hash")
+                    u.profile = ProfileDB(id=u_id, display_name=email.split("@")[0], role=role, department=dept)
+                    db.add(u)
+            await db.commit()
+
+        admin_token = create_access_token({"sub": str(admin_id), "email": "admin@nexatech.com", "role": "SUPER_ADMIN", "department": "IT"})
+        emp_token = create_access_token({"sub": str(emp_id), "email": "emp@nexatech.com", "role": "EMPLOYEE", "department": "SALES"})
         admin_hdr = {"Authorization": f"Bearer {admin_token}"}
         emp_hdr = {"Authorization": f"Bearer {emp_token}"}
 
         # 1. List knowledge items via REST API
-        t0 = time.perf_counter()
-        res_items = self.client.get("/api/v1/knowledge/items?tenant_id=nexatech", headers=emp_hdr)
-        passed_items = res_items.status_code == 200 and res_items.json()["success"] and len(res_items.json()["data"]) >= 1
-        self.record("Backend API", "GET /api/v1/knowledge/items", passed_items, res_items.text[:100], (time.perf_counter() - t0) * 1000)
+        import httpx
 
-        # 2. RBAC Protected: Approve Item (Forbidden for employee, Allowed for admin)
-        t1 = time.perf_counter()
-        items = res_items.json().get("data", [])
-        if items:
-            k_id = items[0]["knowledge_id"]
-            res_forbidden = self.client.patch(f"/api/v1/knowledge/items/{k_id}/approve?tenant_id=nexatech", headers=emp_hdr)
-            res_allowed = self.client.patch(f"/api/v1/knowledge/items/{k_id}/approve?tenant_id=nexatech", headers=admin_hdr)
-            passed_rbac = res_forbidden.status_code == 403 and res_allowed.status_code == 200
-            self.record("Backend API", "PATCH /items/{id}/approve RBAC Enforcement", passed_rbac, "", (time.perf_counter() - t1) * 1000)
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+            t0 = time.perf_counter()
+            res_items = await client.get("/api/v1/knowledge/items?tenant_id=nexatech", headers=emp_hdr)
+            passed_items = res_items.status_code == 200 and res_items.json()["success"] and len(res_items.json()["data"]) >= 1
+            self.record("Backend API", "GET /api/v1/knowledge/items", passed_items, res_items.text[:100], (time.perf_counter() - t0) * 1000)
 
-        # 3. Audit Trail API
-        t2 = time.perf_counter()
-        res_audit = self.client.get("/api/v1/knowledge/audit?tenant_id=nexatech", headers=admin_hdr)
-        passed_audit = res_audit.status_code == 200 and isinstance(res_audit.json().get("data"), list)
-        self.record("Backend API", "GET /api/v1/knowledge/audit (Admin Only)", passed_audit, "", (time.perf_counter() - t2) * 1000)
+            # 2. RBAC Protected: Approve Item (Forbidden for employee, Allowed for admin)
+            t1 = time.perf_counter()
+            items = res_items.json().get("data", [])
+            if items:
+                k_id = items[0]["knowledge_id"]
+                res_forbidden = await client.patch(f"/api/v1/knowledge/items/{k_id}/approve?tenant_id=nexatech", headers=emp_hdr)
+                res_allowed = await client.patch(f"/api/v1/knowledge/items/{k_id}/approve?tenant_id=nexatech", headers=admin_hdr)
+                passed_rbac = res_forbidden.status_code == 403 and res_allowed.status_code == 200
+                self.record("Backend API", "PATCH /items/{id}/approve RBAC Enforcement", passed_rbac, "", (time.perf_counter() - t1) * 1000)
+
+            # 3. Audit Trail API
+            t2 = time.perf_counter()
+            res_audit = await client.get("/api/v1/knowledge/audit?tenant_id=nexatech", headers=admin_hdr)
+            passed_audit = res_audit.status_code == 200 and isinstance(res_audit.json().get("data"), list)
+            self.record("Backend API", "GET /api/v1/knowledge/audit (Admin Only)", passed_audit, "", (time.perf_counter() - t2) * 1000)
 
     async def test_agent_rag_layer(self):
         # 1. Test Greeting Intent

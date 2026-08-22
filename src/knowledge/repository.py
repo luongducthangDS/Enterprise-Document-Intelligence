@@ -58,11 +58,6 @@ class KnowledgeRepository:
     # 1. Tenant Operations
     # -------------------------------------------------------------------------
     def create_tenant(self, tenant_id: str, slug: str, name: str) -> Tenant:
-        stmt = select(Tenant).where((Tenant.tenant_id == tenant_id) | (Tenant.slug == slug))
-        existing = self.session.execute(stmt).scalar_one_or_none()
-        if existing:
-            return existing
-
         tenant = Tenant(tenant_id=tenant_id, slug=slug, name=name)
         self.session.add(tenant)
         self.session.flush()
@@ -89,9 +84,9 @@ class KnowledgeRepository:
         owner_department: str = "GENERAL",
         document_id: str | None = None,
     ) -> Document:
-        existing = self.get_document_by_code(tenant_id, document_code)
-        if existing:
-            return existing
+        tenant = self.get_tenant(tenant_id)
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' không tồn tại trong hệ thống")
 
         doc_id = document_id or str(uuid.uuid4())
         doc = Document(

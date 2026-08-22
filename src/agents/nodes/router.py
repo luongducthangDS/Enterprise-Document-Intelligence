@@ -195,6 +195,7 @@ async def router_node(state: AgentState) -> dict:
     # nhầm thành out_of_scope_or_personal (đo được: "phòng nào vượt ngân sách" bị router nhầm).
     # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
     # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
+    _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
     # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
     _G10_HR_EXCLUSIONS = re.compile(
         r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
