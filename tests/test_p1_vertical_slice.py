@@ -21,9 +21,9 @@ import unittest
 sys.path.insert(0, ".")
 sys.stdout.reconfigure(encoding="utf-8")
 
-from src.knowledge.database import create_knowledge_engine, get_session, init_db
+from src.knowledge.database import create_all_tables, create_knowledge_engine, drop_all_tables, get_session, init_db
 from src.knowledge.extractor import extract_document_knowledge
-from src.knowledge.models import Base, ReviewStatus
+from src.knowledge.models import ReviewStatus
 from src.knowledge.repository import KnowledgeRepository, compute_sha256, normalize_canonical_text
 from src.knowledge.resolver import (
     DeterministicPolicyResolver,
@@ -42,8 +42,8 @@ class TestP1VerticalSlice(unittest.TestCase):
         init_db(cls.engine)
 
     def setUp(self):
-        Base.metadata.drop_all(bind=self.engine)
-        Base.metadata.create_all(bind=self.engine)
+        drop_all_tables(self.engine)
+        create_all_tables(self.engine)
 
         with get_session(self.engine) as session:
             self.service = KnowledgeService(session)

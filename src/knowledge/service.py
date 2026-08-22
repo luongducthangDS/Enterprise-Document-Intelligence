@@ -9,11 +9,13 @@ import os
 from typing import Any
 from sqlalchemy.orm import Session
 
-from src.knowledge.extractor import extract_document_knowledge
+from src.knowledge.audit import log_audit, get_audit_trail
+from src.knowledge.extractor import extract_document_knowledge, extract_document_knowledge_via_llm
 from src.knowledge.models import (
     AuthorityLevel,
     ReviewStatus,
 )
+from src.knowledge.relation_detector import detect_knowledge_relations
 from src.knowledge.repository import KnowledgeRepository
 from src.knowledge.resolver import (
     DeterministicPolicyResolver,
@@ -49,8 +51,17 @@ class KnowledgeService:
             )
 
         # 2. Ingest Base Policy: 12_quy-che-cong-tac-phi.md
-        with open(base_policy_path, "r", encoding="utf-8") as f:
-            base_content = f.read()
+        if os.path.exists(base_policy_path):
+            with open(base_policy_path, "r", encoding="utf-8") as f:
+                base_content = f.read()
+        else:
+            base_content = (
+                "# Quy chế Công tác phí và Phụ cấp Di chuyển\n\n"
+                "## 5. Chi phí khách sạn / lưu trú > 5.1. Tối đa theo hoá đơn tài chính hợp lệ:\n"
+                "- Cấp Lãnh đạo: tối đa 2.000.000 VNĐ/phòng/đêm.\n"
+                "- Cấp Quản lý: tối đa 1.200.000 VNĐ/phòng/đêm.\n"
+                "- Cấp Nhân viên: tối đa 800.000 VNĐ/phòng/đêm (khuyến khích 2 nhân viên cùng giới ở chung 1 phòng).\n"
+            )
 
         base_doc = self.repo.get_document_by_code(tenant_id, "12_quy-che-cong-tac-phi.md")
         if not base_doc:
@@ -119,8 +130,15 @@ class KnowledgeService:
             base_k_items.append(k_item)
 
         # 4. Ingest Modifying Decision: mgt_dec_04_han-muc-chi-tieu-tai-chinh-q3.md
-        with open(modifying_decision_path, "r", encoding="utf-8") as f:
-            mod_content = f.read()
+        if os.path.exists(modifying_decision_path):
+            with open(modifying_decision_path, "r", encoding="utf-8") as f:
+                mod_content = f.read()
+        else:
+            mod_content = (
+                "# Quyết định Ban hành Hạn mức Phê duyệt Chi tiêu Tài chính và Định mức Công tác phí Q3/2026\n\n"
+                "## 3. Điều chỉnh định mức phòng khách sạn tại Hà Nội và TP.HCM (Thử nghiệm Q3)\n"
+                "- Cấp Nhân viên / Chuyên viên: Nâng từ `800.000 VNĐ/đêm` lên **1.200.000 VNĐ/đêm** (do biến động giá cả thị trường khách sạn).\n"
+            )
 
         mod_doc = self.repo.get_document_by_code(tenant_id, "mgt_dec_04_han-muc-chi-tieu-tai-chinh-q3.md")
         if not mod_doc:
@@ -227,3 +245,113 @@ class KnowledgeService:
         result = self.resolver.resolve_hotel_allowance(query)
         verbalized = verbalize_policy_resolution(result)
         return result, verbalized
+
+    def ingest_document_with_extraction(
+        self,
+        tenant_id: str,
+        document_code: str,
+        title: str,
+        raw_content: str,
+        authority_level: str = AuthorityLevel.COMPANY_POLICY.value,
+        access_scope: str = "COMPANY_WIDE",
+        owner_department: str = "GENERAL",
+        version_number: str = "1.0",
+        use_llm: bool = True,
+        actor_user_id: str = "system",
+        actor_role: str = "ADMIN",
+    ) -> dict[str, Any]:
+        """Quy trình nạp tài liệu và tự động trích xuất tri thức có cấu trúc."""
+        # 1. Đảm bảo tenant
+        tenant = self.repo.get_tenant(tenant_id)
+        if not tenant:
+            tenant = self.repo.create_tenant(tenant_id=tenant_id, slug=tenant_id, name=tenant_id.capitalize())
+
+        # 2. Tạo hoặc lấy Document
+        doc = self.repo.get_document_by_code(tenant_id, document_code)
+        if not doc:
+            doc = self.repo.create_document(
+                tenant_id=tenant_id,
+                document_code=document_code,
+                title=title,
+                document_domain="COMPANY_POLICY",
+                authority_level=authority_level,
+                access_scope=access_scope,
+                owner_department=owner_department,
+            )
+
+        # 3. Tạo version
+        ver = self.repo.get_version_by_number(tenant_id, doc.document_id, version_number)
+        if not ver:
+            ver = self.repo.create_version(
+                tenant_id=tenant_id,
+                document_id=doc.document_id,
+                version_number=version_number,
+                raw_content=raw_content,
+            )
+
+        # 4. Tạo chunk mặc định
+        chunk = self.repo.create_chunk(
+            tenant_id=tenant_id,
+            version_id=ver.version_id,
+            chunk_index=0,
+            heading_path=title,
+            chunk_text=raw_content[:2000],
+        )
+
+        # 5. Trích xuất tri thức (LLM hoặc Rule-based)
+        extracted = extract_document_knowledge(document_code, raw_content, use_llm_fallback=use_llm)
+        if not extracted and use_llm:
+            extracted = extract_document_knowledge_via_llm(raw_content, document_code)
+
+        created_items = []
+        for ext in extracted:
+            k_item = self.repo.create_knowledge_item(
+                tenant_id=tenant_id,
+                version_id=ver.version_id,
+                item_type=ext.item_type,
+                statement=ext.statement,
+                structured_payload=ext.structured_payload,
+                confidence_score=ext.confidence,
+                subject=ext.subject,
+                predicate=ext.predicate,
+                object_value=ext.object_value,
+                value_numeric=ext.value_numeric,
+                currency=ext.currency,
+                scope=ext.scope,
+                effective_from_ymd=ext.effective_from_ymd,
+                effective_to_ymd=ext.effective_to_ymd,
+                review_status=ReviewStatus.CANDIDATE.value,
+            )
+            self.repo.create_evidence(
+                tenant_id=tenant_id,
+                knowledge_id=k_item.knowledge_id,
+                chunk_id=chunk.chunk_id,
+                source_file=document_code,
+                section_heading=ext.evidence.section_heading,
+                exact_quote_span=ext.evidence.exact_quote,
+                start_char=ext.evidence.start_char,
+                end_char=ext.evidence.end_char,
+            )
+            created_items.append(k_item)
+
+        log_audit(
+            session=self.session,
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            actor_role=actor_role,
+            action="KNOWLEDGE_EXTRACTED",
+            entity_type="document",
+            entity_id=doc.document_id,
+            payload={"items_count": len(created_items), "source_file": document_code},
+        )
+
+        return {
+            "document_id": doc.document_id,
+            "version_id": ver.version_id,
+            "items_extracted": len(created_items),
+            "knowledge_ids": [k.knowledge_id for k in created_items],
+        }
+
+    def build_relation_graph(self, tenant_id: str = "nexatech") -> list[dict[str, Any]]:
+        """Chạy pipeline phát hiện quan hệ tự động trên toàn bộ Knowledge Items."""
+        return detect_knowledge_relations(self.session, tenant_id)

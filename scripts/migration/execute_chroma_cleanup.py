@@ -389,7 +389,7 @@ async def main():
 
     backup_path = "storage/backups/snapshot_tenant_nexatech_knowledge_pre_cleanup_20260821.json"
     legal_backup_path = "storage/backups/snapshot_legal_reference_corpus_20260821.json"
-    report_output_path = os.path.join(r"C:\Users\Lenovo\.gemini\antigravity-ide\brain\ca50f10d-a0a8-43bf-ad89-15f40b71441d\scratch", "chroma_cleanup_execution_report.json")
+    report_output_path = os.path.join("storage", "backups", "chroma_cleanup_execution_report.json")
 
     # 1. Step 0: Backup
     snapshot_data = step_0_backup_collection(client, collection_name, backup_path)

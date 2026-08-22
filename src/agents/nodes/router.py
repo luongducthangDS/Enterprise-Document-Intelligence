@@ -198,7 +198,7 @@ async def router_node(state: AgentState) -> dict:
     _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
     # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
     _G10_HR_EXCLUSIONS = re.compile(
-        r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái)\b",
+        r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
         re.IGNORECASE,
     )
     if domain and getattr(domain, "domain_name", None) == "accounting":

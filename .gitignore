@@ -36,6 +36,8 @@ data/metadata/*
 !data/metadata/accounting_document_registry.csv
 !data/metadata/product_document_registry.csv
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 *.zip
 

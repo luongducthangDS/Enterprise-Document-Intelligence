@@ -8,7 +8,6 @@ Kiến trúc mở rộng:
 from __future__ import annotations
 
 import re
-
 from typing import Protocol, runtime_checkable
 
 
@@ -92,6 +91,7 @@ def get_conversation_domain(
         if previous and previous.domain_name != "hr":
             return previous
     return current
+
 
 # Tự động đăng ký các built-in domain plugins
 import src.domains.accounting  # noqa: F401, E402

@@ -21,7 +21,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN useradd -m appuser
 
-COPY . .
+COPY . /app
 RUN mkdir -p /app/data && chown -R appuser:appuser /app
 
 USER appuser

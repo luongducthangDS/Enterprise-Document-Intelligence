@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     evaluation,
     indexes,
     ingestion,
+    knowledge,
     tickets,
 )
 
@@ -25,6 +26,7 @@ api_v1_router.include_router(documents.router, prefix="/documents", tags=["Docum
 api_v1_router.include_router(ingestion.router, prefix="/ingestion-jobs", tags=["Ingestion Jobs"])
 api_v1_router.include_router(indexes.router, prefix="/indexes", tags=["Indexes"])
 api_v1_router.include_router(evaluation.router, prefix="/evaluation", tags=["Evaluation"])
+api_v1_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge Intelligence"])
 
 
 
