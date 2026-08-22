@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import UploadFile
 from sqlalchemy import desc, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -128,7 +129,19 @@ class DocumentService:
             uploaded_by=uploader_id,
         )
         db.add(doc)
-        await db.flush()
+        try:
+            await db.flush()
+        except IntegrityError as exc:
+            # Uniqueness: (tenant, source_file) — migration 0008_document_runtime_acl.
+            # Trả 409 ngữ nghĩa thay vì để UniqueViolation nổi lên thành 500.
+            await db.rollback()
+            raise ConflictError(
+                code="DOCUMENT_ALREADY_EXISTS",
+                message=(
+                    f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
+                    "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
+                ),
+            ) from exc
 
         job = IngestionJobDB(
             document_id=doc.id,
@@ -489,6 +502,7 @@ class DocumentService:
             "state": job.state,
             "stage": job.stage,
             "progress_percent": job.progress_percent,
+            "chunk_count": job.chunk_count,
             "error": job.error,
             "poll_after_ms": 1000,
         }

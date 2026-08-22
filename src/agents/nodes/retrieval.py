@@ -267,10 +267,21 @@ async def retrieval_node(state: AgentState) -> dict:
 
     # Observability & Audit Trail Logging
     req_id = state.get("request_id") or "req_default"
+    doc_ids: list[str] = []
+    for c in chunks or []:
+        meta = getattr(c, "metadata", None)
+        if meta is None and isinstance(c, dict):
+            meta = c.get("metadata") or {}
+        sf = getattr(meta, "source_file", None)
+        if sf is None and isinstance(meta, dict):
+            sf = meta.get("source_file")
+        if sf:
+            doc_ids.append(str(sf))
+    doc_ids = sorted(set(doc_ids))
     print(
         f"[AUDIT-RETRIEVAL] req_id={req_id} tenant={user_context.tenant_id} "
         f"user={user_context.user_id} role={user_context.role.value} dept={user_context.department} "
-        f"collection={collection_name} count={len(chunks)}"
+        f"collection={collection_name} count={len(chunks)} doc_ids={doc_ids}"
     )
 
     return {"retrieved_chunks": chunks}
