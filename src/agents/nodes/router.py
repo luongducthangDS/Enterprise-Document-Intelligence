@@ -189,6 +189,18 @@ async def router_node(state: AgentState) -> dict:
                 "verifier_called": False,
             }
 
+    # --- G10: Domain Early-Pass — câu hỏi chính sách kế toán confirmed → không qua escalate ---
+    # Nếu G1 đã xác nhận query thuộc phạm vi kế toán/tài chính (accounting domain matched),
+    # thì đây CHẮC CHẮN là câu hỏi chính sách nội bộ, không cần để LLM router có thể phân loại
+    # nhầm thành out_of_scope_or_personal (đo được: "phòng nào vượt ngân sách" bị router nhầm).
+    # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
+    # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
+    _G10_AMBIGUOUS_REFS = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
+    if domain and getattr(domain, "domain_name", None) == "accounting":
+        query_words = query.split()
+        if len(query_words) >= 6 and not _G10_AMBIGUOUS_REFS.search(query):
+            return {"intent": "hr_question"}
+
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
     # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
