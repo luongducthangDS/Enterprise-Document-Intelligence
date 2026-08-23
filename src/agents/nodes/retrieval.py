@@ -1,25 +1,25 @@
 import asyncio
-import json
 import re
-from datetime import datetime, timezone
-
-try:
-    from datetime import UTC
-except ImportError:
-    UTC = timezone.utc
-
+from datetime import UTC, datetime
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
-from src.ingestion.metadata import DEMO_ONLY_PROVENANCE, load_registry
+from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
 from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
-from src.retrieval.hybrid import fuse_candidate_ids, reciprocal_rank_fusion
-
+from src.retrieval.hybrid import reciprocal_rank_fusion
+from src.security import (
+    UserContext,
+    canonical_department,
+    get_authorization_engine,
+    runtime_upload_access_filters,
+    runtime_upload_metadata_allowed,
+)
+from src.security.tenant_resolver import resolve_tenant_collection
 from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
@@ -62,8 +62,7 @@ def _expand_retrieval_query(query: str) -> str:
         # Regression qa_013: người dùng nói "giới thiệu bạn ứng tuyển" trong
         # khi policy dùng "giới thiệu nội bộ (referral)" ở mục kênh đăng tin.
         expansions.append(
-            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, "
-            "website tuyển dụng, nộp hồ sơ ứng viên"
+            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, website tuyển dụng, nộp hồ sơ ứng viên"
         )
     if _KPI_QUERY_PATTERN.search(query):
         expansions.append("đánh giá hiệu suất, KPI, OKR, kết quả công việc, kỳ đánh giá, xếp loại thành tích")
@@ -81,9 +80,6 @@ def _expand_retrieval_query(query: str) -> str:
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
-from src.security import UserContext, get_authorization_engine, runtime_upload_access_filters
-
-
 def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
     return [
         {"publication_status": "active"},
@@ -94,6 +90,40 @@ def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
     ]
 
 
+def _predicate_leaf_count(predicate: dict) -> int:
+    """Count Chroma leaf predicates, including nested $and/$or branches."""
+    total = 0
+    for key, value in predicate.items():
+        if key in {"$and", "$or"}:
+            total += sum(_predicate_leaf_count(item) for item in value)
+        else:
+            total += 1
+    return total
+
+
+def _metadata_lifecycle_allowed(metadata: dict, query_date_ymd: int) -> bool:
+    """Exact lifecycle post-check for branches shortened to Chroma's quota."""
+    try:
+        effective = int(metadata.get("effective_date_ymd", 99991231))
+        expiry = int(metadata.get("expiry_date_ymd", 0))
+    except (TypeError, ValueError):
+        return False
+    return (
+        metadata.get("publication_status") == "active"
+        and metadata.get("artifact_state") == "frozen"
+        and metadata.get("retrieval_enabled") is True
+        and effective <= query_date_ymd <= expiry
+    )
+
+
+def _metadata_authorized(metadata: dict, user_context: UserContext, allowed_files: set[str]) -> bool:
+    """Defense-in-depth ACL used after vector and lexical retrieval."""
+    same_department = canonical_department(metadata.get("department")) == canonical_department(user_context.department)
+    registry_allowed = same_department and str(metadata.get("source_file") or "") in allowed_files
+    runtime_allowed = runtime_upload_metadata_allowed(user_context, metadata)
+    return registry_allowed or runtime_allowed
+
+
 def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict:
     """Registry corpus filter; kept below Chroma's 8-predicate query quota."""
     if user_context is None:
@@ -101,8 +131,14 @@ def _provenance_filter(settings: Settings, user_context: UserContext | None = No
     allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
     if not allowed_files:
         return {"source_file": "__NO_ACCESS__"}
-    file_condition = {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
-    conditions = [file_condition, *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d")))]
+    file_condition = (
+        {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
+    )
+    conditions = [
+        file_condition,
+        {"department": canonical_department(user_context.department)},
+        *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d"))),
+    ]
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return {"$and": conditions}
@@ -118,7 +154,8 @@ def _retrieval_filters(settings: Settings, user_context: UserContext) -> list[di
     lifecycle = _lifecycle_conditions(query_date_ymd)
     for access in runtime_upload_access_filters(user_context):
         access_conditions = access["$and"] if "$and" in access else [access]
-        filters.append({"$and": [*access_conditions, *lifecycle]})
+        remaining_quota = max(0, 8 - _predicate_leaf_count(access))
+        filters.append({"$and": [*access_conditions, *lifecycle[:remaining_quota]]})
     return filters or [{"source_file": "__NO_ACCESS__"}]
 
 
@@ -139,10 +176,6 @@ def _merge_query_results(results: list[dict], limit: int) -> dict:
         "metadatas": [[item[1][1] for item in ranked]],
         "distances": [[item[1][2] for item in ranked]],
     }
-
-from src.security.tenant_resolver import resolve_tenant_collection
-from src.security.authorization import get_authorization_engine
-from src.security.models import UserContext
 
 
 @lru_cache
@@ -250,24 +283,29 @@ async def retrieval_node(state: AgentState) -> dict:
 
     filters = _retrieval_filters(settings, user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
-        branch_results = await asyncio.gather(*[
-            asyncio.to_thread(
-                partial(collection.query, where=where),
-                query_embeddings=[embedding],
-                n_results=settings.retrieval_top_k,
-            )
-            for where in filters
-        ])
+        branch_results = await asyncio.gather(
+            *[
+                asyncio.to_thread(
+                    partial(collection.query, where=where),
+                    query_embeddings=[embedding],
+                    n_results=settings.retrieval_top_k,
+                )
+                for where in filters
+            ]
+        )
         result = _merge_query_results(branch_results, settings.retrieval_top_k)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
     distances = (result.get("distances") or [[]])[0]
+    allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
 
     chunk_map: dict[str, RetrievedChunk] = {
         chunk_id: _to_chunk(chunk_id, text, meta, distance)
         for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
+        if _metadata_lifecycle_allowed(meta, query_date_ymd) and _metadata_authorized(meta, user_context, allowed_files)
     }
 
     if settings.use_hybrid and ids:
@@ -322,16 +360,35 @@ async def _amerge_bm25(
     missing_ids = [cid for cid in bm25_candidates if cid not in chunk_map]
     if missing_ids:
         coll = _collection(collection_name)
-        fetched = await asyncio.to_thread(
-            coll.get, ids=missing_ids, include=["documents", "metadatas"]
-        )
+        fetched = await asyncio.to_thread(coll.get, ids=missing_ids, include=["documents", "metadatas"])
         fallback_distance = settings.retrieval_max_distance
-        known_registry_files = {r.source_file for r in load_registry()} if allowed_files else set()
+        query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
         for chunk_id, text, meta in zip(
             fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
         ):
             sf = meta.get("source_file", "")
-            if sf in allowed_files or (sf not in known_registry_files):
+            registry_allowed = sf in allowed_files
+            runtime_allowed = user_context is not None and runtime_upload_metadata_allowed(user_context, meta)
+            if registry_allowed:
+                publication_status = meta.get("publication_status", "active")
+                artifact_state = meta.get("artifact_state", "frozen")
+                retrieval_enabled = meta.get("retrieval_enabled", True)
+                effective_date_ymd = int(meta.get("effective_date_ymd", 1))
+                expiry_date_ymd = int(meta.get("expiry_date_ymd", 99991231))
+            else:
+                publication_status = meta.get("publication_status")
+                artifact_state = meta.get("artifact_state")
+                retrieval_enabled = meta.get("retrieval_enabled")
+                effective_date_ymd = int(meta.get("effective_date_ymd", 99991231))
+                expiry_date_ymd = int(meta.get("expiry_date_ymd", 0))
+            lifecycle_allowed = (
+                publication_status == "active"
+                and artifact_state == "frozen"
+                and retrieval_enabled is True
+                and effective_date_ymd <= query_date_ymd
+                and expiry_date_ymd >= query_date_ymd
+            )
+            if lifecycle_allowed and (registry_allowed or runtime_allowed):
                 chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
 
     valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
@@ -339,9 +396,6 @@ async def _amerge_bm25(
     fused_ids = [cid for cid, _ in fused[: settings.retrieval_top_k]]
 
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
-
-
-
 
 
 async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:

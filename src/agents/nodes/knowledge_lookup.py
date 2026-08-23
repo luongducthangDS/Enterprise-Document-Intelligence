@@ -5,10 +5,12 @@ Truy vấn đồ thị tri thức có cấu trúc TRƯỚC RAG retrieval:
 - Trả về câu trả lời chính xác 100%, không bị ảnh hưởng bởi hallucinations hay semantic drift của vector search.
 - Nếu không có quy tắc phù hợp, chuyển tiếp sang RAG retrieval thông thường.
 """
+
 from __future__ import annotations
 
 import logging
 import re
+from datetime import UTC, datetime
 from typing import Any
 
 from src.agents.state import AgentState
@@ -27,11 +29,19 @@ _HOTEL_ALLOWANCE_PATTERNS = re.compile(
 )
 
 
-def _extract_location_from_query(query: str) -> str:
+def _extract_location_from_query(query: str) -> str | None:
     q = query.lower()
     if "hà nội" in q or "ha noi" in q or "hn" in q:
         return "HANOI"
-    if "hồ chí minh" in q or "ho chi minh" in q or "tp.hcm" in q or "tphcm" in q or "sài gòn" in q or "sai gon" in q or "hcm" in q:
+    if (
+        "hồ chí minh" in q
+        or "ho chi minh" in q
+        or "tp.hcm" in q
+        or "tphcm" in q
+        or "sài gòn" in q
+        or "sai gon" in q
+        or "hcm" in q
+    ):
         return "HO_CHI_MINH_CITY"
     if "đà nẵng" in q or "da nang" in q:
         return "DA_NANG"
@@ -39,7 +49,22 @@ def _extract_location_from_query(query: str) -> str:
         return "HAI_PHONG"
     if "cần thơ" in q or "can tho" in q:
         return "CAN_THO"
-    return "HO_CHI_MINH_CITY"  # default special urban probe
+    return None
+
+
+def _extract_target_date_ymd(query: str) -> int:
+    for pattern, date_format in (
+        (r"\b(\d{4}[-/]\d{1,2}[-/]\d{1,2})\b", "%Y-%m-%d"),
+        (r"\b(\d{1,2}/\d{1,2}/\d{4})\b", "%d/%m/%Y"),
+    ):
+        match = re.search(pattern, query)
+        if match:
+            normalized = match.group(1).replace("/", "-") if date_format == "%Y-%m-%d" else match.group(1)
+            try:
+                return int(datetime.strptime(normalized, date_format).strftime("%Y%m%d"))
+            except ValueError:
+                continue
+    return int(datetime.now(UTC).strftime("%Y%m%d"))
 
 
 def _extract_role_from_query(query: str) -> str:
@@ -63,6 +88,8 @@ async def knowledge_lookup_node(state: AgentState) -> dict[str, Any]:
         return {"structured_knowledge": None, "skip_retrieval": False}
 
     loc = _extract_location_from_query(query)
+    if loc is None:
+        return {"structured_knowledge": None, "skip_retrieval": False}
     role = _extract_role_from_query(query)
 
     try:
@@ -75,9 +102,32 @@ async def knowledge_lookup_node(state: AgentState) -> dict[str, Any]:
                 role=role,
                 target_date_ymd=20260901,  # Thời điểm hiện tại giả định
             )
+            req.target_date_ymd = _extract_target_date_ymd(query)
             res = resolver.resolve_hotel_allowance(req)
             if res and res.resolved:
                 verbalized = verbalize_policy_resolution(res)
+                citations = [
+                    {
+                        "chunk_id": evidence.evidence_id,
+                        "source_file": evidence.source_file or evidence.document_code,
+                        "title": evidence.document_title,
+                        "department": "GENERAL",
+                        "category": "structured_knowledge",
+                        "page_start": None,
+                        "page_end": None,
+                        "sheet_start": None,
+                        "sheet_end": None,
+                        "is_official_policy": True,
+                        "source_type": "official_policy",
+                        "authority": res.resolved_by_authority,
+                        "provenance": "structured_knowledge",
+                        "tenant": tenant_id,
+                        "source_section": evidence.section_heading,
+                        "policy_status": "active",
+                        "excerpt": evidence.exact_quote,
+                    }
+                    for evidence in res.evidences
+                ]
                 return {
                     "structured_knowledge": {
                         "resolved": True,
@@ -91,6 +141,12 @@ async def knowledge_lookup_node(state: AgentState) -> dict[str, Any]:
                         "is_modified": res.is_modified,
                     },
                     "skip_retrieval": True,
+                    "generated_answer": verbalized,
+                    "citations": citations,
+                    "answerable": True,
+                    "confidence_score": 1.0,
+                    "hallucination_passed": True,
+                    "structured_resolution": res.model_dump(),
                 }
     except Exception as e:
         logger.debug("Knowledge lookup bypass or failed: %s", e)

@@ -1,4 +1,5 @@
 """SQLAlchemy 2.0 ORM Models for Knowledge Layer (Supabase PostgreSQL knowledge schema)."""
+
 from __future__ import annotations
 
 import enum
@@ -24,6 +25,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 
 class KnowledgeBase(DeclarativeBase):
     """Base cho toàn bộ Knowledge Layer tables."""
+
     metadata = MetaData()
 
 
@@ -91,7 +93,7 @@ class Document(KnowledgeBase):
     title = Column(Text, nullable=False)
     document_domain = Column(String(64), nullable=False)
     authority_level = Column(String(32), default=AuthorityLevel.COMPANY_POLICY.value, nullable=False)
-    access_scope = Column(String(32), default="COMPANY_WIDE", nullable=False)
+    access_scope = Column(String(32), default="DEPARTMENT", nullable=False)
     owner_department = Column(String(64), default="GENERAL", nullable=False)
     status = Column(String(32), default="ACTIVE", nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
@@ -151,7 +153,12 @@ class ChunkRecord(KnowledgeBase):
     char_count = Column(Integer, nullable=False)
 
     version = relationship("DocumentVersion", back_populates="chunks")
-    evidence_records = relationship("EvidenceRecord", back_populates="chunk", cascade="all, delete-orphan", overlaps="knowledge_item,evidence_records")
+    evidence_records = relationship(
+        "EvidenceRecord",
+        back_populates="chunk",
+        cascade="all, delete-orphan",
+        overlaps="knowledge_item,evidence_records",
+    )
 
     __table_args__ = (
         ForeignKeyConstraint(
@@ -172,7 +179,7 @@ class KnowledgeItem(KnowledgeBase):
     tenant_id = Column(String(64), nullable=False)
     version_id = Column(String(64), nullable=False)
     item_type = Column(String(32), nullable=False)
-    
+
     subject = Column(String(128), nullable=True, index=True)
     predicate = Column(String(128), nullable=True, index=True)
     object_value = Column(String(255), nullable=True)
@@ -182,16 +189,26 @@ class KnowledgeItem(KnowledgeBase):
     effective_from_ymd = Column(Integer, default=1, nullable=False)
     effective_to_ymd = Column(Integer, default=99991231, nullable=False)
     status = Column(String(32), default="ACTIVE", nullable=False)
-    
+
     statement = Column(Text, nullable=False)
     structured_payload = Column(JSON, default=dict, nullable=False)
     confidence_score = Column(Float, default=1.0, nullable=False)
     review_status = Column(String(32), default=ReviewStatus.AUTO_EXTRACTED.value, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
 
     version = relationship("DocumentVersion", back_populates="knowledge_items", overlaps="chunks")
-    evidence_records = relationship("EvidenceRecord", back_populates="knowledge_item", cascade="all, delete-orphan", overlaps="chunk,evidence_records")
+    evidence_records = relationship(
+        "EvidenceRecord",
+        back_populates="knowledge_item",
+        cascade="all, delete-orphan",
+        overlaps="chunk,evidence_records",
+    )
 
     __table_args__ = (
         ForeignKeyConstraint(
@@ -237,7 +254,9 @@ class KnowledgeRelation(KnowledgeBase):
             ondelete="CASCADE",
             name="fk_relation_tenant_target",
         ),
-        UniqueConstraint("tenant_id", "source_knowledge_id", "target_knowledge_id", "relation_type", name="uq_tenant_relation_edge"),
+        UniqueConstraint(
+            "tenant_id", "source_knowledge_id", "target_knowledge_id", "relation_type", name="uq_tenant_relation_edge"
+        ),
         Index("idx_relation_source", "tenant_id", "source_knowledge_id"),
         Index("idx_relation_target", "tenant_id", "target_knowledge_id"),
     )

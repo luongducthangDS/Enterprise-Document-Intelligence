@@ -66,8 +66,9 @@ class DocumentService:
         try:
             uploader_id = uuid.UUID(str(uploader_id_raw))
         except (ValueError, TypeError) as exc:
-            raise AppException(status_code=401, code="IDENTITY_REQUIRED", message="Không xác định được người tải tài liệu.") from exc
-
+            raise AppException(
+                status_code=401, code="IDENTITY_REQUIRED", message="Không xác định được người tải tài liệu."
+            ) from exc
 
         filename = file.filename or "document.pdf"
         ext = os.path.splitext(filename)[1].lower()
@@ -100,12 +101,16 @@ class DocumentService:
         doc_confidentiality = confidentiality.strip() if confidentiality and confidentiality.strip() else "INTERNAL"
         doc_status = status.strip().upper() if status and status.strip() else "ACTIVE"
         normalized_scope = access_scope.strip().upper()
+        if normalized_scope == "COMPANY_WIDE":
+            normalized_scope = "DEPARTMENT"
         allowed_scopes = {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}
         if normalized_scope not in allowed_scopes:
             raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
         normalized_role = authorized_role.strip().upper() if authorized_role and authorized_role.strip() else None
         if normalized_scope == "ROLE" and not normalized_role:
-            raise AppException(status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role.")
+            raise AppException(
+                status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role."
+            )
         if normalized_scope != "ROLE":
             normalized_role = None
         tenant = get_settings().active_tenant
@@ -286,9 +291,7 @@ class DocumentService:
             raise ForbiddenError(code="DOCUMENT_ACCESS_DENIED", message="Bạn không có quyền truy cập tài liệu này.")
 
         job_stmt = (
-            select(IngestionJobDB)
-            .where(IngestionJobDB.document_id == doc.id)
-            .order_by(desc(IngestionJobDB.created_at))
+            select(IngestionJobDB).where(IngestionJobDB.document_id == doc.id).order_by(desc(IngestionJobDB.created_at))
         )
         job_res = await db.execute(job_stmt)
         job = job_res.scalars().first()
@@ -361,6 +364,8 @@ class DocumentService:
         }
         if data.access_scope is not None:
             normalized_scope = data.access_scope.upper().strip()
+            if normalized_scope == "COMPANY_WIDE":
+                normalized_scope = "DEPARTMENT"
             if normalized_scope not in {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}:
                 raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
             doc.access_scope = normalized_scope
@@ -369,7 +374,9 @@ class DocumentService:
         if data.authorized_role is not None:
             doc.authorized_role = data.authorized_role.upper().strip() or None
         if doc.access_scope == "ROLE" and not doc.authorized_role:
-            raise AppException(status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role.")
+            raise AppException(
+                status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role."
+            )
         if doc.access_scope != "ROLE":
             doc.authorized_role = None
 
@@ -393,15 +400,17 @@ class DocumentService:
             "authorized_role": doc.authorized_role,
         }
         if after_acl != before_acl:
-            db.add(AuditLogDB(
-                tenant=doc.tenant,
-                actor_id=uuid.UUID(str(user["user_id"])),
-                action="DOCUMENT_ACL_UPDATED",
-                resource_type="document",
-                resource_id=str(doc.id),
-                before_state=before_acl,
-                after_state=after_acl,
-            ))
+            db.add(
+                AuditLogDB(
+                    tenant=doc.tenant,
+                    actor_id=uuid.UUID(str(user["user_id"])),
+                    action="DOCUMENT_ACL_UPDATED",
+                    resource_type="document",
+                    resource_id=str(doc.id),
+                    before_state=before_acl,
+                    after_state=after_acl,
+                )
+            )
         await db.commit()
         await db.refresh(doc)
 

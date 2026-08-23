@@ -5,6 +5,7 @@ Bao gồm:
   - G2: Bộ từ điển mở rộng Query Expansion (_expand_accounting_query)
   - G3: Dynamic Top-K Expansion (_get_accounting_top_k)
 """
+
 from __future__ import annotations
 
 import re
@@ -22,9 +23,14 @@ _ACCOUNTING_KEYWORD_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _ACCOUNTING_CATEGORY_PREFIX = (
-    "accounting", "finance", "procurement", "internal_expense",
-    "payroll_and_compensation", "advance_and_payment",
-    "fixed_assets_management", "invoices_and_tax",
+    "accounting",
+    "finance",
+    "procurement",
+    "internal_expense",
+    "payroll_and_compensation",
+    "advance_and_payment",
+    "fixed_assets_management",
+    "invoices_and_tax",
 )
 
 
@@ -59,9 +65,7 @@ _ACCOUNTING_EXPANSION_RULES: list[tuple[re.Pattern, str]] = [
         "mua sắm khẩn cấp bất khả kháng gián đoạn kinh doanh bổ sung hồ sơ 48 giờ",
     ),
     (
-        re.compile(
-            r"\b(?:quá hạn hoàn ứng|chậm thanh toán tạm ứng|quên hoàn ứng)\b", re.IGNORECASE
-        ),
+        re.compile(r"\b(?:quá hạn hoàn ứng|chậm thanh toán tạm ứng|quên hoàn ứng)\b", re.IGNORECASE),
         "thời hạn hoàn ứng quá hạn 15 ngày tự động khấu trừ vào lương",
     ),
 ]
@@ -132,12 +136,13 @@ def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) 
 def _accounting_provenance_filter(settings, user_context) -> dict:
     """Registry corpus branch, below Chroma's 8-predicate quota."""
     from datetime import datetime, timezone
+
     try:
         from datetime import UTC
     except ImportError:
         UTC = timezone.utc
     from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
-    from src.security import get_authorization_engine
+    from src.security import canonical_department, get_authorization_engine
 
     allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
     if not allowed_files:
@@ -146,6 +151,7 @@ def _accounting_provenance_filter(settings, user_context) -> dict:
     conditions = [
         {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]},
         {"publication_status": "active"},
+        {"department": canonical_department(user_context.department)},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},
         {"effective_date_ymd": {"$lte": query_date_ymd}},
@@ -158,10 +164,12 @@ def _accounting_provenance_filter(settings, user_context) -> dict:
 
 def _accounting_retrieval_filters(settings, user_context) -> list[dict]:
     from datetime import datetime, timezone
+
     try:
         from datetime import UTC
     except ImportError:
         UTC = timezone.utc
+    from src.agents.nodes.retrieval import _predicate_leaf_count
     from src.security import runtime_upload_access_filters
 
     filters: list[dict] = []
@@ -178,7 +186,8 @@ def _accounting_retrieval_filters(settings, user_context) -> list[dict]:
     ]
     for access in runtime_upload_access_filters(user_context):
         access_conditions = access["$and"] if "$and" in access else [access]
-        filters.append({"$and": [*access_conditions, *lifecycle]})
+        remaining_quota = max(0, 8 - _predicate_leaf_count(access))
+        filters.append({"$and": [*access_conditions, *lifecycle[:remaining_quota]]})
     return filters or [{"source_file": "__NO_ACCESS__"}]
 
 
@@ -291,6 +300,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
 
     # 2. Kết nối collection Kế toán tenant-scoped trên Chroma Cloud
     from src.security import UserContext
+
     user_context = UserContext.from_state(state)
     client = get_chroma_client(settings)
     collection_name = collection_name_for_department("Accounting", settings, user_context.tenant_id)
@@ -300,25 +310,35 @@ async def accounting_retrieval_node(state: dict) -> dict:
 
     # 3. Vector search: one quota-safe branch per access grant, then deduplicate.
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
-        branch_results = await asyncio.gather(*[
-            asyncio.to_thread(
-                partial(col.query, where=where),
-                query_embeddings=[embedding],
-                n_results=effective_top_k,
-            )
-            for where in filters
-        ])
+        branch_results = await asyncio.gather(
+            *[
+                asyncio.to_thread(
+                    partial(col.query, where=where),
+                    query_embeddings=[embedding],
+                    n_results=effective_top_k,
+                )
+                for where in filters
+            ]
+        )
         from src.agents.nodes.retrieval import _merge_query_results
+
         result = _merge_query_results(branch_results, effective_top_k)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
     distances = (result.get("distances") or [[]])[0]
+    from src.agents.nodes.retrieval import _metadata_authorized, _metadata_lifecycle_allowed
+    from src.security import get_authorization_engine
 
+    from datetime import UTC, datetime
+
+    allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
     chunk_map = {
         chunk_id: _to_accounting_chunk(chunk_id, text, meta, distance)
         for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
+        if _metadata_lifecycle_allowed(meta, query_date_ymd) and _metadata_authorized(meta, user_context, allowed_files)
     }
 
     chunks = list(chunk_map.values())
@@ -351,15 +371,13 @@ async def accounting_retrieval_node(state: dict) -> dict:
     # - Tài liệu OCR từ ảnh/scan (fixed_assets_management, invoices_and_tax) có điểm reranker
     #   thấp hơn chuẩn do chất lượng text thô — hạ ngưỡng để vẫn kích hoạt early-exit.
     # - Tài liệu text gốc (pdf/docx) dùng ngưỡng chuẩn chặt hơn.
-    _is_ocr_category = any(
-        c.get("category", "") in ("fixed_assets_management", "invoices_and_tax")
-        for c in chunks
-    )
+    _is_ocr_category = any(c.get("category", "") in ("fixed_assets_management", "invoices_and_tax") for c in chunks)
     _EARLY_EXIT_MIN_CHUNKS = 2 if _is_ocr_category else 3
     _EARLY_EXIT_DISTANCE_CAP = 0.37 if _is_ocr_category else 0.30
     _EARLY_EXIT_SCORE_FLOOR = 0.30 if _is_ocr_category else 0.70
     high_quality_chunks = [
-        c for c in chunks
+        c
+        for c in chunks
         if (c.get("distance") is not None and c["distance"] <= _EARLY_EXIT_DISTANCE_CAP)
         or (c.get("score") is not None and c["score"] >= _EARLY_EXIT_SCORE_FLOOR)
     ]
@@ -369,7 +387,3 @@ async def accounting_retrieval_node(state: dict) -> dict:
         "retrieved_chunks": chunks,
         "rewrite_count": 999 if should_early_exit else 0,
     }
-
-
-
-

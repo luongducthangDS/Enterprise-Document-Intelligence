@@ -4,6 +4,7 @@ from src.agents.nodes.boundary import boundary_node
 from src.agents.nodes.condense import condense_node
 from src.agents.nodes.escalation import confidence_node, escalate_node, out_of_scope_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
+from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
 from src.agents.nodes.router import clarify_node, direct_node, router_node
 from src.agents.state import AgentState
@@ -24,6 +25,10 @@ def route_by_intent(state: AgentState) -> str:
     if intent == "out_of_scope_or_personal":
         return "escalate"
     return "retrieve"
+
+
+def route_after_knowledge_lookup(state: AgentState) -> str:
+    return "finalize" if state.get("skip_retrieval") else "retrieve"
 
 
 def route_after_grade(state: AgentState) -> str:
@@ -76,6 +81,7 @@ def build_graph() -> StateGraph:
     graph.add_node("boundary", boundary_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
+    graph.add_node("knowledge_lookup", knowledge_lookup_node)
     graph.add_node("retrieve", retrieval_node)
     graph.add_node("grade", grade_node)
     graph.add_node("rewrite", rewrite_node)
@@ -99,13 +105,18 @@ def build_graph() -> StateGraph:
             "clarify": "clarify",
             "escalate": "escalate_ticket",
             "out_of_scope": "out_of_scope",
-            "retrieve": "retrieve",
+            "retrieve": "knowledge_lookup",
         },
     )
     graph.add_edge("direct", END)
     graph.add_edge("clarify", END)
     graph.add_edge("out_of_scope", END)
 
+    graph.add_conditional_edges(
+        "knowledge_lookup",
+        route_after_knowledge_lookup,
+        {"finalize": "finalize", "retrieve": "retrieve"},
+    )
     graph.add_edge("retrieve", "grade")
     graph.add_conditional_edges("grade", route_after_grade, {"generate": "generate", "rewrite": "rewrite"})
     graph.add_edge("rewrite", "retrieve")
@@ -132,5 +143,3 @@ def build_graph() -> StateGraph:
 
 agent = build_graph()
 rag_agent_graph = agent
-
-

@@ -4,7 +4,7 @@
   "description": "Cấu hình chính sách phân quyền truy cập tri thức doanh nghiệp (Enterprise Access Policies)",
   "roles_policy": {
     "EMPLOYEE": {
-      "allowed_scopes": ["COMPANY_WIDE"],
+      "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT"],
       "allowed_domains": ["COMPANY_POLICY"],
       "allow_cross_department": false
     },

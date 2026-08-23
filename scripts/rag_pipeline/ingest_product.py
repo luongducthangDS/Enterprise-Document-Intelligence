@@ -31,13 +31,27 @@ from src.ingestion.indexer import get_chroma_client, get_collection, upsert_chun
 from src.ingestion.metadata import Chunk, date_to_ymd_int
 from src.retrieval.bm25 import BM25
 
-DEPARTMENT = "Product"
+DEPARTMENT = "PRODUCT"
 REGISTRY_FIELDS = [
     "source_file",
-    "department",
     "document_domain",
+    "related_departments",
     "access_scope",
+    "authorized_departments",
+    "authorized_roles",
+    "authorization_status",
+    "authorization_source",
+    "classification_source",
+    "is_knowledge_doc",
+    "department",
+    "sensitivity",
+    "scope",
     "access_category",
+    "issuer",
+    "document_type",
+    "classification_confidence",
+    "classification_status",
+    "classification_reason",
     "category",
     "status",
     "processed_path",
@@ -107,7 +121,11 @@ SMOKE_QUERIES = [
     },
     {
         "question": "Recommendation System hiện ở trạng thái nào?",
-        "expected_sources": {"PRD_Recommendation_System.docx", "Product_Weekly_Recommendation.pdf", "Product_Roadmap_Q4_2026.xlsx"},
+        "expected_sources": {
+            "PRD_Recommendation_System.docx",
+            "Product_Weekly_Recommendation.pdf",
+            "Product_Roadmap_Q4_2026.xlsx",
+        },
     },
     {
         "question": "Kết quả experiment của Checkout Redesign là gì?",
@@ -298,7 +316,8 @@ def main() -> None:
                 source_file=source_file,
                 department=DEPARTMENT,
                 document_domain="COMPANY_POLICY",
-                access_scope="COMPANY_WIDE",
+                access_scope="DEPARTMENT",
+                authorized_departments=[DEPARTMENT],
                 access_category="GENERAL",
                 category=item["document_type"].strip(),
                 source_type="synthetic",
@@ -346,8 +365,22 @@ def main() -> None:
                 "source_file": source_file,
                 "department": DEPARTMENT,
                 "document_domain": "COMPANY_POLICY",
-                "access_scope": "COMPANY_WIDE",
+                "related_departments": json.dumps([DEPARTMENT]),
+                "access_scope": "DEPARTMENT",
+                "authorized_departments": json.dumps([DEPARTMENT]),
+                "authorized_roles": "[]",
+                "authorization_status": "ACTIVE",
+                "authorization_source": "DEPARTMENT_SOP_POLICY",
+                "classification_source": "DETERMINISTIC_AUDIT",
+                "is_knowledge_doc": "true",
+                "sensitivity": "INTERNAL",
+                "scope": "DEPARTMENT",
                 "access_category": "GENERAL",
+                "issuer": "",
+                "document_type": item["document_type"].strip(),
+                "classification_confidence": "1.00",
+                "classification_status": "APPROVED",
+                "classification_reason": "Product corpus is owned by the Product department.",
                 "owner": owner,
                 "category": item["document_type"].strip(),
                 "status": status,
@@ -391,22 +424,16 @@ def main() -> None:
                     existing = collection.get(ids=chunk_ids, include=[])
                     existing_ids = set(existing.get("ids") or [])
                     existing_vector_count += len(existing_ids)
-                    existing_chunks = [
-                        chunk for chunk in chunks if chunk.metadata.chunk_id in existing_ids
-                    ]
+                    existing_chunks = [chunk for chunk in chunks if chunk.metadata.chunk_id in existing_ids]
                     if existing_chunks:
                         # Metadata-only refresh: preserve existing embeddings and
                         # documents while reconciling owner/access/citation keys.
                         collection.update(
                             ids=[chunk.metadata.chunk_id for chunk in existing_chunks],
-                            metadatas=[
-                                chunk.metadata.to_chroma_metadata() for chunk in existing_chunks
-                            ],
+                            metadatas=[chunk.metadata.to_chroma_metadata() for chunk in existing_chunks],
                         )
                         metadata_refreshed_count += len(existing_chunks)
-                    missing_chunks = [
-                        chunk for chunk in chunks if chunk.metadata.chunk_id not in existing_ids
-                    ]
+                    missing_chunks = [chunk for chunk in chunks if chunk.metadata.chunk_id not in existing_ids]
                     skipped_existing_count += len(chunks) - len(missing_chunks)
 
                 if not missing_chunks:
@@ -442,9 +469,7 @@ def main() -> None:
 
     all_chunks = [chunk for chunks in chunks_by_source.values() for chunk in chunks]
     lexical_results = (
-        lexical_smoke_retrieval(all_chunks)
-        if index_error and not args.skip_retrieval and all_chunks
-        else []
+        lexical_smoke_retrieval(all_chunks) if index_error and not args.skip_retrieval and all_chunks else []
     )
     report = {
         "department": DEPARTMENT,

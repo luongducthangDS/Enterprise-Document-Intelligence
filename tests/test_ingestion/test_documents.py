@@ -57,5 +57,5 @@ def test_extract_xlsx_and_preserve_sheet_metadata(tmp_path):
         settings=settings,
     )
     assert chunks
-    assert all(chunk.metadata.department == "Product" for chunk in chunks)
+    assert all(chunk.metadata.department == "PRODUCT" for chunk in chunks)
     assert all(chunk.metadata.sheet_start == "Roadmap" for chunk in chunks)

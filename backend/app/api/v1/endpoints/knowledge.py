@@ -4,6 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 
 from app.api.dependencies.auth_deps import get_current_user, require_role
+from app.core.config import get_settings
+from app.core.knowledge_db import get_knowledge_session as get_session
+from app.domain.models.knowledge import (
+    KnowledgeItem,
+    KnowledgeRelation,
+    ReviewStatus,
+)
 from app.schemas.common import wrap_response
 from app.schemas.knowledge import (
     AuditLogDTO,
@@ -14,14 +21,6 @@ from app.schemas.knowledge import (
     KnowledgeRelationDTO,
     RejectKnowledgeItemRequest,
 )
-from app.core.knowledge_db import get_knowledge_session as get_session
-from app.domain.models.knowledge import (
-    AuditLog,
-    EvidenceRecord,
-    KnowledgeItem,
-    KnowledgeRelation,
-    ReviewStatus,
-)
 from app.services.knowledge_service import (
     KnowledgeRepository,
     get_audit_trail,
@@ -31,10 +30,18 @@ from app.services.knowledge_service import (
 router = APIRouter()
 
 
+def _resolve_tenant_id(requested_tenant_id: str | None) -> str:
+    """Bind Knowledge API access to the backend's trusted active tenant."""
+    active_tenant = get_settings().active_tenant.strip().lower()
+    if requested_tenant_id and requested_tenant_id.strip().lower() != active_tenant:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tenant access denied")
+    return active_tenant
+
+
 @router.get("/items")
 async def list_knowledge_items(
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     review_status: str | None = Query(default=None),
     subject: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
@@ -42,6 +49,7 @@ async def list_knowledge_items(
     current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Danh sách các tri thức có cấu trúc kèm bộ lọc review_status và subject."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     with get_session() as session:
         stmt = select(KnowledgeItem).where(KnowledgeItem.tenant_id == tenant_id)
         if review_status:
@@ -85,10 +93,11 @@ async def list_knowledge_items(
 async def get_knowledge_item_detail(
     item_id: str,
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Chi tiết một tri thức có cấu trúc kèm đầy đủ bằng chứng đối chiếu."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     with get_session() as session:
         repo = KnowledgeRepository(session)
         item = repo.get_knowledge_item(tenant_id, item_id)
@@ -96,7 +105,7 @@ async def get_knowledge_item_detail(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge item not found")
 
         evidences = repo.get_evidences_by_knowledge_id(tenant_id, item_id)
-        
+
         detail = KnowledgeItemDetailDTO(
             item=KnowledgeItemDTO(
                 knowledge_id=item.knowledge_id,
@@ -140,10 +149,11 @@ async def get_knowledge_item_detail(
 async def approve_knowledge_item(
     item_id: str,
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Phê duyệt tri thức (HITL Review -> APPROVED / ACTIVE)."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     user_id = current_user.get("user_id", "admin")
     role = current_user.get("role", "ADMIN")
 
@@ -176,10 +186,11 @@ async def reject_knowledge_item(
     item_id: str,
     payload: RejectKnowledgeItemRequest,
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Từ chối tri thức kèm lý do."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     user_id = current_user.get("user_id", "admin")
     role = current_user.get("role", "ADMIN")
 
@@ -211,10 +222,11 @@ async def edit_knowledge_item(
     item_id: str,
     payload: EditKnowledgeItemRequest,
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Chỉnh sửa thông số tri thức trước khi duyệt."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     user_id = current_user.get("user_id", "admin")
     role = current_user.get("role", "ADMIN")
 
@@ -237,7 +249,13 @@ async def edit_knowledge_item(
         if payload.scope is not None:
             item.scope = payload.scope
         if payload.role_scope is not None:
-            item.role_scope = payload.role_scope
+            changes["role_scope"] = {
+                "old": list((item.structured_payload or {}).get("role_scope", [])),
+                "new": payload.role_scope,
+            }
+            structured_payload = dict(item.structured_payload or {})
+            structured_payload["role_scope"] = payload.role_scope
+            item.structured_payload = structured_payload
         if payload.effective_from_ymd is not None:
             item.effective_from_ymd = payload.effective_from_ymd
         if payload.effective_to_ymd is not None:
@@ -263,12 +281,13 @@ async def edit_knowledge_item(
 @router.get("/relations")
 async def list_knowledge_relations(
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     relation_type: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Danh sách các quan hệ tri thức (SUPERSEDES, MODIFIES, CONFLICTS_WITH, etc.)."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     with get_session() as session:
         stmt = select(KnowledgeRelation).where(KnowledgeRelation.tenant_id == tenant_id)
         if relation_type:
@@ -298,10 +317,11 @@ async def list_knowledge_relations(
 async def approve_knowledge_relation(
     relation_id: str,
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Xác nhận quan hệ tri thức."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     user_id = current_user.get("user_id", "admin")
     role = current_user.get("role", "ADMIN")
 
@@ -330,13 +350,14 @@ async def approve_knowledge_relation(
 @router.get("/audit")
 async def list_audit_trail(
     request: Request,
-    tenant_id: str = Query(default="nexatech"),
+    tenant_id: str | None = Query(default=None),
     entity_id: str | None = Query(default=None),
     action: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     current_user: dict = Depends(require_role(["ADMIN", "SUPER_ADMIN", "HR_ADMIN", "HR_OPERATOR"])),
 ) -> dict[str, Any]:
     """Truy vấn nhật ký kiểm toán (Audit Trail) phục vụ governance và tuân thủ."""
+    tenant_id = _resolve_tenant_id(tenant_id)
     with get_session() as session:
         logs = get_audit_trail(session, tenant_id=tenant_id, entity_id=entity_id, action=action, limit=limit)
         dto_list = [
