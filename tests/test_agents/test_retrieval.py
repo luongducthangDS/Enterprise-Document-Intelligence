@@ -518,15 +518,17 @@ class TestRuntimeUploadAccessFilter:
         assert _runtime_allowed(self._runtime_meta(), stranger) is False
 
     def test_department_and_role_scopes_are_exact(self):
-        hr = UserContext(tenant_id="nexatech", user_id="u1", department="HR", role=UserRole.EMPLOYEE)
-        eng = UserContext(tenant_id="nexatech", user_id="u2", department="ENGINEERING", role=UserRole.EMPLOYEE)
+        # DEPARTMENT cần role được roles_policy cấp scope (EMPLOYEE/DEPARTMENT_USER
+        # đều có) + đúng phòng; ROLE chỉ MANAGER+ theo policy.
+        hr_employee = UserContext(tenant_id="nexatech", user_id="u1", department="HR", role=UserRole.EMPLOYEE)
+        eng_dept_user = UserContext(tenant_id="nexatech", user_id="u2", department="ENGINEERING", role=UserRole.DEPARTMENT_USER)
         hr_manager = UserContext(tenant_id="nexatech", user_id="u3", department="HR", role=UserRole.MANAGER)
         dept_doc = self._runtime_meta(access_scope="DEPARTMENT")
         role_doc = self._runtime_meta(access_scope="ROLE")
-        assert _runtime_allowed(dept_doc, hr) is True
-        assert _runtime_allowed(dept_doc, eng) is False
+        assert _runtime_allowed(dept_doc, hr_employee) is True
+        assert _runtime_allowed(dept_doc, eng_dept_user) is False
         assert _runtime_allowed(role_doc, hr_manager) is True
-        assert _runtime_allowed(role_doc, hr) is False
+        assert _runtime_allowed(role_doc, hr_employee) is False
 
     def test_company_wide_and_admin_are_still_department_bound(self):
         employee = UserContext(tenant_id="nexatech", user_id="u1", department="ENGINEERING", role=UserRole.EMPLOYEE)

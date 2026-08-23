@@ -13,7 +13,6 @@ from src.security.authorization import get_authorization_engine
 from src.security.models import UserContext, UserRole
 from src.security.tenant_resolver import resolve_tenant_collection, validate_tenant_id
 
-
 EXPECTED_COUNTS = {
     "tenant_nexatech_knowledge": 269,
     "accounting_documents": 152,
@@ -109,6 +108,56 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         self.assertIn("it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md", it_files)
         self.assertNotIn("02_quy-trinh-tuyen-dung.md", it_files)
 
+    def test_05b_department_corpora_are_department_scoped(self):
+        """Accounting/Product là tri thức nội bộ phòng — không được COMPANY_WIDE.
+
+        Khóa regression cho lần sửa scope 2026-08-23: trước đó 42 docs này
+        COMPANY_WIDE nên mọi EMPLOYEE đều query được.
+        """
+        auth_engine = get_authorization_engine()
+
+        employee = UserContext(
+            user_id="emp_user",
+            department="GENERAL",
+            role=UserRole.EMPLOYEE,
+            tenant_id="nexatech",
+        )
+        employee_files = auth_engine.get_authorized_source_files(employee)
+        self.assertFalse([f for f in employee_files if f.startswith("PRD_")])
+        self.assertFalse(
+            [f for f in employee_files if any(k in f for k in ("DNTT-", "HDDT-", "PO-", "BBGN-", "BC-QTCP"))]
+        )
+
+        accounting_user = UserContext(
+            user_id="acc_user",
+            department="Accounting",
+            role=UserRole.DEPARTMENT_USER,
+            tenant_id="nexatech",
+        )
+        accounting_files = auth_engine.get_authorized_source_files(accounting_user)
+        self.assertIn("DNTT-2026-08-015_Giay-De-Nghi-Thanh-Toan.png", accounting_files)
+
+        product_user = UserContext(
+            user_id="prod_user",
+            department="Product",
+            role=UserRole.DEPARTMENT_USER,
+            tenant_id="nexatech",
+        )
+        product_files = auth_engine.get_authorized_source_files(product_user)
+        self.assertIn("PRD_Checkout_Redesign.pdf", product_files)
+
+        # Phòng khác (Finance) không đọc được chứng từ Accounting dù cùng họ tài chính.
+        finance_user = UserContext(
+            user_id="fin_user",
+            department="Finance",
+            role=UserRole.DEPARTMENT_USER,
+            tenant_id="nexatech",
+        )
+        finance_files = auth_engine.get_authorized_source_files(finance_user)
+        self.assertFalse(
+            [f for f in finance_files if any(k in f for k in ("DNTT-", "HDDT-", "PO-", "BBGN-", "BC-QTCP"))]
+        )
+
     def test_06_tenant_routing_and_injection_denial(self):
         nexatech = UserContext(
             user_id="emp_1",
@@ -126,6 +175,21 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         self.assertEqual(resolve_tenant_collection(external), "tenant_tenant_b_knowledge")
         with self.assertRaises(ValueError):
             validate_tenant_id("tenant_b; DROP COLLECTION;")
+
+    def test_05c_unknown_role_is_denied_fail_closed(self):
+        """Role không có trong roles_policy bị từ chối hoàn toàn (trước đây
+        fallback cấp COMPANY_WIDE — trái least-privilege)."""
+        auth_engine = get_authorization_engine()
+
+        class GhostUser:
+            user_id = "ghost"
+            department = "GENERAL"
+            role = "GHOST_ROLE"
+            permissions: list[str] = []
+            tenant_id = "nexatech"
+
+        ghost_files = auth_engine.get_authorized_source_files(GhostUser())
+        self.assertEqual(ghost_files, [])
 
 
 if __name__ == "__main__":

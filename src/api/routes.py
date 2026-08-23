@@ -8,9 +8,7 @@ from fastapi.responses import StreamingResponse
 
 from src.agents.service import answer as agent_answer
 from src.agents.service import astream_answer as agent_stream_answer
-from src.agents.service import sanitize_citations
 from src.config import get_settings
-from src.security.identity_signature import verify_identity_signature
 from src.models.schemas import (
     AgentAnswer,
     AgentQueryRequest,
@@ -22,6 +20,7 @@ from src.models.schemas import (
     JobAcceptedResponse,
     JobStatusResponse,
 )
+from src.security.identity_signature import verify_identity_signature
 from src.workers.evaluation import run_evaluation
 from src.workers.indexing import run_index_rebuild
 from src.workers.ingestion import run_ingestion
@@ -37,8 +36,18 @@ def _encode_sse(event: dict) -> str:
 
 
 def _verify_service_token(x_service_token: str | None) -> None:
-    expected = get_settings().agent_service_token
-    if expected and (not x_service_token or not secrets.compare_digest(x_service_token, expected)):
+    settings = get_settings()
+    expected = settings.agent_service_token
+    if not expected:
+        # Fail-closed: production bắt buộc cấu hình AGENT_SERVICE_TOKEN.
+        # Dev/test cho qua để chạy local không cần .env.
+        if getattr(settings, "app_env", "development") == "production":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Agent service chưa cấu hình AGENT_SERVICE_TOKEN — từ chối mọi yêu cầu",
+            )
+        return
+    if not x_service_token or not secrets.compare_digest(x_service_token, expected):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid service token")
 
 
