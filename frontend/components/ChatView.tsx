@@ -4,6 +4,7 @@ import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } fr
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { BookOpenCheck, CircleAlert, FileSearch, LoaderCircle, LogOut, MessageCircleQuestion, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, Send, ShieldCheck, Square, Trash2 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
+import { chatStateLabel, conversationStateLabel, roleLabel, sourceTypeLabel } from "@/lib/labels";
 import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, User } from "@/lib/types";
 import { useSystemDialog } from "@/components/SystemDialog";
 
@@ -190,7 +191,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       setConversations(await api.listConversations());
     } catch (reason) {
       setListError(reason instanceof ApiClientError && reason.status === 404
-        ? "Backend chưa hỗ trợ API danh sách hội thoại."
+        ? "Chưa tải được danh sách hội thoại."
         : reason instanceof ApiClientError ? reason.message : "Không thể tải danh sách hội thoại.");
     } finally {
       loadingConversations.current = false;
@@ -407,7 +408,6 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       setConversations((current) => current.map((conversation) => conversation.conversation_id === item.conversation_id
         ? { ...conversation, title: updated.title, updated_at: new Date().toISOString() }
         : conversation));
-      await loadConversations();
     } catch (reason) {
       setError(reason instanceof ApiClientError ? reason.message : "Không thể đổi tên hội thoại.");
     }
@@ -466,7 +466,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             return <div key={item.conversation_id} className={`conversation-item ${current ? "current" : ""}`} style={{ "--conversation-stack-index": Math.min(index, 6) } as CSSProperties}>
               <div className="conversation-item-content">
                 <button className="conversation-open-command" aria-current={current ? "true" : undefined} onClick={() => void openConversation(item.conversation_id)}>
-                  <span className="conversation-item-top"><strong>{item.title?.trim() || "Hội thoại chưa đặt tên"}</strong><span className={`status-pill ${item.state === "ACTIVE" ? "success" : "neutral"}`}>{item.state}</span></span>
+                  <span className="conversation-item-top"><strong>{item.title?.trim() || "Hội thoại chưa đặt tên"}</strong><span className={`status-pill ${item.state === "ACTIVE" ? "success" : "neutral"}`}>{conversationStateLabel(item.state)}</span></span>
                   <span className="conversation-item-time">Cập nhật {formatUpdatedAt(item.updated_at || item.last_message_at || item.created_at)}</span>
                 </button>
                 <span className="conversation-item-actions">
@@ -477,14 +477,14 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             </div>;
           })}
         </div>
-        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{user.role}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
+                <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
         <div className="bar-resizer conversation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng lịch sử hội thoại" aria-orientation="vertical" aria-valuemin={240} aria-valuemax={420} aria-valuenow={conversationPanelWidth} tabIndex={0} onPointerDown={beginConversationPanelResize} onPointerMove={moveConversationPanelResize} onPointerUp={endConversationPanelResize} onPointerCancel={endConversationPanelResize} onKeyDown={resizeConversationPanelWithKeyboard} />
       </aside>
       <section className="chat-main" data-ui="dashboard">
         <div className="chat-glass-blob" aria-hidden="true" />
         <header className="workspace-toolbar">
           <div><p className="eyebrow">PHIÊN HỘI THOẠI</p><strong>{conversations.find((item) => item.conversation_id === conversationId)?.title || conversationId || "Đang tạo..."}</strong></div>
-          <span className={`status-pill ${conversationState === "ACTIVE" ? "success" : "neutral"}`}>{conversationState}</span>
+          <span className={`status-pill ${conversationState === "ACTIVE" ? "success" : "neutral"}`}>{conversationStateLabel(conversationState)}</span>
           <div className="toolbar-actions">
             <button className="icon-command" title="Tải lại lịch sử" onClick={() => void reloadHistory()} disabled={!conversationId || busy}><RefreshCw size={17} /></button>
             <button className="icon-command" title="Kết thúc phiên" onClick={() => void endConversation()} disabled={conversationState !== "ACTIVE"}><Square size={16} /></button>
@@ -496,8 +496,8 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
           {!messages.length && !busy && (
             <div className="empty-chat animate__animated animate__zoomIn motion-view">
               <div className="empty-icon"><BookOpenCheck size={28} /></div>
-              <h2>Bạn cần tra cứu chính sách nào?</h2>
-              <p>Đặt câu hỏi cụ thể để nhận câu trả lời kèm nguồn tài liệu.</p>
+              <h2>Bạn cần tra cứu thông tin nào?</h2>
+              <p>Đặt câu hỏi cụ thể về quy trình, quy định hoặc chính sách nội bộ để nhận câu trả lời kèm nguồn tài liệu.</p>
               <div className="prompt-row">
                 {["Quy định làm việc hybrid như thế nào?", "Nhân viên có bao nhiêu ngày phép năm?"].map((item) => (
                   <button key={item} onClick={() => void sendQuestion(item)}>{item}</button>
@@ -509,13 +509,13 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             ? <div className="message user-message" key={message.id}><div className="message-body">{message.content}</div></div>
             : <AssistantMessage key={message.id} result={message.result} onCitation={openCitation} onRetry={retry} />)}
           {processingState && (
-            <div className="message assistant-message animate__animated animate__fadeInLeft motion-message"><div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div><div className="message-body processing processing-pulse animate__animated animate__pulse animate__infinite"><strong>Đang xử lý</strong><span>{processingState}</span></div></div>
+            <div className="message assistant-message animate__animated animate__fadeInLeft motion-message"><div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div><div className="message-body processing processing-pulse animate__animated animate__pulse animate__infinite"><strong>Đang xử lý</strong><span>{chatStateLabel(processingState)}</span></div></div>
           )}
           {error && <div className="stream-error"><CircleAlert size={17} /><span>{error}</span>{!conversationId && !busy && <button className="secondary-command" onClick={() => void startConversation()}><RefreshCw size={16} /> Thử lại</button>}</div>}
         </div>
 
         <form className="composer" onSubmit={submit} data-ui="membership-card">
-          <textarea aria-label="Câu hỏi HR" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={handleQuestionKeyDown} disabled={busy || conversationState !== "ACTIVE"} placeholder="Nhập câu hỏi HR hoặc câu trả lời làm rõ..." />
+          <textarea aria-label="Câu hỏi" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={handleQuestionKeyDown} disabled={busy || conversationState !== "ACTIVE"} placeholder="Nhập câu hỏi về tài liệu nội bộ hoặc câu trả lời làm rõ..." />
           <div className="composer-footer"><span>Enter gửi · Shift+Enter xuống dòng</span><button className="send-command" aria-label="Gửi câu hỏi" data-ui="primary-action" disabled={!question.trim() || busy || conversationState !== "ACTIVE"}><Send size={18} /></button></div>
         </form>
       </section>
@@ -526,7 +526,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
         {citation ? <div className="citation-detail animate__animated animate__slideInRight motion-view">
           <div className="citation-trust-row"><span className={`status-pill ${isOfficialCitation(citation) ? "success" : "warning"}`}>{isOfficialCitation(citation) ? <><ShieldCheck size={12} /> Chính sách chính thức</> : "Nguồn tham khảo"}</span><span className="source-type">{formatSourceType(citation.source_type ?? citation.document.source_type)}</span></div>
           <dl><div><dt>Trạng thái</dt><dd>{citation.document.status}</dd></div><div><dt>Phiên bản</dt><dd>{citation.document.version ?? "—"}</dd></div><div><dt>Trang / mục</dt><dd>{citation.location.page ?? "—"} · {citation.location.section ?? "—"}</dd></div><div><dt>Hiệu lực</dt><dd>{citation.document.effective_date ?? "—"}</dd></div></dl>
-          <blockquote>{citation.excerpt || "Nguồn đã được xác thực nhưng chưa có đoạn trích để hiển thị."}</blockquote>
+          <blockquote>{citation.excerpt || "Nguồn đã được ghi nhận nhưng chưa có đoạn trích để hiển thị."}</blockquote>
           {(citation.caveat || citation.conflict_warning) && <div className="inline-warning">{citation.caveat ?? "Nguồn này có thông tin cần đối soát thêm."}</div>}
         </div> : <div className="panel-empty"><FileSearch size={26} /><p>Mở một thẻ nguồn trong câu trả lời để kiểm tra tài liệu.</p></div>}
       </aside>
@@ -546,15 +546,7 @@ function isOfficialCitation(item: CitationSummary | CitationDetail) {
 }
 
 function formatSourceType(value: string | null | undefined) {
-  if (!value) return "Chưa phân loại";
-  const labels: Record<string, string> = {
-    INTERNAL_POLICY: "Chính sách nội bộ",
-    LAW: "Văn bản pháp luật",
-    REFERENCE: "Tài liệu tham khảo",
-    TEMPLATE: "Tài liệu mẫu",
-    SYNTHETIC: "Dữ liệu mô phỏng",
-  };
-  return labels[value.toUpperCase()] ?? value.replaceAll("_", " ");
+  return sourceTypeLabel(value);
 }
 
 function AssistantMessage({ result, onCitation, onRetry }: {
@@ -566,14 +558,14 @@ function AssistantMessage({ result, onCitation, onRetry }: {
     <div className="assistant-avatar"><BookOpenCheck size={18} /></div>
     <div className="message-body answer-body">
       <div className="answer-meta">
-        <span className={`status-pill ${result.state === "COMPLETED" ? "success" : result.state === "FAILED" ? "danger" : "warning"}`}>{result.answer_status ?? result.state}</span>
+        <span className={`status-pill ${result.state === "COMPLETED" ? "success" : result.state === "FAILED" ? "danger" : "warning"}`}>{chatStateLabel(result.answer_status ?? result.state)}</span>
         {result.latency_ms !== null && <span>{formatLatency(result.latency_ms)}</span>}
       </div>
       {result.state === "CLARIFICATION_REQUIRED" ? <div className="clarification-copy"><MessageCircleQuestion size={20} /><div><strong>Cần làm rõ thêm</strong><p>{result.clarification?.question}</p><small>Nhập câu trả lời trong ô chat để tiếp tục cùng phiên.</small></div></div>
         : <AnswerMarkdown content={result.answer ?? result.failure?.message ?? ""} />}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
       {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
-      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Chưa tìm thấy đủ bằng chứng trong tài liệu chính sách nội bộ. Nếu cần được giải đáp trực tiếp, bạn có thể tạo yêu cầu hỗ trợ (Ticket) để HR tiếp nhận và xử lý.</div>}
+      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
     </div>
   </div>;

@@ -47,7 +47,7 @@ export function AccessAdmin({ canManage }: { canManage: boolean }) {
   }
 
   return <div className="content-page animate__animated animate__fadeInUp motion-view">
-    <div className="page-heading"><div><p className="eyebrow">ACCESS CONTROL</p><h2>Quản trị phân quyền</h2><p>Vai trò và phòng ban được lưu trong ProfileDB; mọi thay đổi được ghi audit.</p></div><button className="icon-command" onClick={() => void load()} title="Tải lại"><RefreshCw size={17} /></button></div>
+    <div className="page-heading"><div><p className="eyebrow">ACCESS CONTROL</p><h2>Quản trị phân quyền</h2><p>Vai trò và phòng ban được lưu trong hồ sơ người dùng; mọi thay đổi được ghi lại để đối soát.</p></div><button className="icon-command" onClick={() => void load()} title="Tải lại"><RefreshCw size={17} /></button></div>
     {error && <div className="stream-error">{error}</div>}
     {loading ? <section className="work-panel panel-loading"><LoaderCircle className="spin" /> Đang tải phân quyền</section> : <>
       <section className="work-panel">
