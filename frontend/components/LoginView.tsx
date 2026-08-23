@@ -80,7 +80,8 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
             {mode === "register" && <label>Phòng ban<select autoComplete="organization" value={department} onChange={(event) => setDepartment(event.target.value)} required>{DEPARTMENTS.map((item) => <option key={item}>{item}</option>)}</select></label>}
           {mode === "register" && <label>Vai trò<select value={role} onChange={(event) => setRole(event.target.value)}><option value="employee">Nhân viên — tra cứu, hỏi đáp</option><option value="department_user">Người dùng phòng ban — đọc thêm tài liệu của phòng mình</option></select></label>}
             <label>Email công việc<input autoComplete="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-            <label>Mật khẩu<input autoComplete={mode === "login" ? "current-password" : "new-password"} type="password" minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            <label>Mật khẩu<input autoComplete={mode === "login" ? "current-password" : "new-password"} type="password" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required aria-describedby="password-rule" /></label>
+            {mode === "register" && <p className="form-note" id="password-rule">Mật khẩu tối thiểu 8 ký tự.</p>}
             {error && <div className="inline-error animate__animated animate__shakeX motion-fast" role="alert">{error}</div>}
             {notice && <div className="inline-success animate__animated animate__fadeIn motion-fast" role="status">{notice}</div>}
             <button className="primary-command current-login-submit" disabled={loading} type="submit" data-ui="primary-action">

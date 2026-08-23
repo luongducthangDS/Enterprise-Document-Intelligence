@@ -41,6 +41,7 @@ export type CitationSummary = {
 
 export type CitationDetail = {
   citation_id: string;
+  document_code?: string | null;
   document: {
     document_id: string;
     title: string;
