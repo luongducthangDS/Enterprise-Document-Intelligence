@@ -16,8 +16,8 @@
   --shadow-raised-soft: 5px 5px 13px rgba(91, 82, 53, .11), -4px -4px 11px rgba(255, 255, 255, .66);
   --shadow-inset: inset 3px 3px 8px rgba(91, 82, 53, .12), inset -3px -3px 8px rgba(255, 255, 255, .72);
   --shadow-emerald: 0 8px 18px rgba(6, 78, 59, .2), inset 0 1px rgba(255, 255, 255, .16);
-  --serif: "Instrument Serif", Georgia, serif;
-  --sans: "Work Sans", Arial, sans-serif;
+  --serif: var(--font-serif, "Playfair Display"), Georgia, serif;
+  --sans: var(--font-sans, "Be Vietnam Pro"), "Segoe UI", Arial, sans-serif;
 }
 
 html, body { width: 100%; min-height: 100%; }

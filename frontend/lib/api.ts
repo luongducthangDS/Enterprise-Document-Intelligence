@@ -227,12 +227,12 @@ async function streamRequest(
 }
 
 export const api = {
-  register: (email: string, password: string, fullName: string, department: string) =>
+  register: (email: string, password: string, fullName: string, department: string, role: string = "employee") =>
     request<User>(
       "/auth/register",
       {
         method: "POST",
-        body: JSON.stringify({ email, password, full_name: fullName, department }),
+        body: JSON.stringify({ email, password, full_name: fullName, department, role }),
       },
       false,
     ).then((response) => response.data!),
