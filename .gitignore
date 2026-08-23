@@ -123,3 +123,6 @@ scripts/build_eval_evidence_docx_*.py
 # Local agent/UI verification artifacts
 .markiii/
 .omo/
+
+# QA artifacts chứa token/tài khoản test tạm — không track
+qa/
