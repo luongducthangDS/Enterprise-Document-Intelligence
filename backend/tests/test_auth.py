@@ -12,6 +12,16 @@ from app.services.auth_service import AuthService
 from tests.conftest import TestingSessionLocal, client
 
 
+@pytest.fixture(autouse=True)
+def _reset_login_rate_limit():
+    """Limiter là state toàn cục — reset mỗi test để không đếm chéo các case."""
+    from app.core.rate_limit import login_rate_limit_reset_for_tests
+
+    login_rate_limit_reset_for_tests()
+    yield
+    login_rate_limit_reset_for_tests()
+
+
 @pytest_asyncio.fixture(scope="module", autouse=True)
 async def setup_auth_test_data():
     async with TestingSessionLocal() as session:
@@ -271,3 +281,30 @@ def test_api_register_rejects_hr_admin_role():
     )
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "ROLE_NOT_ALLOWED_FOR_SIGNUP"
+
+
+def test_login_rate_limit_blocks_brute_force():
+    from app.core.rate_limit import login_rate_limit_reset_for_tests
+
+    login_rate_limit_reset_for_tests()
+    payload = {"email": "brute@company.com", "password": "wrong-password-1"}
+    for _ in range(5):
+        response = client.post("/api/v1/auth/login", json=payload)
+        assert response.status_code == 401
+    blocked = client.post("/api/v1/auth/login", json=payload)
+    assert blocked.status_code == 429
+    assert blocked.json()["error"]["code"] == "TOO_MANY_LOGIN_ATTEMPTS"
+    login_rate_limit_reset_for_tests()
+
+
+def test_login_success_does_not_count_toward_rate_limit():
+    from app.core.rate_limit import login_rate_limit_reset_for_tests
+
+    login_rate_limit_reset_for_tests()
+    for _ in range(3):
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "employee@company.com", "password": "password123"},
+        )
+        assert response.status_code == 200
+    login_rate_limit_reset_for_tests()
