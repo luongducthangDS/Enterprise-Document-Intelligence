@@ -132,7 +132,7 @@ class AgentAnswerAdapter:
                         "severity": "BLOCKING",
                         "message": "Không đủ bằng chứng để trả lời một cách tin cậy.",
                         "citation_ids": [item["citation_id"] for item in citations] or None,
-                        "recommended_action": "Liên hệ HR để được hỗ trợ.",
+                        "recommended_action": "Liên hệ người phụ trách để được hỗ trợ.",
                     }
                 )
             return MappedAgentResult(

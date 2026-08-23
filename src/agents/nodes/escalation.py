@@ -289,9 +289,9 @@ def escalate_node(state: AgentState) -> dict:
 
     if intent == "out_of_scope_or_personal" and _mentions_competitor_company(query):
         response = (
-            "Knowledge base hiện tại chỉ hỗ trợ chính sách HR mẫu trong phạm vi demo, "
+            "Kho tài liệu hiện tại chỉ chứa tài liệu nội bộ mẫu trong phạm vi demo, "
             "không xác nhận chính sách đang áp dụng của một công ty cụ thể. "
-            "Với câu hỏi về lương/thưởng của công ty được nêu tên, bạn nên liên hệ trực tiếp HR/C&B của công ty đó."
+            "Với câu hỏi về lương/thưởng của công ty được nêu tên, bạn nên liên hệ trực tiếp bộ phận phụ trách của công ty đó."
         )
         return {
             "escalate": False,
