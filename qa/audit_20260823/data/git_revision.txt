@@ -1,0 +1,15 @@
+develop
+08487c4c16ec14f9c42086992591f311cb19477d
+baeb2773e13c0a18bca943f680c859b6f5577839
+?? docs/PILOT_READINESS_IMPLEMENTATION_PLAN_20260823.md
+?? docs/UX_PERSONA_QC_REPORT_20260822.md
+?? qa/
+08487c4 fix(ux): đứng yên hóa blob trang trí chat/ticket — bỏ animation quay vô hạn
+a8b48cc docs: báo cáo E2E test/remediation + 3 báo cáo audit của phiên QC 2026-08-22
+7ee6a97 test(e2e): bộ live E2E/acceptance chạy hệ thống thật + regression UPLOAD_RETRIEVAL_CONSISTENCY
+1e56c9f fix(documents): upload trùng file trả 409 thay vì 500; thêm chunk_count + doc_ids cho trace (BUG-03/07)
+0e5f566 fix(indexing): department mặc định ghi đúng tenant collection — SSOT với retrieval (BUG-02)
+bbfbff3 fix(agent-contract): chấp nhận intent pure_statutory, map sang REFUSED (BUG-01)
+4599f3c Add project completion and ACL report
+3dda777 Avoid accounting early-pass for HR insurance queries
+HEAD_is_ancestor_of_origin_develop=true

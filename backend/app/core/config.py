@@ -6,6 +6,9 @@ from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
+# Giá trị fallback trong code — không bao giờ được dùng ở production.
+WEAK_JWT_SECRET_DEFAULT = "12345678900aaa"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -58,18 +61,29 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production_secrets(self) -> "Settings":
-        if self.app_env != "production":
-            return self
-        if "jwt_secret_key" not in self.model_fields_set:
-            raise ValueError("JWT_SECRET_KEY must be provided by the production environment")
-        secret = self.jwt_secret_key.strip()
-        known_weak = {
-            "12345678900aaa",
-            "change_this_to_a_secure_random_secret_key_in_production",
-            "replace-with-a-long-random-secret",
-        }
-        if len(secret) < 16 or secret.casefold() in known_weak:
-            raise ValueError("JWT_SECRET_KEY must be a strong environment secret in production")
+        """Chặn khởi động với secret mặc định/yếu khi chạy production.
+
+        .env thật hiện đã dùng secret mạnh, nhưng giá trị fallback trong code
+        vẫn tồn tại — một lần deploy quên .env sẽ mở khóa forge token admin.
+        Dev/test vẫn chạy được để không cản trở làm việc local.
+        """
+        if self.app_env == "production":
+            if "jwt_secret_key" not in self.model_fields_set:
+                raise ValueError("JWT_SECRET_KEY must be provided by the production environment")
+            secret = self.jwt_secret_key.strip()
+            known_weak = {
+                WEAK_JWT_SECRET_DEFAULT,
+                "change_this_to_a_secure_random_secret_key_in_production",
+                "replace-with-a-long-random-secret",
+            }
+            if len(secret) < 32 or secret.casefold() in known_weak:
+                raise ValueError(
+                    "JWT_SECRET_KEY must be a strong environment secret (>= 32 random chars) in production"
+                )
+            if not self.ai_agent_service_token.strip():
+                raise ValueError("AI_AGENT_SERVICE_TOKEN bắt buộc khi chạy production.")
+        elif self.jwt_secret_key == WEAK_JWT_SECRET_DEFAULT:
+            print("[config] CẢNH BÁO: JWT_SECRET_KEY dùng giá trị mặc định yếu — chỉ chấp nhận cho dev/test.")
         return self
 
     @property

@@ -230,3 +230,44 @@ def test_api_register_cannot_self_assign_admin_role():
         },
     )
     assert response.status_code == 422
+
+
+def test_api_register_accepts_department_user_role():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "dept-user@company.com",
+            "password": "password123",
+            "department": "Engineering",
+            "role": "department_user",
+        },
+    )
+    assert response.status_code == 201
+    assert response.json()["data"]["role"] == "DEPARTMENT_USER"
+
+
+def test_api_register_defaults_to_employee_without_role():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "default-role@company.com",
+            "password": "password123",
+            "department": "Finance",
+        },
+    )
+    assert response.status_code == 201
+    assert response.json()["data"]["role"] == "EMPLOYEE"
+
+
+def test_api_register_rejects_hr_admin_role():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "hr-admin-escalation@company.com",
+            "password": "password123",
+            "department": "HR",
+            "role": "hr_admin",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "ROLE_NOT_ALLOWED_FOR_SIGNUP"

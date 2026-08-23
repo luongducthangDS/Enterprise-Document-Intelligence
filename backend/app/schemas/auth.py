@@ -1,14 +1,15 @@
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-class Department(str, Enum):
+class Department(StrEnum):
     HR = "HR"
     PRODUCT = "Product"
     ENGINEERING = "Engineering"
     IT = "IT"
     FINANCE = "Finance"
+    ACCOUNTING = "Accounting"
     SALES = "Sales"
     MARKETING = "Marketing"
     OPERATIONS = "Operations"
@@ -22,6 +23,10 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
     department: Department = Field(..., description="Department must use a supported canonical value")
     full_name: str | None = None
+    role: str | None = Field(
+        default=None,
+        description="Vai trò tự đăng ký; chỉ chấp nhận employee/department_user — vai trò quản trị phải do SUPER_ADMIN cấp",
+    )
 
 
 class LoginRequest(BaseModel):

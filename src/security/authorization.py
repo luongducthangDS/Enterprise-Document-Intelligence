@@ -20,27 +20,53 @@ def runtime_upload_access_filters(user: UserContext) -> list[dict]:
     return [{"$and": [runtime, department, grant]} for grant in grants["$or"]]
 
 
+def _role_policy_allows_scope(policies: dict, role: str, scope: str) -> bool:
+    """Role này được roles_policy cấp scope đó không?
+
+    Runtime predicate và registry ACL phải dùng cùng một nguồn sự thật là
+    access_policies.json — tránh một layer hào phóng hơn layer kia.
+    Role lạ/không cấu hình → False (fail-closed).
+    """
+    role_cfg = (policies.get("roles_policy") or {}).get(role) or {}
+    scopes = role_cfg.get("allowed_scopes") or []
+    return "*" in scopes or scope in scopes
+
+
 def runtime_upload_access_condition(user: UserContext) -> dict:
     """Build a fail-closed ACL predicate; department is mandatory for every scope."""
     runtime = {"authorization_source": "RUNTIME_UPLOAD"}
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
     department = {"department": canonical_department(user.department)}
-    grants: list[dict] = [
-        {"access_scope": AccessScope.COMPANY_WIDE.value},
-        {"access_scope": AccessScope.DEPARTMENT.value},
-        {
-            "$and": [
-                {"access_scope": AccessScope.ROLE.value},
-                {"authorized_role": role},
-            ]
-        },
+
+    # Grants được gate theo roles_policy — cùng một nguồn sự thật với registry
+    # ACL (evaluate_access). Role không được policy cấp scope thì không có
+    # grant tương ứng, kể cả khi department khớp.
+    policies = get_authorization_engine().policies
+    grants: list[dict] = []
+    if _role_policy_allows_scope(policies, role, AccessScope.COMPANY_WIDE.value):
+        grants.append({"access_scope": AccessScope.COMPANY_WIDE.value})
+    if _role_policy_allows_scope(policies, role, AccessScope.DEPARTMENT.value):
+        grants.append({"access_scope": AccessScope.DEPARTMENT.value})
+    if _role_policy_allows_scope(policies, role, AccessScope.ROLE.value):
+        grants.append(
+            {
+                "$and": [
+                    {"access_scope": AccessScope.ROLE.value},
+                    {"authorized_role": role},
+                ]
+            }
+        )
+    # Người tải lên luôn đọc lại được tài liệu RESTRICTED của chính mình để
+    # kiểm tra kết quả ingestion. Upload yêu cầu HR_ADMIN+ nên grant này trên
+    # thực tế chỉ áp cho admin.
+    grants.append(
         {
             "$and": [
                 {"access_scope": AccessScope.RESTRICTED.value},
                 {"owner_user_id": user.user_id},
             ]
-        },
-    ]
+        }
+    )
     return {"$and": [runtime, department, {"$or": grants}]}
 
 
@@ -53,11 +79,16 @@ def runtime_upload_metadata_allowed(user: UserContext, metadata: dict[str, Any])
         return False
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
     scope = str(metadata.get("access_scope", "")).upper().strip()
+    policies = get_authorization_engine().policies
     if scope == AccessScope.COMPANY_WIDE.value:
-        return True
+        return _role_policy_allows_scope(policies, role, AccessScope.COMPANY_WIDE.value)
     if scope == AccessScope.DEPARTMENT.value:
-        return str(metadata.get("department", "")).upper().strip() == user.department.upper().strip()
+        return _role_policy_allows_scope(policies, role, AccessScope.DEPARTMENT.value) and str(
+            metadata.get("department", "")
+        ).upper().strip() == user.department.upper().strip()
     if scope == AccessScope.ROLE.value:
+        if not _role_policy_allows_scope(policies, role, AccessScope.ROLE.value):
+            return False
         authorized_role = metadata.get("authorized_role", "")
         if isinstance(authorized_role, list):
             return role in {str(value).upper().strip() for value in authorized_role}
@@ -162,7 +193,9 @@ class AuthorizationEngine:
         roles_policy = self.policies.get("roles_policy", {})
         role_cfg = roles_policy.get(user_role_str)
         if not role_cfg:
-            return scope_str == AccessScope.COMPANY_WIDE.value and domain_str == DocumentDomain.COMPANY_POLICY.value
+            # Role không nằm trong chính sách: từ chối (fail-closed). Trước đây
+            # fallback cấp COMPANY_WIDE cho role lạ — trái least-privilege.
+            return False
 
         allowed_scopes = role_cfg.get("allowed_scopes", [])
         allowed_domains = role_cfg.get("allowed_domains", [])

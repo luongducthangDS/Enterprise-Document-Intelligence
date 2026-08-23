@@ -5,11 +5,24 @@ import pytest
 
 from src.config import get_settings
 from src.models.schemas import AgentAnswer
+from src.security.identity_signature import sign_identity
+
+IDENTITY_FIELDS = ("tenant_id", "user_id", "department", "user_role", "request_id")
 
 
-def service_headers() -> dict[str, str]:
+def service_headers(payload: dict | None = None) -> dict[str, str]:
+    """Token + chữ ký HMAC identity đúng contract Backend→Agent.
+
+    Máy dev có .env token thật nên chữ ký bắt buộc; CI không có .env thì
+    cả hai header tự bỏ qua (verify skip khi chưa cấu hình).
+    """
     token = get_settings().agent_service_token
-    return {"X-Service-Token": token} if token else {}
+    headers = {"X-Service-Token": token} if token else {}
+    if payload is not None and token:
+        headers["X-Identity-Signature"] = sign_identity(
+            {field: payload[field] for field in IDENTITY_FIELDS}, token
+        )
+    return headers
 
 
 @pytest.mark.asyncio
@@ -34,7 +47,7 @@ async def test_internal_agent_query_returns_agent_answer(client):
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
-        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers(payload))
 
     assert response.status_code == 200
     assert response.json()["response"] == "Policy answer"
@@ -77,7 +90,7 @@ async def test_internal_agent_query_returns_citation_excerpt(client):
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)):
-        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers(payload))
 
     assert response.status_code == 200
     assert response.json()["citations"][0]["excerpt"] == "Employees receive 12 leave days per year."
@@ -96,7 +109,7 @@ async def test_internal_agent_query_keeps_history_optional(client):
     }
 
     with patch("src.api.routes.agent_answer", new=AsyncMock(return_value=answer)) as mocked:
-        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers())
+        response = await client.post("/api/v1/agent/query", json=payload, headers=service_headers(payload))
 
     assert response.status_code == 200
     mocked.assert_awaited_once_with(
@@ -160,7 +173,7 @@ async def test_internal_agent_query_streams_sse_events(client):
         "tenant_id": "nexatech",
     }
     with patch("src.api.routes.agent_stream_answer", new=fake_stream):
-        response = await client.post("/api/v1/agent/query/stream", json=payload, headers=service_headers())
+        response = await client.post("/api/v1/agent/query/stream", json=payload, headers=service_headers(payload))
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
@@ -234,6 +247,10 @@ async def test_internal_agent_query_accepts_valid_identity_signature(client):
 
 @pytest.mark.asyncio
 async def test_internal_agent_query_fails_closed_without_production_secret(client):
+    """Production mà chưa cấu hình AGENT_SERVICE_TOKEN thì từ chối mọi yêu cầu
+    ngay tại service-token check (401) — không được bỏ qua kiểm tra như bản
+    fail-open cũ (`if expected and ...`). Trước đây test này kỳ vọng 503 từ
+    identity-signature check; lớp đó giờ không còn reachable khi token trống."""
     settings = type(
         "Settings",
         (),
@@ -248,5 +265,5 @@ async def test_internal_agent_query_fails_closed_without_production_secret(clien
         "tenant_id": "nexatech",
     }
     with patch("src.api.routes.get_settings", return_value=settings):
-        response = await client.post("/api/v1/agent/query", json=payload)
-    assert response.status_code == 503
+        response = await client.post("/api/v1/agent/query", json=payload, headers={})
+    assert response.status_code == 401
