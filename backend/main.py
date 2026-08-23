@@ -26,34 +26,10 @@ from fastapi.middleware.cors import CORSMiddleware
 settings = get_settings()
 
 
-async def _warmup_and_wake_agent(base_url: str) -> None:
-    """Khi Backend thức dậy, lập tức bắn request ngầm sang Agent để đánh thức Agent cùng lúc."""
-    import asyncio
-    import httpx
-    health_url = base_url.split("/api/v1")[0] + "/health"
-    logger.info(f"[Lifespan] Backend đã thức dậy. Đang tự động gửi tín hiệu đánh thức Agent tại {health_url}...")
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        for attempt in range(1, 13):
-            try:
-                res = await client.get(health_url)
-                if res.status_code == 200:
-                    logger.info(f"[Lifespan] ✅ Agent đã được đánh thức thành công (lần thử {attempt}/12)!")
-                    return
-            except Exception:
-                pass
-            await asyncio.sleep(5.0)
-    logger.warning("[Lifespan] ⚠️ Không nhận được phản hồi 200 từ Agent sau 60s.")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
-    logger.info("Database schema is managed by Supabase migrations; automatic create_all is disabled.")
-    
-    # Tự động đánh thức Agent ngay khi Backend vừa được đánh thức
-    import asyncio
-    asyncio.create_task(_warmup_and_wake_agent(settings.ai_agent_service_url))
 
     # Chat Job Durability: Tự động phục hồi các request bị gián đoạn khi Backend khởi động lại
     try:
@@ -121,6 +97,14 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
+    """Endpoint kiểm tra sức khoẻ Backend.
+
+    Khi FE hoặc bất kỳ client nào ping endpoint này (thường ngay khi trang web mở),
+    Backend trả về 200 ngay lập tức và đồng thời kích hoạt ngầm việc đánh thức
+    Agent Service — đảm bảo cả 3 phân hệ được wakeup song song nhau.
+    """
+    from app.services.warmup_service import fire_agent_wakeup
+    await fire_agent_wakeup()
     return {
         "status": "healthy",
         "service": settings.app_name,

@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
 import "animate.css";
 import "../styles.css";
 import "./next-app.css";
+import WarmupPing from "../components/WarmupPing";
 
 // Be Vietnam Pro: sans được thiết kế riêng cho tiếng Việt (đủ dấu, đủ weight).
 // Playfair Display: serif display có subset vietnamese, thay "Instrument Serif"
@@ -28,7 +29,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi" className={`${sansFont.variable} ${serifFont.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Đánh thức BE và Agent ngay khi trang mở — không ảnh hưởng UI */}
+        <WarmupPing />
+        {children}
+      </body>
     </html>
   );
 }
