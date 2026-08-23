@@ -303,3 +303,49 @@ một lần chạy nền tự pass sau ~20 phút; filter ACL mới probe trực 
 
 
 
+
+---
+
+## J. ADDENDUM 5 — Theo đề xuất production-readiness (2026-08-23 tối, đợt 2)
+
+### J.1. Đồng bộ remote + push
+
+Remote đã tiến 10 commit (team tự sửa determinism một phần, department-scoped retrieval
+theo hướng khác, TASK-007 agent-side, registries DEPARTMENT sẵn). Đã rebase 4 commit của
+phiên này lên origin/develop và **hòa giải ngữ nghĩa** thay vì text:
+
+- `authorization.py`: giữ kiến trúc department-mandatory + `canonical_department` +
+  `runtime_upload_metadata_allowed` của team; áp thêm policy-gating grants
+  (`_role_policy_allows_scope`) và unknown-role deny của phiên này — hai nguồn sự thật
+  (runtime predicate & registry ACL) nay cùng đọc `access_policies.json`.
+- Policy mới của team: EMPLOYEE được thêm DEPARTMENT scope (quyết định Phase 6) —
+  test `test_department_and_role_scopes_are_exact` cập nhật theo hành vi hợp nhất.
+- KnowledgeAdmin upload UI: giữ bản phiên này (access_scope chọn được, fail-closed
+  RESTRICTED mặc định, label tiếng Việt, accept đúng backend) + tích payload
+  `confidentiality/status` và terminal CANCELLED của team.
+- config validator: gộp cả hai bản (env-set + known-weak của team; ≥32 ký tự +
+  agent-token bắt buộc + dev warning của phiên này).
+- Đã push: `58c3462 → cddd0a6 → 8b58cfd` (6 commit).
+
+### J.2. Các việc đã làm theo đề xuất
+
+| Việc | Kết quả |
+|---|---|
+| Commit + push công sức phiên | 6 commit lên origin/develop; qa/ untrack (chứa token test) + gitignore |
+| PR-01 TASK-004 | default `acall_llm` 0.5 → 0.0 (call site mới không thể vô tình sampling) |
+| PR-02 TASK-007 | Agent/backend do team đã có; FE thêm render Mã tài liệu (document_code) |
+| B4 rate limit | Sliding window 5 lần sai/5 phút theo (email, IP) → 429 + retry_after; 2 test mới |
+| B4 password policy | min 8 ký tự BE + FE (kèm helper text — đóng UX-01) |
+| B4 dependency audit | pip-audit (agent+backend) + pnpm audit FE trong CI (continue-on-error bước dọn nợ) |
+| CI frontend job | Mới: lint + typecheck + build (trước đây CI không build FE) |
+
+### J.3. Còn mở (chuyển tiếp)
+
+- Rerank-down hiện `return []` (team chọn fail-closed vẫn REFUSED) — khác khuyến nghị
+  FAILED-retryable của TASK-003; cần thống nhất trong team trước khi đổi (đã có test khóa).
+- TASK-006 self-consistency marker borderline, TASK-008 grounding theo cited chunks:
+  chưa làm (đụng sâu generation/escalation — làm riêng có baseline).
+- CI lần đầu với secret-scan/frontend-build/pip-audit chưa quan sát được từ máy local
+  (gh chưa auth) — cần xem trên GitHub Actions; nếu secret-scan đỏ thì lịch sử có
+  secret thật, phải xử lý chứ không tắt job.
+- Rotate 2 credential đã lộ: vẫn là hành động manual của product owner.
