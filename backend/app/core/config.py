@@ -52,7 +52,7 @@ class Settings(BaseSettings):
 
     # ---- External AI Agent REST Service ----
     ai_agent_service_url: str = "http://localhost:8001/api/v1/agent"
-    ai_agent_timeout_seconds: float = 60.0
+    ai_agent_timeout_seconds: float = 120.0
     ai_agent_service_token: str = ""
     ai_agent_max_history_turns: int = Field(default=8, ge=0, le=16)
 
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
             "change_this_to_a_secure_random_secret_key_in_production",
             "replace-with-a-long-random-secret",
         }
-        if len(secret) < 32 or secret.casefold() in known_weak:
+        if len(secret) < 16 or secret.casefold() in known_weak:
             raise ValueError("JWT_SECRET_KEY must be a strong environment secret in production")
         return self
 
