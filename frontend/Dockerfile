@@ -12,10 +12,16 @@ RUN for attempt in 1 2 3; do \
     done
 
 COPY . .
-ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
+# URL được truyền vào qua --build-arg khi chạy docker build
+# (hoặc thông qua script build_and_push_ghcr.ps1/.sh đọc từ .env.deploy)
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_AGENT_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_AGENT_BASE_URL=${NEXT_PUBLIC_AGENT_BASE_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
+
+
 
 EXPOSE 3000
 CMD ["pnpm", "start"]
