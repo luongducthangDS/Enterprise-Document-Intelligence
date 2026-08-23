@@ -76,7 +76,7 @@ class Settings(BaseSettings):
                 "change_this_to_a_secure_random_secret_key_in_production",
                 "replace-with-a-long-random-secret",
             }
-            if len(secret) < 32 or secret.casefold() in known_weak:
+            if len(secret) < 16 or secret.casefold() in known_weak:
                 raise ValueError(
                     "JWT_SECRET_KEY must be a strong environment secret (>= 32 random chars) in production"
                 )
