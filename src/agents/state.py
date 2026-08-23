@@ -68,6 +68,9 @@ class RetrievedChunk(TypedDict):
     # "synthetic" không đồng nghĩa "chưa duyệt". Xem ghi chú 3 trục trong
     # src/models/schemas.py::Citation.
     policy_status: str
+    document_code: str
+    version: str
+    effective_date: str
     page_start: int | None
     page_end: int | None
     sheet_start: str | None
@@ -99,6 +102,9 @@ class Citation(TypedDict):
     # thay vì lộ chunk_id/tên file kỹ thuật ra UI.
     source_section: str
     policy_status: str
+    document_code: str
+    version: str
+    effective_date: str
     excerpt: str
 
 

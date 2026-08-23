@@ -6,6 +6,7 @@ from src.agents.nodes.retrieval import (
     _amerge_bm25,
     _arerank,
     _expand_retrieval_query,
+    _merge_query_results,
     _provenance_filter,
     _retrieval_filters,
     grade_node,
@@ -277,6 +278,25 @@ class TestRetrievalNodeHybrid:
         assert [c["chunk_id"] for c in result["retrieved_chunks"]] == ["a"]
 
 
+class TestDeterministicMerge:
+    def test_uses_chunk_id_as_tie_break_for_equal_distance(self):
+        first = {
+            "ids": [["chunk-b", "chunk-a"]],
+            "documents": [["B", "A"]],
+            "metadatas": [[{}, {}]],
+            "distances": [[0.1, 0.1]],
+        }
+        second = {
+            "ids": [["chunk-a", "chunk-b"]],
+            "documents": [["A", "B"]],
+            "metadatas": [[{}, {}]],
+            "distances": [[0.1, 0.1]],
+        }
+
+        assert _merge_query_results([first], 2)["ids"] == [["chunk-a", "chunk-b"]]
+        assert _merge_query_results([second], 2)["ids"] == [["chunk-a", "chunk-b"]]
+
+
 class TestRerank:
     @pytest.mark.asyncio
     async def test_reorders_by_relevance_score_and_attaches_it(self):
@@ -289,15 +309,13 @@ class TestRerank:
         assert result[0]["score"] == 0.91
 
     @pytest.mark.asyncio
-    async def test_keeps_dense_order_when_gateway_fails(self):
-        """Lỗi rerank chỉ được làm giảm chất lượng xếp hạng, không được làm chết
-        cả câu hỏi (regression: bản cũ để lỗi tải model lọt ra ngoài node)."""
+    async def test_fails_closed_when_gateway_fails(self):
+        """Không dùng ranking suy giảm khi gateway rerank lỗi."""
         chunks = [_chunk("a"), _chunk("b")]
         with patch("src.agents.nodes.retrieval.rerank", side_effect=RuntimeError("gateway 503")):
             result = await _arerank("câu hỏi", chunks)
 
-        assert [c["chunk_id"] for c in result] == ["a", "b"]
-        assert all(c["score"] is None for c in result)
+        assert result == []
 
 
 class TestGradeNode:

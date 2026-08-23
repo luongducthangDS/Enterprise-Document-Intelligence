@@ -195,6 +195,9 @@ class Citation(BaseModel):
     tenant: str = Field(default="", description="Slug doanh nghiệp sở hữu tài liệu, rỗng nếu không thuộc doanh nghiệp nào")
     source_section: str = Field(default="", description="Nhãn mục/điều khoản người dùng đọc được, vd '4.1. Số ngày nghỉ phép năm tiêu chuẩn' — dùng để hiển thị citation thay cho tên file kỹ thuật")
     policy_status: str = Field(default="", description="active | superseded | draft — vòng đời phê duyệt (registry publication_status), độc lập với source_type")
+    document_code: str = Field(default="", description="Mã tài liệu nghiệp vụ nếu metadata có cung cấp")
+    version: str = Field(default="", description="Phiên bản tài liệu tại thời điểm index")
+    effective_date: str = Field(default="", description="Ngày hiệu lực từ metadata tài liệu")
     excerpt: str = Field(default="", description="Đoạn văn bản của chunk được dùng làm nguồn")
 
 
