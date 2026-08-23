@@ -169,7 +169,9 @@ def _merge_query_results(results: list[dict], limit: int) -> dict:
         for chunk_id, document, metadata, distance in zip(ids, documents, metadatas, distances):
             if chunk_id not in best or distance < best[chunk_id][2]:
                 best[chunk_id] = (document, metadata, distance)
-    ranked = sorted(best.items(), key=lambda item: item[1][2])[:limit]
+    # Chroma không cam kết thứ tự khi nhiều chunk có cùng distance.
+    # chunk_id là tie-break ổn định cho cùng một snapshot dữ liệu.
+    ranked = sorted(best.items(), key=lambda item: (item[1][2], item[0]))[:limit]
     return {
         "ids": [[item[0] for item in ranked]],
         "documents": [[item[1][0] for item in ranked]],
@@ -247,6 +249,9 @@ def _to_chunk(
         "caveat": meta.get("caveat", ""),
         "heading_path": meta.get("heading_path", ""),
         "policy_status": meta.get("publication_status", "active"),
+        "document_code": str(meta.get("document_code") or ""),
+        "version": str(meta.get("version") or ""),
+        "effective_date": str(meta.get("effective_date") or ""),
         "page_start": meta.get("page_start"),
         "page_end": meta.get("page_end"),
         "sheet_start": meta.get("sheet_start"),
@@ -421,9 +426,11 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             api_key=settings.fpt_api_key,
             top_n=settings.rerank_top_k,
         )
-    except Exception as e:  # noqa: BLE001 — không để lỗi rerank làm chết cả câu hỏi
-        print(f"[rerank] bỏ qua do lỗi {type(e).__name__}: {e}")
-        return chunks[: settings.rerank_top_k]
+    except Exception as e:  # noqa: BLE001
+        # Fail closed: dense distance không cùng thang với reranker score. Dùng
+        # im lặng kết quả dense từng làm behavior đổi theo trạng thái gateway.
+        print(f"[rerank] fail-closed do lỗi {type(e).__name__}: {e}")
+        return []
 
     reranked: list[RetrievedChunk] = []
     for index, score in ranked:
@@ -431,7 +438,10 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             chunk = chunks[index]
             chunk["score"] = score
             reranked.append(chunk)
-    return reranked[: settings.rerank_top_k]
+    return sorted(
+        reranked,
+        key=lambda chunk: (-(chunk.get("score") or 0.0), chunk["chunk_id"]),
+    )[: settings.rerank_top_k]
 
 
 def grade_node(state: AgentState) -> dict:

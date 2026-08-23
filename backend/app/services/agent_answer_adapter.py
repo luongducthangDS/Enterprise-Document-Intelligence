@@ -81,8 +81,9 @@ class AgentAnswerAdapter:
                 # agent trả source_section (vd "4.1. Số ngày nghỉ phép năm tiêu
                 # chuẩn"), client hiển thị "Nguồn: {title} · {section}".
                 "section": item.source_section or None,
-                "version": None,
-                "effective_date": None,
+                "version": item.version or None,
+                "effective_date": item.effective_date or None,
+                "document_code": item.document_code or None,
                 "chunk_id": item.chunk_id,
                 "source_file": item.source_file,
                 "page_start": item.page_start,

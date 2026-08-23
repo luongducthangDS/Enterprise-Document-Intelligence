@@ -30,6 +30,9 @@ class AgentCitationDTO(BaseModel):
     # DUYỆT, độc lập với source_type (nguồn gốc dữ liệu). Không suy ra trạng
     # thái duyệt từ source_type=synthetic.
     policy_status: str = ""
+    document_code: str = ""
+    version: str = ""
+    effective_date: str = ""
     excerpt: str = ""
 
 

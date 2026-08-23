@@ -1,7 +1,8 @@
+import secrets
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -42,7 +43,9 @@ class Settings(BaseSettings):
     database_use_transaction_pooler: bool = True
 
     # ---- JWT Authentication ----
-    jwt_secret_key: str = "12345678900aaa"
+    # Production inject JWT_SECRET_KEY qua secret manager/environment.
+    # Development/test dùng secret ngẫu nhiên theo process, không nhúng vào code.
+    jwt_secret_key: str = Field(default_factory=lambda: secrets.token_urlsafe(48), repr=False)
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
@@ -52,6 +55,22 @@ class Settings(BaseSettings):
     ai_agent_timeout_seconds: float = 60.0
     ai_agent_service_token: str = ""
     ai_agent_max_history_turns: int = Field(default=8, ge=0, le=16)
+
+    @model_validator(mode="after")
+    def validate_production_secrets(self) -> "Settings":
+        if self.app_env != "production":
+            return self
+        if "jwt_secret_key" not in self.model_fields_set:
+            raise ValueError("JWT_SECRET_KEY must be provided by the production environment")
+        secret = self.jwt_secret_key.strip()
+        known_weak = {
+            "12345678900aaa",
+            "change_this_to_a_secure_random_secret_key_in_production",
+            "replace-with-a-long-random-secret",
+        }
+        if len(secret) < 32 or secret.casefold() in known_weak:
+            raise ValueError("JWT_SECRET_KEY must be a strong environment secret in production")
+        return self
 
     @property
     def async_database_url(self) -> str:

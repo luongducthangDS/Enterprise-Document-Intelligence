@@ -124,6 +124,9 @@ def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) 
         "caveat": str(meta.get("caveat") or ""),
         "heading_path": str(meta.get("heading_path") or ""),
         "policy_status": str(meta.get("publication_status") or "active"),
+        "document_code": str(meta.get("document_code") or ""),
+        "version": str(meta.get("version") or ""),
+        "effective_date": str(meta.get("effective_date") or ""),
         "page_start": meta.get("page_start"),
         "page_end": meta.get("page_end"),
         "sheet_start": meta.get("sheet_start"),
@@ -135,12 +138,8 @@ def _to_accounting_chunk(chunk_id: str, text: str, meta: dict, distance: float) 
 
 def _accounting_provenance_filter(settings, user_context) -> dict:
     """Registry corpus branch, below Chroma's 8-predicate quota."""
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
-    try:
-        from datetime import UTC
-    except ImportError:
-        UTC = timezone.utc
     from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
     from src.security import canonical_department, get_authorization_engine
 
@@ -163,12 +162,8 @@ def _accounting_provenance_filter(settings, user_context) -> dict:
 
 
 def _accounting_retrieval_filters(settings, user_context) -> list[dict]:
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
-    try:
-        from datetime import UTC
-    except ImportError:
-        UTC = timezone.utc
     from src.agents.nodes.retrieval import _predicate_leaf_count
     from src.security import runtime_upload_access_filters
 
@@ -241,6 +236,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
     """
     import asyncio
     from functools import partial
+
     from src.config import get_settings
     from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
     from src.observability import llm_trace
@@ -328,10 +324,10 @@ async def accounting_retrieval_node(state: dict) -> dict:
     documents = (result.get("documents") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
     distances = (result.get("distances") or [[]])[0]
+    from datetime import UTC, datetime
+
     from src.agents.nodes.retrieval import _metadata_authorized, _metadata_lifecycle_allowed
     from src.security import get_authorization_engine
-
-    from datetime import UTC, datetime
 
     allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
@@ -361,27 +357,30 @@ async def accounting_retrieval_node(state: dict) -> dict:
                     chunk = chunks[index]
                     chunk["score"] = score
                     reranked.append(chunk)
-            chunks = reranked[: settings.rerank_top_k]
+            chunks = sorted(
+                reranked,
+                key=lambda chunk: (-(chunk.get("score") or 0.0), chunk["chunk_id"]),
+            )[: settings.rerank_top_k]
         except Exception as e:
-            print(f"[accounting_rerank] lỗi {type(e).__name__}: {e}")
-            chunks = chunks[: settings.rerank_top_k]
+            print(f"[accounting_rerank] fail-closed {type(e).__name__}: {e}")
+            chunks = []
 
     # G9: Early-Exit Grade — bypass rewrite loop nếu đã có đủ chunk chất lượng tốt.
     # Ngưỡng được hiệu chỉnh theo loại tài liệu:
     # - Tài liệu OCR từ ảnh/scan (fixed_assets_management, invoices_and_tax) có điểm reranker
     #   thấp hơn chuẩn do chất lượng text thô — hạ ngưỡng để vẫn kích hoạt early-exit.
     # - Tài liệu text gốc (pdf/docx) dùng ngưỡng chuẩn chặt hơn.
-    _is_ocr_category = any(c.get("category", "") in ("fixed_assets_management", "invoices_and_tax") for c in chunks)
-    _EARLY_EXIT_MIN_CHUNKS = 2 if _is_ocr_category else 3
-    _EARLY_EXIT_DISTANCE_CAP = 0.37 if _is_ocr_category else 0.30
-    _EARLY_EXIT_SCORE_FLOOR = 0.30 if _is_ocr_category else 0.70
+    is_ocr_category = any(c.get("category", "") in ("fixed_assets_management", "invoices_and_tax") for c in chunks)
+    early_exit_min_chunks = 2 if is_ocr_category else 3
+    early_exit_distance_cap = 0.37 if is_ocr_category else 0.30
+    early_exit_score_floor = 0.30 if is_ocr_category else 0.70
     high_quality_chunks = [
         c
         for c in chunks
-        if (c.get("distance") is not None and c["distance"] <= _EARLY_EXIT_DISTANCE_CAP)
-        or (c.get("score") is not None and c["score"] >= _EARLY_EXIT_SCORE_FLOOR)
+        if (c.get("distance") is not None and c["distance"] <= early_exit_distance_cap)
+        or (c.get("score") is not None and c["score"] >= early_exit_score_floor)
     ]
-    should_early_exit = len(high_quality_chunks) >= _EARLY_EXIT_MIN_CHUNKS
+    should_early_exit = len(high_quality_chunks) >= early_exit_min_chunks
 
     return {
         "retrieved_chunks": chunks,

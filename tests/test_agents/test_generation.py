@@ -369,11 +369,8 @@ class TestHallucinationCheckNode:
         assert result["hallucination_check_method"] == "deterministic_numeric_grounding"
 
     @pytest.mark.asyncio
-    async def test_citation_points_to_wrong_chunk_but_another_retrieved_chunk_supports_claim(self):
-        """Bug thật đã root-cause 2026-08-15: generate_node đôi khi gắn [Nguồn N]
-        sai chunk dù số liệu THẬT SỰ có mặt trong retrieved_chunks (chỉ không
-        nằm ở chunk được cite). Grounding pool phải là TOÀN BỘ retrieved_chunks,
-        không chỉ cited_chunks — nếu không sẽ FAIL oan cho câu trả lời đúng."""
+    async def test_wrong_citation_fails_even_if_uncited_chunk_supports_claim(self):
+        """Claim phải có trong nguồn được cite, không chỉ ở đâu đó trong pool."""
         llm = AsyncMock()
         with patch("src.agents.nodes.generation.acall_llm", new=llm):
             result = await hallucination_check_node(
@@ -388,7 +385,7 @@ class TestHallucinationCheckNode:
                 }
             )
         llm.assert_not_called()
-        assert result["hallucination_passed"] is True
+        assert result["hallucination_passed"] is False
         assert result["hallucination_check_method"] == "deterministic_numeric_grounding"
 
     @pytest.mark.asyncio
@@ -615,6 +612,9 @@ class TestSourceSectionLabel:
             "a",
             heading_path="4. Nghỉ phép năm > 4.1. Số ngày nghỉ phép năm tiêu chuẩn",
             policy_status="active",
+            document_code="HR-LEAVE-01",
+            version="2.1",
+            effective_date="2026-01-01",
         )
         with patch(
             "src.agents.nodes.generation.acall_llm",
@@ -623,6 +623,9 @@ class TestSourceSectionLabel:
             result = await generate_node({"query": "abc", "retrieved_chunks": [chunk]})
         assert result["citations"][0]["source_section"] == "4.1. Số ngày nghỉ phép năm tiêu chuẩn"
         assert result["citations"][0]["policy_status"] == "active"
+        assert result["citations"][0]["document_code"] == "HR-LEAVE-01"
+        assert result["citations"][0]["version"] == "2.1"
+        assert result["citations"][0]["effective_date"] == "2026-01-01"
 
 
 class TestG6Regression:

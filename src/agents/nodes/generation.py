@@ -435,6 +435,9 @@ async def generate_node(state: AgentState) -> dict:
             tenant=c.get("tenant") or "",
             source_section=_source_section(c.get("heading_path") or ""),
             policy_status=c.get("policy_status") or "",
+            document_code=c.get("document_code") or "",
+            version=c.get("version") or "",
+            effective_date=c.get("effective_date") or "",
             excerpt=c.get("text") or "",
         )
         for c in cited_chunks
@@ -463,17 +466,9 @@ async def hallucination_check_node(state: AgentState) -> dict:
     # Lớp tất định trước — xem docstring _check_numeric_grounding cho lý do và
     # số đo. Chỉ rơi xuống LLM khi câu trả lời không có số liệu nào để so khớp.
     #
-    # Cố ý so khớp với TOÀN BỘ retrieved_chunks, KHÔNG chỉ cited_chunks: đo
-    # được (2026-08-15 remediation) generate_node đôi khi đánh số [Nguồn N]
-    # lệch — số liệu ĐÚNG và CÓ THẬT trong ngữ cảnh (vd "20 giờ/tháng/người" ở
-    # chunk ::0007) nhưng bị gán nhầm cho một chunk khác cũng được retrieve
-    # (::0004) không chứa số đó. Đây là lỗi ĐÁNH SỐ CITATION, không phải bịa
-    # số liệu — so với toàn bộ evidence đã retrieve (đúng tinh thần "same
-    # retrieved evidence -> stable decision") mới tách được 2 loại lỗi này;
-    # lỗi đánh số citation là vấn đề khác, cần xử lý riêng ở generate_node,
-    # không nên làm rớt hallucination gate vì nó.
-    grounding_pool = state.get("retrieved_chunks") or cited_chunks
-    deterministic = _check_numeric_grounding(answer, grounding_pool)
+    # Evidence không được cite không thể "cứu" một citation trỏ sai chunk.
+    # Chỉ nguồn thực sự viện dẫn mới được phép chứng minh claim.
+    deterministic = _check_numeric_grounding(answer, cited_chunks)
     if deterministic is not None:
         if not deterministic:
             retry_count += 1
