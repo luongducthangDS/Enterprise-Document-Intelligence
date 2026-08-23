@@ -1,4 +1,5 @@
 """Knowledge Repository & Audit Trail Service for Backend API."""
+
 from __future__ import annotations
 
 import uuid
@@ -55,7 +56,7 @@ class KnowledgeRepository:
         title: str,
         document_domain: str,
         authority_level: str = AuthorityLevel.COMPANY_POLICY.value,
-        access_scope: str = "COMPANY_WIDE",
+        access_scope: str = "DEPARTMENT",
         owner_department: str = "GENERAL",
         document_id: str | None = None,
     ) -> Document:
@@ -110,6 +111,7 @@ class KnowledgeRepository:
 
         ver_id = version_id or str(uuid.uuid4())
         import hashlib
+
         content_hash = hashlib.sha256(raw_content.encode("utf-8")).hexdigest()
 
         ver = DocumentVersion(
@@ -128,7 +130,9 @@ class KnowledgeRepository:
         return ver
 
     def get_version(self, tenant_id: str, version_id: str) -> DocumentVersion | None:
-        stmt = select(DocumentVersion).where(DocumentVersion.tenant_id == tenant_id, DocumentVersion.version_id == version_id)
+        stmt = select(DocumentVersion).where(
+            DocumentVersion.tenant_id == tenant_id, DocumentVersion.version_id == version_id
+        )
         return self.session.execute(stmt).scalar_one_or_none()
 
     def get_version_by_number(self, tenant_id: str, document_id: str, version_number: str) -> DocumentVersion | None:
@@ -230,7 +234,9 @@ class KnowledgeRepository:
         return item
 
     def get_knowledge_item(self, tenant_id: str, knowledge_id: str) -> KnowledgeItem | None:
-        stmt = select(KnowledgeItem).where(KnowledgeItem.tenant_id == tenant_id, KnowledgeItem.knowledge_id == knowledge_id)
+        stmt = select(KnowledgeItem).where(
+            KnowledgeItem.tenant_id == tenant_id, KnowledgeItem.knowledge_id == knowledge_id
+        )
         return self.session.execute(stmt).scalar_one_or_none()
 
     def update_knowledge_item_status(
@@ -274,6 +280,7 @@ class KnowledgeRepository:
             raise ValueError(f"ChunkRecord '{chunk_id}' không tồn tại hoặc không thuộc tenant '{tenant_id}'")
 
         import hashlib
+
         quote_hash = hashlib.sha256(exact_quote_span.encode("utf-8")).hexdigest()
         eid = evidence_id or str(uuid.uuid4())
 
@@ -346,14 +353,18 @@ class KnowledgeRepository:
         return relation
 
     def get_relation(self, tenant_id: str, relation_id: str) -> KnowledgeRelation | None:
-        stmt = select(KnowledgeRelation).where(KnowledgeRelation.tenant_id == tenant_id, KnowledgeRelation.relation_id == relation_id)
+        stmt = select(KnowledgeRelation).where(
+            KnowledgeRelation.tenant_id == tenant_id, KnowledgeRelation.relation_id == relation_id
+        )
         return self.session.execute(stmt).scalar_one_or_none()
 
     def get_relation_by_id(self, tenant_id: str, relation_id: str) -> KnowledgeRelation | None:
         return self.get_relation(tenant_id, relation_id)
 
     def get_evidences_by_knowledge_id(self, tenant_id: str, knowledge_id: str) -> list[EvidenceRecord]:
-        stmt = select(EvidenceRecord).where(EvidenceRecord.tenant_id == tenant_id, EvidenceRecord.knowledge_id == knowledge_id)
+        stmt = select(EvidenceRecord).where(
+            EvidenceRecord.tenant_id == tenant_id, EvidenceRecord.knowledge_id == knowledge_id
+        )
         return list(self.session.scalars(stmt).all())
 
     def get_incoming_relations(
@@ -386,7 +397,9 @@ class KnowledgeRepository:
             KnowledgeItem.status == "ACTIVE",
         )
         if approved_only:
-            stmt = stmt.where(KnowledgeItem.review_status.in_(["APPROVED", "ACTIVE", ReviewStatus.AUTO_EXTRACTED.value]))
+            stmt = stmt.where(
+                KnowledgeItem.review_status.in_(["APPROVED", "ACTIVE", ReviewStatus.AUTO_EXTRACTED.value])
+            )
         if target_date_ymd is not None:
             stmt = stmt.where(
                 KnowledgeItem.effective_from_ymd <= target_date_ymd,
@@ -406,19 +419,23 @@ class KnowledgeRepository:
         evidence_lineage = []
         for evi in evidences:
             chunk = self.get_chunk(tenant_id, evi.chunk_id)
-            evidence_lineage.append({
-                "evidence_id": evi.evidence_id,
-                "exact_quote_span": evi.exact_quote_span,
-                "start_char": evi.start_char,
-                "end_char": evi.end_char,
-                "quote_hash": evi.quote_hash,
-                "section_heading": evi.section_heading,
-                "chunk": {
-                    "chunk_id": chunk.chunk_id if chunk else None,
-                    "chunk_index": chunk.chunk_index if chunk else None,
-                    "heading_path": chunk.heading_path if chunk else None,
-                } if chunk else None,
-            })
+            evidence_lineage.append(
+                {
+                    "evidence_id": evi.evidence_id,
+                    "exact_quote_span": evi.exact_quote_span,
+                    "start_char": evi.start_char,
+                    "end_char": evi.end_char,
+                    "quote_hash": evi.quote_hash,
+                    "section_heading": evi.section_heading,
+                    "chunk": {
+                        "chunk_id": chunk.chunk_id if chunk else None,
+                        "chunk_index": chunk.chunk_index if chunk else None,
+                        "heading_path": chunk.heading_path if chunk else None,
+                    }
+                    if chunk
+                    else None,
+                }
+            )
 
         return {
             "knowledge": {
@@ -435,7 +452,9 @@ class KnowledgeRepository:
                 "version_number": ver.version_number if ver else None,
                 "raw_content_hash": ver.raw_content_hash if ver else None,
                 "effective_date_ymd": ver.effective_date_ymd if ver else None,
-            } if ver else None,
+            }
+            if ver
+            else None,
             "document": {
                 "document_id": doc.document_id if doc else None,
                 "document_code": doc.document_code if doc else None,
@@ -443,7 +462,9 @@ class KnowledgeRepository:
                 "document_domain": doc.document_domain if doc else None,
                 "authority_level": doc.authority_level if doc else None,
                 "owner_department": doc.owner_department if doc else None,
-            } if doc else None,
+            }
+            if doc
+            else None,
             "evidences": evidence_lineage,
         }
 

@@ -131,6 +131,9 @@ class AgentState(TypedDict, total=False):
     condensed_query: str
     intent: Intent
     rewritten_query: str
+    structured_knowledge: dict | None
+    structured_resolution: dict
+    skip_retrieval: bool
     retrieved_chunks: list[RetrievedChunk]
     # Tập chunk thực sự được viện dẫn, theo đúng thứ tự [Nguồn N] đã đánh lại
     # trong generated_answer. Bước hallucination check dựng context từ đây.

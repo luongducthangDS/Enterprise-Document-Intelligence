@@ -73,6 +73,7 @@ def test_upload_document_success():
         "version": "1.0",
         "effective_date": "2026-01-01",
         "confidentiality": "INTERNAL",
+        "access_scope": "COMPANY_WIDE",
     }
 
     response = client.post("/api/v1/documents", headers=headers, files=files, data=data)
@@ -82,6 +83,7 @@ def test_upload_document_success():
     assert "document_id" in res["data"]
     assert "ingestion_job_id" in res["data"]
     assert res["data"]["status"] == "ACTIVE"
+    assert res["data"]["access_scope"] == "DEPARTMENT"
 
 
 def test_upload_document_accepts_legacy_lowercase_admin_role():

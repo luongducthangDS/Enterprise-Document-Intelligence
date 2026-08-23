@@ -3,6 +3,7 @@ import os
 from functools import lru_cache
 from typing import Any
 
+from src.security.departments import canonical_department
 from src.security.models import (
     AccessScope,
     DocumentDomain,
@@ -15,26 +16,18 @@ from src.security.models import (
 def runtime_upload_access_filters(user: UserContext) -> list[dict]:
     """One Chroma predicate per runtime grant, keeping every query under quota."""
     combined = runtime_upload_access_condition(user)
-    if combined.get("authorization_source") == "RUNTIME_UPLOAD":
-        return [combined]
-    runtime, grants = combined["$and"]
-    return [{"$and": [runtime, grant]} for grant in grants["$or"]]
+    runtime, department, grants = combined["$and"]
+    return [{"$and": [runtime, department, grant]} for grant in grants["$or"]]
+
 
 def runtime_upload_access_condition(user: UserContext) -> dict:
-    """Build a fail-closed Chroma predicate for documents uploaded at runtime."""
+    """Build a fail-closed ACL predicate; department is mandatory for every scope."""
     runtime = {"authorization_source": "RUNTIME_UPLOAD"}
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
-    if role == UserRole.ADMIN.value or "admin" in {str(p).lower() for p in user.permissions}:
-        return runtime
-
+    department = {"department": canonical_department(user.department)}
     grants: list[dict] = [
         {"access_scope": AccessScope.COMPANY_WIDE.value},
-        {
-            "$and": [
-                {"access_scope": AccessScope.DEPARTMENT.value},
-                {"department": user.department.upper().strip()},
-            ]
-        },
+        {"access_scope": AccessScope.DEPARTMENT.value},
         {
             "$and": [
                 {"access_scope": AccessScope.ROLE.value},
@@ -48,7 +41,31 @@ def runtime_upload_access_condition(user: UserContext) -> dict:
             ]
         },
     ]
-    return {"$and": [runtime, {"$or": grants}]}
+    return {"$and": [runtime, department, {"$or": grants}]}
+
+
+def runtime_upload_metadata_allowed(user: UserContext, metadata: dict[str, Any]) -> bool:
+    """Evaluate runtime-upload ACL for candidates fetched outside query filters."""
+    if metadata.get("authorization_source") != "RUNTIME_UPLOAD":
+        return False
+
+    if canonical_department(metadata.get("department")) != canonical_department(user.department):
+        return False
+    role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
+    scope = str(metadata.get("access_scope", "")).upper().strip()
+    if scope == AccessScope.COMPANY_WIDE.value:
+        return True
+    if scope == AccessScope.DEPARTMENT.value:
+        return str(metadata.get("department", "")).upper().strip() == user.department.upper().strip()
+    if scope == AccessScope.ROLE.value:
+        authorized_role = metadata.get("authorized_role", "")
+        if isinstance(authorized_role, list):
+            return role in {str(value).upper().strip() for value in authorized_role}
+        return role == str(authorized_role).upper().strip()
+    if scope == AccessScope.RESTRICTED.value:
+        return str(metadata.get("owner_user_id", "")) == user.user_id
+    return False
+
 
 class AuthorizationEngine:
     """Enterprise Authorization Engine.
@@ -76,7 +93,7 @@ class AuthorizationEngine:
         return {
             "roles_policy": {
                 "EMPLOYEE": {
-                    "allowed_scopes": ["COMPANY_WIDE"],
+                    "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT"],
                     "allowed_domains": ["COMPANY_POLICY"],
                     "allow_cross_department": False,
                 },
@@ -94,14 +111,10 @@ class AuthorizationEngine:
 
     def evaluate_access(self, user: UserContext, doc: DocumentSecurityProfile) -> bool:
         """Đánh giá quyền truy cập: User có được truy xuất Document không?"""
-        # 1. Admin: Toàn quyền truy xuất (trừ khi file là non-knowledge doc và không yêu cầu)
-        if user.role == UserRole.ADMIN or "admin" in user.permissions:
-            return True
-
         domain_str = doc.domain.value if isinstance(doc.domain, DocumentDomain) else str(doc.domain)
         scope_str = doc.access_scope.value if isinstance(doc.access_scope, AccessScope) else str(doc.access_scope)
         user_role_str = user.role.value if isinstance(user.role, UserRole) else str(user.role)
-        user_dept = user.department.upper().strip()
+        user_dept = canonical_department(user.department)
 
         # 0. Loại bỏ hoàn toàn System / Internal Data khỏi User Knowledge Retrieval
         if not doc.is_knowledge_doc or domain_str in (
@@ -113,6 +126,12 @@ class AuthorizationEngine:
             return False
 
         domain_policies = self.policies.get("domain_policies", {})
+        # Department isolation is the outer boundary. Roles can only narrow it.
+        if canonical_department(doc.department) != user_dept:
+            return False
+
+        if user.role == UserRole.ADMIN or "admin" in user.permissions:
+            return True
 
         # 2. Xử lý domain EXTERNAL_REFERENCE (Mặc định bị chặn cho nhân viên thông thường)
         if domain_str == DocumentDomain.EXTERNAL_REFERENCE.value:
@@ -147,7 +166,6 @@ class AuthorizationEngine:
 
         allowed_scopes = role_cfg.get("allowed_scopes", [])
         allowed_domains = role_cfg.get("allowed_domains", [])
-        allow_cross_dept = role_cfg.get("allow_cross_department", False)
 
         if "*" not in allowed_domains and domain_str not in allowed_domains:
             return False
@@ -165,24 +183,14 @@ class AuthorizationEngine:
 
             # Điều kiện 1: Department match
             doc_auth_depts = [str(d).upper() for d in doc.authorized_departments]
-            doc_dept = doc.department.upper().strip()
-            dept_matches = (
-                user_dept in doc_auth_depts
-                or "ALL" in doc_auth_depts
-                or (not doc_auth_depts and user_dept == doc_dept)
-                or allow_cross_dept
-            )
+            doc_dept = canonical_department(doc.department)
+            dept_matches = user_dept in doc_auth_depts or (not doc_auth_depts and user_dept == doc_dept)
             if not dept_matches:
                 return False
 
             # Điều kiện 2: Role match
             doc_auth_roles = [str(r).upper() for r in doc.authorized_roles]
-            role_matches = (
-                user_role_str in doc_auth_roles
-                or "ALL" in doc_auth_roles
-                or not doc_auth_roles
-                or allow_cross_dept
-            )
+            role_matches = user_role_str in doc_auth_roles or "ALL" in doc_auth_roles or not doc_auth_roles
             if not role_matches:
                 return False
 
@@ -192,13 +200,12 @@ class AuthorizationEngine:
             if "ROLE" not in allowed_scopes:
                 return False
             doc_auth_roles = [str(r).upper() for r in doc.authorized_roles]
-            return user_role_str in doc_auth_roles or allow_cross_dept
+            return user_role_str in doc_auth_roles
 
         if scope_str == AccessScope.RESTRICTED.value:
             return "RESTRICTED" in allowed_scopes
 
         return False
-
 
     def get_authorized_source_files(
         self,
@@ -227,7 +234,6 @@ class AuthorizationEngine:
             if not include_disabled:
                 if not getattr(r, "retrieval_enabled", True) or getattr(r, "publication_status", "active") != "active":
                     continue
-
 
             domain_val = getattr(r, "document_domain", "COMPANY_POLICY")
             try:
@@ -303,49 +309,7 @@ class AuthorizationEngine:
         return allowed_files
 
 
-
-
 @lru_cache(maxsize=1)
 def get_authorization_engine(config_path: str | None = None) -> AuthorizationEngine:
     """Singleton AuthorizationEngine instance."""
     return AuthorizationEngine(config_path=config_path)
-
-
-def runtime_upload_access_filters(user: UserContext) -> list[dict]:
-    """One Chroma predicate per runtime grant, keeping every query under quota."""
-    combined = runtime_upload_access_condition(user)
-    if combined.get("authorization_source") == "RUNTIME_UPLOAD":
-        return [combined]
-    runtime, grants = combined["$and"]
-    return [{"$and": [runtime, grant]} for grant in grants["$or"]]
-
-
-def runtime_upload_access_condition(user: UserContext) -> dict:
-    """Build a fail-closed Chroma predicate for documents uploaded at runtime."""
-    runtime = {"authorization_source": "RUNTIME_UPLOAD"}
-    role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
-    if role == UserRole.ADMIN.value or "admin" in {str(p).lower() for p in user.permissions}:
-        return runtime
-
-    grants: list[dict] = [
-        {"access_scope": AccessScope.COMPANY_WIDE.value},
-        {
-            "$and": [
-                {"access_scope": AccessScope.DEPARTMENT.value},
-                {"department": user.department.upper().strip()},
-            ]
-        },
-        {
-            "$and": [
-                {"access_scope": AccessScope.ROLE.value},
-                {"authorized_role": role},
-            ]
-        },
-        {
-            "$and": [
-                {"access_scope": AccessScope.RESTRICTED.value},
-                {"owner_user_id": user.user_id},
-            ]
-        },
-    ]
-    return {"$and": [runtime, {"$or": grants}]}

@@ -1,5 +1,10 @@
 import pytest
-from app.core.knowledge_db import create_all_tables, create_knowledge_engine, drop_all_tables, get_knowledge_session as get_session
+from app.core.knowledge_db import (
+    create_all_tables,
+    create_knowledge_engine,
+    drop_all_tables,
+    get_knowledge_session as get_session,
+)
 from app.core.security import create_access_token
 from app.domain.models.knowledge import ReviewStatus
 from app.services.knowledge_service import KnowledgeRepository, log_audit
@@ -128,13 +133,17 @@ async def setup_auth_users():
 
 @pytest.fixture
 def admin_headers():
-    token = create_access_token({"sub": str(ADMIN_ID), "email": "admin@nexatech.com", "role": "ADMIN", "department": "IT"})
+    token = create_access_token(
+        {"sub": str(ADMIN_ID), "email": "admin@nexatech.com", "role": "ADMIN", "department": "IT"}
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
 def employee_headers():
-    token = create_access_token({"sub": str(EMP_ID), "email": "emp@nexatech.com", "role": "EMPLOYEE", "department": "SALES"})
+    token = create_access_token(
+        {"sub": str(EMP_ID), "email": "emp@nexatech.com", "role": "EMPLOYEE", "department": "SALES"}
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -194,11 +203,24 @@ def test_edit_knowledge_item(admin_headers, employee_headers):
 
     edit_res = client.patch(
         f"/api/v1/knowledge/items/{item_id}/edit?tenant_id=nexatech",
-        json={"object_value": "1500000 VND", "value_numeric": 1500000.0, "review_notes": "Corrected by admin"},
+        json={
+            "object_value": "1500000 VND",
+            "value_numeric": 1500000.0,
+            "role_scope": ["MANAGER", "DIRECTOR"],
+            "review_notes": "Corrected by admin",
+        },
         headers=admin_headers,
     )
     assert edit_res.status_code == 200
     assert edit_res.json()["data"]["review_status"] == "APPROVED"
+    detail_res = client.get(f"/api/v1/knowledge/items/{item_id}", headers=admin_headers)
+    assert detail_res.status_code == 200
+    assert detail_res.json()["data"]["item"]["role_scope"] == ["MANAGER", "DIRECTOR"]
+
+
+def test_cross_tenant_access_is_denied(employee_headers):
+    response = client.get("/api/v1/knowledge/items?tenant_id=another-company", headers=employee_headers)
+    assert response.status_code == 403
 
 
 def test_list_and_approve_relations(admin_headers, employee_headers):
@@ -207,7 +229,9 @@ def test_list_and_approve_relations(admin_headers, employee_headers):
     relations = rel_res.json()["data"]
     if relations:
         rel_id = relations[0]["relation_id"]
-        app_res = client.patch(f"/api/v1/knowledge/relations/{rel_id}/approve?tenant_id=nexatech", headers=admin_headers)
+        app_res = client.patch(
+            f"/api/v1/knowledge/relations/{rel_id}/approve?tenant_id=nexatech", headers=admin_headers
+        )
         assert app_res.status_code == 200
         assert app_res.json()["data"]["status"] == "ACTIVE"
 

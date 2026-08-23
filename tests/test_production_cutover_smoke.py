@@ -21,13 +21,13 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.settings = get_settings()
 
-    async def test_smoke_a_employee_company_wide(self):
-        """Test A: Employee / NexaTech truy cập COMPANY_WIDE document -> ALLOW."""
+    async def test_smoke_a_employee_hr_department(self):
+        """Test A: Employee HR chỉ truy cập tài liệu thuộc HR."""
         state = AgentState(
             query="Chính sách nghỉ phép năm quy định bao nhiêu ngày nghỉ tiêu chuẩn?",
             tenant_id="nexatech",
             user_role="EMPLOYEE",
-            department="GENERAL",
+            department="HR",
             history=[],
             request_id="smoke-test-a",
             user_id="cutover-smoke-user",

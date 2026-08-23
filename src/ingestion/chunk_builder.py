@@ -6,6 +6,7 @@ from src.config import Settings
 from src.ingestion.chunkers import chunk_text
 from src.ingestion.cleaners import clean_document, page_for_offset, sheet_for_offset
 from src.ingestion.metadata import DEFAULT_EFFECTIVE_DATE, NO_EXPIRY_SENTINEL, Chunk, ChunkMetadata, date_to_ymd_int
+from src.security.departments import canonical_department
 
 H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 
@@ -40,6 +41,7 @@ def tenant_scoped_chunk_id(tenant: str, stem: str, index: int) -> str:
     safe_tenant = normalize_tenant(tenant)
     return f"{safe_tenant}:{stem}::{index:04d}" if safe_tenant else f"{stem}::{index:04d}"
 
+
 def build_chunks_from_text(
     raw_text: str,
     *,
@@ -49,7 +51,7 @@ def build_chunks_from_text(
     is_official_policy: bool,
     document_domain: str = "COMPANY_POLICY",
     related_departments: list[str] | str = "[]",
-    access_scope: str = "COMPANY_WIDE",
+    access_scope: str = "DEPARTMENT",
     authorized_departments: list[str] | str = "[]",
     authorized_roles: list[str] | str = "[]",
     authorized_role: str = "",
@@ -61,7 +63,7 @@ def build_chunks_from_text(
     department: str = "GENERAL",
     sensitivity: str = "INTERNAL",
     access_category: str = "COMPANY_POLICY",
-    scope: str = "COMPANY_WIDE",
+    scope: str = "DEPARTMENT",
     issuer: str = "",
     document_type: str = "",
     owner: str | None = None,
@@ -76,6 +78,10 @@ def build_chunks_from_text(
     settings: Settings,
 ) -> list[Chunk]:
     cleaned = clean_document(raw_text)
+    normalized_department = canonical_department(department)
+    normalized_access_scope = access_scope.upper().strip()
+    if normalized_access_scope == "COMPANY_WIDE":
+        normalized_access_scope = "DEPARTMENT"
     stem = os.path.splitext(source_file)[0]
     title = resolve_title(cleaned.frontmatter, cleaned.text, stem)
     resolved_tenant = tenant or normalize_tenant(cleaned.frontmatter.get("company"))
@@ -113,6 +119,8 @@ def build_chunks_from_text(
             parsed_auth_depts = [str(d).upper().strip() for d in json.loads(authorized_departments)]
         except Exception:
             parsed_auth_depts = [d.upper().strip() for d in authorized_departments.split(",") if d.strip()]
+    if normalized_department != "GENERAL" and normalized_department not in parsed_auth_depts:
+        parsed_auth_depts.append(normalized_department)
 
     # Parse authorized_roles (Actual authorization)
     parsed_auth_roles: list[str] = []
@@ -137,7 +145,7 @@ def build_chunks_from_text(
             title=title,
             document_domain=document_domain,
             related_departments=json.dumps(parsed_related_depts, ensure_ascii=False),
-            access_scope=access_scope,
+            access_scope=normalized_access_scope,
             authorized_departments=json.dumps(parsed_auth_depts, ensure_ascii=False),
             authorized_roles=json.dumps(parsed_auth_roles, ensure_ascii=False),
             authorized_role=authorized_role.upper().strip(),
@@ -146,10 +154,10 @@ def build_chunks_from_text(
             authorization_source=authorization_source,
             classification_source=classification_source,
             is_knowledge_doc=is_knowledge_doc,
-            department=department,
+            department=normalized_department,
             sensitivity=sensitivity,
             access_category=access_category,
-            scope=scope,
+            scope=normalized_access_scope,
             issuer=issuer,
             document_type=document_type,
             category=category,
@@ -158,7 +166,6 @@ def build_chunks_from_text(
             authority=authority,
             provenance=provenance,
             tenant=resolved_tenant,
-
             publication_status=publication_status,
             artifact_state=artifact_state,
             retrieval_enabled=retrieval_enabled,
@@ -167,10 +174,6 @@ def build_chunks_from_text(
             expiry_date_ymd=expiry_date_ymd,
             caveat=caveat,
             heading_path=tc.heading_path,
-
-
-
-
             chapter=tc.chapter,
             article=tc.article,
             page_start=page_start,

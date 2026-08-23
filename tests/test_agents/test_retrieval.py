@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from src.agents.nodes.retrieval import (
+    _amerge_bm25,
     _arerank,
     _expand_retrieval_query,
     _provenance_filter,
@@ -97,9 +98,19 @@ class TestRetrievalNode:
             patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2, 0.3])),
             patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
             # Không gọi reranker thật: unit test không được phụ thuộc mạng.
+            patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
+            patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
             patch("src.agents.nodes.retrieval._arerank", new=AsyncMock(side_effect=lambda q, c: c)),
         ):
-            result = await retrieval_node({"query": "Tôi được nghỉ mấy ngày?", "tenant_id": "nexatech", "user_id": "u-test", "department": "HR", "user_role": "EMPLOYEE"})
+            result = await retrieval_node(
+                {
+                    "query": "Tôi được nghỉ mấy ngày?",
+                    "tenant_id": "nexatech",
+                    "user_id": "u-test",
+                    "department": "HR",
+                    "user_role": "EMPLOYEE",
+                }
+            )
 
         chunks = result["retrieved_chunks"]
         assert len(chunks) == 2
@@ -119,7 +130,16 @@ class TestRetrievalNode:
             patch("src.agents.nodes.retrieval._aembed_query", new=mock_embed),
             patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
         ):
-            await retrieval_node({"query": "gốc", "rewritten_query": "đã viết lại", "tenant_id": "nexatech", "user_id": "u-test", "department": "HR", "user_role": "EMPLOYEE"})
+            await retrieval_node(
+                {
+                    "query": "gốc",
+                    "rewritten_query": "đã viết lại",
+                    "tenant_id": "nexatech",
+                    "user_id": "u-test",
+                    "department": "HR",
+                    "user_role": "EMPLOYEE",
+                }
+            )
 
         mock_embed.assert_awaited_once_with("đã viết lại")
 
@@ -161,13 +181,67 @@ class TestRetrievalNodeHybrid:
             patch("src.agents.nodes.retrieval.get_authorization_engine") as auth,
         ):
             auth.return_value.get_authorized_source_files.return_value = ["a.md", "b.md"]
-            result = await retrieval_node({"query": "nghỉ phép đặc biệt", "tenant_id": "nexatech", "user_id": "u-test", "department": "HR", "user_role": "EMPLOYEE"})
+            result = await retrieval_node(
+                {
+                    "query": "nghỉ phép đặc biệt",
+                    "tenant_id": "nexatech",
+                    "user_id": "u-test",
+                    "department": "HR",
+                    "user_role": "EMPLOYEE",
+                }
+            )
 
         ids = {c["chunk_id"] for c in result["retrieved_chunks"]}
         assert "b" in ids
         b_chunk = next(c for c in result["retrieved_chunks"] if c["chunk_id"] == "b")
         assert b_chunk["text"] == "nội dung b"
         assert b_chunk["source_file"] == "b.md"
+
+    @pytest.mark.asyncio
+    async def test_bm25_does_not_reintroduce_restricted_runtime_upload(self):
+        dense_chunk = _chunk("a", text="public policy")
+        bm25 = BM25(["a", "secret"], ["public policy", "secret salary policy"])
+        mock_collection = MagicMock()
+        mock_collection.get.return_value = {
+            "ids": ["secret"],
+            "documents": ["secret salary policy"],
+            "metadatas": [
+                {
+                    "source_file": "runtime-secret.md",
+                    "authorization_source": "RUNTIME_UPLOAD",
+                    "access_scope": "RESTRICTED",
+                    "owner_user_id": "different-user",
+                    "department": "HR",
+                    "publication_status": "active",
+                    "artifact_state": "frozen",
+                    "retrieval_enabled": True,
+                    "effective_date_ymd": 20250101,
+                    "expiry_date_ymd": 99991231,
+                }
+            ],
+        }
+        user = UserContext(
+            tenant_id="nexatech",
+            user_id="employee-1",
+            department="HR",
+            role=UserRole.EMPLOYEE,
+        )
+        with (
+            patch("src.agents.nodes.retrieval._bm25_index", return_value=bm25),
+            patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+            patch("src.agents.nodes.retrieval.get_authorization_engine") as auth,
+        ):
+            auth.return_value.get_authorized_source_files.return_value = ["public.md"]
+            result = await _amerge_bm25(
+                "secret salary policy",
+                ["a"],
+                {"a": dense_chunk},
+                self._hybrid_settings(),
+                user_context=user,
+                collection_name="tenant_nexatech_knowledge",
+            )
+
+        assert "secret" not in result
 
     @pytest.mark.asyncio
     async def test_bm25_load_failure_falls_back_to_dense_only(self):
@@ -187,8 +261,18 @@ class TestRetrievalNodeHybrid:
             patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
             patch("src.agents.nodes.retrieval._bm25_index", return_value=None),
             patch("src.agents.nodes.retrieval.get_settings", return_value=self._hybrid_settings()),
+            patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
+            patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
         ):
-            result = await retrieval_node({"query": "câu hỏi", "tenant_id": "nexatech", "user_id": "u-test", "department": "HR", "user_role": "EMPLOYEE"})
+            result = await retrieval_node(
+                {
+                    "query": "câu hỏi",
+                    "tenant_id": "nexatech",
+                    "user_id": "u-test",
+                    "department": "HR",
+                    "user_role": "EMPLOYEE",
+                }
+            )
 
         assert [c["chunk_id"] for c in result["retrieved_chunks"]] == ["a"]
 
@@ -258,7 +342,7 @@ def _chunk_matches_condition(meta: dict, condition: dict) -> bool:
     test filter THẬT mà retrieval.py build ra, không phải một bản chép lại
     logic. field vắng mặt trong `meta` không khớp bất kỳ toán tử nào (đúng
     hành vi fail-closed của Chroma đã đo được với $eq/$ne trên field thiếu)."""
-    (field, spec), = condition.items()
+    ((field, spec),) = condition.items()
     if field not in meta:
         return False
     value = meta[field]
@@ -292,7 +376,10 @@ class TestProvenanceFilter:
         return Settings(data_mode=data_mode)
 
     def test_demo_mode_requires_tenant_policy_and_frozen_lifecycle(self):
-        where = _provenance_filter(self._settings("demo"), UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE))
+        where = _provenance_filter(
+            self._settings("demo"),
+            UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE),
+        )
         conditions = where["$and"]
         assert "source_file" in str(conditions[0])
         assert {"publication_status": "active"} in conditions
@@ -301,7 +388,10 @@ class TestProvenanceFilter:
         assert not any("provenance" in c for c in conditions)
 
     def test_production_mode_adds_provenance_condition(self):
-        where = _provenance_filter(self._settings("production"), UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE))
+        where = _provenance_filter(
+            self._settings("production"),
+            UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE),
+        )
         conditions = where["$and"]
         assert "source_file" in str(conditions[0])
         assert {"publication_status": "active"} in conditions
@@ -311,7 +401,10 @@ class TestProvenanceFilter:
     def test_temporal_conditions_present_and_numeric(self):
         """Chroma $lte/$gte CHỈ nhận int/float — đã đo lỗi thật (ValueError)
         khi thử chuỗi ISO trực tiếp. Field phải là *_ymd (int YYYYMMDD)."""
-        where = _provenance_filter(self._settings("demo"), UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE))
+        where = _provenance_filter(
+            self._settings("demo"),
+            UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE),
+        )
         conditions = where["$and"]
         eff = next(c for c in conditions if "effective_date_ymd" in c)
         exp = next(c for c in conditions if "expiry_date_ymd" in c)
@@ -330,6 +423,7 @@ class TestProvenanceFilterScenarios:
     def _base_meta(self, **overrides) -> dict:
         meta = {
             "source_file": "01_chinh-sach-lam-them-gio-OT.md",
+            "department": "HR",
             "access_category": "GENERAL",
             "authority": "tenant_official_policy",
             "publication_status": "active",
@@ -343,7 +437,10 @@ class TestProvenanceFilterScenarios:
         return meta
 
     def _where(self, data_mode: str = "demo") -> dict:
-        return _provenance_filter(Settings(data_mode=data_mode), UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE))
+        return _provenance_filter(
+            Settings(data_mode=data_mode),
+            UserContext(tenant_id="nexatech", user_id="u-test", department="HR", role=UserRole.EMPLOYEE),
+        )
 
     def test_future_effective_active_doc_not_retrieved(self):
         meta = self._base_meta(effective_date_ymd=20990101)  # có hiệu lực trong tương lai
@@ -371,6 +468,7 @@ class TestProvenanceFilterScenarios:
         nào cả) phải tự động bị loại — đây chính là bug đã đo được và sửa
         bằng $eq allowlist thay vì $ne blocklist."""
         assert _chunk_matches_filter({}, self._where()) is False
+
 
 def _runtime_allowed(meta: dict, user: UserContext) -> bool:
     return any(_chunk_matches_filter(meta, where) for where in _retrieval_filters(Settings(), user))
@@ -404,16 +502,18 @@ class TestRuntimeUploadAccessFilter:
     def test_department_and_role_scopes_are_exact(self):
         hr = UserContext(tenant_id="nexatech", user_id="u1", department="HR", role=UserRole.EMPLOYEE)
         eng = UserContext(tenant_id="nexatech", user_id="u2", department="ENGINEERING", role=UserRole.EMPLOYEE)
-        manager = UserContext(tenant_id="nexatech", user_id="u3", department="ENGINEERING", role=UserRole.MANAGER)
+        hr_manager = UserContext(tenant_id="nexatech", user_id="u3", department="HR", role=UserRole.MANAGER)
         dept_doc = self._runtime_meta(access_scope="DEPARTMENT")
         role_doc = self._runtime_meta(access_scope="ROLE")
         assert _runtime_allowed(dept_doc, hr) is True
         assert _runtime_allowed(dept_doc, eng) is False
-        assert _runtime_allowed(role_doc, manager) is True
+        assert _runtime_allowed(role_doc, hr_manager) is True
         assert _runtime_allowed(role_doc, hr) is False
 
-    def test_company_wide_and_admin_access(self):
+    def test_company_wide_and_admin_are_still_department_bound(self):
         employee = UserContext(tenant_id="nexatech", user_id="u1", department="ENGINEERING", role=UserRole.EMPLOYEE)
+        hr_employee = UserContext(tenant_id="nexatech", user_id="u2", department="HR", role=UserRole.EMPLOYEE)
         admin = UserContext(tenant_id="nexatech", user_id="admin-1", department="GENERAL", role=UserRole.ADMIN)
-        assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), employee) is True
-        assert _runtime_allowed(self._runtime_meta(owner_user_id="someone-else"), admin) is True
+        assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), employee) is False
+        assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), hr_employee) is True
+        assert _runtime_allowed(self._runtime_meta(owner_user_id="someone-else"), admin) is False

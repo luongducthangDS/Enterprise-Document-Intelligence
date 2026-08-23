@@ -33,10 +33,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
     def setUpClass(cls):
         cls.settings = get_settings()
         cls.client = get_chroma_client(cls.settings)
-        cls.collections = {
-            name: cls.client.get_collection(name)
-            for name in EXPECTED_COUNTS
-        }
+        cls.collections = {name: cls.client.get_collection(name) for name in EXPECTED_COUNTS}
 
     def test_01_collection_baseline_counts(self):
         actual = {name: collection.count() for name, collection in self.collections.items()}
@@ -68,10 +65,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         self.assertTrue(all(meta.get("owner") for meta in product_sample["metadatas"]))
 
     def test_03_collection_ids_are_disjoint(self):
-        id_sets = {
-            name: set(collection.get(include=[])["ids"])
-            for name, collection in self.collections.items()
-        }
+        id_sets = {name: set(collection.get(include=[])["ids"]) for name, collection in self.collections.items()}
         names = list(id_sets)
         for index, left in enumerate(names):
             for right in names[index + 1 :]:
@@ -97,7 +91,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
 
         employee = UserContext(
             user_id="emp_user",
-            department="GENERAL",
+            department="HR",
             role=UserRole.EMPLOYEE,
             tenant_id="nexatech",
         )
