@@ -182,7 +182,7 @@ def test_api_register_endpoint_success():
             "email": "newuser@company.com",
             "password": "securepassword123",
             "full_name": "Nguyen Van C",
-            "department": "Engineering",
+            "department": "Product",
         },
     )
     assert response.status_code == 201
@@ -190,7 +190,7 @@ def test_api_register_endpoint_success():
     assert res_data["success"] is True
     assert res_data["data"]["email"] == "newuser@company.com"
     assert res_data["data"]["role"] == "EMPLOYEE"
-    assert res_data["data"]["department"] == "ENGINEERING"
+    assert res_data["data"]["department"] == "PRODUCT"
 
 
 def test_api_register_endpoint_duplicate_email():
@@ -263,7 +263,7 @@ def test_api_register_rejects_department_manager_role():
             "email": "dept-user@company.com",
             "password": "password123",
             "role": "department_manager",
-            "department": "Engineering",
+            "department": "Product",
         },
     )
     assert response.status_code == 422
