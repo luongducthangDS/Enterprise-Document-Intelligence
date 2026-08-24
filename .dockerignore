@@ -4,8 +4,8 @@
 .venv
 .worktrees/
 .pnpm-store/
-backend/
 frontend/
+backend/
 __pycache__
 *.pyc
 .pytest_cache

@@ -18,24 +18,30 @@ async def upload_document(
     file: UploadFile = File(...),
     title: str | None = Form(None),
     category: str | None = Form(None),
+    department: str | None = Form(None),
     version: str | None = Form(None),
     effective_date: str | None = Form(None),
     confidentiality: str | None = Form(None),
     status_field: str | None = Form(None, alias="status"),
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    access_scope: str = Form("RESTRICTED"),
+    authorized_role: str | None = Form(None),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    """HR Admin / Người dùng Upload tài liệu chính sách mới (PDF/DOCX/XLSX)."""
+    """Admin upload tài liệu và chọn domain/phòng ban để route đúng collection."""
     data = await DocumentService.upload_document(
         db=db,
         user=current_user,
         file=file,
         title=title,
         category=category,
+        department=department,
         version=version,
         effective_date=effective_date,
         confidentiality=confidentiality,
         status=status_field,
+        access_scope=access_scope,
+        authorized_role=authorized_role,
     )
     return wrap_response(data, request)
 
@@ -49,7 +55,7 @@ async def list_documents(
     indexed: bool | None = None,
     limit: int = 20,
     cursor: str | None = None,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Danh sách tài liệu chính sách có lọc và phân trang."""

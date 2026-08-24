@@ -21,7 +21,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_002",
@@ -30,7 +32,7 @@
     "query_style": "natural",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "02_quy-trinh-tuyen-dung::0006"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006"
     ],
     "evidence_spans": [
       "Kết quả mỗi vòng ghi vào **Phiếu đánh giá phỏng vấn** (HR-FRM-REC-02)."
@@ -42,7 +44,7 @@
       "Ghi vào Phiếu đánh giá phỏng vấn",
       "Mã form là HR-FRM-REC-02"
     ],
-    "num_relevant": 3,
+    "num_relevant": 1,
     "num_highly_relevant": 1,
     "split": "heldout"
   },
@@ -66,7 +68,9 @@
     ],
     "num_relevant": 10,
     "num_highly_relevant": 7,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_004",
@@ -87,7 +91,9 @@
     ],
     "num_relevant": 8,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_005",
@@ -111,7 +117,9 @@
     ],
     "num_relevant": 6,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_006",
@@ -135,7 +143,9 @@
     ],
     "num_relevant": 9,
     "num_highly_relevant": 6,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_007",
@@ -144,7 +154,8 @@
     "query_style": "natural",
     "category": "onboarding_offboarding",
     "seed_chunk_ids": [
-      "03_quy-trinh-onboarding::0009"
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0012"
     ],
     "evidence_spans": [
       "Nếu không đạt: thông báo và chấm dứt theo quy định, không cần báo trước và không phải bồi thường (Điều 27)."
@@ -157,8 +168,8 @@
       "Không cần báo trước",
       "Không phải bồi thường"
     ],
-    "num_relevant": 4,
-    "num_highly_relevant": 2,
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
     "split": "dev"
   },
   {
@@ -182,7 +193,9 @@
     ],
     "num_relevant": 6,
     "num_highly_relevant": 3,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_009",
@@ -204,7 +217,9 @@
     ],
     "num_relevant": 13,
     "num_highly_relevant": 3,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_010",
@@ -229,7 +244,9 @@
     ],
     "num_relevant": 5,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_011",
@@ -252,7 +269,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_012",
@@ -261,13 +280,19 @@
     "query_style": "keyword",
     "category": "onboarding_offboarding",
     "seed_chunk_ids": [
-      "04_quy-trinh-offboarding::0006"
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0001",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0006",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0008",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0009",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0010",
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0013"
     ],
     "evidence_spans": [
       "NLĐ bàn giao công việc theo **Biên bản bàn giao** (HR-FRM-OFF-02).\n- Trả lại tài sản: laptop, thẻ nhân viên, tài liệu, tài khoản.\n- IT thu hồi quyền truy cập vào đúng ngày làm việc cuối."
     ],
     "source_files": [
-      "04_quy-trinh-offboarding.md"
+      "04_quy-trinh-offboarding.md",
+      "05_chinh-sach-lam-viec-tu-xa.md"
     ],
     "answer_points": [
       "NLĐ bàn giao công việc theo Biên bản bàn giao HR-FRM-OFF-02",
@@ -275,7 +300,7 @@
       "IT thu hồi quyền truy cập đúng ngày làm việc cuối"
     ],
     "num_relevant": 6,
-    "num_highly_relevant": 1,
+    "num_highly_relevant": 0,
     "split": "dev"
   },
   {
@@ -299,7 +324,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_014",
@@ -308,13 +335,15 @@
     "query_style": "natural",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0000"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0002",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006"
     ],
     "evidence_spans": [
       "TÀI LIỆU NÀY ĐƯỢC BAN HÀNH CHO ĐƠN VỊ\nSTT Tên đơn vị Ký hiệu\n1 Ban lãnh đạo BOD\n2 Khối Marketing Marketing\n3 Trung tâm Kinh doanh Revenue Center\n4 Trung tâm Tái ký và Chăm sóc khách hàng Customer Success\nKhối Văn phòng\n5 Back Office\n6 Khối Phát triển sản phẩm Product"
     ],
     "source_files": [
-      "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx.pdf"
+      "02_quy-trinh-tuyen-dung.md"
     ],
     "answer_points": [
       "Ban lãnh đạo (BOD)",
@@ -324,8 +353,8 @@
       "Khối Văn phòng (Back Office)",
       "Khối Phát triển sản phẩm (Product)"
     ],
-    "num_relevant": 7,
-    "num_highly_relevant": 2,
+    "num_relevant": 3,
+    "num_highly_relevant": 0,
     "split": "dev"
   },
   {
@@ -351,7 +380,9 @@
     ],
     "num_relevant": 15,
     "num_highly_relevant": 6,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_016",
@@ -372,7 +403,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_017",
@@ -394,7 +427,9 @@
     ],
     "num_relevant": 7,
     "num_highly_relevant": 3,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_018",
@@ -403,7 +438,11 @@
     "query_style": "keyword",
     "category": "leave_policies",
     "seed_chunk_ids": [
-      "07_chinh-sach-nghi-phep::0019"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0019",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0020",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0021",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0024"
     ],
     "evidence_spans": [],
     "source_files": [
@@ -414,7 +453,7 @@
       "Phần vượt 5 ngày được thanh toán bằng tiền",
       "Phòng Nhân sự ghi nhận trên HRIS trước 31/12"
     ],
-    "num_relevant": 7,
+    "num_relevant": 5,
     "num_highly_relevant": 3,
     "split": "heldout"
   },
@@ -439,7 +478,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_021",
@@ -464,7 +505,9 @@
     ],
     "num_relevant": 9,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_022",
@@ -485,7 +528,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_023",
@@ -511,7 +556,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_024",
@@ -532,7 +579,9 @@
     ],
     "num_relevant": 5,
     "num_highly_relevant": 1,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_025",
@@ -555,7 +604,9 @@
     ],
     "num_relevant": 11,
     "num_highly_relevant": 5,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_026",
@@ -579,7 +630,9 @@
     ],
     "num_relevant": 8,
     "num_highly_relevant": 4,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_027",
@@ -588,13 +641,13 @@
     "query_style": "keyword",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "leanh_mau-noi-quy-lao-dong::0020"
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0016"
     ],
     "evidence_spans": [
       "Trong suốt thời gian làm việc và trong phạm vi nơi làm việc, người lao động không được thực hiện các hành vi sau: a) Hút thuốc trong khu vực quy định không được hút thuốc; b) Uống rượu bia trong giờ làm việc; c) Bàn tán, cáo buộc sai, cản trở sản xuất hoặc ngăn cản người lao động khác thực hiện công việc;"
     ],
     "source_files": [
-      "leanh_mau-noi-quy-lao-dong.docx"
+      "05_chinh-sach-lam-viec-tu-xa.md"
     ],
     "answer_points": [
       "Hút thuốc khu vực cấm",
@@ -604,8 +657,8 @@
       "Cưỡng ép, lăng nhục, đe dọa đồng nghiệp",
       "Quấy rối tình dục, phân biệt đối xử"
     ],
-    "num_relevant": 14,
-    "num_highly_relevant": 6,
+    "num_relevant": 1,
+    "num_highly_relevant": 0,
     "split": "dev"
   },
   {
@@ -629,7 +682,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 1,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_029",
@@ -638,7 +693,8 @@
     "query_style": "natural",
     "category": "compensation_policies",
     "seed_chunk_ids": [
-      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0019"
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0005",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019"
     ],
     "evidence_spans": [
       "Gói BHSTN chấm dứt vào ngày cuối cùng của tháng mà NLĐ nghỉ việc theo quyết định chấm dứt HĐLĐ. NLĐ có thể tiếp tục duy trì cá nhân bằng cách tự đóng phí cho Đối tác BH."
@@ -675,7 +731,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_031",
@@ -698,7 +756,9 @@
     ],
     "num_relevant": 8,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_032",
@@ -721,7 +781,9 @@
     ],
     "num_relevant": 5,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_033",
@@ -743,7 +805,9 @@
     ],
     "num_relevant": 9,
     "num_highly_relevant": 4,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_034",
@@ -766,7 +830,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_035",
@@ -775,19 +841,19 @@
     "query_style": "natural",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "leanh_mau-noi-quy-lao-dong::0008"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0016"
     ],
     "evidence_spans": [
       "Trong các trường hợp nghỉ từ 05 ngày trở lên thì phải làm đơn xin phép trước 02 tuần."
     ],
     "source_files": [
-      "leanh_mau-noi-quy-lao-dong.docx"
+      "07_chinh-sach-nghi-phep.md"
     ],
     "answer_points": [
       "Nghỉ từ 5 ngày trở lên phải làm đơn xin phép trước 2 tuần"
     ],
-    "num_relevant": 2,
-    "num_highly_relevant": 2,
+    "num_relevant": 1,
+    "num_highly_relevant": 0,
     "split": "dev"
   },
   {
@@ -797,7 +863,8 @@
     "query_style": "keyword",
     "category": "compensation_policies",
     "seed_chunk_ids": [
-      "01_chinh-sach-lam-them-gio-OT::0007"
+      "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0004",
+      "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0007"
     ],
     "evidence_spans": [],
     "source_files": [
@@ -809,7 +876,7 @@
       "NLĐ xác nhận đồng ý bằng chữ ký hoặc trên HRIS",
       "Bộ phận chấm công ghi nhận giờ thực tế"
     ],
-    "num_relevant": 9,
+    "num_relevant": 2,
     "num_highly_relevant": 1,
     "split": "dev"
   },
@@ -834,7 +901,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_038",
@@ -857,7 +926,9 @@
     ],
     "num_relevant": 5,
     "num_highly_relevant": 4,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_039",
@@ -866,20 +937,22 @@
     "query_style": "keyword",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0001"
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0001",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004"
     ],
     "evidence_spans": [
       "1. **Đào tạo Nội bộ**: Các khóa học do Công ty tự tổ chức hoặc mời chuyên gia về giảng dạy tại Công ty (CBNV không phải ký cam kết bồi hoàn, trừ trường hợp có chi phí cấp chứng chỉ đặc thù)."
     ],
     "source_files": [
-      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md"
+      "06_chinh-sach-dao-tao-phat-trien.md"
     ],
     "answer_points": [
       "Đào tạo nội bộ do công ty tự tổ chức hoặc mời chuyên gia",
       "Đào tạo bên ngoài do công ty tài trợ 50-100% học phí"
     ],
-    "num_relevant": 7,
-    "num_highly_relevant": 4,
+    "num_relevant": 3,
+    "num_highly_relevant": 1,
     "split": "heldout"
   },
   {
@@ -889,20 +962,23 @@
     "query_style": "natural",
     "category": "leave_policies",
     "seed_chunk_ids": [
-      "amis_mau-thong-bao-quy-dinh-nghi-phep::0000"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0008",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0011",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0016",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0017"
     ],
     "evidence_spans": [
       "– Thủ tục xin nghỉ phép:\n\n…………………………………………………………………………………………..\n\n– Sau khi quay trở lại làm việc, nhân viên phải …………………………………..……"
     ],
     "source_files": [
-      "amis_mau-thong-bao-quy-dinh-nghi-phep.docx"
+      "07_chinh-sach-nghi-phep.md"
     ],
     "answer_points": [
       "Nhân viên cần thực hiện thủ tục xin nghỉ phép theo quy định của công ty",
       "Sau khi quay trở lại làm việc, nhân viên phải thực hiện các yêu cầu được quy định trong thông báo"
     ],
-    "num_relevant": 8,
-    "num_highly_relevant": 4,
+    "num_relevant": 4,
+    "num_highly_relevant": 2,
     "split": "heldout"
   },
   {
@@ -912,19 +988,20 @@
     "query_style": "natural",
     "category": "government_legal",
     "seed_chunk_ids": [
-      "bộ luật lao động::0043"
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0011"
     ],
     "evidence_spans": [
       "b) Ít nhất 30 ngày nếu làm việc theo hợp đồng lao động xác định thời hạn có thời hạn từ 12 tháng đến 36 tháng;"
     ],
     "source_files": [
-      "bộ luật lao động.pdf"
+      "04_quy-trinh-offboarding.md"
     ],
     "answer_points": [
       "Hợp đồng xác định thời hạn từ 12 đến 36 tháng phải báo trước ít nhất 30 ngày"
     ],
-    "num_relevant": 6,
-    "num_highly_relevant": 2,
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
     "split": "dev"
   },
   {
@@ -948,7 +1025,9 @@
     ],
     "num_relevant": 14,
     "num_highly_relevant": 6,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_043",
@@ -971,7 +1050,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_044",
@@ -994,7 +1075,9 @@
     ],
     "num_relevant": 8,
     "num_highly_relevant": 2,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_045",
@@ -1003,19 +1086,19 @@
     "query_style": "keyword",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0004"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006"
     ],
     "evidence_spans": [
       "Khi thi tuyển vào Vingroup, ứng viên sẽ được phỏng vấn bởi một hội đồng gồm 3 người; trong đó có cả người ngoại quốc."
     ],
     "source_files": [
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf"
+      "02_quy-trinh-tuyen-dung.md"
     ],
     "answer_points": [
       "Hội đồng phỏng vấn gồm 3 người, trong đó có cả người ngoại quốc"
     ],
-    "num_relevant": 4,
-    "num_highly_relevant": 2,
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
     "split": "heldout"
   },
   {
@@ -1025,7 +1108,15 @@
     "query_style": "natural",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "06_chinh-sach-dao-tao-phat-trien::0000"
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0000",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0001",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0002",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0007",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009"
     ],
     "evidence_spans": [
       "Mã tài liệu: HR-POL-TRAIN-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025"
@@ -1037,7 +1128,7 @@
       "Hiệu lực từ ngày 01/01/2025",
       "Phiên bản 1.0, mã tài liệu HR-POL-TRAIN-2025"
     ],
-    "num_relevant": 12,
+    "num_relevant": 9,
     "num_highly_relevant": 1,
     "split": "dev"
   },
@@ -1063,7 +1154,9 @@
     ],
     "num_relevant": 6,
     "num_highly_relevant": 1,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_049",
@@ -1086,7 +1179,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_050",
@@ -1109,7 +1204,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_051",
@@ -1131,7 +1228,9 @@
     ],
     "num_relevant": 3,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_052",
@@ -1154,7 +1253,9 @@
     ],
     "num_relevant": 4,
     "num_highly_relevant": 2,
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_053",
@@ -1178,7 +1279,9 @@
     ],
     "num_relevant": 2,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_054",
@@ -1199,7 +1302,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_055",
@@ -1222,7 +1327,9 @@
     ],
     "num_relevant": 11,
     "num_highly_relevant": 3,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_056",
@@ -1231,21 +1338,23 @@
     "query_style": "natural",
     "category": "onboarding_offboarding",
     "seed_chunk_ids": [
-      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong::0007"
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0009",
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0001"
     ],
     "evidence_spans": [
       "Bằng cách hợp tác với Talentnet, các nhà tuyển dụng có thể yên tâm rằng quy trình chấm dứt hợp đồng lao động sẽ tuân thủ pháp luật, thân thiện với người lao động, duy trì quan hệ tốt với lực lượng lao động và tránh được những rủi ro pháp lý tiềm ẩn."
     ],
     "source_files": [
-      "talentnet_quy-trinh-cham-dut-hop-dong-lao-dong.md"
+      "03_quy-trinh-onboarding.md",
+      "04_quy-trinh-offboarding.md"
     ],
     "answer_points": [
       "Quy trình chấm dứt hợp đồng lao động tuân thủ pháp luật",
       "Thân thiện với người lao động, duy trì quan hệ tốt với lực lượng lao động",
       "Tránh được rủi ro pháp lý tiềm ẩn"
     ],
-    "num_relevant": 12,
-    "num_highly_relevant": 1,
+    "num_relevant": 2,
+    "num_highly_relevant": 0,
     "split": "dev"
   },
   {
@@ -1269,7 +1378,9 @@
     ],
     "num_relevant": 10,
     "num_highly_relevant": 9,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_058",
@@ -1278,7 +1389,7 @@
     "query_style": "natural",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "05_chinh-sach-lam-viec-tu-xa::0000"
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0000"
     ],
     "evidence_spans": [
       "Mã tài liệu: HR-POL-WFH-2025 · Phiên bản 1.0 · Hiệu lực từ 01/01/2025"
@@ -1313,7 +1424,9 @@
     ],
     "num_relevant": 1,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_060",
@@ -1338,7 +1451,9 @@
     ],
     "num_relevant": 9,
     "num_highly_relevant": 1,
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_061",
@@ -1367,7 +1482,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 5,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_062",
@@ -1395,7 +1512,9 @@
     "num_relevant": 4,
     "num_highly_relevant": 1,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_063",
@@ -1422,7 +1541,9 @@
     "num_relevant": 9,
     "num_highly_relevant": 2,
     "group_kind": "cross_doc",
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_064",
@@ -1449,7 +1570,9 @@
     "num_relevant": 9,
     "num_highly_relevant": 3,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_065",
@@ -1458,20 +1581,19 @@
     "query_style": "broad",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "02_quy-trinh-tuyen-dung::0008",
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0008"
     ],
     "evidence_spans": [],
     "source_files": [
-      "02_quy-trinh-tuyen-dung.md",
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf"
+      "02_quy-trinh-tuyen-dung.md"
     ],
     "answer_points": [
       "Sau khi ứng viên nộp hồ sơ, vòng phỏng vấn trực tiếp sẽ được thông báo kết quả trong tối đa 7 ngày qua email hoặc điện thoại. Hồ sơ dự tuyển gồm bản mềm theo mẫu Vingroup và bản cứng gồm sơ yếu lý lịch có chứng nhận phường/xã trong 6 tháng, giấy khai sinh công chứng, giấy khám sức khỏe trong 6 tháng, CMND công chứng 2 bản, photocopy sổ hộ khẩu, xác nhận không tiền án tiền sự của công an, 4 ảnh 3x4, bằng cấp chứng chỉ, mã số thuế và số bảo hiểm nếu có. Sau đó ở Bước 6 cần xác minh bằng cấp và kinh nghiệm (reference check), thu thập hồ sơ gồm CMND/CCCD, bằng cấp, sơ yếu lý lịch, giấy khám sức khỏe. Bước 7 là ký hợp đồng thử việc/lao động theo Điều 13–21 rồi chuyển thông tin sang quy trình Onboarding HR-PRO-ONB-2025.",
       "Hồ sơ dự tuyển bao gồm bản mềm theo mẫu Vingroup và bản cứng gồm: sơ yếu lý lịch có chứng nhận phường/xã trong 6 tháng, giấy khai sinh công chứng, giấy khám sức khỏe trong 6 tháng, CMND công chứng 02 bản, photocopy sổ hộ khẩu, xác nhận công an về không tiền án tiền sự, 4 ảnh 3x4, bằng cấp chứng chỉ, mã số thuế và số bảo hiểm nếu có. Sau trúng tuyển, vòng 2 phỏng vấn trực tiếp được thông báo trong tối đa 7 ngày qua email/điện thoại."
     ],
-    "num_relevant": 9,
-    "num_highly_relevant": 3,
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -1499,7 +1621,9 @@
     "num_relevant": 3,
     "num_highly_relevant": 2,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_067",
@@ -1526,7 +1650,9 @@
     "num_relevant": 9,
     "num_highly_relevant": 7,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_068",
@@ -1553,7 +1679,9 @@
     "num_relevant": 7,
     "num_highly_relevant": 2,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_069",
@@ -1562,22 +1690,21 @@
     "query_style": "broad",
     "category": "government_legal",
     "seed_chunk_ids": [
-      "luat_bao_hiem_xa_hoi_41_2024_qh15::0062",
-      "luat_bao_hiem_xa_hoi_41_2024_qh15::0064"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0008"
     ],
     "evidence_spans": [
       "không hưởng tiền lương từ 14 ngày làm việc trở lên trong tháng thì người lao động không phải đóng bảo hiểm xã hội tháng đó, trừ trường hợp người sử dụng lao động và người lao động có thỏa thuận về việc có đóng bảo hiểm xã hội cho người lao động tháng đó với căn cứ đóng bằng căn cứ đóng bảo hiểm xã hội tháng gần nhất.",
       "Người sử dụng lao động không phải đóng bảo hiểm xã hội cho đối tượng theo quy định tại khoản 5 Điều 33 của Luật này, trừ trường hợp người sử dụng lao động có thỏa thuận với người lao động về việc có đóng bảo hiểm xã hội cho người lao động tháng đó với căn cứ đóng bằng căn cứ đóng bảo hiểm xã hội tháng gần nhất."
     ],
     "source_files": [
-      "luat_bao_hiem_xa_hoi_41_2024_qh15.pdf"
+      "07_chinh-sach-nghi-phep.md"
     ],
     "answer_points": [
       "Người lao động không phải đóng BHXH tháng đó, trừ khi hai bên thỏa thuận vẫn đóng thì căn cứ đóng bằng căn cứ đóng BHXH tháng gần nhất.",
       "Người sử dụng lao động cũng không phải đóng BHXH cho trường hợp này (theo khoản 5 Điều 33), trừ khi có thỏa thuận với người lao động về việc có đóng thì căn cứ đóng bằng căn cứ đóng BHXH tháng gần nhất."
     ],
-    "num_relevant": 7,
-    "num_highly_relevant": 3,
+    "num_relevant": 1,
+    "num_highly_relevant": 0,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -1605,7 +1732,9 @@
     "num_relevant": 5,
     "num_highly_relevant": 3,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_071",
@@ -1614,8 +1743,10 @@
     "query_style": "broad",
     "category": "onboarding_offboarding",
     "seed_chunk_ids": [
-      "03_quy-trinh-onboarding::0006",
-      "03_quy-trinh-onboarding::0003"
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0003",
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0005",
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0006",
+      "nexatech:576a3f79-897d-5f89-9107-bfe8b3c32552:5f17c7f1-b23e-5708-bb9a-fc51cf79a2ad:0007"
     ],
     "evidence_spans": [
       "Quản lý trao đổi mục tiêu 90 ngày, kỳ vọng vai trò.",
@@ -1657,7 +1788,9 @@
     "num_relevant": 5,
     "num_highly_relevant": 2,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_073",
@@ -1666,22 +1799,23 @@
     "query_style": "broad",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0002",
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup::0003"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0006",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0008",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0010"
     ],
     "evidence_spans": [
       "Gửi hồ sơ dự tuyển (bao gồm CV); thông qua email về địa chỉ email tuyển dụng của Vingroup, tiêu đề của email theo mẫu: Vị trí ứng tuyển – Họ tên.",
       "Sau tối đa 7 ngày (kể từ ngày ứng viên nộp đơn thi tuyển vào Vingroup); doanh nghiệp sẽ thông báo kết quả tới những ứng viên trúng tuyển."
     ],
     "source_files": [
-      "842059170-18-Nguyễn-Đinh-Hải-Lam-Quy-Trinh-Tuyển-Dụng-Chung-Của-Vingroup.pdf"
+      "02_quy-trinh-tuyen-dung.md"
     ],
     "answer_points": [
       "Ứng viên có thể nộp qua email (tiêu đề theo mẫu: Vị trí ứng tuyển – Họ tên), nộp bản cứng tại văn phòng, hoặc đăng ký qua link/SMS tùy vị trí. Hồ sơ bao gồm hồ sơ bản mềm theo mẫu hướng dẫn của Vingroup.",
       "Hồ sơ bản cứng gồm sơ yếu lý lịch (chứng nhận 6 tháng), giấy khai sinh công chứng, giấy khám sức khỏe 6 tháng, CMND công chứng 2 bản, photocopy sổ hộ khẩu, xác nhận không tiền án tiền sự, 4 ảnh 3x4, bằng cấp chứng chỉ, MST/BHXH nếu có. Ngoài bìa ghi rõ tên và mã vị trí, liên hệ. Sau tối đa 7 ngày kể từ ngày nộp hồ sơ, công ty sẽ thông báo kết quả và lịch phỏng vấn qua email hoặc điện thoại."
     ],
-    "num_relevant": 11,
-    "num_highly_relevant": 5,
+    "num_relevant": 3,
+    "num_highly_relevant": 0,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -1710,7 +1844,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 3,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_075",
@@ -1736,7 +1872,9 @@
     "num_relevant": 5,
     "num_highly_relevant": 2,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_076",
@@ -1745,23 +1883,22 @@
     "query_style": "broad",
     "category": "compensation_policies",
     "seed_chunk_ids": [
-      "01_chinh-sach-lam-them-gio-OT::0005",
-      "nghi_dinh_145_2020_nd_cp::0116"
+      "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0003",
+      "nexatech:fe86c54f-f383-5d24-808c-398514d9e787:e8571bcb-f7d7-5788-af3c-efad0eaf3090:0005"
     ],
     "evidence_spans": [
       "Vào ngày nghỉ hằng tuần/ngày lễ: tổng thời gian làm việc không quá 12 giờ/ngày.",
       "Thời giờ quy định tại các khoản 1 Điều 58 Nghị định này được giảm trừ khi tính tổng số giờ làm thêm trong tháng, trong năm để xác định việc tuân thủ quy định tại điểm b, điểm c khoản 2 Điều 107 của Bộ luật Lao động."
     ],
     "source_files": [
-      "01_chinh-sach-lam-them-gio-OT.md",
-      "nghi_dinh_145_2020_nd_cp.pdf"
+      "01_chinh-sach-lam-them-gio-OT.md"
     ],
     "answer_points": [
       "Vào ngày nghỉ hằng tuần/ngày lễ, tổng thời gian làm việc không quá 12 giờ/ngày. Giới hạn làm thêm chung không quá 40 giờ/tháng và 200 giờ/năm.",
       "Tổng số giờ làm thêm không quá 12 giờ trong một ngày khi làm thêm vào ngày nghỉ lễ, Tết và ngày nghỉ hằng tuần. Thời giờ quy định tại các khoản 1 Điều 58 Nghị định này được giảm trừ khi tính tổng số giờ làm thêm trong tháng, trong năm để xác định việc tuân thủ quy định."
     ],
-    "num_relevant": 7,
-    "num_highly_relevant": 2,
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -1790,7 +1927,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 2,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_078",
@@ -1818,7 +1957,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 5,
     "group_kind": "same_doc",
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_079",
@@ -1844,7 +1985,9 @@
     "num_relevant": 3,
     "num_highly_relevant": 3,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_080",
@@ -1853,22 +1996,22 @@
     "query_style": "broad",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "05_chinh-sach-lam-viec-tu-xa::0024",
-      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai::0001"
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0021",
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0024",
+      "nexatech:82cbb5f1-14f4-5a2a-a0e7-e08dd8936d91:66835987-be7f-5129-9a5a-9abf30747cc2:0031"
     ],
     "evidence_spans": [
       "Vi phạm quy định chấm công (quên check-in/check-out) quá **03 lần/tháng** hoặc có dấu hiệu gian lận chấm công (nhờ người khác check-in, giả mạo vị trí GPS).",
       "**Khiển trách**: Áp dụng đối với hành vi vi phạm lần đầu nhưng ở mức độ nhẹ (đi muộn 03 lần/tháng, không đeo thẻ nhân viên, vi phạm quy định 5S...)."
     ],
     "source_files": [
-      "05_chinh-sach-lam-viec-tu-xa.md",
-      "mau_quy-trinh-ky-luat-lao-dong-va-khieu-nai.md"
+      "05_chinh-sach-lam-viec-tu-xa.md"
     ],
     "answer_points": [
       "Quyền WFH bị thu hồi tạm thời 01 tháng nếu quên check-in/check-out quá 03 lần/tháng hoặc có dấu hiệu gian lận chấm công; sau 01 tháng nếu khắc phục được nguyên nhân thì có thể đề xuất phục hồi quyền WFH",
       "Về kỷ luật lao động, nếu vi phạm lần đầu ở mức độ nhẹ (như đi muộn 03 lần/tháng) thì bị áp dụng hình thức khiển trách; công ty không áp dụng nhiều hình thức kỷ luật cho cùng một hành vi vi phạm"
     ],
-    "num_relevant": 7,
+    "num_relevant": 3,
     "num_highly_relevant": 1,
     "group_kind": "cross_doc",
     "split": "dev"
@@ -1898,7 +2041,9 @@
     "num_relevant": 4,
     "num_highly_relevant": 2,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_082",
@@ -1927,7 +2072,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 7,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_083",
@@ -1958,7 +2105,9 @@
     "num_relevant": 9,
     "num_highly_relevant": 7,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_084",
@@ -1967,9 +2116,13 @@
     "query_style": "broad",
     "category": "compensation_policies",
     "seed_chunk_ids": [
-      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0015",
-      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0013",
-      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen::0008"
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0003",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0007",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0008",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0011",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0013",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0014",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0015"
     ],
     "evidence_spans": [
       "Cấp cứu ngoài giờ: NLĐ có thể nhập viện trước, liên hệ Đối tác BH trong 48 giờ để xin bảo lãnh bổ sung.",
@@ -2013,7 +2166,9 @@
     "num_relevant": 6,
     "num_highly_relevant": 4,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_086",
@@ -2043,7 +2198,9 @@
     "num_relevant": 12,
     "num_highly_relevant": 4,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_087",
@@ -2070,7 +2227,9 @@
     "num_relevant": 6,
     "num_highly_relevant": 3,
     "group_kind": "cross_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_088",
@@ -2099,7 +2258,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 5,
     "group_kind": "same_doc",
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_089",
@@ -2130,7 +2291,9 @@
     "num_relevant": 13,
     "num_highly_relevant": 4,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_090",
@@ -2139,23 +2302,21 @@
     "query_style": "broad",
     "category": "onboarding_offboarding",
     "seed_chunk_ids": [
-      "04_quy-trinh-offboarding::0004",
-      "bộ luật lao động::0043"
+      "nexatech:ca033bf9-8b46-59b2-bdd3-35218e5b561b:3e0371d2-c3e2-5ecf-ae31-ef70c7bdb362:0004"
     ],
     "evidence_spans": [
       "Các trường hợp NLĐ được quyền nghỉ không cần báo trước: theo khoản 2 Điều 35 (ví dụ không được bố trí đúng công việc, không được trả đủ lương/đúng hạn, bị ngược đãi, bị quấy rối tình dục...).",
       "Bị người sử dụng lao động ngược đãi, đánh đập hoặc có lời nói, hành vi nhục mạ, hành vi làm ảnh hưởng đến sức khỏe, nhân phẩm, danh dự; bị cưỡng bức lao động;"
     ],
     "source_files": [
-      "04_quy-trinh-offboarding.md",
-      "bộ luật lao động.pdf"
+      "04_quy-trinh-offboarding.md"
     ],
     "answer_points": [
       "Theo quy trình công ty, NLĐ được quyền nghỉ không cần báo trước trong các trường hợp ví dụ như không được bố trí đúng công việc, không được trả đủ lương/đúng hạn, bị ngược đãi, bị quấy rối tình dục.",
       "Theo luật lao động, cụ thể các trường hợp được nghỉ không báo trước bao gồm: không được bố trí đúng công việc, địa điểm làm việc hoặc không đảm bảo điều kiện làm việc; không được trả đủ lương hoặc trả lương không đúng hạn; bị ngược đãi, đánh đập hoặc có lời nói, hành vi nhục mạ, làm ảnh hưởng sức khỏe, nhân phẩm, danh dự; hoặc bị cưỡng bức lao động."
     ],
-    "num_relevant": 5,
-    "num_highly_relevant": 4,
+    "num_relevant": 1,
+    "num_highly_relevant": 1,
     "group_kind": "cross_doc",
     "split": "heldout"
   },
@@ -2166,8 +2327,13 @@
     "query_style": "broad",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "06_chinh-sach-dao-tao-phat-trien::0001",
-      "06_chinh-sach-dao-tao-phat-trien::0008"
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0001",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0003",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0004",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0005",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0008",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009"
     ],
     "evidence_spans": [
       "Quy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả đào tạo tại NexaTech, nhằm phát triển năng lực người lao động (NLĐ) và tuân thủ Bộ luật Lao động 2019.",
@@ -2181,7 +2347,7 @@
       "Chính sách quy định các loại hình đào tạo, ngân sách, quy trình phê duyệt, cam kết làm việc sau đào tạo và phương pháp đánh giá hiệu quả, nhằm phát triển năng lực người lao động và tuân thủ Bộ luật Lao động 2019.",
       "Nhân viên phải tham gia đầy đủ, nghiêm túc, áp dụng kiến thức vào công việc và tuân thủ cam kết thời gian làm việc sau đào tạo; quản lý trực tiếp đánh giá nhu cầu, hỗ trợ áp dụng kỹ năng mới và đánh giá hiệu quả cấp độ 3; phòng nhân sự lập kế hoạch, quản lý ngân sách, tổ chức đào tạo, theo dõi hồ sơ cam kết và đánh giá tổng thể hiệu quả."
     ],
-    "num_relevant": 14,
+    "num_relevant": 7,
     "num_highly_relevant": 2,
     "group_kind": "same_doc",
     "split": "dev"
@@ -2210,7 +2376,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 3,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_093",
@@ -2245,7 +2413,9 @@
     "num_relevant": 7,
     "num_highly_relevant": 4,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_094",
@@ -2254,8 +2424,9 @@
     "query_style": "broad",
     "category": "leave_policies",
     "seed_chunk_ids": [
-      "07_chinh-sach-nghi-phep::0014",
-      "leanh_mau-noi-quy-lao-dong::0011"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0013",
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0014",
+      "nexatech:7a8b7b7e-e5a0-5a82-9423-5293694e9eb6:91d712cc-d99e-5973-8754-90bda8a5f7a2:0019"
     ],
     "evidence_spans": [
       "NLĐ nữ sinh con được công ty hỗ trợ thêm **2 tháng lương** (trợ cấp riêng từ công ty) ngoài chế độ BHXH, nếu có HĐLĐ xác định thời hạn từ 12 tháng trở lên và đóng BHXH liên tục.",
@@ -2263,15 +2434,15 @@
     ],
     "source_files": [
       "07_chinh-sach-nghi-phep.md",
-      "leanh_mau-noi-quy-lao-dong.docx"
+      "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md"
     ],
     "answer_points": [
       "Thời gian nghỉ: lao động nữ được nghỉ 6 tháng trước và sau khi sinh, nghỉ trước khi sinh tối đa không quá 2 tháng; sinh đôi trở lên thì từ con thứ 2 mỗi con thêm 1 tháng",
       "Mức hưởng BHXH: bằng 100% mức bình quân tiền lương tháng đóng BHXH của 6 tháng trước khi nghỉ; nếu đóng dưới 6 tháng thì tính bình quân các tháng đã đóng",
       "Công ty hỗ trợ thêm 2 tháng lương ngoài chế độ BHXH nếu có HĐLĐ từ 12 tháng trở lên và đóng BHXH liên tục"
     ],
-    "num_relevant": 7,
-    "num_highly_relevant": 4,
+    "num_relevant": 3,
+    "num_highly_relevant": 2,
     "group_kind": "cross_doc",
     "split": "heldout"
   },
@@ -2282,21 +2453,21 @@
     "query_style": "broad",
     "category": "recruitment_policies",
     "seed_chunk_ids": [
-      "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0002",
-      "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx::0003"
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0004",
+      "nexatech:6698bd6f-bb67-544f-914c-5c4eff998fd1:ac9eb564-591c-56cd-8de5-1cdb3f083f1b:0009"
     ],
     "evidence_spans": [
       "Bộ phận Tuyển dụng căn cứ vào định biên được duyệt theo năm/quý để lên kế hoạch tuyển dụng."
     ],
     "source_files": [
-      "[Base.vn] Mẫu sơ đồ quy trình tuyển dụng nhân sự.docx.pdf"
+      "02_quy-trinh-tuyen-dung.md"
     ],
     "answer_points": [
       "Bộ phận Tuyển dụng dựa vào định biên được duyệt theo năm/quý để lên kế hoạch tuyển dụng, định biên này phải được Ban lãnh đạo duyệt trước ngày 15 hàng quý. Quy trình nói chung bao gồm các nội dung công việc và người phụ trách từ khi phòng ban phát sinh nhu cầu tuyển dụng đến khi nhân sự mới nhận việc.",
       "Khi có nhu cầu, HM tạo đề xuất tuyển dụng trên Base Request với luồng duyệt qua GĐ Khối → TP Vận hành (nếu có) → TP Nhân sự → Tổng Giám đốc. HR xem xét đề xuất trong 24h theo các tiêu chí như biên nhân sự, ngân sách lương, khối lượng công việc... Nếu phù hợp thì chuyển lên TGĐ phê duyệt trong 24h. Sau khi được duyệt, TA đăng tin và tìm kiếm CV trên các nguồn trong 24h, sau đó upload CV lên Base e-hiring và gửi mail xác nhận cho ứng viên."
     ],
-    "num_relevant": 5,
-    "num_highly_relevant": 4,
+    "num_relevant": 2,
+    "num_highly_relevant": 1,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -2307,22 +2478,21 @@
     "query_style": "broad",
     "category": "compensation_policies",
     "seed_chunk_ids": [
-      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0001",
-      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat::0000"
+      "nexatech:e3650147-4800-5239-a7e0-c3f49ef7ab8d:fc2dc6a1-4601-5c7c-9d3b-31f74897a52b:0023"
     ],
     "evidence_spans": [
       "Thưởng thâm niên: Dành cho những người có thâm niên làm việc tại công ty.",
       "Cưới hỏi: Nhân viên không kể cấp bậc trong công ty kết hôn sẽ được hưởng chế độ mừng cưới hỏi của công ty."
     ],
     "source_files": [
-      "base_mau-quy-che-luong-thuong-phu-cap-xu-phat.docx"
+      "07_chinh-sach-nghi-phep.md"
     ],
     "answer_points": [
       "Công ty có các khoản thưởng ngày lễ (8/3, 20/10, 1/6, Tết Trung thu, Tết, Quốc tế Lao động), thưởng nghỉ mát, thưởng thâm niên cho người làm lâu năm và thưởng theo hiệu quả làm việc.",
       "Ngoài ra còn có các chế độ thăm hỏi đãi ngộ khi nhân viên hoặc bố mẹ đẻ/bố mẹ vợ chồng bị bệnh phải nằm viện, chế độ thai sản cho nhân viên nữ và em bé mới sinh, phúng viếng khi tứ thân phụ mẫu mất, mừng cưới hỏi, và chúc mừng sinh nhật."
     ],
-    "num_relevant": 13,
-    "num_highly_relevant": 6,
+    "num_relevant": 1,
+    "num_highly_relevant": 0,
     "group_kind": "same_doc",
     "split": "dev"
   },
@@ -2350,7 +2520,9 @@
     "num_relevant": 10,
     "num_highly_relevant": 5,
     "group_kind": "same_doc",
-    "split": "dev"
+    "split": "dev",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   },
   {
     "id": "rq_099",
@@ -2359,22 +2531,22 @@
     "query_style": "broad",
     "category": "company_regulations",
     "seed_chunk_ids": [
-      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0004",
-      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan::0003"
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0006",
+      "nexatech:1950d977-c3a0-5773-8ed1-d765a48e9612:48e2d6e0-c919-5d16-ace9-3860c0d99bd6:0009"
     ],
     "evidence_spans": [
       "Số tiền bồi hoàn được tính theo tỷ lệ thời gian chưa thực hiện cam kết theo công thức:",
       "Đơn phương chấm dứt Hợp đồng lao động trái pháp luật hoặc xin nghỉ việc trước khi hết thời hạn cam kết phục vụ quy định tại Điều 3."
     ],
     "source_files": [
-      "mau_quy-che-dao-tao-va-cam-ket-boi-hoan.md"
+      "06_chinh-sach-dao-tao-phat-trien.md"
     ],
     "answer_points": [
       "Có phải bồi hoàn, vì xin nghỉ việc trước khi hết thời hạn cam kết phục vụ là một trong các trường hợp phải bồi hoàn chi phí đào tạo.",
       "Số tiền bồi hoàn = Tổng chi phí đào tạo × (1 − Số tháng đã làm việc sau đào tạo / Tổng số tháng cam kết), trong đó tổng chi phí đào tạo gồm học phí, tiền tài liệu, lệ phí thi chứng chỉ và chi phí di chuyển/lưu trú do công ty chi trả, số tháng đã làm việc tính tròn theo tháng thực tế."
     ],
-    "num_relevant": 9,
-    "num_highly_relevant": 4,
+    "num_relevant": 2,
+    "num_highly_relevant": 2,
     "group_kind": "same_doc",
     "split": "heldout"
   },
@@ -2405,6 +2577,8 @@
     "num_relevant": 12,
     "num_highly_relevant": 7,
     "group_kind": "same_doc",
-    "split": "heldout"
+    "split": "heldout",
+    "retired": true,
+    "retired_reason": "source_not_in_active_corpus"
   }
 ]

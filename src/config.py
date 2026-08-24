@@ -31,7 +31,9 @@ class Settings(BaseSettings):
     agent_service_token: str = ""
 
     # Database (dữ liệu quan hệ: user/RBAC, chat history, ticket, document metadata)
-    database_url: str = "sqlite:///./data/app.db"
+    # URL Supabase PostgreSQL — đọc từ .env; không có default SQLite nữa.
+    database_url: str = ""
+    knowledge_database_url: str = ""  # Optional override riêng cho lới thức layer
     supabase_url: str = ""
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""
@@ -55,7 +57,10 @@ class Settings(BaseSettings):
     # được trên Render vì free/standard tier không có persistent disk).
     vector_db_backend: Literal["cloud", "local"] = "cloud"
     chroma_persist_dir: str = "./storage/vector_db"
-    chroma_collection_name: str = "hr_documents"
+    chroma_collection_name: str = "tenant_nexatech_knowledge"
+    chroma_product_collection_name: str = "product_documents"
+    chroma_accounting_collection_name: str = "accounting_documents"
+
     chroma_cloud_api_key: str = ""
     chroma_cloud_tenant: str = ""
     chroma_cloud_database: str = ""
@@ -315,6 +320,10 @@ class Settings(BaseSettings):
     # độ nhất quán của model với chính nó, không phải chất lượng hệ thống
     # (circular evaluation). Llama-3.3-70B khác họ với GLM và phản hồi nhanh.
     judge_model: str = "Llama-3.3-70B-Instruct"
+    # Có thể tách credential/quota của judge khỏi traffic chat production.
+    # Để trống thì tương thích ngược: dùng FPT_API_KEY/FPT_BASE_URL như trước.
+    judge_api_key: str = ""
+    judge_base_url: str = ""
 
     # Agent RAG
     retrieval_top_k: int = 25
@@ -327,8 +336,8 @@ class Settings(BaseSettings):
     # Đo trên 140 câu eval (eval/results/rerank_score_distribution.json): top-1
     # score của in_scope có median 0.975 / p10 0.490, còn out_of_scope median
     # 0.010 và competitor 0.034 — tách bạch tốt hơn hẳn khoảng cách cosine.
-    # 0.05 giữ lại 99% câu in_scope mà vẫn loại 67% câu out_of_scope.
-    rerank_min_score: float = 0.05
+    # 0.01 giữ lại đầy đủ các chunk liên quan trong câu hỏi so sánh nhiều chính sách (multi-policy).
+    rerank_min_score: float = 0.01
     # Chỉ dùng khi reranker tắt/lỗi — ngưỡng khoảng cách cosine.
     retrieval_max_distance: float = 0.18
     # Neo cho confidence tính từ distance (nhánh fallback khi không có rerank

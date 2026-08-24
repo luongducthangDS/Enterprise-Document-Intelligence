@@ -16,7 +16,7 @@ router = APIRouter()
 async def create_evaluation_run(
     request: Request,
     payload: EvaluationRunRequest,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Tạo tác vụ chạy đánh giá chất lượng bộ câu hỏi RAG (Evaluation Run)."""
@@ -32,7 +32,7 @@ async def create_evaluation_run(
 async def get_evaluation_run_status(
     run_id: str,
     request: Request,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Theo dõi tiến độ & kết quả các chỉ số của đợt đánh giá chất lượng."""

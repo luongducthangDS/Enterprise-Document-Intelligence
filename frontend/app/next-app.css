@@ -16,8 +16,8 @@
   --shadow-raised-soft: 5px 5px 13px rgba(91, 82, 53, .11), -4px -4px 11px rgba(255, 255, 255, .66);
   --shadow-inset: inset 3px 3px 8px rgba(91, 82, 53, .12), inset -3px -3px 8px rgba(255, 255, 255, .72);
   --shadow-emerald: 0 8px 18px rgba(6, 78, 59, .2), inset 0 1px rgba(255, 255, 255, .16);
-  --serif: "Instrument Serif", Georgia, serif;
-  --sans: "Work Sans", Arial, sans-serif;
+  --serif: var(--font-serif, "Playfair Display"), Georgia, serif;
+  --sans: var(--font-sans, "Be Vietnam Pro"), "Segoe UI", Arial, sans-serif;
 }
 
 html, body { width: 100%; min-height: 100%; }
@@ -137,7 +137,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.025e
 .citation-panel:not(.open) .citation-resizer { display: none; }
 .chat-main { position: relative; isolation: isolate; min-width: 0; flex: 1; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; background: linear-gradient(145deg,#dfe9df,#e8e0c9 72%); }
 .chat-main > :not(.chat-glass-blob) { position: relative; z-index: 1; }
-.chat-glass-blob { position: absolute; top: 4%; left: 50%; z-index: 0; width: min(560px,68vw); aspect-ratio: 1; border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; background: linear-gradient(180deg,rgba(47,184,255,.46),rgba(13,122,95,.72)); mix-blend-mode: multiply; opacity: .62; filter: saturate(.82); animation: chat-glass-move 15s linear infinite alternate; pointer-events: none; will-change: transform,border-radius; }
+.chat-glass-blob { position: absolute; top: 4%; left: 50%; z-index: 0; width: min(560px,68vw); aspect-ratio: 1; border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; background: linear-gradient(180deg,rgba(47,184,255,.46),rgba(13,122,95,.72)); mix-blend-mode: multiply; opacity: .62; filter: saturate(.82); transform: translate3d(-44%,2%,0) rotate(-50deg); pointer-events: none; }
 .chat-glass-blob::after { position: absolute; inset: 20% -18% -10% 28%; content: ""; border-radius: 62% 38% 68% 32% / 42% 61% 39% 58%; background: linear-gradient(145deg,rgba(244,223,157,.64),rgba(201,168,76,.28)); mix-blend-mode: screen; }
 @keyframes chat-glass-move { 0% { transform: translate3d(-96%,-13%,0) rotate(-90deg); border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; } 100% { transform: translate3d(8%,17%,0) rotate(-10deg); border-radius: 76% 24% 33% 67% / 24% 76% 35% 65%; } }
 .workspace-toolbar { min-height: 70px; display: flex; align-items: center; gap: 12px; padding: 10px 20px 10px 70px; border-bottom: 1px solid rgba(255,255,255,.38); background: rgba(255,253,247,.42); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 8px 22px rgba(31,38,70,.08); }
@@ -161,7 +161,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.025e
 
 .tickets-glass-page { position: relative; min-height: 100%; max-width: none; overflow: hidden; background: linear-gradient(145deg,#dfe9df,#e8e0c9 72%); }
 .tickets-glass-page > :not(.ticket-glass-blob):not(.modal-layer) { position: relative; z-index: 1; }
-.ticket-glass-blob { position: absolute; top: -18%; left: 42%; z-index: 0; width: min(620px,72vw); aspect-ratio: 1; border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; background: linear-gradient(180deg,rgba(47,184,255,.42),rgba(13,122,95,.7)); mix-blend-mode: multiply; opacity: .58; filter: saturate(.82); animation: ticket-glass-move 17s linear infinite alternate; pointer-events: none; will-change: transform,border-radius; }
+.ticket-glass-blob { position: absolute; top: -18%; left: 42%; z-index: 0; width: min(620px,72vw); aspect-ratio: 1; border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; background: linear-gradient(180deg,rgba(47,184,255,.42),rgba(13,122,95,.7)); mix-blend-mode: multiply; opacity: .58; filter: saturate(.82); transform: translate3d(-27%,7%,0) rotate(-42deg); pointer-events: none; }
 .ticket-glass-blob::after { position: absolute; inset: 28% -14% -8% 25%; content: ""; border-radius: 70% 30% 56% 44% / 38% 62% 38% 62%; background: linear-gradient(145deg,rgba(244,223,157,.68),rgba(201,168,76,.3)); mix-blend-mode: screen; }
 @keyframes ticket-glass-move { 0% { transform: translate3d(-72%,-8%,0) rotate(-75deg); border-radius: 24% 76% 35% 65% / 76% 24% 33% 67%; } 100% { transform: translate3d(18%,22%,0) rotate(-8deg); border-radius: 76% 24% 33% 67% / 24% 76% 35% 65%; } }
 .tickets-glass-page .page-heading { border: 1px solid rgba(255,255,255,.42); border-radius: 24px; padding: 20px 22px; background: rgba(255,255,255,.2); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 14px 32px rgba(31,38,70,.11); }

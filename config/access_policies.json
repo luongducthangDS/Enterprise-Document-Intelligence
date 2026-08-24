@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "organization": "Công ty Cổ phần Tập đoàn NexaTech",
+  "description": "Cấu hình chính sách phân quyền truy cập tri thức doanh nghiệp (Enterprise Access Policies)",
+  "roles_policy": {
+    "EMPLOYEE": {
+      "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT"],
+      "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS"],
+      "allow_cross_department": false
+    },
+    "DEPARTMENT_MANAGER": {
+      "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT", "ROLE"],
+      "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS", "MANAGEMENT", "MEETING_MINUTES"],
+      "allow_cross_department": false
+    },
+    "SUPER_ADMIN": {
+      "allowed_scopes": ["*"],
+      "allowed_domains": ["*"],
+      "allow_cross_department": true
+    }
+  },
+  "domain_policies": {
+    "LEGAL": {
+      "description": "Văn bản quy phạm pháp luật nhà nước. Mặc định PENDING_REVIEW; không tự động cấp quyền cho bất kỳ phòng ban nào trừ khi Enterprise Admin cấu hình.",
+      "default_scope": "PENDING_REVIEW",
+      "allowed_roles": ["SUPER_ADMIN"],
+      "departments_with_access": []
+    },
+    "EXTERNAL_REFERENCE": {
+      "description": "Tài liệu mẫu/tham khảo từ bên ngoài (VinFast, Vingroup, Base.vn, Talentnet).",
+      "default_scope": "RESTRICTED",
+      "allowed_roles": ["SUPER_ADMIN"]
+    },
+    "MANAGEMENT_DECISION": {
+      "description": "Quyết định của Ban điều hành và Nghị quyết lãnh đạo.",
+      "default_scope": "ROLE",
+      "allowed_roles": ["DEPARTMENT_MANAGER", "SUPER_ADMIN"]
+    },
+    "MEETING_MINUTES": {
+      "description": "Biên bản họp Ban lãnh đạo và Hội đồng quản trị.",
+      "default_scope": "RESTRICTED",
+      "allowed_roles": ["DEPARTMENT_MANAGER", "SUPER_ADMIN"]
+    }
+  }
+}

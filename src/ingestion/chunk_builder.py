@@ -1,18 +1,12 @@
-"""Dựng danh sách Chunk (kèm metadata + embedding_text) từ 1 tài liệu processed.
-
-Tách khỏi scripts/rag_pipeline/build_chunks.py để ingestion worker
-(src/workers/ingestion.py) chunk file Backend upload lên bằng ĐÚNG logic đang
-dùng cho corpus ngoại tuyến — chunk_id, breadcrumb, page mapping phải giống hệt,
-nếu không citation/qrels/eval sẽ lệch giữa hai đường vào.
-"""
-
+import json
 import os
 import re
 
 from src.config import Settings
 from src.ingestion.chunkers import chunk_text
-from src.ingestion.cleaners import clean_document, page_for_offset
+from src.ingestion.cleaners import clean_document, page_for_offset, sheet_for_offset
 from src.ingestion.metadata import DEFAULT_EFFECTIVE_DATE, NO_EXPIRY_SENTINEL, Chunk, ChunkMetadata, date_to_ymd_int
+from src.security.departments import canonical_department
 
 H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 
@@ -23,7 +17,9 @@ def resolve_title(frontmatter: dict, text: str, stem: str) -> str:
     m = H1_RE.search(text)
     if m:
         return m.group(1).strip()
-    return stem
+    clean = re.sub(r"^\d+[\-_]", "", stem)
+    clean = clean.replace("-", " ").replace("_", " ").strip()
+    return clean.title() if clean else stem
 
 
 def normalize_tenant(value: str | None) -> str:
@@ -40,6 +36,12 @@ def normalize_tenant(value: str | None) -> str:
     return normalized
 
 
+def tenant_scoped_chunk_id(tenant: str, stem: str, index: int) -> str:
+    """New writes use tenant-qualified IDs; legacy tenantless artifacts remain readable."""
+    safe_tenant = normalize_tenant(tenant)
+    return f"{safe_tenant}:{stem}::{index:04d}" if safe_tenant else f"{stem}::{index:04d}"
+
+
 def build_chunks_from_text(
     raw_text: str,
     *,
@@ -47,6 +49,24 @@ def build_chunks_from_text(
     category: str,
     source_type: str,
     is_official_policy: bool,
+    document_domain: str = "COMPANY_POLICY",
+    related_departments: list[str] | str = "[]",
+    access_scope: str = "DEPARTMENT",
+    authorized_departments: list[str] | str = "[]",
+    authorized_roles: list[str] | str = "[]",
+    authorized_role: str = "",
+    owner_user_id: str = "",
+    authorization_status: str = "ACTIVE",
+    authorization_source: str = "BUSINESS_POLICY",
+    classification_source: str = "DETERMINISTIC_AUDIT",
+    is_knowledge_doc: bool = True,
+    department: str = "GENERAL",
+    sensitivity: str = "INTERNAL",
+    access_category: str = "COMPANY_POLICY",
+    scope: str = "DEPARTMENT",
+    issuer: str = "",
+    document_type: str = "",
+    owner: str | None = None,
     caveat: str = "",
     authority: str = "public_reference",
     provenance: str = "public_web",
@@ -58,11 +78,12 @@ def build_chunks_from_text(
     settings: Settings,
 ) -> list[Chunk]:
     cleaned = clean_document(raw_text)
+    normalized_department = canonical_department(department)
+    normalized_access_scope = access_scope.upper().strip()
+    if normalized_access_scope == "COMPANY_WIDE":
+        normalized_access_scope = "DEPARTMENT"
     stem = os.path.splitext(source_file)[0]
     title = resolve_title(cleaned.frontmatter, cleaned.text, stem)
-    # `company` chỉ có trong frontmatter của tài liệu policy; ưu tiên tenant do
-    # registry truyền vào (nguồn sự thật) và chỉ dùng frontmatter khi registry
-    # bỏ trống, để một file lẻ không tự khai mình thuộc tenant khác.
     resolved_tenant = tenant or normalize_tenant(cleaned.frontmatter.get("company"))
 
     text_chunks = chunk_text(
@@ -79,15 +100,66 @@ def build_chunks_from_text(
     effective_date_ymd = date_to_ymd_int(resolved_effective_date or DEFAULT_EFFECTIVE_DATE)
     expiry_date_ymd = date_to_ymd_int(resolved_expiry_date)
 
+    # Parse related_departments (Semantic relevance recommendation only)
+    parsed_related_depts: list[str] = []
+    if isinstance(related_departments, list):
+        parsed_related_depts = [str(d).upper().strip() for d in related_departments]
+    elif isinstance(related_departments, str):
+        try:
+            parsed_related_depts = [str(d).upper().strip() for d in json.loads(related_departments)]
+        except Exception:
+            parsed_related_depts = [d.upper().strip() for d in related_departments.split(",") if d.strip()]
+
+    # Parse authorized_departments (Actual authorization)
+    parsed_auth_depts: list[str] = []
+    if isinstance(authorized_departments, list):
+        parsed_auth_depts = [str(d).upper().strip() for d in authorized_departments]
+    elif isinstance(authorized_departments, str):
+        try:
+            parsed_auth_depts = [str(d).upper().strip() for d in json.loads(authorized_departments)]
+        except Exception:
+            parsed_auth_depts = [d.upper().strip() for d in authorized_departments.split(",") if d.strip()]
+    if normalized_department != "GENERAL" and normalized_department not in parsed_auth_depts:
+        parsed_auth_depts.append(normalized_department)
+
+    # Parse authorized_roles (Actual authorization)
+    parsed_auth_roles: list[str] = []
+    if isinstance(authorized_roles, list):
+        parsed_auth_roles = [str(r).upper().strip() for r in authorized_roles]
+    elif isinstance(authorized_roles, str):
+        try:
+            parsed_auth_roles = [str(r).upper().strip() for r in json.loads(authorized_roles)]
+        except Exception:
+            parsed_auth_roles = [r.upper().strip() for r in authorized_roles.split(",") if r.strip()]
+
     chunks: list[Chunk] = []
     for idx, tc in enumerate(text_chunks):
         page_start = page_for_offset(cleaned.page_offsets, tc.start)
         page_end = page_for_offset(cleaned.page_offsets, max(tc.start, tc.end - 1))
+        sheet_start = sheet_for_offset(cleaned.sheet_offsets, tc.start)
+        sheet_end = sheet_for_offset(cleaned.sheet_offsets, max(tc.start, tc.end - 1))
         meta = ChunkMetadata(
-            chunk_id=f"{stem}::{idx:04d}",
+            chunk_id=tenant_scoped_chunk_id(resolved_tenant, stem, idx),
             source_file=source_file,
             source_stem=stem,
             title=title,
+            document_domain=document_domain,
+            related_departments=json.dumps(parsed_related_depts, ensure_ascii=False),
+            access_scope=normalized_access_scope,
+            authorized_departments=json.dumps(parsed_auth_depts, ensure_ascii=False),
+            authorized_roles=json.dumps(parsed_auth_roles, ensure_ascii=False),
+            authorized_role=authorized_role.upper().strip(),
+            owner_user_id=owner_user_id.strip(),
+            authorization_status=authorization_status,
+            authorization_source=authorization_source,
+            classification_source=classification_source,
+            is_knowledge_doc=is_knowledge_doc,
+            department=normalized_department,
+            sensitivity=sensitivity,
+            access_category=access_category,
+            scope=normalized_access_scope,
+            issuer=issuer,
+            document_type=document_type,
             category=category,
             source_type=source_type,
             is_official_policy=is_official_policy,
@@ -106,12 +178,14 @@ def build_chunks_from_text(
             article=tc.article,
             page_start=page_start,
             page_end=page_end,
+            sheet_start=sheet_start,
+            sheet_end=sheet_end,
             chunk_index=idx,
             char_count=len(tc.text),
             document_code=cleaned.frontmatter.get("document_code"),
             version=str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None,
             effective_date=resolved_effective_date,
-            owner=cleaned.frontmatter.get("owner"),
+            owner=owner or cleaned.frontmatter.get("owner"),
             legal_basis=cleaned.frontmatter.get("legal_basis"),
         )
         breadcrumb = " — ".join(p for p in (title, tc.heading_path) if p)

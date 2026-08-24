@@ -16,7 +16,7 @@ router = APIRouter()
 async def create_index_rebuild_job(
     request: Request,
     payload: IndexRebuildRequest,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Tạo tác vụ tái lập chỉ mục (Re-index vector store)."""
@@ -32,7 +32,7 @@ async def create_index_rebuild_job(
 async def get_index_rebuild_job_status(
     job_id: str,
     request: Request,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Theo dõi trạng thái & tiến độ tác vụ tái lập chỉ mục."""

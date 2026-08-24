@@ -31,10 +31,10 @@ RAW_DIR = "data/raw"
 OUT_DIR = "data/processed"
 
 
-def process_file(path: str, force: bool) -> None:
+def process_file(path: str, force: bool, out_dir: str = OUT_DIR) -> None:
     stem = os.path.splitext(os.path.basename(path))[0]
     ext = os.path.splitext(path)[1].lower()
-    out_path = os.path.join(OUT_DIR, f"{stem}.md")
+    out_path = os.path.join(out_dir, f"{stem}.md")
 
     if os.path.exists(out_path) and not force:
         print(f"[skip] {stem} — đã có output")
@@ -56,13 +56,15 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="Ghi đè output đã có")
     parser.add_argument("--only", nargs="*", help="Chỉ xử lý các file có tên khớp (vd nghi_dinh_145_2020_nd_cp.pdf)")
+    parser.add_argument("--raw-dir", default=RAW_DIR, help="Thư mục tài liệu nguồn")
+    parser.add_argument("--out-dir", default=OUT_DIR, help="Thư mục Markdown đã extract")
     args = parser.parse_args()
 
-    for root, _dirs, files in os.walk(RAW_DIR):
+    for root, _dirs, files in os.walk(args.raw_dir):
         for fname in sorted(files):
             if args.only and fname not in args.only:
                 continue
-            process_file(os.path.join(root, fname), force=args.force or bool(args.only))
+            process_file(os.path.join(root, fname), force=args.force or bool(args.only), out_dir=args.out_dir)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1000 @@
+{
+  "run_at": "2026-08-19T11:13:49.094518+00:00",
+  "top_k": 25,
+  "reranked": true,
+  "hybrid": false,
+  "dataset": "eval\\datasets\\retrieval_eval_set.json",
+  "qrels": "eval\\datasets\\retrieval_eval_qrels.json",
+  "min_relevance": 2,
+  "summary": {
+    "in_scope_n": 20,
+    "excluded_no_qrel": 0,
+    "recall@1": 0.171,
+    "precision@1": 0.4,
+    "ndcg@1": 0.4,
+    "multi_chunk_recall@1": 0.05,
+    "hit_rate@1": 0.4,
+    "hit_rate@1_ci": [
+      0.2,
+      0.6
+    ],
+    "recall@1_ci": [
+      0.071,
+      0.304
+    ],
+    "recall@3": 0.237,
+    "precision@3": 0.2,
+    "ndcg@3": 0.292,
+    "multi_chunk_recall@3": 0.05,
+    "hit_rate@3": 0.45,
+    "hit_rate@3_ci": [
+      0.25,
+      0.65
+    ],
+    "recall@3_ci": [
+      0.117,
+      0.379
+    ],
+    "recall@5": 0.296,
+    "precision@5": 0.15,
+    "ndcg@5": 0.306,
+    "multi_chunk_recall@5": 0.15,
+    "hit_rate@5": 0.45,
+    "hit_rate@5_ci": [
+      0.25,
+      0.65
+    ],
+    "recall@5_ci": [
+      0.142,
+      0.475
+    ],
+    "recall@10": 0.296,
+    "precision@10": 0.075,
+    "ndcg@10": 0.306,
+    "multi_chunk_recall@10": 0.15,
+    "hit_rate@10": 0.45,
+    "hit_rate@10_ci": [
+      0.25,
+      0.65
+    ],
+    "recall@10_ci": [
+      0.142,
+      0.475
+    ],
+    "recall@15": 0.296,
+    "precision@15": 0.05,
+    "ndcg@15": 0.306,
+    "multi_chunk_recall@15": 0.15,
+    "hit_rate@15": 0.45,
+    "hit_rate@15_ci": [
+      0.25,
+      0.65
+    ],
+    "recall@15_ci": [
+      0.142,
+      0.475
+    ],
+    "recall@20": 0.296,
+    "precision@20": 0.037,
+    "ndcg@20": 0.306,
+    "multi_chunk_recall@20": 0.15,
+    "hit_rate@20": 0.45,
+    "hit_rate@20_ci": [
+      0.25,
+      0.65
+    ],
+    "recall@20_ci": [
+      0.142,
+      0.475
+    ],
+    "mrr": 0.425,
+    "doc_hit_rate@1": 0.15,
+    "doc_hit_rate@3": 0.15,
+    "doc_hit_rate@5": 0.15,
+    "doc_hit_rate@10": 0.15,
+    "doc_hit_rate@15": 0.15,
+    "doc_hit_rate@20": 0.15
+  },
+  "results": [
+    {
+      "id": "rq_002",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "Kết quả phỏng vấn ứng viên thì mình ghi vào biểu mẫu nào nhỉ?",
+      "top1_distance": 0.16356397,
+      "top1_source_file": "02_quy-trinh-tuyen-dung.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0,
+        "ndcg@15": 1.0,
+        "ndcg@20": 1.0
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_003",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "nguồn kinh phí chế độ tiền thưởng",
+      "top1_distance": 0.18396032,
+      "top1_source_file": "12_quy-che-cong-tac-phi.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 6,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_018",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "cộng dồn phép năm chưa dùng hết",
+      "top1_distance": 0.10195941,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.667,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.6,
+        "precision@10": 0.3,
+        "precision@15": 0.2,
+        "precision@20": 0.15
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.947,
+        "ndcg@10": 0.947,
+        "ndcg@15": 0.947,
+        "ndcg@20": 0.947
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_024",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "ưu đãi sử dụng nhiều lao động nữ",
+      "top1_distance": 0.19724202,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_025",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nếu em thấy chỗ làm đang có nguy cơ xảy ra tai nạn mà sếp vẫn bắt làm tiếp thì công ty có được phép làm vậy không?",
+      "top1_distance": 0.13674545,
+      "top1_source_file": "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_028",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Công ty muốn chấm dứt hợp đồng với mình thì có bắt buộc phải báo cho mình biết bằng văn bản không, hay báo miệng cũng được?",
+      "top1_distance": 0.19360197,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_039",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "các loại hình đào tạo công ty",
+      "top1_distance": 0.13197184,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.613,
+        "ndcg@10": 0.613,
+        "ndcg@15": 0.613,
+        "ndcg@20": 0.613
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_040",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Muốn xin nghỉ phép thì mình cần làm thủ tục gì, và khi quay lại làm việc sau khi nghỉ phép có cần làm thêm gì không?",
+      "top1_distance": 0.13508844,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.333,
+        "recall@3": 0.333,
+        "recall@5": 0.667,
+        "recall@10": 0.667,
+        "recall@15": 0.667,
+        "recall@20": 0.667
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.469,
+        "ndcg@5": 0.651,
+        "ndcg@10": 0.651,
+        "ndcg@15": 0.651,
+        "ndcg@20": 0.651
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_042",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "bệnh nghề nghiệp hưởng bảo hiểm xã hội",
+      "top1_distance": 0.16835546,
+      "top1_source_file": "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 3,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_045",
+      "type": "in_scope",
+      "category": "recruitment_policies",
+      "question": "thành phần hội đồng phỏng vấn vòng 1",
+      "top1_distance": 0.22372025,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.387,
+        "ndcg@5": 0.387,
+        "ndcg@10": 0.387,
+        "ndcg@15": 0.387,
+        "ndcg@20": 0.387
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_047",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Nhân viên nước ngoài không cư trú ở VN nếu trúng thưởng hay được tặng quà, nhận thừa kế thì thuế TNCN tính ra sao?",
+      "top1_distance": 0.18765402,
+      "top1_source_file": "12_quy-che-cong-tac-phi.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_052",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em bị chấn thương tay khi đang vận hành máy ở xưởng, trường hợp này có được tính là tai nạn lao động không ạ?",
+      "top1_distance": 0.17487228,
+      "top1_source_file": "10_chinh-sach-an-toan-ve-sinh-lao-dong.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 1,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_063",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Em đang tổng hợp các quy trình giải quyết tranh chấp lao động cho nội bộ. Nếu xảy ra đình công không đúng trình tự thì cơ quan nào vào cuộc và xử lý ra sao, còn ở cấp tỉnh thì quy trình giải quyết tranh chấp được thực hiện như thế nào?",
+      "top1_distance": 0.17005277,
+      "top1_source_file": "13_noi-quy-lao-dong-va-ky-luat.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_071",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Tuần đầu tiên nhân viên mới onboard thì cần làm những gì và ai phụ trách phần nào?",
+      "top1_distance": 0.13153976,
+      "top1_source_file": "03_quy-trinh-onboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 2,
+      "recall_at_k": {
+        "recall@1": 0.5,
+        "recall@3": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "recall@15": 1.0,
+        "recall@20": 1.0
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.613,
+        "ndcg@5": 0.85,
+        "ndcg@10": 0.85,
+        "ndcg@15": 0.85,
+        "ndcg@20": 0.85
+      },
+      "doc_hit_rank": 1,
+      "doc_hits": {
+        "doc_hit@1": true,
+        "doc_hit@3": true,
+        "doc_hit@5": true,
+        "doc_hit@10": true,
+        "doc_hit@15": true,
+        "doc_hit@20": true
+      }
+    },
+    {
+      "id": "rq_078",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Công ty đang xem xét chấm dứt hợp đồng với vài người, có bạn do không đạt yêu cầu công việc, có bạn nằm trong diện tái cấu trúc, mình cần làm những thủ tục gì trước và sau khi chấm dứt?",
+      "top1_distance": 0.1553033,
+      "top1_source_file": "11_chinh-sach-danh-gia-hieu-suat-kpi.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_088",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Mình cần tổng hợp lại để tư vấn cho nhân sự: những nhóm đối tượng nào phải tham gia BHXH bắt buộc, bao gồm cả trường hợp người nước ngoài làm việc tại VN, và ai thuộc diện tham gia BHXH tự nguyện?",
+      "top1_distance": 0.11593366,
+      "top1_source_file": "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_090",
+      "type": "in_scope",
+      "category": "onboarding_offboarding",
+      "question": "Mình đang tư vấn cho một nhân viên muốn nghỉ việc ngay lập tức. Trong quy trình công ty có nêu ví dụ bị quấy rối tình dục là được nghỉ không cần báo trước, nhưng mà đối chiếu luật lao động gốc thì cụ thể những hành vi ngược đãi hoặc vi phạm nào được pháp luật cho phép đơn phương chấm dứt hợp đồng ngay vậy?",
+      "top1_distance": 0.13491213,
+      "top1_source_file": "04_quy-trinh-offboarding.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.25,
+        "recall@5": 0.25,
+        "recall@10": 0.25,
+        "recall@15": 0.25,
+        "recall@20": 0.25
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.333,
+        "precision@5": 0.2,
+        "precision@10": 0.1,
+        "precision@15": 0.067,
+        "precision@20": 0.05
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.469,
+        "ndcg@5": 0.39,
+        "ndcg@10": 0.39,
+        "ndcg@15": 0.39,
+        "ndcg@20": 0.39
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_094",
+      "type": "in_scope",
+      "category": "leave_policies",
+      "question": "Chị sắp sinh bé đầu lòng, muốn biết mình được nghỉ thai sản tổng cộng bao lâu, trong thời gian nghỉ thì BHXH trả bao nhiêu tiền, và công ty mình có hỗ trợ thêm gì ngoài phần BHXH không?",
+      "top1_distance": 0.11405444,
+      "top1_source_file": "07_chinh-sach-nghi-phep.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.637,
+        "ndcg@10": 0.637,
+        "ndcg@15": 0.637,
+        "ndcg@20": 0.637
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_099",
+      "type": "in_scope",
+      "category": "company_regulations",
+      "question": "Nếu mình được cử đi đào tạo nâng cao mà sau đó nghỉ việc trước thời hạn cam kết thì có phải bồi hoàn không, và số tiền đó tính thế nào?",
+      "top1_distance": 0.13611782,
+      "top1_source_file": "06_chinh-sach-dao-tao-phat-trien.md",
+      "num_retrieved": 25,
+      "hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "num_relevant": 4,
+      "recall_at_k": {
+        "recall@1": 0.25,
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 0.5,
+        "recall@15": 0.5,
+        "recall@20": 0.5
+      },
+      "precision_at_k": {
+        "precision@1": 1.0,
+        "precision@3": 0.667,
+        "precision@5": 0.4,
+        "precision@10": 0.2,
+        "precision@15": 0.133,
+        "precision@20": 0.1
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 1.0,
+        "ndcg@3": 0.765,
+        "ndcg@5": 0.637,
+        "ndcg@10": 0.637,
+        "ndcg@15": 0.637,
+        "ndcg@20": 0.637
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    },
+    {
+      "id": "rq_100",
+      "type": "in_scope",
+      "category": "government_legal",
+      "question": "Cho em hỏi lại quy trình xử lý kỷ luật lao động đầy đủ từ lúc phát hiện vi phạm đến khi ra quyết định, kể cả trường hợp người lao động là giúp việc gia đình thì có gì khác không ạ?",
+      "top1_distance": 0.115263104,
+      "top1_source_file": "13_noi-quy-lao-dong-va-ky-luat.md",
+      "num_retrieved": 25,
+      "hit_rank": 0,
+      "reciprocal_rank": 0.0,
+      "num_relevant": 5,
+      "recall_at_k": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 0.0,
+        "recall@15": 0.0,
+        "recall@20": 0.0
+      },
+      "precision_at_k": {
+        "precision@1": 0.0,
+        "precision@3": 0.0,
+        "precision@5": 0.0,
+        "precision@10": 0.0,
+        "precision@15": 0.0,
+        "precision@20": 0.0
+      },
+      "ndcg_at_k": {
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.0,
+        "ndcg@15": 0.0,
+        "ndcg@20": 0.0
+      },
+      "doc_hit_rank": 0,
+      "doc_hits": {
+        "doc_hit@1": false,
+        "doc_hit@3": false,
+        "doc_hit@5": false,
+        "doc_hit@10": false,
+        "doc_hit@15": false,
+        "doc_hit@20": false
+      }
+    }
+  ]
+}

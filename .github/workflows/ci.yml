@@ -37,6 +37,14 @@ jobs:
       - name: Check eval dataset integrity
         run: python eval/scripts/check_dataset_integrity.py
 
+      # Quét lỗ hổng dependency (B4): bước đầu chỉ báo cáo để không chặn ngay
+      # khi libs cũ còn nợ; sau khi dọn xong, bỏ continue-on-error để chặn.
+      - name: Audit Python dependencies (agent)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+        continue-on-error: true
+
   backend-lint-and-test:
     runs-on: ubuntu-latest
 
@@ -62,3 +70,58 @@ jobs:
         run: pytest tests/ -v --tb=short
         env:
           APP_ENV: test
+
+      - name: Audit Python dependencies (backend)
+        run: |
+          pip install pip-audit
+          pip-audit -r backend/requirements.txt
+        continue-on-error: true
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: frontend
+        run: pnpm lint
+
+      - name: Typecheck
+        working-directory: frontend
+        run: pnpm typecheck
+
+      - name: Build
+        working-directory: frontend
+        run: pnpm build
+
+      - name: Audit npm dependencies
+        working-directory: frontend
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+  # Secret-scan toàn bộ lịch sử git (TASK-014): dừng CI nếu có credential thật
+  # bị commit. Giá trị fallback yếu trong code (VD jwt default) không phải secret.
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

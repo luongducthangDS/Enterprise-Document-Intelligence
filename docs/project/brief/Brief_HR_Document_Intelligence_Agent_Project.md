@@ -1,147 +1,102 @@
-**PROJECT BRIEF**
+# PROJECT BRIEF
 
-HR Document Intelligence Agent
+**Tên đề tài:** AI agent Tóm tắt và trích xuất tri thức tài liệu nội bộ (Doc Intelligence Agent)  
+**Mã dự án:** P-153  
+**Đơn vị/Bối cảnh ứng dụng:** Kho tài liệu nội bộ VinBigData  
 
-| **Tóm tắt điều hành****<br>**Xây dựng ứng dụng web sử dụng RAG để nhân viên và HR hỏi–đáp trên kho tài liệu HR nội bộ, nhận câu trả lời có trích dẫn và được cảnh báo/từ chối khi bằng chứng không đủ. |
+| **Tóm tắt điều hành**<br>Xây dựng hệ thống AI Agent thông minh dựa trên LangGraph và RAG phục vụ việc thu thập, tóm tắt, trích xuất thông tin có cấu trúc (quyết định, trách nhiệm, deadline) và trả lời truy vấn xuyên tài liệu nội bộ VinBigData có trích dẫn chính xác; tích hợp cơ chế Human-in-the-Loop (HITL) để chuyên viên/người dùng xác nhận thông tin trích xuất quan trọng, phân quyền theo phòng ban và kiểm soát chặt chẽ chi phí/token cho tài liệu dài. |
 | --- |
+
+---
 
 # 1. Project Overview
 
-HR Document Intelligence Agent là hệ thống hỏi–đáp tài liệu nội bộ, cho phép người dùng đặt câu hỏi bằng ngôn ngữ tự nhiên thay vì tìm thủ công trong nhiều file PDF, Word hoặc Excel. Hệ thống truy xuất, tóm tắt các đoạn nội dung liên quan, tổng hợp câu trả lời, hiển thị nguồn và duy trì ngữ cảnh trong hội thoại nhiều lượt.
+**Doc Intelligence Agent** là trợ lý AI thông minh xử lý và khai thác tri thức từ kho tài liệu nội bộ (quy trình vận hành, biên bản cuộc họp, quyết định ban hành, quy chế doanh nghiệp). Thay vì nhân viên phải tự tìm kiếm và đọc thủ công hàng chục trang tài liệu phức tạp, hệ thống tự động:
+1. Nạp và tóm tắt văn bản (hỗ trợ cả tài liệu số hóa PDF/Word và tài liệu scan qua OCR Document AI).
+2. Bóc tách dữ liệu có cấu trúc theo schema được xác thực (quyết định, phân công trách nhiệm, deadline).
+3. Cho phép hỏi đáp tự nhiên, tổng hợp thông tin xuyên nhiều tài liệu (cross-document synthesis) với 100% câu trả lời có dẫn nguồn minh bạch (citations).
+4. Cung cấp giao diện Human-in-the-Loop để người dùng/quản trị viên tri thức kiểm tra, hiệu chỉnh và phê duyệt trước khi lưu trữ chính thức hoặc phục vụ ra quyết định.
 
-# 2. Problem Statement
+---
 
-- Tài liệu HR phân tán ở nhiều file, định dạng và phiên bản khác nhau.
-- Tài liệu dài hoặc cần ngay thông tin gấp.
-- Nhân viên mất thời gian tìm đúng quy định hoặc phải hỏi HR cho các câu hỏi lặp lại.
-- Câu trả lời thủ công có thể thiếu nguồn, dùng nhầm phiên bản hoặc không nhất quán.
-- Tìm kiếm theo từ khóa không xử lý tốt câu hỏi diễn đạt tự nhiên, câu hỏi có điều kiện hoặc hội thoại tiếp nối.
-Cơ hội: tạo một điểm truy cập thống nhất, có căn cứ, giúp tra cứu nhanh hơn nhưng không thay thế quyết định nghiệp vụ của HR.
+# 2. Problem Statement (Thực trạng & Vấn đề)
 
-# 3. Proposed Solution
+- **📍 Thực trạng:** Kho tài liệu nội bộ (quy trình, biên bản họp, quyết định ban hành) của VinBigData phân tán, rời rạc ở nhiều định dạng và phiên bản. Nhân viên gặp nhiều trở ngại khi tìm kiếm, mất nhiều thời gian đọc hiểu các văn bản dài và dễ bỏ sót các quy định cốt lõi.
+- **🎯 Vấn đề:** Cần một giải pháp AI Agent toàn diện có khả năng:
+  - Tự động thu thập, phân tích và tóm lược nhanh tài liệu dài.
+  - Trích xuất chuẩn xác các trường thông tin có cấu trúc (*Ai chịu trách nhiệm? Quyết định gì đã ban hành? Thời hạn/deadline khi nào?*).
+  - Trả lời truy vấn đa tài liệu, giải quyết câu hỏi phức tạp liên quan đến nhiều phòng ban.
+  - Đảm bảo người dùng/chuyên viên có thể xác nhận và kiểm chứng thông tin trích xuất quan trọng.
 
-Ứng dụng web tích hợp quy trình RAG: tiếp nhận câu hỏi, truy xuất nội dung từ kho tài liệu đã lập chỉ mục, tạo câu trả lời dựa trên bằng chứng và hiển thị trích dẫn gồm tên tài liệu, trang/mục, phiên bản và ngày hiệu lực khi có.
+---
 
-- Hỏi–đáp bằng ngôn ngữ tự nhiên.
-- Trích dẫn có thể kiểm tra và mở rộng xem đoạn nguồn.
-- Hỗ trợ câu hỏi tiếp nối trong cùng phiên hội thoại.
-- Từ chối hoặc yêu cầu làm rõ khi dữ liệu không đủ/không nhất quán.
-- Phản hồi không phải tư vấn pháp lý hoặc quyết định chính thức của HR.
+# 3. Core Constraints (Ràng buộc cốt lõi)
+
+- **🔒 Human-in-the-Loop (HITL):** Bắt buộc có quy trình xác nhận bởi con người đối với các thông tin trích xuất quan trọng phục vụ ra quyết định chiến lược hoặc lưu trữ vào cơ sở dữ liệu chính thức.
+- **🔒 Bảo mật & Phân quyền tài liệu (RBAC / Department ACL):** Phân quyền truy cập tài liệu nghiêm ngặt theo phòng ban (R&D, HR, Operations, Legal...). Người dùng chỉ được truy vấn và xem dữ liệu trong phạm vi được cấp phép.
+- **🔒 Độ chính xác trích xuất & Bắt buộc dẫn nguồn (Grounding & Provenance):** Nghiêm cấm bịa đặt thông tin (zero hallucination). Mọi kết quả trích xuất và câu trả lời phải kèm citation (tên văn bản, điều/khoản, số trang).
+- **🔒 Kiểm soát chi phí tài liệu dài (Token & Cost Management):** Cảnh báo khi vượt ngưỡng token; áp dụng phân đoạn thông minh (hierarchical chunking) và routing mô hình tối ưu chi phí.
+
+---
+
 # 4. Project Objectives
 
 | **Mục tiêu** | **Kết quả hướng tới** |
 | --- | --- |
-| O1. Tra cứu nhanh | Giảm thời gian tìm thông tin HR so với quy trình tìm file thủ công. |
-| O2. Có căn cứ | Mỗi câu trả lời có ít nhất một trích dẫn phù hợp hoặc hệ thống từ chối trả lời. |
-| O3. Giảm tải HR | Giảm các câu hỏi chính sách lặp lại phải xử lý thủ công trong phạm vi thử nghiệm. |
-| O4. Đo lường được | Có bộ câu hỏi, ground truth và quy trình đánh giá retrieval/answer/citation. |
-| O5. Có thể mở rộng | Thiết kế dữ liệu và pipeline có thể tái sử dụng cho phòng ban khác. |
+| **O1. Tóm tắt & Trích xuất nhanh** | Rút ngắn 80% thời gian đọc và bóc tách thông tin từ các tài liệu dài và biên bản nội bộ. |
+| **O2. Dữ liệu có cấu trúc chuẩn** | Trích xuất chính xác 3 trường thông tin cốt lõi (*Quyết định, Trách nhiệm, Deadline*) theo schema kiểm chứng. |
+| **O3. Truy vấn xuyên tài liệu** | Trả lời chính xác các câu hỏi đòi hỏi đối chiếu giữa nhiều văn bản/quy trình với trích dẫn minh bạch. |
+| **O4. Phê duyệt tin cậy (HITL)** | 100% dữ liệu trích xuất chính thức được chuyên viên review và xác nhận qua giao diện trực quan. |
+| **O5. An toàn & Phân quyền** | Cô lập dữ liệu giữa các phòng ban, phát hiện mâu thuẫn/trùng lặp văn bản và cảnh báo chất lượng OCR. |
 
-# 5. Target Users
+---
 
-| **Nhóm người dùng** | **Nhu cầu chính** | **Quyền trong MVP** |
+# 5. Target Users & Roles
+
+| **Vai trò** | **Nhu cầu chính** | **Quyền hạn trong hệ thống** |
 | --- | --- | --- |
-| Nhân viên | Tra cứu chính sách, quy trình, quyền lợi và biểu mẫu. | Đặt câu hỏi; xem câu trả lời và nguồn. |
-| Nhân sự/HR | Trả lời nhanh, kiểm tra căn cứ, phát hiện câu hỏi chưa được bao phủ. | Như nhân viên; tham gia review dữ liệu và đáp án chuẩn. |
-| Quản trị viên | Quản lý tập dữ liệu thử nghiệm và theo dõi chất lượng. | Nạp/cập nhật dữ liệu theo quy trình kỹ thuật; xem log đánh giá cơ bản. |
+| **Nhân viên (Employee)** | Tra cứu quy trình, quyết định, hỏi đáp chính sách liên quan đến công việc và phòng ban. | Đăng nhập; đặt câu hỏi; xem tóm tắt, câu trả lời, trích dẫn nguồn trong phạm vi phân quyền phòng ban. |
+| **Quản trị tri thức (Knowledge Admin)** | Quản lý kho tài liệu, bóc tách tri thức, cấu hình pipeline và kiểm soát chất lượng dữ liệu. | Upload tài liệu (PDF, Word, scan); kích hoạt trích xuất; review/chỉnh sửa và phê duyệt HITL; quản lý quyền truy cập phòng ban. |
 
-# 6. Stakeholders
+---
 
-| **Stakeholder** | **Vai trò/quan tâm** | **Trách nhiệm dự kiến** |
+# 6. Technical Stack
+
+- **AI Agent & Orchestration:** **LangGraph** (StateGraph workflow, multi-turn dialogue, conditional routing) + **LLM context dài** (FPT.AI / GLM-5.2 / DeepSeek).
+- **RAG & Retrieval:** Hybrid Search (Dense Vector + BM25/Sparse) + Reranker (`bge-reranker-v2-m3`) + **Vector DB** (Chroma Cloud / Supabase pgvector).
+- **Document Processing & OCR:** **OCR (Document AI)** cho tài liệu scan; thư viện bóc tách tài liệu số (`PyMuPDF`, `pdfplumber`, `python-docx`).
+- **Structured Extraction:** Schema extraction có kiểm chứng (Pydantic models, JSON schema validation, retry loop).
+- **Backend:** **FastAPI** (Python 3.11+), Uvicorn, SQLAlchemy/asyncpg.
+- **Frontend:** **Next.js 15**, React 19, TypeScript, CSS Modules / Tailwind.
+- **Database & Deployment:** **PostgreSQL** (Supabase), Deploy **Vercel** (Frontend) + **Render** (Backend API), Docker container.
+
+---
+
+# 7. Project Deliverables (Yêu cầu đầu ra)
+
+## 7.1 Mức Cơ bản (MVP Deliverables)
+1. **Web Deploy & Phân quyền 2 vai trò:** Đăng nhập phân định rõ giữa **Nhân viên** và **Quản trị tri thức**.
+2. **Upload & Xử lý tài liệu:** Upload tài liệu nội bộ đa định dạng (PDF, DOCX, scan).
+3. **Agent Tóm tắt & Trích xuất có cấu trúc:** Tự động tóm tắt nội dung và bóc tách các trường: *Quyết định*, *Trách nhiệm*, *Deadline*.
+4. **Hỏi đáp có trích dẫn:** Trả lời truy vấn tự nhiên kèm trích dẫn nguồn có thể mở rộng xem ngữ cảnh gốc.
+
+## 7.2 Mức Nâng cao (Advanced Deliverables)
+1. **Tổng hợp xuyên nhiều tài liệu (Cross-document Synthesis):** Phân tích, so sánh và kết hợp thông tin từ nhiều biên bản/quy định độc lập.
+2. **Phát hiện mâu thuẫn / trùng lặp (Conflict & Redundancy Detection):** Tự động rà soát và cảnh báo các điều khoản xung đột giữa văn bản cũ - mới hoặc giữa các phòng ban.
+3. **Memory ngữ cảnh dự án:** Duy trì lịch sử và ngữ cảnh phiên làm việc để xử lý chuỗi câu hỏi phân tích chuyên sâu.
+4. **Human-in-the-Loop (HITL) Review Flow:** Quy trình chuyên viên review, chỉnh sửa và bấm nút "Xác nhận lưu trữ" cho dữ liệu trích xuất.
+5. **Phân quyền theo phòng ban:** Quản lý ACL theo phòng ban, lọc vector search theo metadata phòng ban.
+6. **Cảnh báo độ tin cậy OCR & Giới hạn Token:** Cảnh báo khi tài liệu scan bị mờ/chất lượng OCR thấp và cơ chế giám sát ngân sách token.
+
+---
+
+# 8. Success Metrics
+
+| **Chỉ số** | **Mục tiêu** | **Phương pháp đo** |
 | --- | --- | --- |
-| Mentor | Định hướng và review chất lượng dự án. | Phản biện phạm vi, kiến trúc, phương pháp đánh giá và demo. |
-| Product Owner/đại diện nghiệp vụ | Xác nhận giá trị và mức đúng nghiệp vụ. | Ưu tiên use case; duyệt dữ liệu, ground truth và tiêu chí chấp nhận. |
-| Nhóm dự án (4 người) | Phân tích, dữ liệu, RAG, backend/frontend, kiểm thử. | Xây dựng, tài liệu hóa, đánh giá và trình diễn. |
-| Người dùng thử nghiệm | Tính hữu ích và dễ sử dụng. | Thực hiện kịch bản thử; phản hồi UX và độ tin cậy. |
-
-# 7. Project Scope
-
-## 7.1 In Scope — MVP
-
-- Kho 30–50 tài liệu HR đã chọn lọc; ưu tiên PDF, DOCX, XLSX có nội dung máy đọc được.
-- Ingestion, làm sạch, chia đoạn, metadata, embedding và lập chỉ mục.
-- Tìm kiếm ngữ nghĩa/hybrid, tổng hợp câu trả lời có căn cứ và trích dẫn.
-- Hội thoại nhiều lượt trong một phiên.
-- Cơ chế insufficient evidence, câu hỏi làm rõ và thông báo giới hạn.
-- Web demo; bộ 100–150 câu hỏi kiểm thử và đáp án chuẩn.
-## 7.2 Out of Scope
-
-- Payroll, chấm công giao dịch, quản lý hồ sơ nhân sự, ERP/SAP/HRM.
-- Thực thi workflow, gửi email/thông báo hoặc phê duyệt nghiệp vụ.
-- Dữ liệu cá nhân nhạy cảm và phân quyền doanh nghiệp phức tạp.
-- OCR cho tài liệu scan chất lượng thấp; tích hợp hệ thống production.
-- Tư vấn pháp lý hoặc tự động đưa ra quyết định nhân sự.
-# 8. Dataset Scope
-
-| **Nhóm** | **Nội dung** |
-| --- | --- |
-| Chính sách/quy định | Nội quy lao động; quy chế nhân sự; nghỉ phép; làm thêm; chấm công; làm việc từ xa; bảo hiểm; phúc lợi. |
-| Vòng đời nhân viên | Tuyển dụng; onboarding; thử việc; đánh giá; nghỉ việc. |
-| Hướng dẫn hỗ trợ | Hướng dẫn nghiệp vụ HR; biểu mẫu; FAQ. |
-| Metadata bắt buộc | document_id, title, category, version, effective_date, status; page/section; source_file. |
-| Dữ liệu đánh giá | 50–100 FAQ; 100–150 câu hỏi; ground truth; trích dẫn chuẩn; nhóm câu hỏi không đủ dữ liệu. |
-
-# 9. Expected Deliverables
-
-1. Ứng dụng web demo: hỏi, nhận câu trả lời, xem nguồn và tiếp tục hội thoại.
-2. Pipeline xử lý và lập chỉ mục tài liệu HR.
-3. Kho dữ liệu MVP đã chuẩn hóa cùng metadata.
-4. Bộ đánh giá và báo cáo kết quả chất lượng.
-5. Tài liệu dự án: Brief, PRD, kiến trúc, hướng dẫn cài đặt/chạy demo và báo cáo bàn giao.
-# 10. Success Metrics
-
-| **Chỉ số MVP** | **Mục tiêu ban đầu** | **Cách đo** |
-| --- | --- | --- |
-| Citation coverage | ≥ 95% câu trả lời có ít nhất một nguồn; 100% câu không có nguồn phải từ chối. | Chạy bộ test và kiểm tra tự động/thủ công. |
-| Citation correctness | ≥ 85% trích dẫn thực sự hỗ trợ nội dung trả lời. | Human review theo rubric. |
-| Answer correctness | ≥ 80% câu trả lời đạt mức đúng/đủ chấp nhận được. | So sánh ground truth + review HR/mentor. |
-| Retrieval Recall@5 | ≥ 85% câu hỏi có đoạn bằng chứng chuẩn trong top 5. | Đối chiếu evidence label. |
-| Latency | P95 ≤ 8 giây trong môi trường demo. | Log thời gian end-to-end. |
-| Task success | ≥ 80% người thử hoàn thành kịch bản không cần hỗ trợ. | Usability test có quan sát. |
-
-Lưu ý: đây là mục tiêu MVP để nhóm xác nhận sau khi có baseline; không phải số liệu đã đo.
-
-# 11. Business Value
-
-- Kỳ vọng rút ngắn thời gian tra cứu một câu hỏi HR từ mức nhiều phút xuống dưới một phút đối với câu hỏi được bao phủ.
-- Giảm khối lượng câu hỏi FAQ lặp lại chuyển trực tiếp tới HR trong pilot.
-- Tăng khả năng kiểm chứng nhờ trích dẫn và thông tin phiên bản/ngày hiệu lực.
-- Tạo nền tảng kỹ thuật và bộ đánh giá có thể nhân rộng sang Legal, Finance, Operations.
-Giá trị định lượng chính thức sẽ được đo trong pilot bằng baseline thời gian tìm kiếm và số lượng câu hỏi lặp lại.
-
-# 12. Assumptions & Constraints
-
-| **Loại** | **Nội dung** |
-| --- | --- |
-| Giả định | Nhóm được phép sử dụng bộ tài liệu mẫu/đã ẩn danh; tài liệu có nội dung đủ rõ và có thể trích xuất. |
-| Giả định | Mentor hoặc đại diện nghiệp vụ có thể review một phần ground truth và các trường hợp mâu thuẫn. |
-| Ràng buộc | Nhóm 4 người; phạm vi MVP; thời gian, hạ tầng và ngân sách mô hình có giới hạn. |
-| Ràng buộc | Chưa có đối tác/production data chính thức; kết quả demo không đại diện cho triển khai doanh nghiệp. |
-| Ràng buộc | Không xử lý PII nhạy cảm; không coi phản hồi của mô hình là quyết định HR chính thức. |
-
-# 13. Key Risks & Mitigations
-
-| **Rủi ro** | **Ảnh hưởng** | **Giảm thiểu** |
-| --- | --- | --- |
-| Tài liệu mâu thuẫn/cũ | Trả lời sai phiên bản. | Metadata version/effective date; ưu tiên tài liệu active; hiển thị cảnh báo. |
-| Hallucination | Mất niềm tin/nguy cơ nghiệp vụ. | Grounded prompt; ngưỡng bằng chứng; bắt buộc citation; refusal. |
-| Retrieval kém | Bỏ sót bằng chứng đúng. | Chunking theo cấu trúc; hybrid search; reranking; đánh giá Recall@k. |
-| Thiếu ground truth | Không chứng minh được chất lượng. | Ưu tiên bộ test sớm; review theo mẫu; phân tầng câu hỏi. |
-| Scope creep | Không hoàn thành MVP. | Giữ out-of-scope; backlog hóa tính năng nâng cao. |
-
-# 14. Future Expansion
-
-- Phân quyền theo vai trò, SSO, audit log và quản trị tài liệu.
-- OCR chất lượng cao, bảng/biểu mẫu phức tạp, đa ngôn ngữ.
-- Tích hợp DMS/Drive/SharePoint/HRM và quy trình cập nhật tự động.
-- Feedback loop, analytics, human handoff và mở rộng sang phòng ban khác.
-# 15. Decisions to Confirm
-
-- Tên Product Owner/đại diện nghiệp vụ và danh sách thành viên/role.
-- Thời gian thực hiện chính thức và môi trường triển khai demo.
-- Nguồn tài liệu, quyền sử dụng và quy tắc ẩn danh dữ liệu.
-- Ngưỡng success metrics sau baseline và người duyệt ground truth.
-- Ngôn ngữ chính: tiếng Việt, tiếng Anh hay song ngữ.
-# 16. Project Summary
-
-MVP tập trung giải quyết một vấn đề rõ ràng: tìm và kiểm chứng thông tin trong tài liệu HR. Thành công của dự án không chỉ nằm ở chatbot trả lời được, mà ở khả năng truy xuất đúng bằng chứng, dẫn nguồn rõ ràng, từ chối an toàn và đo lường được chất lượng trên một bộ dữ liệu có kiểm soát.
+| **Citation Coverage** | 100% câu trả lời nghiệp vụ có trích dẫn; từ chối khi không có nguồn. | Kiểm thử tự động trên bộ eval + logging. |
+| **Structured Extraction Accuracy** | ≥ 90% các trường *Quyết định, Trách nhiệm, Deadline* trích xuất chuẩn xác. | Đối chiếu Ground Truth có kiểm chứng chuyên viên. |
+| **Citation Correctness** | ≥ 88% trích dẫn hỗ trợ trực tiếp cho khẳng định trong câu trả lời. | Human review theo rubric đánh giá. |
+| **Cross-doc Synthesis Recall** | ≥ 85% câu hỏi đa tài liệu truy xuất đủ các chunk nguồn liên quan trong top 5. | Benchmark multi-hop qrels. |
+| **HITL Turnaround Time** | < 2 phút cho chuyên viên hoàn thành việc review và duyệt 1 văn bản trích xuất. | Usability testing trên giao diện Admin. |
+| **Latency** | P95 ≤ 8 giây cho truy vấn thông thường; P95 ≤ 15 giây cho trích xuất sâu. | Telemetry & Application logs. |

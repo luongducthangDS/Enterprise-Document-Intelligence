@@ -1,0 +1,25 @@
+{
+  "benchmark_case_count": 64,
+  "benchmark_source_count": 13,
+  "index_source_count": 13,
+  "covered_source_count": 13,
+  "all_expected_sources_available": true,
+  "missing_sources": [],
+  "extra_index_sources": [],
+  "cases_by_expected_source": {
+    "01_chinh-sach-lam-them-gio-ot": 5,
+    "02_quy-trinh-tuyen-dung": 4,
+    "03_quy-trinh-onboarding": 4,
+    "04_quy-trinh-offboarding": 5,
+    "05_chinh-sach-lam-viec-tu-xa": 4,
+    "06_chinh-sach-dao-tao-phat-trien": 3,
+    "07_chinh-sach-nghi-phep": 7,
+    "08_chinh-sach-bao-hiem-suc-khoe-tu-nguyen": 3,
+    "09_chinh-sach-bao-hiem-xa-hoi-bat-buoc": 3,
+    "10_chinh-sach-an-toan-ve-sinh-lao-dong": 3,
+    "11_chinh-sach-danh-gia-hieu-suat-kpi": 5,
+    "12_quy-che-cong-tac-phi": 3,
+    "13_noi-quy-lao-dong-va-ky-luat": 5
+  },
+  "behavior_only_cases": 10
+}

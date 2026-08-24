@@ -1,0 +1,57 @@
+{
+  "product_001": {
+    "PRD_Checkout_Redesign::0000": 2,
+    "Release_Plan_October::0001": 2
+  },
+  "product_002": {
+    "Sprint_Planning_12::0000": 2,
+    "Sprint_Planning_12::0001": 2,
+    "PRD_Checkout_Redesign::0004": 1
+  },
+  "product_003": {
+    "Checkout_Experiment_Report::0000": 2,
+    "Checkout_Experiment_Report::0001": 2
+  },
+  "product_004": {
+    "PRD_Checkout_Redesign::0000": 2
+  },
+  "product_005": {
+    "Product_Weekly_Recommendation::0000": 2,
+    "Product_Weekly_Recommendation::0001": 2,
+    "PRD_Recommendation_System::0002": 1
+  },
+  "product_006": {
+    "Recommendation_Latency_Report_Scan::0001": 2,
+    "Recommendation_Latency_Report_Scan::0002": 1
+  },
+  "product_007": {
+    "Notification_Metrics::0001": 2
+  },
+  "product_008": {
+    "Design_Review_Notification::0000": 2
+  },
+  "product_009": {
+    "Search_Experiment_Results::0001": 2
+  },
+  "product_010": {
+    "Search_Interview_Notes::0000": 1,
+    "Search_Interview_Notes::0001": 2
+  },
+  "product_011": {
+    "Subscription_Research_Scan::0011": 2,
+    "Subscription_Research_Scan::0013": 2,
+    "Subscription_Research_Scan::0015": 1
+  },
+  "product_012": {
+    "Feature_Launch_Process::0000": 2
+  },
+  "product_013": {
+    "Dark_Mode_Kickoff_Scan::0001": 2
+  },
+  "product_014": {
+    "Funnel_Metrics_August::0002": 2
+  },
+  "product_015": {
+    "Product_Approval_Policy::0000": 2
+  }
+}

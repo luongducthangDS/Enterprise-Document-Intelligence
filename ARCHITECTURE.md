@@ -1,46 +1,78 @@
-# Architecture Document — HR Document Intelligence Agent (P-153)
+# Architecture Document — AI agent Tóm tắt và trích xuất tri thức tài liệu nội bộ (Doc Intelligence Agent) (P-153)
 
 ## System Overview
 
-Agent RAG giải quyết nghiệp vụ HR bằng cách trả lời câu hỏi dựa trên **dữ liệu nội bộ doanh nghiệp** (chính sách/quy trình thật hoặc synthetic đóng vai nội bộ khi chưa có tài liệu công ty thật), chạy trên LangGraph, phục vụ qua một endpoint FastAPI duy nhất. Văn bản pháp luật (lao động/BHXH/BHYT/thuế TNCN...) **không phải nguồn agent được trích dẫn trực tiếp** — chỉ còn vai trò tham khảo offline để soạn thêm tài liệu nội bộ khi doanh nghiệp chưa cung cấp chính sách thật (xem `NON_RAG_SOURCE_TYPES` trong `src/ingestion/metadata.py` và `_provenance_filter` trong `src/agents/nodes/retrieval.py`, chặn cứng ở tầng truy vấn). Dữ liệu được ingest offline (extract → clean → chunk → embed) vào Chroma Cloud; khi có câu hỏi, agent truy hồi, rerank, sinh câu trả lời có trích dẫn, tự chấm độ tin cậy, và tạo ticket khi cần chuyển cho người. Backend (Supabase) chịu trách nhiệm auth, lưu hội thoại, và ghi ticket — agent không tự ghi DB ngoài phạm vi của nó.
+Hệ thống **Doc Intelligence Agent** giải quyết bài toán khai thác tri thức và tài liệu nội bộ của **VinBigData** (quy trình, biên bản họp, quyết định, quy chế). Hệ thống được xây dựng trên nền tảng **LangGraph**, phục vụ thông qua API **FastAPI**, giao diện web **Next.js 15**, và cơ sở dữ liệu **PostgreSQL (Supabase)**.
 
-Chi tiết đầy đủ từng bước, quyết định thiết kế và số liệu đo: [`docs/rag-pipeline/PIPELINE.md`](docs/rag-pipeline/PIPELINE.md).
+Hệ thống cung cấp các năng lực cốt lõi:
+1. **Document Ingestion & OCR:** Tiếp nhận tài liệu số (PDF, DOCX) và tài liệu scan thông qua module **OCR (Document AI)** với cơ chế đánh giá chất lượng OCR Confidence Score.
+2. **Schema Extraction có kiểm chứng:** Tự động tóm tắt và bóc tách các trường thông tin hành động có cấu trúc (*Quyết định, Trách nhiệm, Deadline*) theo schema Pydantic được xác thực.
+3. **Human-in-the-Loop (HITL):** Giao diện và luồng nghiệp vụ cho phép Quản trị tri thức / Chuyên viên review, chỉnh sửa và bấm xác nhận trước khi lưu kho tri thức chính thức.
+4. **Hỏi đáp & Tổng hợp xuyên tài liệu (Cross-document QA):** Tìm kiếm lai (Hybrid Search: Dense Vector + BM25) kết hợp Reranker và suy luận đa chặng (multi-hop reasoning), đảm bảo 100% câu trả lời có trích dẫn nguồn có thể kiểm chứng.
+5. **Bảo mật & Phân quyền theo phòng ban:** Tích hợp RBAC (Nhân viên, Quản trị tri thức) và bộ lọc truy cập tài liệu theo phòng ban.
+6. **Kiểm soát chi phí & Quản lý Token:** Cảnh báo giới hạn token và áp dụng chiến lược tóm tắt phân tầng cho tài liệu dài.
+
+---
 
 ## Architecture Diagram
 
 ```mermaid
 graph TB
-    subgraph Client
-        UI[Client app — chưa dựng trên nhánh này]
+    subgraph Client[Client Layer - Next.js 15 / Vercel]
+        UI_Emp[Portal Nhân viên<br/>Hỏi đáp, xem trích dẫn]
+        UI_Admin[Portal Quản trị tri thức<br/>Upload, HITL Review, Quản lý kho]
     end
 
-    subgraph Backend[FastAPI Backend]
-        API["POST /api/v1/chat"]
-        Agent[LangGraph Agent]
+    subgraph Backend[Backend API - FastAPI / Render]
+        API_Auth["POST /api/v1/auth<br/>(JWT + RBAC + Department ACL)"]
+        API_Chat["POST /api/v1/chat<br/>(Cross-doc QA + Citations)"]
+        API_Docs["POST /api/v1/documents<br/>(Upload + Ingest + OCR)"]
+        API_Extract["POST /api/v1/extract<br/>(Structured Extraction + HITL)"]
     end
 
-    subgraph Gateway[FPT.AI Marketplace]
-        LLM[GLM-5.2 — chat]
-        Emb[multilingual-e5-large — embedding]
-        Rerank[bge-reranker-v2-m3 — rerank]
+    subgraph AgentLayer[AI Agent Orchestration - LangGraph]
+        Router[Router & Intent Classification]
+        OCR_Node[OCR Document AI & Quality Score]
+        Schema_Node[Schema Extraction & Verification]
+        Retrieve_Node[Multi-hop Hybrid Retrieval & Rerank]
+        Synthesize_Node[Cross-document Synthesis & Conflict Check]
+        Generate_Node[Grounded Answer & Citation Mapping]
+        Guardrail_Node[Safety Check, Hallucination & Token Control]
+        HITL_Bridge[HITL Verification Flow]
     end
 
-    subgraph Data[Data Layer]
-        Vector[(Chroma Cloud<br/>cosine, prefix passage:/query:)]
-        SB[(Supabase Postgres<br/>users/RBAC · conversations · tickets)]
+    subgraph ExternalGateway[FPT.AI / Model Gateway]
+        LLM[LLM Context dài — GLM-5.2 / DeepSeek]
+        Emb[multilingual-e5-large — Embedding]
+        Rerank[bge-reranker-v2-m3 — Rerank]
+        DocAI[OCR / Document AI Service]
     end
 
-    UI -->|HTTP/REST| API
-    API --> Agent
-    Agent --> LLM
-    Agent --> Emb
-    Agent --> Rerank
-    Agent --> Vector
-    API --> SB
-
-    subgraph Ingestion[Data Ingestion — offline]
-        Raw[data/raw/ — 6 category HR] --> Extract[extract + clean] --> Chunk[chunk] --> Embed[embed] --> Vector
+    subgraph DataLayer[Data & Knowledge Storage]
+        Vector[(Chroma Cloud / pgvector<br/>Collection: internal_docs)]
+        DB[(PostgreSQL / Supabase<br/>Users · RBAC · Extracted Facts · HITL Audit)]
     end
+
+    UI_Emp -->|HTTPS/REST| API_Chat
+    UI_Admin -->|HTTPS/REST| API_Docs
+    UI_Admin -->|HTTPS/REST| API_Extract
+
+    API_Chat --> Router
+    API_Docs --> OCR_Node
+    API_Extract --> Schema_Node
+
+    Router --> Retrieve_Node
+    Retrieve_Node --> Synthesize_Node --> Generate_Node --> Guardrail_Node
+    OCR_Node --> Schema_Node --> HITL_Bridge
+
+    AgentLayer --> LLM
+    AgentLayer --> Emb
+    AgentLayer --> Rerank
+    AgentLayer --> DocAI
+
+    Retrieve_Node --> Vector
+    HITL_Bridge --> DB
+    API_Auth --> DB
 ```
 
 ## Components
@@ -77,9 +109,12 @@ graph TB
 
 ## Data Flow
 
-1. **Offline — Ingestion:** `data/raw/<category>/` (6 category: company_regulations, government_legal, recruitment_policies, onboarding_offboarding, leave_policies, compensation_policies) → extract (`pdfplumber`/`PyMuPDF`/VLM cho bảng phức tạp) → clean → chunk → embed → upsert Chroma Cloud. **`government_legal` không còn RAG-eligible** (`NON_RAG_SOURCE_TYPES`) — 10 văn bản luật trong category này chỉ dùng offline làm nguồn tham khảo để soạn thêm tài liệu nội bộ synthetic (vd `09_chinh-sach-bao-hiem-xa-hoi-bat-buoc.md`, `10_chinh-sach-an-toan-ve-sinh-lao-dong.md`), không được chunk/index/truy vấn.
-2. **Online — Query:** Client gửi `POST /api/v1/chat` (kèm `history` nếu là lượt tiếp theo trong hội thoại) → `condense` (viết lại câu hỏi độc lập nếu có `history`, bỏ qua nếu không) → `router` phân loại intent → nếu `hr_question`: `retrieve` (top-k dense) → `rerank` → `grade` (lọc theo relevance) → `generate` (LLM sinh câu trả lời có trích dẫn) → `hallucination_check` → `confidence` → `finalize` (trả lời) hoặc `escalate_ticket` (tạo `ticket_draft`).
-3. Backend nhận `AgentAnswer`; nếu `escalate=True` (trừ `competitor_question`) thì insert ticket vào Supabase.
+1. **Offline — Ingestion:** `data/raw/<category>/` → extract (`pdfplumber`/`PyMuPDF`/OCR Document AI cho bản scan) → clean → chunk → embed → upsert Chroma Cloud. Hai loại nguồn được index vào knowledge database:
+   - **Tài liệu nội bộ** (`authority=tenant_official_policy`): quy trình vận hành, biên bản họp, quyết định ban hành, quy chế nội bộ — `category`: `company_regulations`, `recruitment_policies`, `onboarding_offboarding`, `leave_policies`, `compensation_policies`.
+   - **Văn bản pháp luật** (`authority=government_law`): bộ luật, nghị định, thông tư — `category`: `government_legal` — trích dẫn kèm `is_official_policy=True` để người dùng phân biệt nguồn gốc.
+2. **Online — Query:** Client gửi `POST /api/v1/chat` (kèm `history` nếu là lượt tiếp theo) → `condense` (viết lại câu hỏi độc lập nếu có `history`) → `router` phân loại intent → `retrieve` hybrid (Dense + BM25 + Rerank, filter theo authority allowlist và department ACL) → `grade` → `generate` (kèm citation có metadata `authority` để UI phân biệt nguồn nội bộ vs pháp luật) → `hallucination_check` → `confidence` → `finalize` hoặc `escalate_ticket`.
+3. Backend nhận `AgentAnswer`; nếu `escalate=True` thì insert ticket vào Supabase.
+
 
 ## Deployment Architecture
 

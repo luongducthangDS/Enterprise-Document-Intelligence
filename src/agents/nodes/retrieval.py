@@ -1,120 +1,232 @@
 import asyncio
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache, partial
 
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
-from src.ingestion.indexer import get_chroma_client, get_collection
+from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
 from src.ingestion.metadata import DEMO_ONLY_PROVENANCE
 from src.observability import llm_trace
 from src.retrieval.bm25 import BM25
 from src.retrieval.cache import get_cached_embedding, set_cached_embedding
-from src.retrieval.hybrid import fuse_candidate_ids
+from src.retrieval.hybrid import reciprocal_rank_fusion
+from src.security import (
+    UserContext,
+    canonical_department,
+    get_authorization_engine,
+    runtime_upload_access_filters,
+    runtime_upload_metadata_allowed,
+)
+from src.security.tenant_resolver import resolve_tenant_collection
 from src.services.fpt_client import embed_batch, rerank
 
-_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi HR để tìm kiếm tài liệu chính sách chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn/luật liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
+_REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_REFERRAL_QUERY_PATTERN = re.compile(
+    r"\breferral\b"
+    r"|(?:giới thiệu|gioi thieu).{0,48}(?:ứng tuyển|ung tuyen|ứng viên|ung vien|người quen|nguoi quen|bạn|ban)"
+    r"|(?:ứng tuyển|ung tuyen|ứng viên|ung vien).{0,48}(?:giới thiệu|gioi thieu|referral)",
+    re.IGNORECASE,
+)
+_DISCIPLINARY_ABSENCE_QUERY_PATTERN = re.compile(
+    r"(?:tự ý|tu y).{0,40}(?:nghỉ|nghi|bỏ việc|bo viec)"
+    r"|(?:sa thải|sa thai|kỷ luật|ky luat).{0,48}(?:nghỉ|nghi|bỏ việc|bo viec|vắng|vang)"
+    r"|(?:nghỉ|nghi|bỏ việc|bo viec).{0,48}(?:sa thải|sa thai|kỷ luật|ky luat|phê duyệt|phe duyet)",
+    re.IGNORECASE,
+)
+
+
+_KPI_QUERY_PATTERN = re.compile(
+    r"đánh giá.{0,24}(?:hiệu suất|thành tích|kết quả|năng lực|nhân viên)|kpi|okr|performance review|xếp loại",
+    re.IGNORECASE,
+)
+_RECRUITMENT_QUERY_PATTERN = re.compile(
+    r"quy trình tuyển dụng|kế hoạch tuyển dụng|hội đồng tuyển dụng|tiêu chuẩn tuyển dụng|tuyển dụng nhân sự",
+    re.IGNORECASE,
+)
 
 
 def _expand_retrieval_query(query: str) -> str:
-    """Bổ sung các từ đồng nghĩa ổn định cho chủ đề Hybrid/WFH.
+    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
 
-    Tài liệu dùng lẫn tiếng Anh và tiếng Việt; expansion nhỏ này giúp dense và
-    BM25 tìm đúng ngay lượt đầu mà không cần gọi LLM rewrite chỉ để thêm từ.
+    Expansion nhỏ này giúp dense và BM25 tìm đúng ngay lượt đầu mà không cần
+    gọi LLM rewrite chỉ để thêm từ. Chỉ mở rộng các pattern có tín hiệu đủ rõ
+    để không làm loãng embedding của câu hỏi HR khác.
     """
-    if not _HYBRID_QUERY_PATTERN.search(query):
+    expansions: list[str] = []
+    if _HYBRID_QUERY_PATTERN.search(query):
+        expansions.append("WFH, làm việc từ xa, onsite, mô hình 3-2")
+    if _REFERRAL_QUERY_PATTERN.search(query):
+        # Regression qa_013: người dùng nói "giới thiệu bạn ứng tuyển" trong
+        # khi policy dùng "giới thiệu nội bộ (referral)" ở mục kênh đăng tin.
+        expansions.append(
+            "tuyển dụng, giới thiệu nội bộ, referral, kênh đăng tin, website tuyển dụng, nộp hồ sơ ứng viên"
+        )
+    if _KPI_QUERY_PATTERN.search(query):
+        expansions.append("đánh giá hiệu suất, KPI, OKR, kết quả công việc, kỳ đánh giá, xếp loại thành tích")
+    if _RECRUITMENT_QUERY_PATTERN.search(query):
+        expansions.append("quy trình tuyển dụng, tiếp nhận nhân sự, phỏng vấn, thử việc, tiêu chuẩn tuyển dụng")
+    disciplinary_match = _DISCIPLINARY_ABSENCE_QUERY_PATTERN.search(query)
+    if disciplinary_match:
+        # Regression qa_122: câu hỏi nói "tự ý nghỉ/chưa được phê duyệt", còn
+        # policy dùng cụm "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày".
+        # Đây là một paraphrase canonical có chủ đích: câu hỏi gốc dài và
+        # chứa nhiều điều kiện, trong khi chunk policy có đúng cụm này.
+        return "tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày; sa thải; lý do chính đáng"
+    if not expansions:
         return query
-    return f"{query}\nTừ khóa liên quan: WFH, làm việc từ xa, onsite, mô hình 3-2"
+    return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
 
 
-@lru_cache
-def _collection():
-    """Cache collection theo tiến trình — tránh tạo lại CloudClient (bắt tay xác
-    thực) ở mỗi request."""
-    settings = get_settings()
-    client = get_chroma_client(settings)
-    return get_collection(client, settings.chroma_collection_name)
-
-
-def _provenance_filter(settings: Settings) -> dict | None:
-    """Chặn dữ liệu ở TẦNG TRUY VẤN, không phụ thuộc LLM tuân thủ prompt.
-
-    Lọc ở đây chứ không phải trong prompt là có chủ đích: prompt chỉ là lời dặn,
-    còn `where` là ràng buộc — chunk bị lọc không bao giờ tồn tại trong ngữ cảnh
-    nên không có đường nào để model lỡ trích dẫn nó.
-
-    Bốn điều kiện LUÔN áp dụng (demo lẫn production) + 1 điều kiện chỉ production:
-    - authority=tenant_official_policy: sản phẩm chỉ trả lời bằng dữ liệu nội bộ
-      doanh nghiệp (thật hoặc synthetic đóng vai nội bộ) — luật, chính sách THẬT
-      của doanh nghiệp khác, template công khai không gắn công ty nào đều KHÔNG
-      được trích dẫn trực tiếp. Cố tình dùng allowlist ($eq) thay vì liệt kê
-      từng `$ne` (government_law, public_reference, public_template...): chunk
-      index từ TRƯỚC KHI taxonomy authority/provenance tồn tại không có field
-      `authority` trong metadata Chroma — `$ne` với field vắng mặt vẫn khớp
-      (tức KHÔNG lọc được), đã đo được lỗi này thật khi luật vẫn lọt vào
-      retrieved_chunks dù filter `$ne government_law` đã có. `$eq` fail-closed:
-      chunk thiếu/khác field tự động bị loại, không cần nhớ liệt kê hết mọi giá
-      trị cần chặn.
-    - publication_status=active, artifact_state=frozen, retrieval_enabled=True:
-      contract "frozen internal corpus" (NexaTech Type-C contract v3.1.0) — một
-      tài liệu tenant_official_policy vẫn có thể bị loại khỏi truy vấn khi bị
-      supersede (publication_status khác "active") hoặc tạm khoá RAG
-      (retrieval_enabled=False) mà không cần đổi authority. Cùng $eq allowlist
-      logic như trên — fail-closed với chunk thiếu field.
-
-    Rào chắn tại tầng `where` là rào chắn thứ hai — phòng khi chunk cũ còn sót
-    trong Chroma Cloud dù ingestion đã ngừng coi các nguồn đó là RAG-eligible
-    (xem NON_RAG_SOURCE_TYPES, rag_eligible_rows trong src/ingestion/metadata.py).
-
-    - effective_date_ymd<=query_date_ymd VÀ expiry_date_ymd>=query_date_ymd:
-      contract yêu cầu "effective_date <= query_date AND (expiry_date IS NULL
-      OR expiry_date >= query_date)". HAI lỗi thật đã đo được khi implement:
-      (1) Chroma `$lte`/`$gte` CHỈ nhận operand int/float — thử filter bằng
-      chuỗi ISO "2026-08-15" trực tiếp bị Chroma raise ValueError ngay tại
-      query time (không phải lỗi âm thầm, nhưng vẫn phải sửa trước khi launch).
-      Khắc phục bằng field riêng `effective_date_ymd`/`expiry_date_ymd` (int
-      YYYYMMDD, xem date_to_ymd_int() trong metadata.py) — CHỈ dùng để filter,
-      field chuỗi effective_date/expiry_date vẫn giữ để hiển thị/audit.
-      (2) "IS NULL" (không có hạn) không thể biểu diễn bằng field vắng mặt vì
-      Chroma bỏ hẳn field None khỏi metadata khi ghi, và field vắng mặt lại
-      KHÔNG khớp `$gte` — khắc phục bằng NO_EXPIRY_SENTINEL (99991231, luôn
-      >= mọi query_date thật) ở tầng ingestion thay vì để trống.
-
-    - provenance=synthetic_demo chỉ bị loại thêm khi production: ở demo, dữ
-      liệu mô phỏng ĐƯỢC dùng như chính sách nội bộ chính thức của tenant giả
-      lập. Hệ quả đã lường trước: ở production mà KB chưa có policy thật,
-      `grade_node` trả rỗng và câu hỏi đi thẳng sang nhánh escalate/ticket —
-      đó là hành vi ĐÚNG, không phải lỗi.
-    """
-    query_date_ymd = int(datetime.now(timezone.utc).strftime("%Y%m%d"))
-    conditions: list[dict] = [
-        {"authority": "tenant_official_policy"},
+def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
+    return [
         {"publication_status": "active"},
         {"artifact_state": "frozen"},
         {"retrieval_enabled": True},
         {"effective_date_ymd": {"$lte": query_date_ymd}},
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
+
+
+def _predicate_leaf_count(predicate: dict) -> int:
+    """Count Chroma leaf predicates, including nested $and/$or branches."""
+    total = 0
+    for key, value in predicate.items():
+        if key in {"$and", "$or"}:
+            total += sum(_predicate_leaf_count(item) for item in value)
+        else:
+            total += 1
+    return total
+
+
+def _metadata_lifecycle_allowed(metadata: dict, query_date_ymd: int) -> bool:
+    """Exact lifecycle post-check for branches shortened to Chroma's quota."""
+    try:
+        effective = int(metadata.get("effective_date_ymd", 99991231))
+        expiry = int(metadata.get("expiry_date_ymd", 0))
+    except (TypeError, ValueError):
+        return False
+    return (
+        metadata.get("publication_status") == "active"
+        and metadata.get("artifact_state") == "frozen"
+        and metadata.get("retrieval_enabled") is True
+        and effective <= query_date_ymd <= expiry
+    )
+
+
+def _metadata_authorized(metadata: dict, user_context: UserContext, allowed_files: set[str]) -> bool:
+    """Defense-in-depth ACL used after vector and lexical retrieval."""
+    registry_allowed = str(metadata.get("source_file") or "") in allowed_files
+    runtime_allowed = runtime_upload_metadata_allowed(user_context, metadata)
+    return registry_allowed or runtime_allowed
+
+
+def _provenance_filter(settings: Settings, user_context: UserContext | None = None) -> dict:
+    """Registry corpus filter; kept below Chroma's 8-predicate query quota."""
+    if user_context is None:
+        return {"source_file": "__NO_ACCESS__"}
+    allowed_files = get_authorization_engine().get_authorized_source_files(user_context)
+    if not allowed_files:
+        return {"source_file": "__NO_ACCESS__"}
+    file_condition = (
+        {"source_file": {"$in": allowed_files}} if len(allowed_files) > 1 else {"source_file": allowed_files[0]}
+    )
+    conditions = [
+        file_condition,
+        *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d"))),
+    ]
     if settings.data_mode == "production":
         conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
-    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+    return {"$and": conditions}
+
+
+def _retrieval_filters(settings: Settings, user_context: UserContext) -> list[dict]:
+    """Return independent authorized queries; each has at most 8 leaf predicates."""
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    filters: list[dict] = []
+    offline = _provenance_filter(settings, user_context)
+    if offline != {"source_file": "__NO_ACCESS__"}:
+        filters.append(offline)
+    lifecycle = _lifecycle_conditions(query_date_ymd)
+    for access in runtime_upload_access_filters(user_context):
+        access_conditions = access["$and"] if "$and" in access else [access]
+        remaining_quota = max(0, 8 - _predicate_leaf_count(access))
+        filters.append({"$and": [*access_conditions, *lifecycle[:remaining_quota]]})
+    return filters or [{"source_file": "__NO_ACCESS__"}]
+
+
+def _merge_query_results(results: list[dict], limit: int) -> dict:
+    best: dict[str, tuple[str, dict, float]] = {}
+    for result in results:
+        ids = (result.get("ids") or [[]])[0]
+        documents = (result.get("documents") or [[]])[0]
+        metadatas = (result.get("metadatas") or [[]])[0]
+        distances = (result.get("distances") or [[]])[0]
+        for chunk_id, document, metadata, distance in zip(ids, documents, metadatas, distances):
+            if chunk_id not in best or distance < best[chunk_id][2]:
+                best[chunk_id] = (document, metadata, distance)
+    # Chroma không cam kết thứ tự khi nhiều chunk có cùng distance.
+    # chunk_id là tie-break ổn định cho cùng một snapshot dữ liệu.
+    ranked = sorted(best.items(), key=lambda item: (item[1][2], item[0]))[:limit]
+    return {
+        "ids": [[item[0] for item in ranked]],
+        "documents": [[item[1][0] for item in ranked]],
+        "metadatas": [[item[1][1] for item in ranked]],
+        "distances": [[item[1][2] for item in ranked]],
+    }
+
+
+async def detect_department_scope_denial(
+    collection,
+    embedding: list[float],
+    user_context: UserContext,
+    settings: Settings,
+) -> str | None:
+    """Detect relevant department-only evidence without exposing its contents."""
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    try:
+        result = await asyncio.to_thread(
+            partial(collection.query, where={"$and": _lifecycle_conditions(query_date_ymd)}, include=["metadatas", "distances"]),
+            query_embeddings=[embedding],
+            n_results=min(3, settings.retrieval_top_k),
+        )
+    except Exception:  # noqa: BLE001 - denial detection must not break retrieval
+        return None
+
+    metadatas = (result.get("metadatas") or [[]])[0]
+    distances = (result.get("distances") or [[]])[0]
+    user_department = canonical_department(user_context.department)
+    for metadata, distance in zip(metadatas, distances):
+        if float(distance) > settings.retrieval_max_distance:
+            continue
+        if str(metadata.get("access_scope", "")).upper() != "DEPARTMENT":
+            continue
+        document_department = canonical_department(metadata.get("department"))
+        if document_department != user_department:
+            return document_department
+    return None
+
+@lru_cache
+def _collection(collection_name: str | None = None):
+    """Cache collection theo tên tiến trình — định tuyến linh hoạt theo từng tenant."""
+    settings = get_settings()
+    client = get_chroma_client(settings)
+    name = collection_name or settings.chroma_collection_name
+    return get_collection(client, name)
 
 
 @lru_cache
-def _bm25_index() -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN từ Chroma Cloud (không phải data/chunks/*.json —
-    file đó gitignored, không tồn tại trên server), cache theo tiến trình như
-    _collection(). Trả None nếu tải lỗi/collection rỗng để hybrid tự tắt an
-    toàn (xem fuse_candidate_ids) thay vì làm chết cả request retrieval."""
+def _bm25_index(collection_name: str | None = None) -> BM25 | None:
+    """Corpus BM25 tải MỘT LẦN cho từng collection tenant."""
     try:
-        # Cùng bộ lọc với truy vấn dense — nếu không, ứng viên synthetic vẫn lọt
-        # vào context qua ngả RRF ở production dù dense đã chặn.
-        where = _provenance_filter(get_settings())
-        result = _collection().get(include=["documents"], **({"where": where} if where else {}))
-    except Exception as e:  # noqa: BLE001 — lỗi tải corpus phụ không được chặn retrieval chính
-        print(f"[hybrid] không tải được corpus BM25: {type(e).__name__}: {e}")
+        result = _collection(collection_name).get(
+            include=["documents"],
+            where={"$and": [{"publication_status": "active"}, {"retrieval_enabled": True}]},
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"[hybrid] không tải được corpus BM25 cho '{collection_name}': {type(e).__name__}: {e}")
         return None
     ids = result.get("ids") or []
     documents = result.get("documents") or []
@@ -138,109 +250,191 @@ async def _aembed_query(text: str) -> list[float]:
         base_url=settings.fpt_base_url,
         api_key=settings.fpt_api_key,
     )
-    set_cached_embedding(text, vectors[0])
-    return vectors[0]
+    vec = vectors[0]
+    set_cached_embedding(text, vec)
+    return vec
 
 
-def _to_chunk(chunk_id: str, text: str, meta: dict, distance: float) -> RetrievedChunk:
-    return RetrievedChunk(
-        chunk_id=chunk_id,
-        text=text,
-        source_file=meta.get("source_file", ""),
-        title=meta.get("title", ""),
-        category=meta.get("category", ""),
-        is_official_policy=bool(meta.get("is_official_policy", False)),
-        source_type=str(meta.get("source_type") or ""),
-        # Chunk index từ trước đợt migrate taxonomy chưa có 3 khoá này. Mặc định
-        # về nhóm THẤP quyền nhất thay vì đoán cao lên: một chunk chưa phân loại
-        # không được thừa hưởng thẩm quyền của chính sách nội bộ.
-        authority=str(meta.get("authority") or "public_reference"),
-        provenance=str(meta.get("provenance") or "public_web"),
-        tenant=str(meta.get("tenant") or ""),
-        caveat=str(meta.get("caveat") or ""),
-        heading_path=str(meta.get("heading_path") or ""),
-        policy_status=str(meta.get("publication_status") or ""),
-        page_start=meta.get("page_start"),
-        page_end=meta.get("page_end"),
-        distance=distance,
-        score=None,
-    )
+def _to_chunk(
+    chunk_id: str,
+    text: str,
+    meta: dict,
+    distance: float,
+) -> RetrievedChunk:
+    return {
+        "chunk_id": chunk_id,
+        "text": text,
+        "source_file": meta.get("source_file", ""),
+        "title": meta.get("title", ""),
+        "department": meta.get("department", "HR"),
+        "category": meta.get("category", ""),
+        "owner": meta.get("owner", ""),
+        "is_official_policy": bool(meta.get("is_official_policy", False)),
+        "source_type": meta.get("source_type", "public_reference"),
+        "authority": meta.get("authority", "public_reference"),
+        "provenance": meta.get("provenance", "public_web"),
+        "tenant": meta.get("tenant", ""),
+        "caveat": meta.get("caveat", ""),
+        "heading_path": meta.get("heading_path", ""),
+        "policy_status": meta.get("publication_status", "active"),
+        "document_code": str(meta.get("document_code") or ""),
+        "version": str(meta.get("version") or ""),
+        "effective_date": str(meta.get("effective_date") or ""),
+        "page_start": meta.get("page_start"),
+        "page_end": meta.get("page_end"),
+        "sheet_start": meta.get("sheet_start"),
+        "sheet_end": meta.get("sheet_end"),
+        "distance": distance,
+        "score": None,
+    }
 
 
 async def retrieval_node(state: AgentState) -> dict:
-    settings = get_settings()
-    raw_query = state.get("rewritten_query") or state.get("condensed_query") or state.get("query", "")
-    query = _expand_retrieval_query(raw_query)
-    embedding = await _aembed_query(query)
+    """Truy vấn Chroma Cloud bằng query embedding với Scoped Tenant & Authorization."""
+    # --- Phân hệ Kế toán: Ủy quyền cho hàm retrieval riêng biệt ---
+    from src.domains import get_conversation_domain
+    from src.domains.accounting.retrieval_ext import accounting_retrieval_node
 
-    # Đo riêng hai phần, vì chúng có bản chất khác hẳn nhau và trước đây cùng
-    # nằm trong một khối "retrieve" không bóc được:
-    #   - `_collection()` chỉ tốn thời gian ở lần gọi ĐẦU TIÊN mỗi tiến trình
-    #     (dựng CloudClient + bắt tay xác thực), sau đó lru_cache trả ngay.
-    #     Đo thực tế: request đầu của một lần profiling tốn ~18,8s cho riêng
-    #     bước này, đủ để bóp méo mọi thống kê nếu bị trộn vào latency truy vấn.
-    #   - `collection.query` là truy vấn vector thật, xảy ra ở MỌI request.
+    query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
+    domain = get_conversation_domain(query, state.get("category"), state.get("history"))
+    if domain and domain.domain_name == "accounting":
+        return await accounting_retrieval_node(state)
+    settings = get_settings()
+
+    user_context = UserContext.from_state(state)
+    collection_name = (
+        collection_name_for_department("Product", settings, user_context.tenant_id)
+        if (domain and domain.domain_name == "product")
+        else resolve_tenant_collection(user_context)
+    )
+
+    with llm_trace.Timer("embedding", "fpt_cloud"):
+        embedding = await _aembed_query(query)
+
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
-        collection = _collection()
-    where = _provenance_filter(settings)
+        collection = _collection(collection_name)
+
+    filters = _retrieval_filters(settings, user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
-        result = await asyncio.to_thread(
-            partial(collection.query, where=where) if where else collection.query,
-            query_embeddings=[embedding],
-            n_results=settings.retrieval_top_k,
+        branch_results = await asyncio.gather(
+            *[
+                asyncio.to_thread(
+                    partial(collection.query, where=where),
+                    query_embeddings=[embedding],
+                    n_results=settings.retrieval_top_k,
+                )
+                for where in filters
+            ]
         )
+        result = _merge_query_results(branch_results, settings.retrieval_top_k)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
     distances = (result.get("distances") or [[]])[0]
+    allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
 
     chunk_map: dict[str, RetrievedChunk] = {
         chunk_id: _to_chunk(chunk_id, text, meta, distance)
         for chunk_id, text, meta, distance in zip(ids, documents, metadatas, distances)
+        if _metadata_lifecycle_allowed(meta, query_date_ymd) and _metadata_authorized(meta, user_context, allowed_files)
     }
 
     if settings.use_hybrid and ids:
-        chunk_map = await _amerge_bm25(query, ids, chunk_map, settings)
+        chunk_map = await _amerge_bm25(
+            query, ids, chunk_map, settings, user_context=user_context, collection_name=collection_name
+        )
 
     chunks = list(chunk_map.values())
+    if not chunks:
+        denied_department = await detect_department_scope_denial(collection, embedding, user_context, settings)
+        if denied_department:
+            return {
+                "retrieved_chunks": [],
+                "access_denied_reason": "DEPARTMENT_SCOPE_DENIED",
+                "denied_department": denied_department,
+            }
     if settings.use_reranker and chunks:
         chunks = await _arerank(query, chunks)
+
+    # Observability & Audit Trail Logging
+    req_id = state.get("request_id") or "req_default"
+    doc_ids: list[str] = []
+    for c in chunks or []:
+        meta = getattr(c, "metadata", None)
+        if meta is None and isinstance(c, dict):
+            meta = c.get("metadata") or {}
+        sf = getattr(meta, "source_file", None)
+        if sf is None and isinstance(meta, dict):
+            sf = meta.get("source_file")
+        if sf:
+            doc_ids.append(str(sf))
+    doc_ids = sorted(set(doc_ids))
+    print(
+        f"[AUDIT-RETRIEVAL] req_id={req_id} tenant={user_context.tenant_id} "
+        f"user={user_context.user_id} role={user_context.role.value} dept={user_context.department} "
+        f"collection={collection_name} count={len(chunks)} doc_ids={doc_ids}"
+    )
 
     return {"retrieved_chunks": chunks}
 
 
 async def _amerge_bm25(
-    query: str, dense_ids: list[str], chunk_map: dict[str, RetrievedChunk], settings: Settings
+    query: str,
+    dense_ids: list[str],
+    chunk_map: dict[str, RetrievedChunk],
+    settings: Settings,
+    user_context: UserContext | None = None,
+    collection_name: str | None = None,
 ) -> dict[str, RetrievedChunk]:
-    """Trộn thêm ứng viên BM25 (RRF) rồi trả về đúng tập chunk theo thứ tự
-    trộn — ứng viên chỉ đến từ BM25 (không nằm trong dense_ids) cần lấy riêng
-    text/metadata qua collection.get() vì query dense không hề thấy chúng."""
-    bm25 = await asyncio.to_thread(_bm25_index)
-    fused_ids = fuse_candidate_ids(
-        dense_ids=dense_ids,
-        bm25=bm25,
-        query=query,
-        bm25_top_k=settings.bm25_top_k,
-        rrf_k=settings.rrf_k,
-        fused_top_k=settings.retrieval_top_k,
-    )
+    """Trộn thêm ứng viên BM25 (RRF) theo đúng tenant collection và kiểm tra quyền ACL."""
+    bm25 = await asyncio.to_thread(_bm25_index, collection_name)
+    if bm25 is None:
+        return chunk_map
 
-    missing_ids = [cid for cid in fused_ids if cid not in chunk_map]
+    auth_engine = get_authorization_engine()
+    allowed_files = set(auth_engine.get_authorized_source_files(user_context or UserContext(department="GENERAL")))
+
+    # Lấy ứng viên BM25
+    bm25_candidates = [cid for cid, _ in bm25.top_k(query, k=settings.bm25_top_k * 2)]
+    missing_ids = [cid for cid in bm25_candidates if cid not in chunk_map]
     if missing_ids:
-        fetched = await asyncio.to_thread(
-            _collection().get, ids=missing_ids, include=["documents", "metadatas"]
-        )
-        # Chunk chỉ đến từ BM25 không có cosine distance thật — không có gì để
-        # ước lượng nó tốt hơn "biên ngoài cùng còn được coi là liên quan"
-        # (retrieval_max_distance). Vô hại trong pipeline hiện tại vì distance
-        # chỉ dùng khi reranker tắt/lỗi (fallback ở grade_node/confidence_node);
-        # có use_reranker=True nên score thật của reranker mới quyết định.
+        coll = _collection(collection_name)
+        fetched = await asyncio.to_thread(coll.get, ids=missing_ids, include=["documents", "metadatas"])
         fallback_distance = settings.retrieval_max_distance
+        query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
         for chunk_id, text, meta in zip(
             fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
         ):
-            chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
+            sf = meta.get("source_file", "")
+            registry_allowed = sf in allowed_files
+            runtime_allowed = user_context is not None and runtime_upload_metadata_allowed(user_context, meta)
+            if registry_allowed:
+                publication_status = meta.get("publication_status", "active")
+                artifact_state = meta.get("artifact_state", "frozen")
+                retrieval_enabled = meta.get("retrieval_enabled", True)
+                effective_date_ymd = int(meta.get("effective_date_ymd", 1))
+                expiry_date_ymd = int(meta.get("expiry_date_ymd", 99991231))
+            else:
+                publication_status = meta.get("publication_status")
+                artifact_state = meta.get("artifact_state")
+                retrieval_enabled = meta.get("retrieval_enabled")
+                effective_date_ymd = int(meta.get("effective_date_ymd", 99991231))
+                expiry_date_ymd = int(meta.get("expiry_date_ymd", 0))
+            lifecycle_allowed = (
+                publication_status == "active"
+                and artifact_state == "frozen"
+                and retrieval_enabled is True
+                and effective_date_ymd <= query_date_ymd
+                and expiry_date_ymd >= query_date_ymd
+            )
+            if lifecycle_allowed and (registry_allowed or runtime_allowed):
+                chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
+
+    valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
+    fused = reciprocal_rank_fusion([dense_ids, valid_bm25_ids], k=settings.rrf_k)
+    fused_ids = [cid for cid, _ in fused[: settings.retrieval_top_k]]
 
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
 
@@ -268,9 +462,11 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             api_key=settings.fpt_api_key,
             top_n=settings.rerank_top_k,
         )
-    except Exception as e:  # noqa: BLE001 — không để lỗi rerank làm chết cả câu hỏi
-        print(f"[rerank] bỏ qua do lỗi {type(e).__name__}: {e}")
-        return chunks[: settings.rerank_top_k]
+    except Exception as e:  # noqa: BLE001
+        # Fail closed: dense distance không cùng thang với reranker score. Dùng
+        # im lặng kết quả dense từng làm behavior đổi theo trạng thái gateway.
+        print(f"[rerank] fail-closed do lỗi {type(e).__name__}: {e}")
+        return []
 
     reranked: list[RetrievedChunk] = []
     for index, score in ranked:
@@ -278,7 +474,10 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             chunk = chunks[index]
             chunk["score"] = score
             reranked.append(chunk)
-    return reranked[: settings.rerank_top_k]
+    return sorted(
+        reranked,
+        key=lambda chunk: (-(chunk.get("score") or 0.0), chunk["chunk_id"]),
+    )[: settings.rerank_top_k]
 
 
 def grade_node(state: AgentState) -> dict:

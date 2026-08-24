@@ -89,6 +89,9 @@ def normal_answer() -> AgentAnswerDTO:
                 "page_end": 2,
                 "category": "leave",
                 "is_official_policy": True,
+                "document_code": "HR-LEAVE-01",
+                "version": "2.1",
+                "effective_date": "2026-01-01",
                 "excerpt": "Employees receive 12 leave days per year.",
             }
         ],
@@ -102,6 +105,9 @@ def test_adapter_generates_stable_citation_ids():
     assert first.citations[0]["citation_id"] == second.citations[0]["citation_id"]
     assert first.citations[0]["page"] == 2
     assert first.citations[0]["excerpt"] == "Employees receive 12 leave days per year."
+    assert first.citations[0]["document_code"] == "HR-LEAVE-01"
+    assert first.citations[0]["version"] == "2.1"
+    assert first.citations[0]["effective_date"] == "2026-01-01"
 
 
 def test_adapter_groups_chunks_from_the_same_document():

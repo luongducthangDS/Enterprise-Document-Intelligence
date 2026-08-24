@@ -66,6 +66,9 @@ class AgentAnswerAdapter:
                 existing["page_start"] = min(starts) if starts else None
                 existing["page_end"] = max(ends) if ends else None
                 existing["page"] = existing["page_start"]
+                if not existing.get("sheet_start"):
+                    existing["sheet_start"] = item.sheet_start
+                    existing["sheet_end"] = item.sheet_end
                 existing["is_official_policy"] = existing["is_official_policy"] and item.is_official_policy
                 continue
 
@@ -73,16 +76,21 @@ class AgentAnswerAdapter:
                 "citation_id": cls._citation_id(chat_request_id, source_key),
                 "title": item.title or item.source_file,
                 "page": item.page_start,
+                "sheet": item.sheet_start,
                 # Trước đây hardcode None — agent không hề gửi field này. Giờ
                 # agent trả source_section (vd "4.1. Số ngày nghỉ phép năm tiêu
                 # chuẩn"), client hiển thị "Nguồn: {title} · {section}".
                 "section": item.source_section or None,
-                "version": None,
-                "effective_date": None,
+                "version": item.version or None,
+                "effective_date": item.effective_date or None,
+                "document_code": item.document_code or None,
                 "chunk_id": item.chunk_id,
                 "source_file": item.source_file,
                 "page_start": item.page_start,
                 "page_end": item.page_end,
+                "sheet_start": item.sheet_start,
+                "sheet_end": item.sheet_end,
+                "department": item.department,
                 "category": item.category,
                 "is_official_policy": item.is_official_policy,
                 "source_type": item.source_type,
@@ -115,7 +123,7 @@ class AgentAnswerAdapter:
                 boundary=boundary,
             )
 
-        if answer.escalate or answer.intent == "out_of_scope_or_personal":
+        if answer.escalate or answer.intent in ("out_of_scope_or_personal", "pure_statutory"):
             warnings = []
             if answer.escalate_reason == "low_confidence":
                 warnings.append(
@@ -124,7 +132,7 @@ class AgentAnswerAdapter:
                         "severity": "BLOCKING",
                         "message": "Không đủ bằng chứng để trả lời một cách tin cậy.",
                         "citation_ids": [item["citation_id"] for item in citations] or None,
-                        "recommended_action": "Liên hệ HR để được hỗ trợ.",
+                        "recommended_action": "Liên hệ người phụ trách để được hỗ trợ.",
                     }
                 )
             return MappedAgentResult(
@@ -135,7 +143,7 @@ class AgentAnswerAdapter:
                 citations=citations,
                 warnings=warnings,
                 clarification=None,
-                retryable=True,
+                retryable=answer.intent != "pure_statutory",
                 boundary=boundary,
             )
 

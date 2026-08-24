@@ -28,62 +28,28 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding="utf-8")
 
-from _text_utils import normalize_for_match  # noqa: E402
-from src.agents.graph import agent  # noqa: E402
 from _stats import bootstrap_ci, format_ci  # noqa: E402
-from src.agents.llm import acall_llm  # noqa: E402
+
+from src.agents.graph import agent  # noqa: E402
 from src.config import get_settings  # noqa: E402
+from src.evaluation.scoring import (  # noqa: E402
+    aggregate_metrics,
+    citation_scores,
+    context_found,
+    evaluate_quality_gate,
+    judge_answer,
+    passed_for_type,
+)
 
 EVAL_SET_PATH = "eval/datasets/qa_eval_set.json"
 RESULTS_PATH = "eval/results/agent_eval_report.json"
 QRELS_PATH = "eval/datasets/retrieval_qrels.json"
-
-_JUDGE_SYSTEM = """Bạn là giám khảo chấm câu trả lời của chatbot HR nội bộ. So sánh CÂU TRẢ LỜI THỰC TẾ của agent với CÂU TRẢ LỜI MẪU — chỉ quan tâm nội dung/thông tin cốt lõi (số liệu, điều kiện, quy trình) có khớp không, KHÔNG cần giống hệt câu chữ (agent có thể diễn đạt khác, có thêm chi tiết phụ, hoặc trích dẫn nguồn). Trả lời ĐÚNG 1 từ: "CORRECT" nếu câu trả lời thực tế truyền tải đúng thông tin cốt lõi của câu trả lời mẫu, "INCORRECT" nếu thiếu/sai thông tin cốt lõi hoặc mâu thuẫn với câu trả lời mẫu."""
-
-
-def _context_found(item: dict, chunks: list[dict], qrels: dict) -> bool:
-    """Retrieval có lấy được đoạn chứa câu trả lời không.
-
-    Ưu tiên so `chunk_id` với qrel (chính xác, không phụ thuộc ranh giới
-    chunking); chỉ khi câu đó chưa có qrel mới lùi về so chuỗi. So chuỗi đơn
-    thuần từng cho kết quả sai hệ thống khi `ground_truth_context` (median
-    2.000 ký tự) dài hơn cả `chunk_max_chars` (1.500) — khi đó không chunk nào
-    chứa nổi nó nên luôn báo False dù retrieval hoàn toàn đúng.
-    """
-    relevant_ids = set(qrels.get(item.get("id"), {}))
-    if not relevant_ids and item.get("evidence_chunk_id"):
-        relevant_ids = {item["evidence_chunk_id"]}
-    if relevant_ids:
-        return any(chunk.get("chunk_id") in relevant_ids for chunk in chunks)
-
-    needle = normalize_for_match(item.get("ground_truth_context", ""))
-    if not needle:
-        return False
-    return any(needle in normalize_for_match(chunk.get("text", "")) for chunk in chunks)
-
-
-def _parse_verdict(text: str) -> bool:
-    text = text.strip().upper()
-    if "INCORRECT" in text:
-        return False
-    return "CORRECT" in text
-
-
-async def _judge_answer(question: str, response: str, expected_answer: str) -> bool:
-    if not expected_answer or not response:
-        return False
-    user = f"Câu hỏi: {question}\n\nCâu trả lời mẫu: {expected_answer}\n\nCâu trả lời thực tế của agent: {response}"
-    # Judge PHẢI khác model với agent: cùng model vừa trả lời vừa tự chấm thì
-    # điểm phản ánh độ nhất quán của model với chính nó (circular evaluation).
-    verdict = await acall_llm(_JUDGE_SYSTEM, user, temperature=0.0, model=get_settings().judge_model)
-    return _parse_verdict(verdict)
-
 
 def _percentile(values: list[float], p: float) -> float:
     if not values:
@@ -109,18 +75,24 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore, qrels: dict) -> dic
             extra: dict = {}
             if item_type == "in_scope":
                 chunks = result.get("retrieved_chunks", [])
-                context_found = _context_found(item, chunks, qrels)
-                answer_correct = await _judge_answer(
-                    item["question"], result.get("response", ""), item.get("expected_answer", "")
+                context_ok = context_found(item, chunks, qrels)
+                answer_ok = await judge_answer(
+                    item["question"],
+                    result.get("response", ""),
+                    item.get("expected_answer", ""),
+                    get_settings(),
                 )
-                passed = bool(result.get("response")) and context_found and answer_correct
-                extra = {"context_found": context_found, "answer_correct": answer_correct}
-            elif item_type == "ambiguous":
-                passed = result.get("needs_clarification") is True
-            elif item_type == "competitor_comparison":
-                passed = result.get("escalate") is False and result.get("escalate_reason") == "competitor_question"
-            else:  # out_of_scope
-                passed = result.get("escalate") is True
+                has_citation, citation_correctness = citation_scores(item, result.get("citations", []), qrels)
+                extra = {
+                    "context_found": context_ok,
+                    "answer_correct": answer_ok,
+                    "has_citation": has_citation,
+                    "citation_correctness": citation_correctness,
+                }
+            else:
+                context_ok = False
+                answer_ok = False
+            passed = passed_for_type(item_type, result, context_ok=context_ok, answer_ok=answer_ok)
         except Exception as e:  # noqa: BLE001 — muốn ghi nhận lỗi thay vì crash cả batch
             return {
                 "id": item["id"], "type": item_type, "category": item["category"],
@@ -134,6 +106,8 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore, qrels: dict) -> dic
         "question": item["question"],
         "passed": passed,
         "intent": result.get("intent"),
+        "state": result.get("state"),
+        "reason_code": result.get("reason_code"),
         "escalate": result.get("escalate", False),
         "escalate_reason": result.get("escalate_reason"),
         "needs_clarification": result.get("needs_clarification", False),
@@ -224,6 +198,15 @@ async def main() -> None:
     print(f"\nTổng: {total_passed}/{len(results)} — {format_ci(tp, tlo, thi)}")
     print(f"(judge: {get_settings().judge_model} | agent: {get_settings().llm_model})")
 
+    settings = get_settings()
+    retrieval_k = settings.rerank_top_k if settings.use_reranker else settings.retrieval_top_k
+    metrics = aggregate_metrics(results, retrieval_k)
+    quality_gate, quality_gate_details = evaluate_quality_gate(metrics, settings)
+    print("\n=== Component metrics ===")
+    for name, value in metrics.items():
+        print(f"{name}: {value}")
+    print(f"quality_gate: {quality_gate}")
+
     latencies = [r["latency_ms"] for r in results if r.get("latency_ms") is not None]
     if latencies:
         p50, p95 = _percentile(latencies, 50), _percentile(latencies, 95)
@@ -239,11 +222,14 @@ async def main() -> None:
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     report = {
-        "run_at": datetime.now(timezone.utc).isoformat(),
+        "run_at": datetime.now(UTC).isoformat(),
         "dataset": args.dataset,
         "total": len(results),
         "total_passed": total_passed,
         "summary_by_type": summary,
+        "metrics": metrics,
+        "quality_gate": quality_gate,
+        "quality_gate_details": quality_gate_details,
         "results": results,
     }
     with open(args.out, "w", encoding="utf-8") as f:

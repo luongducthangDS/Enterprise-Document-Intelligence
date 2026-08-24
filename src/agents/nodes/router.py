@@ -9,9 +9,15 @@ from src.agents.nodes.escalation import (
     _strip_diacritics,
 )
 from src.agents.state import AgentState, Intent
+from src.domains import get_conversation_domain
 
 _INTENT_PATTERN = re.compile(r"greeting|hr_question|ambiguous|out_of_scope_or_personal|pure_statutory")
 _EXPLICIT_HYBRID_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN = re.compile(
+    r"\b(?:checkout redesign|recommendation system|notification center|dark mode|"
+    r"subscription upgrade|search improvements|product roadmap)\b",
+    re.IGNORECASE,
+)
 
 # Dấu hiệu người hỏi đang hỏi QUY ĐỊNH CHUNG chứ không hỏi số liệu của riêng
 # mình — dùng làm circuit breaker cho nhánh escalate, KHÔNG dùng để phân loại.
@@ -68,32 +74,39 @@ Chỉ trả về ĐÚNG 1 từ: policy_answerable hoặc personal_data_required.
 def _get_router_system() -> str:
     from src.config import get_settings
     internal_names = ", ".join(get_settings().internal_company_names)
-    return f"""Bạn là bộ phân loại ý định cho chatbot HR nội bộ — chỉ phục vụ NHÂN VIÊN ĐANG LÀM VIỆC và HR Admin của công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 5 nhóm:
+    return f"""Bạn là bộ phân loại ý định cho trợ lý tri thức nội bộ HR và Product — chỉ phục vụ nhân viên công ty, KHÔNG phục vụ ứng viên/người ngoài. Phân loại câu hỏi của người dùng vào ĐÚNG 1 trong 5 nhóm:
 
 - greeting: chào hỏi, xã giao, không phải câu hỏi HR thật (vd "chào bạn", "bạn là ai", "cảm ơn nhé").
 
-- hr_question: chủ đề đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chính sách chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nghỉ phép năm được mấy ngày?", "Quy trình tuyển dụng có mấy vòng?", "Nghỉ thai sản cần thủ tục gì?").
+- hr_question: nhãn legacy cho mọi câu hỏi tri thức nội bộ HR HOẶC Product đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nghỉ phép năm theo quy định được mấy ngày?", "Checkout Redesign dự kiến release khi nào?", "Recommendation System đang ở trạng thái nào?", "Kết quả experiment Checkout Redesign là gì?").
 
-- ambiguous: câu hỏi THIẾU thông tin cần thiết để xác định người hỏi muốn biết điều gì, khiến không biết tra cứu tài liệu nào nếu không hỏi lại. Ví dụ:
-  * "Bên mình có hỗ trợ chi phí y tế cho nhân viên không?" — mập mờ giữa BHYT bắt buộc và bảo hiểm sức khỏe tự nguyện.
+- ambiguous: câu hỏi THIẾU thông tin cần thiết hoặc đa nghĩa, khiến không biết tra cứu chính xác tài liệu/quy định nào nếu không hỏi lại làm rõ. Ví dụ:
+  * "Tôi còn bao nhiêu ngày phép?" — mập mờ giữa ngày phép tiêu chuẩn năm nay và ngày phép cộng dồn từ năm trước.
+  * "Tôi khi nào được ký hợp đồng mới?" — mập mờ giữa thời điểm ký hợp đồng chính thức sau thử việc, gia hạn hợp đồng sắp hết hạn, hay phụ lục thăng cấp.
+  * "Tôi muốn nghỉ thai sản thì làm thủ tục gì?" — mập mờ giữa thủ tục nghỉ thai sản trước khi sinh (khám thai/dưỡng thai) và sau khi sinh (hưởng chế độ thai sản).
+  * "Lương của tôi tháng này bị thiếu." — mập mờ giữa thiếu lương cơ bản, tiền thưởng, phụ cấp hay bị khấu trừ sai.
   * "Bao giờ thì thưởng về vậy?" — mập mờ giữa thưởng KPI, thưởng Tết, thưởng dự án.
+  * "Bên mình có hỗ trợ chi phí y tế cho nhân viên không?" — mập mờ giữa BHYT bắt buộc và bảo hiểm sức khỏe tự nguyện.
   * "Chỗ mình có tham gia bảo hiểm cho người lao động không?" — mập mờ giữa BHXH bắt buộc và bảo hiểm sức khỏe tự nguyện.
   * "Em đang muốn đổi chỗ làm việc." — mập mờ giữa chuyển phòng ban, chuyển địa điểm làm việc, hay xin nghỉ việc.
   * "Tôi đi làm ngày nghỉ thì được xử lý thế nào?" — mập mờ giữa trả thêm lương, nghỉ bù, hay cách chấm công.
   * "Công ty có tài trợ việc học thêm không?" — mập mờ giữa đào tạo nội bộ và hỗ trợ học/bằng cấp bên ngoài.
   * "Nghỉ việc rồi thì có được nhận khoản nào không?" — mập mờ giữa trợ cấp thôi việc, lương chưa thanh toán, hay phép năm chưa dùng.
   * "Nếu tôi nghỉ vì lý do sức khỏe thì sao?" — mập mờ giữa chế độ ốm đau BHXH, thủ tục báo nghỉ, hay phép năm còn lại.
+  * "Em cần xin xác nhận, làm sao ạ?" / "Em muốn xin giấy xác nhận" — mập mờ giữa xác nhận công tác, xác nhận thu nhập/lương, hay xác nhận nghỉ phép.
+  * "Onboarding của em bị chậm rồi, giờ xử lý sao ạ?" — mập mờ chưa rõ chậm khâu hợp đồng, thiết bị, tài khoản hay đào tạo.
+  * "Em xin nghỉ dài ngày được không ạ?" / "Làm từ xa có được không ạ?" — mập mờ giữa các chế độ nghỉ/làm việc khác nhau.
 
-  PHÂN ĐỊNH hr_question vs ambiguous — xét CHIỀU HỎI, không chỉ xét chủ đề HR:
+  PHÂN ĐỊNH hr_question vs ambiguous — xét CHIỀU HỎI & ĐỘ CỤ THỂ:
 
   Trả về hr_question khi người hỏi ĐÃ nêu rõ họ muốn biết gì, chẳng hạn:
   mức tiền/tỷ lệ bao nhiêu · thủ tục làm thế nào, báo cho ai · điều kiện được hưởng ·
-  thời điểm/thời hạn · giấy tờ cần nộp · cách tính.
+  thời điểm/thời hạn · giấy tờ cần nộp · cách tính · quyền lợi mua gói bảo hiểm người thân (vợ/chồng, con cái).
   Câu vẫn có thể thiếu chi tiết cá nhân — riêng điều đó KHÔNG làm nó thành ambiguous,
   miễn là một chính sách chung trả lời được.
 
   Chỉ trả về ambiguous khi thông tin còn thiếu THỰC SỰ cản trở việc xác định câu hỏi
-  chính sách, hoặc có thể dẫn tới nhiều câu trả lời khác nhau về bản chất.
+  chính sách, hoặc có thể dẫn tới nhiều câu trả lời khác nhau về bản chất cần hỏi lại để xác định.
 
   Cùng chủ đề nhưng khác chiều hỏi:
   * "Tôi đi làm ngày nghỉ thì được xử lý thế nào?" -> ambiguous (tiền? nghỉ bù? chấm công?)
@@ -101,10 +114,12 @@ def _get_router_system() -> str:
   * "Nếu tôi nghỉ vì lý do sức khỏe thì sao?" -> ambiguous (lương? thủ tục? BHXH?)
     "Nếu nghỉ ốm thì thủ tục báo nghỉ gồm những bước nào?" -> hr_question (chiều hỏi: thủ tục)
   * "Công ty có hỗ trợ bảo hiểm không?" -> ambiguous (BHYT bắt buộc? gói bổ sung?)
-    "Điều kiện tham gia gói bảo hiểm sức khỏe bổ sung của công ty là gì?" -> hr_question (chiều hỏi: điều kiện)
+    "Đăng ký bảo hiểm sức khỏe cho vợ và con thì chi phí thế nào, gói hạng gì?" -> hr_question (chiều hỏi: quy định mua bảo hiểm người thân)
+  * "Tôi muốn nghỉ thai sản thì làm thủ tục gì?" -> ambiguous (trước sinh hay sau sinh?)
+    "Thủ tục thanh toán trợ cấp thai sản sau sinh cần nộp giấy tờ gì?" -> hr_question (chiều hỏi: thủ tục sau sinh)
 
-- out_of_scope_or_personal: chủ đề đã RÕ (không cần hỏi lại để biết đang hỏi về cái gì), nhưng KHÔNG THỂ trả lời bằng tài liệu chính sách chung vì:
-  (a) cần tra cứu DỮ LIỆU RIÊNG của người hỏi (lương cụ thể của tôi, số dư phép còn lại của tôi, đơn tôi đã duyệt chưa, hợp đồng của tôi khi nào hết hạn);
+- out_of_scope_or_personal: chủ đề đã RÕ, nhưng KHÔNG THỂ trả lời bằng tài liệu chính sách chung vì:
+  (a) cần tra cứu DỮ LIỆU RIÊNG của người hỏi từ hệ thống CSDL (vd: "Đơn xin nghỉ ngày 15/8 của tôi đã được duyệt chưa?", "Tra cứu lịch sử chuyển khoản lương tháng 7 của tôi"); LƯU Ý: Nếu câu hỏi còn mơ hồ chưa rõ loại chính sách ("Tôi còn bao nhiêu ngày phép?", "Tôi khi nào được ký hợp đồng mới?", "Lương của tôi tháng này bị thiếu") thì phải xếp vào ambiguous để hỏi lại làm rõ, KHÔNG xếp vào out_of_scope_or_personal.
   (b) hỏi chính sách của MỘT CÔNG TY KHÁC CÓ TÊN CỤ THỂ (vd Viettel, FPT, Samsung, Tiki, MoMo, Grab, Shopee, Unilever...) — hễ câu hỏi nhắc tên riêng 1 công ty không phải công ty hiện tại ({internal_names}) thì LUÔN thuộc nhóm này, kể cả khi câu hỏi nghe giống hr_question bình thường; LƯU Ý: Nếu nhắc tới {internal_names} thì đó là công ty hiện tại, thuộc nhóm hr_question, KHÔNG thuộc nhóm này.
   (c) hoàn toàn ngoài phạm vi HR (thời tiết, lập trình, nấu ăn...).
 
@@ -129,14 +144,15 @@ QUY TẮC CHỐNG NHẦM (rất quan trọng — đây là các lỗi đã đo �
 1. Hỏi ĐIỀU KIỆN/ĐỐI TƯỢNG cụ thể áp dụng chính sách công ty vẫn là hr_question kể cả khi chủ thể không phải người hỏi và nội dung có căn cứ luật: "chủ hộ kinh doanh có phải đóng BHXH bắt buộc không?", "người nước ngoài làm việc có phải tham gia BHXH không?", "làm part-time có được đóng BHXH không?" — đây là câu hỏi ĐIỀU KIỆN/QUYỀN LỢI cụ thể có thể trả lời bằng tài liệu chính sách nội bộ (không phải câu hỏi "luật nói gì" trừu tượng). CHỈ xếp pure_statutory khi câu hỏi minh thị hỏi "pháp luật/luật/nghị định X quy định NHƯ THẾ NÀO/NGUYÊN TẮC CHUNG" hoặc trích dẫn số hiệu văn bản để hỏi trực tiếp nội dung điều khoản đó.
 2. Hỏi tra cứu PHỤ LỤC/DANH MỤC/MỨC LUẬT ĐỊNH khi câu hỏi minh thị gắn với TÊN/SỐ HIỆU văn bản pháp luật cụ thể (vd "Nghị định 293/2025/NĐ-CP quy định mức lương tối thiểu Vùng I là bao nhiêu?") là pure_statutory — đây chính là STATUTORY_THRESHOLD. Nếu câu hỏi KHÔNG gắn với văn bản cụ thể mà hỏi công ty áp dụng gì ("Lương tối thiểu ở đây là bao nhiêu?") thì vẫn là hr_question.
 3. Thủ tục/chế tài với CƠ QUAN NHÀ NƯỚC (đăng ký nội quy lao động với Sở LĐTBXH, cấp giấy phép cho thuê lại lao động, xử phạt vi phạm hành chính, thẩm quyền lập biên bản xử phạt) luôn là pure_statutory — công ty không tự thực hiện các thủ tục/chế tài này cho nhân viên.
-4. Chỉ xếp vào nhóm (a) out_of_scope_or_personal khi câu hỏi cần đúng HỒ SƠ CÁ NHÂN của người hỏi — tức phải mở dữ liệu của riêng họ mới trả lời được ("còn bao nhiêu ngày phép", "lương tháng này của tôi", "đơn của tôi duyệt chưa"). Câu hỏi về QUYỀN LỢI CHUNG mà nhân viên nào cũng áp dụng thì là hr_question (hoặc pure_statutory nếu khớp quy tắc 1-3 ở trên).
+4. Chỉ xếp vào nhóm (a) out_of_scope_or_personal khi câu hỏi đã rõ ràng và bắt buộc phải tra cứu hồ sơ cá nhân thực tế. Nếu câu hỏi còn mơ hồ nhiều nghĩa chưa rõ người hỏi muốn biết khía cạnh nào thì luôn xếp vào ambiguous.
+5. Câu hỏi nối tiếp / Đã chỉ định phạm vi nhánh cụ thể: Khi câu hỏi đã được làm rõ hoặc đã nêu rõ nhánh chính sách cụ thể (ví dụ: "thủ tục nghỉ thai sản sau khi sinh", "thủ tục trước khi sinh", "nghỉ thai sản sau sinh", "ngày phép năm nay", "hợp đồng chính thức sau thử việc", "thiếu tiền thưởng KPI"...) -> BẮT BUỘC xếp vào hr_question để chuyển sang RAG retrieval tìm kiếm tài liệu và trả lời kết quả kèm trích dẫn, TUYỆT ĐỐI KHÔNG lặp lại ambiguous hay hỏi lại lần nữa.
 
 Chỉ trả về ĐÚNG 1 từ trong 5 từ trên (greeting / hr_question / ambiguous / out_of_scope_or_personal / pure_statutory). Không giải thích gì thêm."""
 
-_DIRECT_SYSTEM = """Bạn là trợ lý HR nội bộ thân thiện. Trả lời ngắn gọn, tự nhiên cho câu xã giao của nhân viên.
+_DIRECT_SYSTEM = """Bạn là trợ lý tri thức nội bộ thân thiện. Trả lời ngắn gọn, tự nhiên cho câu xã giao của nhân viên.
 
 Đáp đúng HÀNH VI GIAO TIẾP của người dùng — đây là điểm quan trọng nhất:
-- Người dùng MỞ ĐẦU hội thoại / chào hỏi -> chào lại ngắn gọn, có thể mời họ hỏi về chính sách nhân sự.
+- Người dùng MỞ ĐẦU hội thoại / chào hỏi -> chào lại ngắn gọn, có thể mời họ hỏi về quy trình, quy định và chính sách nội bộ.
 - Người dùng CẢM ƠN hoặc xác nhận đã hiểu -> đáp lại lời cảm ơn/xác nhận đó. TUYỆT ĐỐI KHÔNG mở đầu bằng lời chào và KHÔNG tự giới thiệu lại — hội thoại đang diễn ra, không phải bắt đầu.
 - Người dùng TẠM BIỆT -> chào tạm biệt ngắn gọn.
 - Người dùng hỏi bạn là ai / giúp được gì -> giới thiệu ngắn về phạm vi hỗ trợ.
@@ -144,13 +160,13 @@ _DIRECT_SYSTEM = """Bạn là trợ lý HR nội bộ thân thiện. Trả lời
 KHÔNG nêu số liệu, điều khoản hay quy định chính sách nào ở bước này, trừ khi chính người dùng đã nhắc tới.
 
 Ví dụ đối chiếu:
-- "Chào bạn" -> "Chào bạn! Mình có thể hỗ trợ gì về chính sách nhân sự?"
+- "Chào bạn" -> "Chào bạn! Mình có thể hỗ trợ gì về tài liệu nội bộ?"
 - "Ok cảm ơn nhé" -> "Không có gì, khi nào cần bạn cứ hỏi mình nhé."
 - "Bye nhé" -> "Chào bạn, hẹn gặp lại!"
 
 Chỉ trả về câu trả lời, không thêm lời dẫn."""
 
-_CLARIFY_SYSTEM = """Câu hỏi của nhân viên về chủ đề HR nhưng còn mập mờ, có thể hiểu theo nhiều nghĩa. Hãy đặt lại ĐÚNG 1 câu hỏi làm rõ, ngắn gọn, lịch sự, giúp xác định đúng ý người hỏi (vd hỏi rõ là nghỉ phép năm, nghỉ ốm hay nghỉ việc hẳn). Chỉ trả về câu hỏi làm rõ, không thêm lời dẫn."""
+_CLARIFY_SYSTEM = """Câu hỏi của nhân viên về tài liệu nội bộ nhưng còn mập mờ, có thể hiểu theo nhiều nghĩa. Hãy đặt lại ĐÚNG 1 câu hỏi làm rõ, ngắn gọn, lịch sự, giúp xác định đúng ý người hỏi (vd hỏi rõ là nghỉ phép năm, nghỉ ốm hay nghỉ việc hẳn). Chỉ trả về câu hỏi làm rõ, không thêm lời dẫn."""
 
 
 async def router_node(state: AgentState) -> dict:
@@ -162,10 +178,47 @@ async def router_node(state: AgentState) -> dict:
     if _mentions_competitor_company(query):
         return {"intent": "out_of_scope_or_personal"}
 
+    # --- Domain-Specific Personal Data / ABSTAIN Guardrail (G5) ---
+    domain = get_conversation_domain(query, state.get("category"), state.get("history"))
+    if domain:
+        is_personal, reason_code = domain.check_personal_data_query(query)
+        if is_personal:
+            return {
+                "intent": "out_of_scope_or_personal",
+                "escalate_reason": reason_code or "domain_personal_data_detected",
+                "verifier_called": False,
+            }
+
+    # --- G10: Domain Early-Pass — câu hỏi chính sách kế toán confirmed → không qua escalate ---
+    # Nếu G1 đã xác nhận query thuộc phạm vi kế toán/tài chính (accounting domain matched),
+    # thì đây CHẮC CHẮN là câu hỏi chính sách nội bộ, không cần để LLM router có thể phân loại
+    # nhầm thành out_of_scope_or_personal (đo được: "phòng nào vượt ngân sách" bị router nhầm).
+    # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
+    # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
+    _g10_ambiguous_refs = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
+    # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
+    _g10_hr_exclusions = re.compile(
+        r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
+        re.IGNORECASE,
+    )
+    if domain and getattr(domain, "domain_name", None) == "accounting":
+        query_words = query.split()
+        if (
+            len(query_words) >= 6
+            and not _g10_ambiguous_refs.search(query)
+            and not _g10_hr_exclusions.search(query)
+        ):
+            return {"intent": "hr_question"}
     # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
     # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
     # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
     if _EXPLICIT_HYBRID_PATTERN.search(query):
+        return {"intent": "hr_question"}
+
+    # Product đã dùng chung RAG pipeline với HR. Giữ nhãn intent legacy
+    # `hr_question` để không đổi graph/contract; các feature canonical rõ ràng
+    # đi thẳng vào retrieval thay vì bị router HR cũ đánh nhầm là out-of-scope.
+    if _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query):
         return {"intent": "hr_question"}
 
     # router_model rỗng -> None -> acall_llm dùng llm_model như cũ.
@@ -256,8 +309,9 @@ async def _guard_escalation(query: str, model: str | None) -> dict:
 # ("không bịa thông tin chính sách ở bước này"), nhưng thực thi bằng hằng số nên
 # không thể vi phạm.
 _DIRECT_TEMPLATE = (
-    "Chào bạn, mình là trợ lý HR nội bộ. Bạn cần hỏi gì về chính sách nhân sự "
-    "(nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, đào tạo...) thì cứ nhắn nhé."
+    "Chào bạn, mình là trợ lý tri thức nội bộ. Bạn cần tra cứu quy trình, quy định hay "
+    "chính sách nội bộ (nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, quy trình vận hành...) "
+    "thì cứ nhắn nhé."
 )
 
 
@@ -273,12 +327,12 @@ async def direct_node(state: AgentState) -> dict:
         answer = await acall_llm(
             _DIRECT_SYSTEM,
             query,
-            temperature=0.5,
+            temperature=0.0,
             model=settings.router_model or None,
             enable_thinking=False,
         )
     else:
-        answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.5)
+        answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.0)
     return {"response": answer.strip()}
 
 
@@ -291,9 +345,10 @@ async def clarify_node(state: AgentState) -> dict:
         await acall_llm(
             _CLARIFY_SYSTEM,
             query,
-            temperature=0.4,
+            temperature=0.0,
             model=settings.clarify_model or None,
             enable_thinking=thinking_arg(settings.thinking_clarify),
         )
     ).strip()
     return {"needs_clarification": True, "clarifying_question": question, "response": question}
+

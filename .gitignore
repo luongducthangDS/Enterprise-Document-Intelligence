@@ -28,10 +28,16 @@ env/
 .DS_Store
 Thumbs.db
 
-# Data (never commit large data)
-data/
+# Data (never commit large data; allow only deterministic ACL registries)
+data/*
+!data/metadata/
+data/metadata/*
 !data/metadata/document_registry.csv
+!data/metadata/accounting_document_registry.csv
+!data/metadata/product_document_registry.csv
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 *.zip
 
@@ -55,6 +61,9 @@ node_modules/
 .next/
 .next-dev/
 .next-hover/
+.next*
+frontend/.next*
+frontend/.next-dev*
 out/
 .nuxt/
 .pnpm-store/
@@ -94,6 +103,8 @@ eval/MANUAL_EVAL_EVIDENCE.md
 eval/MANUAL_EVAL_EVIDENCE_*.md
 eval/EVAL_EVIDENCES.md
 eval/results/manual_eval_*.json
+# Candidate pool chứa excerpt tài liệu nội bộ để người chấm qrel — giữ local.
+eval/results/*candidate_pool.json
 scripts/run_manual_eval.py
 scripts/build_eval_evidence_docx.py
 scripts/build_eval_evidence_docx_*.py
@@ -102,6 +113,7 @@ scripts/build_eval_evidence_docx_*.py
 *.docx
 
 # Tool-specific local/private configuration
+.codex/
 .codex/*.local.*
 .gemini/*.local.*
 .claude/*.local.*
@@ -111,3 +123,6 @@ scripts/build_eval_evidence_docx_*.py
 # Local agent/UI verification artifacts
 .markiii/
 .omo/
+
+# QA artifacts chứa token/tài khoản test tạm — không track
+qa/

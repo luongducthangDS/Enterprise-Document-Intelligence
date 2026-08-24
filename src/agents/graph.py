@@ -2,8 +2,9 @@ from langgraph.graph import END, StateGraph
 
 from src.agents.nodes.boundary import boundary_node
 from src.agents.nodes.condense import condense_node
-from src.agents.nodes.escalation import confidence_node, escalate_node, out_of_scope_node
+from src.agents.nodes.escalation import confidence_node, department_access_denied_node, escalate_node, out_of_scope_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
+from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
 from src.agents.nodes.router import clarify_node, direct_node, router_node
 from src.agents.state import AgentState
@@ -26,8 +27,14 @@ def route_by_intent(state: AgentState) -> str:
     return "retrieve"
 
 
+def route_after_knowledge_lookup(state: AgentState) -> str:
+    return "finalize" if state.get("skip_retrieval") else "retrieve"
+
+
 def route_after_grade(state: AgentState) -> str:
     settings = get_settings()
+    if state.get("access_denied_reason") == "DEPARTMENT_SCOPE_DENIED":
+        return "access_denied"
     if state.get("retrieved_chunks"):
         return "generate"
     if state.get("rewrite_count", 0) >= settings.max_rewrite_retries:
@@ -76,6 +83,7 @@ def build_graph() -> StateGraph:
     graph.add_node("boundary", boundary_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
+    graph.add_node("knowledge_lookup", knowledge_lookup_node)
     graph.add_node("retrieve", retrieval_node)
     graph.add_node("grade", grade_node)
     graph.add_node("rewrite", rewrite_node)
@@ -83,6 +91,7 @@ def build_graph() -> StateGraph:
     graph.add_node("hallucination_check", hallucination_check_node)
     graph.add_node("confidence", confidence_node)
     graph.add_node("escalate_ticket", escalate_node)
+    graph.add_node("access_denied", department_access_denied_node)
     graph.add_node("out_of_scope", out_of_scope_node)
     graph.add_node("finalize", finalize_node)
 
@@ -99,15 +108,24 @@ def build_graph() -> StateGraph:
             "clarify": "clarify",
             "escalate": "escalate_ticket",
             "out_of_scope": "out_of_scope",
-            "retrieve": "retrieve",
+            "retrieve": "knowledge_lookup",
         },
     )
     graph.add_edge("direct", END)
     graph.add_edge("clarify", END)
     graph.add_edge("out_of_scope", END)
 
+    graph.add_conditional_edges(
+        "knowledge_lookup",
+        route_after_knowledge_lookup,
+        {"finalize": "finalize", "retrieve": "retrieve"},
+    )
     graph.add_edge("retrieve", "grade")
-    graph.add_conditional_edges("grade", route_after_grade, {"generate": "generate", "rewrite": "rewrite"})
+    graph.add_conditional_edges(
+        "grade", route_after_grade,
+        {"generate": "generate", "rewrite": "rewrite", "access_denied": "access_denied"},
+    )
+    graph.add_edge("access_denied", END)
     graph.add_edge("rewrite", "retrieve")
 
     graph.add_conditional_edges(
@@ -131,3 +149,4 @@ def build_graph() -> StateGraph:
 
 
 agent = build_graph()
+rag_agent_graph = agent

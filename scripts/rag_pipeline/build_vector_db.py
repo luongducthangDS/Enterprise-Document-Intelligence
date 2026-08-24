@@ -27,25 +27,58 @@ def load_chunks(path: str) -> list[Chunk]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Chroma Vector DB Indexer với Safety Guardrails P0-A")
     parser.add_argument("--force", action="store_true", help="Index lại kể cả đã có indexed_at")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Yêu cầu xóa toàn bộ collection (BỊ KHÓA MẶC ĐỊNH — yêu cầu cờ admin --allow-destructive-reset-DANGEROUS)",
+    )
+    parser.add_argument(
+        "--allow-destructive-reset-DANGEROUS",
+        action="store_true",
+        help="Cờ admin xác nhận đồng ý thực hiện xóa toàn bộ collection (bị cấm vĩnh viễn trên production)",
+    )
     parser.add_argument("--only", nargs="*", help="Chỉ xử lý các source_file khớp tên")
+    parser.add_argument("--category", default=None, help="Chỉ xử lý các tài liệu thuộc category này (vd government_legal)")
     parser.add_argument("--collection", default=None, help="Ghi đè tên collection (mặc định lấy từ config, dùng khi so sánh thực nghiệm 2 embedding model)")
     parser.add_argument("--model", default=None, help="Ghi đè embedding model (mặc định lấy từ config)")
     parser.add_argument("--skip-registry-update", action="store_true", help="Không ghi indexed_at vào registry (dùng cho chạy thử nghiệm/so sánh model)")
+    parser.add_argument("--registry", default=None, help="Registry CSV (mặc định data/metadata/document_registry.csv)")
     args = parser.parse_args()
 
     settings = get_settings()
     collection_name = args.collection or settings.chroma_collection_name
     embedding_model = args.model or settings.embedding_model
     client = get_chroma_client(settings)
+
+    if args.reset:
+        from src.ingestion.indexer import safe_delete_collection
+        try:
+            safe_delete_collection(
+                client,
+                collection_name,
+                allow_destructive=args.allow_destructive_reset_DANGEROUS,
+            )
+            print(f"[reset] Đã thực hiện admin reset collection '{collection_name}' an toàn.")
+        except PermissionError as pe:
+            print(f"\n[SAFETY BLOCKED] Thao tác reset bị từ chối bởi Safety Guardrail: {pe}\n")
+            sys.exit(1)
+        except Exception as e:
+            print(f"[reset] Lỗi khi thực hiện reset collection: {e}")
+
     collection = get_collection(client, collection_name)
 
-    rows = [r for r in rag_eligible_rows(load_registry()) if r.chunks_path]
+
+
+    registry_path = args.registry or "data/metadata/document_registry.csv"
+    rows = [r for r in rag_eligible_rows(load_registry(registry_path)) if r.chunks_path]
     total_vectors = 0
     docs_done = 0
 
     for row in rows:
+        if args.category and row.category != args.category:
+            continue
         if args.only and row.source_file not in args.only:
             continue
         if row.indexed_at and not args.force and not args.only:
@@ -72,12 +105,12 @@ def main() -> None:
         for c in chunks:
             c.metadata.embedding_model = embedding_model
 
-        delete_by_source_stem(collection, stem)
+        delete_by_source_stem(collection, stem, chunks[0].metadata.tenant)
         upsert_chunks(collection, chunks, embeddings)
 
         if not args.skip_registry_update:
             indexed_at = datetime.now(timezone.utc).isoformat()
-            update_registry_column(row.source_file, "indexed_at", indexed_at)
+            update_registry_column(row.source_file, "indexed_at", indexed_at, path=registry_path)
 
         total_vectors += len(chunks)
         docs_done += 1

@@ -19,6 +19,7 @@ from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserD
 settings = get_settings()
 
 
+
 class AuthService:
     @classmethod
     async def get_user_by_email(cls, db: AsyncSession, email: str) -> UserDB | None:
@@ -42,15 +43,17 @@ class AuthService:
                 message="Email is already registered",
             )
 
+        requested_role = "EMPLOYEE"
+
         new_user = UserDB(
             email=register_data.email,
             hashed_password=hash_password(register_data.password),
         )
         new_user.profile = ProfileDB(
             display_name=register_data.full_name or register_data.email.split("@")[0],
-            role="employee",
+            role=requested_role,
             employment_status="full_time",
-            department=register_data.department.value,
+            department="GENERAL",
             contract_type="khong_xac_dinh_thoi_han",
             access_level="self_only",
         )

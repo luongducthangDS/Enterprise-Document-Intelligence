@@ -37,7 +37,9 @@ class RetrievedChunk(TypedDict):
     text: str
     source_file: str
     title: str
+    department: str
     category: str
+    owner: str
     is_official_policy: bool
     # government_law | official_policy | public_template | synthetic |
     # public_article — cần bản đầy đủ (không chỉ cờ is_official_policy nhị phân)
@@ -66,8 +68,13 @@ class RetrievedChunk(TypedDict):
     # "synthetic" không đồng nghĩa "chưa duyệt". Xem ghi chú 3 trục trong
     # src/models/schemas.py::Citation.
     policy_status: str
+    document_code: str
+    version: str
+    effective_date: str
     page_start: int | None
     page_end: int | None
+    sheet_start: str | None
+    sheet_end: str | None
     distance: float
     score: float | None
 
@@ -76,9 +83,12 @@ class Citation(TypedDict):
     chunk_id: str
     source_file: str
     title: str
+    department: str
     category: str
     page_start: int | None
     page_end: int | None
+    sheet_start: str | None
+    sheet_end: str | None
     is_official_policy: bool
     # government_law | official_policy | public_template | synthetic |
     # public_article — bản đầy đủ của is_official_policy, để backend/FE phân
@@ -92,6 +102,9 @@ class Citation(TypedDict):
     # thay vì lộ chunk_id/tên file kỹ thuật ra UI.
     source_section: str
     policy_status: str
+    document_code: str
+    version: str
+    effective_date: str
     excerpt: str
 
 
@@ -102,7 +115,16 @@ class AgentState(TypedDict, total=False):
     """
 
     query: str
+    tenant_id: str
+    user_id: str
+    department: str
+    user_role: str
+    groups: list[str]
+    permissions: list[str]
+    request_id: str
+
     # Canonical runtime decision từ Runtime-Revised Canonical Scenario Registry
+
     # (src/agents/boundary.py). Quyết định assistant được phép làm gì với câu
     # hỏi này: scenario, assistant_role, sensitivity, trần action, người phụ
     # trách, field dữ liệu được phép thu. Có mặt từ node `boundary` trở đi.
@@ -115,7 +137,12 @@ class AgentState(TypedDict, total=False):
     condensed_query: str
     intent: Intent
     rewritten_query: str
+    structured_knowledge: dict | None
+    structured_resolution: dict
+    skip_retrieval: bool
     retrieved_chunks: list[RetrievedChunk]
+    access_denied_reason: str
+    denied_department: str
     # Tập chunk thực sự được viện dẫn, theo đúng thứ tự [Nguồn N] đã đánh lại
     # trong generated_answer. Bước hallucination check dựng context từ đây.
     cited_chunks: list[RetrievedChunk]

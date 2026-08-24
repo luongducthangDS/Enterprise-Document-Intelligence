@@ -30,32 +30,44 @@ import json
 import math
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from _stats import bootstrap_ci, format_ci  # noqa: E402
-from src.agents.nodes.retrieval import _aembed_query, _bm25_index, _collection  # noqa: E402
+
+from src.agents.nodes.retrieval import (  # noqa: E402
+    _aembed_query,
+    _bm25_index,
+    _collection,
+    _expand_retrieval_query,
+    _provenance_filter,
+)
 from src.config import get_settings  # noqa: E402
+from src.evaluation.retrieval_metrics import (  # noqa: E402
+    expected_source_stems,
+    first_doc_hit_rank,
+    live_index_alignment,
+)
 from src.retrieval.hybrid import fuse_candidate_ids  # noqa: E402
 from src.services.fpt_client import rerank  # noqa: E402
+from src.security.models import UserContext, UserRole  # noqa: E402
 
 EVAL_SET_PATH = "eval/datasets/qa_eval_set.json"
 QRELS_PATH = "eval/datasets/retrieval_qrels.json"
 RESULTS_PATH = "eval/results/retrieval_eval_report.json"
 HIT_RATE_KS = (1, 3, 5, 10, 15, 20)
 
-
-def _first_doc_hit_rank(expected_source_file: str, chunk_source_files: list[str]) -> int:
-    """Thứ hạng (1-based) của chunk đầu tiên có đúng source_file, 0 nếu không có."""
-    if not expected_source_file:
-        return 0
-    for rank, sf in enumerate(chunk_source_files, start=1):
-        if sf == expected_source_file:
-            return rank
-    return 0
+# Retrieval-quality benchmark phải nhìn thấy toàn bộ gold corpus. Đây chỉ là
+# identity audit của evaluator; production retrieval vẫn dùng identity thật.
+_EVAL_AUDIT_USER = UserContext(
+    user_id="eval_retrieval",
+    department="EXECUTIVE",
+    role=UserRole.SUPER_ADMIN,
+    tenant_id="nexatech",
+)
 
 
 def _recall_at_k(relevant: dict[str, int], retrieved_ids: list[str], k: int) -> float:
@@ -98,9 +110,14 @@ async def _retrieve_raw(
     logic fusion riêng ở đây), để số đo phản ánh đúng code path production."""
     settings = get_settings()
     async with semaphore:
+        query = _expand_retrieval_query(query)
         embedding = await _aembed_query(query)
         collection = _collection()
-        result = await asyncio.to_thread(collection.query, query_embeddings=[embedding], n_results=top_k)
+        where = _provenance_filter(settings, user_context=_EVAL_AUDIT_USER)
+        query_kwargs = {"query_embeddings": [embedding], "n_results": top_k}
+        if where:
+            query_kwargs["where"] = where
+        result = await asyncio.to_thread(collection.query, **query_kwargs)
         ids = (result.get("ids") or [[]])[0]
         documents = (result.get("documents") or [[]])[0]
         metadatas = (result.get("metadatas") or [[]])[0]
@@ -174,6 +191,13 @@ async def _run_one(
         "top1_distance": distances[0] if distances else None,
         "top1_source_file": metadatas[0].get("source_file") if metadatas else None,
         "num_retrieved": len(ids),
+        # Persist the actual ranking so a miss can be diagnosed without
+        # repeating paid embedding/reranker calls.  Earlier reports kept only
+        # the hit rank, which could not distinguish candidate-generation loss
+        # from a reranker ordering problem.
+        "retrieved_chunk_ids": ids,
+        "retrieved_source_files": [metadata.get("source_file") for metadata in metadatas],
+        "reranker_scores": raw["scores"],
     }
 
     if item["type"] == "in_scope":
@@ -187,18 +211,20 @@ async def _run_one(
         entry["ndcg_at_k"] = {f"ndcg@{k}": round(_ndcg_at_k(relevant, ids, k), 3) for k in HIT_RATE_KS}
 
         chunk_source_files = [m.get("source_file", "") for m in metadatas]
-        # Câu sinh ở các đợt khác nhau khai source_file ở 2 chỗ khác nhau; chỉ
-        # đọc cấp trên thì 44/100 câu bị coi là "không có nguồn" và tính MISS
-        # oan, kéo Doc Hit Rate xuống một cách giả tạo.
-        expected_source = item.get("source_file") or item.get("metadata", {}).get("source_file", "") or ""
-        # So theo STEM: câu hỏi khai theo file processed (.md) còn metadata
-        # chunk giữ tên nguồn gốc (.pdf/.docx) — so cả đuôi thì luôn lệch.
-        expected_source = os.path.splitext(os.path.basename(expected_source))[0]
-        doc_rank = _first_doc_hit_rank(
-            expected_source, [os.path.splitext(os.path.basename(sf))[0] for sf in chunk_source_files]
-        )
+        # Chunk-level relevance đến từ qrels, nên document-level relevance cũng
+        # phải suy ra từ cùng qrels. Dùng một source_file legacy riêng lẻ từng
+        # tạo nghịch lý chunk_hit nhưng doc_MISS khi qrel chấp nhận nhiều nguồn
+        # canonical hoặc dataset còn giữ tên nguồn trước lúc migrate.
+        expected_sources, source_label = expected_source_stems(item, relevant)
+        doc_rank = first_doc_hit_rank(expected_sources, chunk_source_files)
+        entry["expected_source_stems"] = sorted(expected_sources)
+        entry["expected_source_label"] = source_label
         entry["doc_hit_rank"] = doc_rank
-        entry["doc_hits"] = {f"doc_hit@{k}": bool(doc_rank and doc_rank <= k) for k in HIT_RATE_KS}
+        entry["doc_hits"] = (
+            {f"doc_hit@{k}": bool(doc_rank and doc_rank <= k) for k in HIT_RATE_KS}
+            if expected_sources
+            else None
+        )
     else:
         entry["hit_rank"] = None
         entry["reciprocal_rank"] = None
@@ -235,10 +261,16 @@ async def main() -> None:
         "--min-relevance", type=int, default=1, choices=[1, 2],
         help="Ngưỡng nhãn tính là relevant: 1 = cả chunk bổ trợ, 2 = chỉ chunk chứa câu trả lời",
     )
+    parser.add_argument(
+        "--allow-stale-qrels",
+        action="store_true",
+        help="Vẫn chạy khi qrel trỏ tới chunk không còn trong index; số đo chỉ có giá trị chẩn đoán",
+    )
     args = parser.parse_args()
 
     with open(args.dataset, encoding="utf-8") as f:
         items = json.load(f)
+    items = [item for item in items if not item.get("retired")]
     # Bộ retrieval eval set riêng dùng field `query` và `type` = single_chunk /
     # multi_chunk; bộ qa_eval_set dùng `question` và type = in_scope/... — quy
     # về một dạng để cùng 1 script đo được cả hai.
@@ -272,6 +304,28 @@ async def main() -> None:
         print(f"[CẢNH BÁO] Không tìm thấy {args.qrels} — chạy scripts/rag_pipeline/build_retrieval_qrels.py trước. "
               "Metric chunk-level sẽ = 0 cho toàn bộ câu.")
 
+    # Fail trước khi gửi hàng chục query tốn phí nếu gold labels không còn tồn
+    # tại trong chính collection đang được đo. Trước đây 160/189 qrel ID mất
+    # khỏi index nhưng script vẫn chạy và báo Recall thấp như lỗi retriever.
+    snapshot = await asyncio.to_thread(_collection().get, include=["metadatas"])
+    alignment = live_index_alignment(
+        items,
+        qrels,
+        set(snapshot.get("ids") or []),
+        min_relevance=args.min_relevance,
+    )
+    if not alignment["benchmark_valid"]:
+        print(
+            "\n[QRELS/INDEX KHÔNG KHỚP] chỉ có "
+            f"{alignment['available_qrel_chunk_labels']}/{alignment['qrel_chunk_labels']} gold chunk "
+            f"còn trong index; {alignment['queries_with_any_available_qrel']}/"
+            f"{alignment['scored_queries']} query còn ít nhất một gold chunk."
+        )
+        print("Chạy eval/scripts/audit_live_index_alignment.py để xem chi tiết.")
+        if not args.allow_stale_qrels:
+            print("Dừng trước khi gọi embedding/reranker. Dùng --allow-stale-qrels chỉ khi cần chẩn đoán.")
+            raise SystemExit(2)
+
     semaphore = asyncio.Semaphore(args.concurrency)
     results = []
     done = 0
@@ -304,7 +358,7 @@ async def main() -> None:
     in_scope = scored
     other = [r for r in results if r["type"] != "in_scope"]
 
-    print("\n=== Chunk-level Retrieval metrics (qrel-based, in_scope, n=%d) ===" % len(in_scope))
+    print(f"\n=== Chunk-level Retrieval metrics (qrel-based, in_scope, n={len(in_scope)}) ===")
     summary: dict = {"in_scope_n": len(in_scope), "excluded_no_qrel": len(unlabeled)}
     for k in HIT_RATE_KS:
         recall_vals = [r["recall_at_k"][f"recall@{k}"] for r in in_scope]
@@ -353,13 +407,14 @@ async def main() -> None:
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     report = {
-        "run_at": datetime.now(timezone.utc).isoformat(),
+        "run_at": datetime.now(UTC).isoformat(),
         "top_k": args.top_k,
         "reranked": args.rerank,
         "hybrid": args.hybrid,
         "dataset": args.dataset,
         "qrels": args.qrels,
         "min_relevance": args.min_relevance,
+        "alignment": alignment,
         "summary": summary,
         "results": results,
     }

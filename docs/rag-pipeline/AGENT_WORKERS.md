@@ -90,10 +90,9 @@ Chấp nhận `.pdf`, `.docx`, `.doc`, `.md`. PDF không có text layer sẽ đi
 }
 ```
 
-> **Việc Backend cần làm trước khi bật luồng này:** hiện
-> `backend/app/services/document_service.py` đọc file upload rồi **bỏ đi**,
-> không lưu bytes. Agent cần nội dung file, nên Backend phải giữ file (storage
-> hoặc cột nội dung) rồi mới gọi job này được.
+Backend hiện gửi bytes upload dưới dạng base64 sang Agent ngay sau khi commit
+`documents` + `ingestion_jobs`. Khi FE poll trạng thái, Backend mirror tiến độ và
+lưu `chunk_count`/`processed_path`/`chunks_path`/thời điểm index từ kết quả Agent.
 
 ## `POST /api/v1/agent/jobs/index-rebuild`
 

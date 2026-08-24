@@ -39,8 +39,8 @@ _ABSTAIN_REASON_CODE: dict[str, str] = {
     "low_confidence": "missing_policy_evidence",
     "out_of_scope": "missing_policy_evidence",
     "competitor_question": "missing_policy_evidence",
+    "department_scope_denied": "missing_policy_evidence",
 }
-
 
 def _derive_runtime_state(state: AgentState) -> tuple[str, str | None]:
     """Tính tập trung MỘT LẦN, không để từng node tự set — tránh một nhánh quên
@@ -177,7 +177,29 @@ def _chunk_answer_text(text: str, words_per_chunk: int = _ANSWER_CHUNK_WORDS) ->
     return chunks
 
 
-async def astream_answer(query: str, history: list[dict] | None = None) -> AsyncIterator[dict[str, Any]]:
+_IDENTITY_FIELDS = ("tenant_id", "user_id", "department", "user_role", "request_id")
+
+
+def _initial_state(
+    query: str,
+    history: list[dict] | None = None,
+    identity: dict[str, Any] | None = None,
+) -> AgentState:
+    """Build state only from identity verified at the internal API boundary."""
+    state: AgentState = {"query": query, "history": history or []}
+    if identity:
+        for field in _IDENTITY_FIELDS:
+            value = identity.get(field)
+            if value is not None:
+                state[field] = value
+    return state
+
+
+async def astream_answer(
+    query: str,
+    history: list[dict] | None = None,
+    identity: dict[str, Any] | None = None,
+) -> AsyncIterator[dict[str, Any]]:
     """Phiên bản streaming của `answer()` — phát event trong lúc graph chạy
     thay vì chờ toàn bộ ~15-35s rồi trả 1 cục.
 
@@ -205,7 +227,7 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
     # làm chậm giả tạo. Nếu cần hiệu ứng gõ chữ chậm hơn, làm ở client
     # (CSS/JS), không phải ở backend.
     """
-    state: AgentState = {"query": query, "history": history or []}
+    state = _initial_state(query, history, identity)
     started_at = time.perf_counter()
     previous_node_at = started_at
     stage_timings_ms: dict[str, int] = {}
@@ -314,7 +336,11 @@ async def astream_answer(query: str, history: list[dict] | None = None) -> Async
     }
 
 
-async def answer(query: str, history: list[dict] | None = None) -> AgentAnswer:
+async def answer(
+    query: str,
+    history: list[dict] | None = None,
+    identity: dict[str, Any] | None = None,
+) -> AgentAnswer:
     # Đường non-stream (Backend polling) trước đây không có số đo nào ngoài tổng
     # thời gian mà Backend tự bấm giờ, nên không phân biệt được "agent chậm" với
     # "mạng giữa hai service chậm". Chỉ bật khi `profile_latency`.
@@ -323,7 +349,7 @@ async def answer(query: str, history: list[dict] | None = None) -> AgentAnswer:
     capture_cm = llm_trace.capture() if profiling else None
     network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
     try:
-        state: AgentState = await agent.ainvoke({"query": query, "history": history or []})
+        state: AgentState = await agent.ainvoke(_initial_state(query, history, identity))
     finally:
         if capture_cm is not None:
             capture_cm.__exit__(None, None, None)

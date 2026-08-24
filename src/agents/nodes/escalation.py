@@ -21,6 +21,18 @@ OUT_OF_SCOPE_RESPONSE = (
 )
 
 
+def department_access_denied_node(state: AgentState) -> dict:
+    """Return a clear refusal without revealing protected department content."""
+    return {
+        "response": (
+            "Nội dung bạn đang hỏi thuộc tài liệu nội bộ của một phòng ban khác "
+            "và không nằm trong phạm vi truy cập của bạn."
+        ),
+        "escalate": False,
+        "escalate_reason": "department_scope_denied",
+        "citations": [],
+    }
+
 def out_of_scope_node(state: AgentState) -> dict:
     """Terminal node cho intent=pure_statutory (routing_precedence priority 2).
 
@@ -235,6 +247,15 @@ def confidence_node(state: AgentState) -> dict:
     if not answerable:
         score = min(score, fail_cap)
 
+    # G11: Domain-specific confidence floor override (ví dụ: OCR docs kế toán
+    # có reranker score thấp do noise text nhưng câu trả lời vẫn đúng).
+    # Chỉ các domain implement adjust_confidence() mới ảnh hưởng; HR không đụng.
+    from src.domains import get_matching_domain
+    query = state.get("condensed_query") or state.get("query", "")
+    domain = get_matching_domain(query, state.get("category"))
+    if domain and hasattr(domain, "adjust_confidence"):
+        score = domain.adjust_confidence(score, chunks, answerable)
+
     result: dict = {"confidence_score": round(score, 3)}
     if score < settings.low_confidence_threshold:
         result["escalate"] = True
@@ -280,9 +301,9 @@ def escalate_node(state: AgentState) -> dict:
 
     if intent == "out_of_scope_or_personal" and _mentions_competitor_company(query):
         response = (
-            "Knowledge base hiện tại chỉ hỗ trợ chính sách HR mẫu trong phạm vi demo, "
+            "Kho tài liệu hiện tại chỉ chứa tài liệu nội bộ mẫu trong phạm vi demo, "
             "không xác nhận chính sách đang áp dụng của một công ty cụ thể. "
-            "Với câu hỏi về lương/thưởng của công ty được nêu tên, bạn nên liên hệ trực tiếp HR/C&B của công ty đó."
+            "Với câu hỏi về lương/thưởng của công ty được nêu tên, bạn nên liên hệ trực tiếp bộ phận phụ trách của công ty đó."
         )
         return {
             "escalate": False,

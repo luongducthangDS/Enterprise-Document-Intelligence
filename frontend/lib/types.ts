@@ -22,7 +22,7 @@ export type User = {
   id: string;
   email: string;
   full_name: string;
-  role: "EMPLOYEE" | "HR_ADMIN" | "SUPER_ADMIN" | string;
+  role: "EMPLOYEE" | "DEPARTMENT_MANAGER" | "SUPER_ADMIN" | string;
   department: string;
 };
 
@@ -30,6 +30,7 @@ export type CitationSummary = {
   citation_id: string;
   title: string;
   page: number | null;
+  sheet?: string | null;
   section: string | null;
   version: string | null;
   effective_date: string | null;
@@ -40,6 +41,7 @@ export type CitationSummary = {
 
 export type CitationDetail = {
   citation_id: string;
+  document_code?: string | null;
   document: {
     document_id: string;
     title: string;
@@ -49,7 +51,7 @@ export type CitationDetail = {
     is_official_policy?: boolean;
     source_type?: string | null;
   };
-  location: { page: number | null; section: string | null; chunk_id?: string | null };
+  location: { page: number | null; sheet?: string | null; section: string | null; chunk_id?: string | null };
   excerpt: string;
   caveat?: string | null;
   conflict_warning?: boolean;
@@ -228,4 +230,28 @@ export type EvaluationRun = AsyncJob & {
     p95_latency_ms: number;
   } | null;
   quality_gate: string | null;
+};
+
+export type AccessModel = {
+  roles: Record<string, string[]>;
+  scopes: string[];
+};
+
+export type AccessUser = {
+  user_id: string;
+  email: string;
+  display_name: string;
+  role: string;
+  department: string;
+};
+
+export type AuditLog = {
+  audit_id: string;
+  actor_id: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  created_at: string;
 };

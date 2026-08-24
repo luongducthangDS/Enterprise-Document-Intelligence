@@ -9,6 +9,7 @@ from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
+from app.services.access_control import can_read_document
 from app.services.content_safety import redact_pii
 
 
@@ -73,11 +74,7 @@ class CitationService:
             effective_date = doc.effective_date or effective_date
             document_status = doc.status
             caveat = redact_pii(doc.caveat) or None
-            user_role = user.get("role", "EMPLOYEE")
-            if doc.confidentiality in ("RESTRICTED", "CONFIDENTIAL") and user_role not in (
-                "HR_ADMIN",
-                "SUPER_ADMIN",
-            ):
+            if not can_read_document(user, doc):
                 raise ForbiddenError(
                     code="DOCUMENT_ACCESS_DENIED",
                     message="Bạn không có quyền truy cập trích dẫn từ tài liệu này.",
@@ -104,6 +101,7 @@ class CitationService:
             },
             "location": {
                 "page": found_item.get("page") or found_item.get("page_start"),
+                "sheet": found_item.get("sheet") or found_item.get("sheet_start"),
                 "section": redact_pii(found_item.get("section")) or None,
                 "chunk_id": found_item.get("chunk_id"),
             },

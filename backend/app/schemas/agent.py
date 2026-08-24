@@ -7,8 +7,11 @@ class AgentCitationDTO(BaseModel):
     chunk_id: str
     source_file: str
     title: str
+    department: str = "HR"
     page_start: int | None = None
     page_end: int | None = None
+    sheet_start: str | None = None
+    sheet_end: str | None = None
     category: str
     is_official_policy: bool
     source_type: str = ""
@@ -27,6 +30,9 @@ class AgentCitationDTO(BaseModel):
     # DUYỆT, độc lập với source_type (nguồn gốc dữ liệu). Không suy ra trạng
     # thái duyệt từ source_type=synthetic.
     policy_status: str = ""
+    document_code: str = ""
+    version: str = ""
+    effective_date: str = ""
     excerpt: str = ""
 
 
@@ -77,7 +83,7 @@ class AgentBoundaryDecisionDTO(BaseModel):
 
 class AgentAnswerDTO(BaseModel):
     response: str
-    intent: Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal"]
+    intent: Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
     confidence_score: float | None = Field(default=None, ge=0.0, le=1.0)
     citations: list[AgentCitationDTO] = Field(default_factory=list)
     needs_clarification: bool = False

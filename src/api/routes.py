@@ -8,7 +8,6 @@ from fastapi.responses import StreamingResponse
 
 from src.agents.service import answer as agent_answer
 from src.agents.service import astream_answer as agent_stream_answer
-from src.agents.service import sanitize_citations
 from src.config import get_settings
 from src.models.schemas import (
     AgentAnswer,
@@ -21,6 +20,7 @@ from src.models.schemas import (
     JobAcceptedResponse,
     JobStatusResponse,
 )
+from src.security.identity_signature import verify_identity_signature
 from src.workers.evaluation import run_evaluation
 from src.workers.indexing import run_index_rebuild
 from src.workers.ingestion import run_ingestion
@@ -36,8 +36,18 @@ def _encode_sse(event: dict) -> str:
 
 
 def _verify_service_token(x_service_token: str | None) -> None:
-    expected = get_settings().agent_service_token
-    if expected and (not x_service_token or not secrets.compare_digest(x_service_token, expected)):
+    settings = get_settings()
+    expected = settings.agent_service_token
+    if not expected:
+        # Fail-closed: production bắt buộc cấu hình AGENT_SERVICE_TOKEN.
+        # Dev/test cho qua để chạy local không cần .env.
+        if getattr(settings, "app_env", "development") == "production":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Agent service chưa cấu hình AGENT_SERVICE_TOKEN — từ chối mọi yêu cầu",
+            )
+        return
+    if not x_service_token or not secrets.compare_digest(x_service_token, expected):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid service token")
 
 
@@ -45,25 +55,35 @@ def _verify_service_token(x_service_token: str | None) -> None:
 async def query_agent(
     request: AgentQueryRequest,
     x_service_token: str | None = Header(default=None),
+    x_identity_signature: str | None = Header(default=None),
 ) -> AgentAnswer:
     """Internal Backend-to-Agent contract. Identity fields are trace context only."""
     _verify_service_token(x_service_token)
     logger.info("Processing agent request %s for user %s", request.request_id, request.user_id)
     history = [turn.model_dump() for turn in request.history]
-    return await agent_answer(request.query, history=history)
+    identity = request.model_dump(
+        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+    )
+    verify_identity_signature(identity, x_identity_signature, get_settings())
+    return await agent_answer(request.query, history=history, identity=identity)
 
 
 @router.post("/agent/query/stream")
 async def stream_agent_query(
     request: AgentQueryRequest,
     x_service_token: str | None = Header(default=None),
+    x_identity_signature: str | None = Header(default=None),
 ) -> StreamingResponse:
     """Phát tiến trình và câu trả lời đã qua guardrail bằng SSE."""
     _verify_service_token(x_service_token)
     history = [turn.model_dump() for turn in request.history]
+    identity = request.model_dump(
+        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+    )
+    verify_identity_signature(identity, x_identity_signature, get_settings())
 
     async def events() -> AsyncIterator[str]:
-        async for event in agent_stream_answer(request.query, history=history):
+        async for event in agent_stream_answer(request.query, history=history, identity=identity):
             yield _encode_sse(event)
 
     return StreamingResponse(
@@ -89,14 +109,10 @@ async def chat(
     escalate/ticket_draft — `ticket_draft` là payload legacy, backend chỉ insert
     ticket ở đường không có `boundary`; agent KHÔNG ghi Supabase)."""
     _verify_service_token(x_service_token)
-    try:
-        history = [h.model_dump() for h in request.history]
-        result = await agent_answer(request.message, history=history)
-        response = result.model_dump()
-        response["citations"] = [item.model_dump() for item in sanitize_citations(response["citations"])]
-        return ChatResponse(**response)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail="Legacy /chat is disabled; use the signed /agent/query contract.",
+    )
 
 
 @router.get("/status")

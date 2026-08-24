@@ -1,0 +1,76 @@
+services:
+  # ============================================================================
+  # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + FPT.AI LLM)
+  # ============================================================================
+  - type: web
+    name: p-153-agent
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: AGENT_SERVICE_TOKEN
+        generateValue: true
+      - key: FPT_BASE_URL
+        value: https://mkp-api.fptcloud.com
+      - key: FPT_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: CHROMA_CLOUD_API_KEY
+        sync: false
+      - key: CHROMA_CLOUD_TENANT
+        sync: false
+      - key: CHROMA_CLOUD_DATABASE
+        value: HR-knowledge-base
+      - key: VECTOR_DB_BACKEND
+        value: cloud
+      - key: ACTIVE_TENANT
+        value: nexatech
+
+  # ============================================================================
+  # 2. Backend API Gateway (FastAPI + Supabase PostgreSQL + Auth/RBAC + Tickets)
+  # ============================================================================
+  - type: web
+    name: p-153-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: AI_AGENT_SERVICE_URL
+        sync: false
+      - key: AI_AGENT_SERVICE_TOKEN
+        fromService:
+          type: web
+          name: p-153-agent
+          envVarKey: AGENT_SERVICE_TOKEN
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: ACTIVE_TENANT
+        value: nexatech
+
+  # ============================================================================
+  # 3. Frontend Client (Next.js 15 + React 19 + TypeScript)
+  # ============================================================================
+  - type: web
+    name: p-153-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        sync: false
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"

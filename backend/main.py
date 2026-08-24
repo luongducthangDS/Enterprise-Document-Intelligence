@@ -1,6 +1,12 @@
+import os
+import sys
 import time
 import uuid
 from contextlib import asynccontextmanager
+
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
 
 import uvicorn
 from app.api.v1.router import api_v1_router
@@ -24,10 +30,25 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
-    logger.info("Database schema is managed by Supabase migrations; automatic create_all is disabled.")
+
+    # Chat Job Durability: Tự động phục hồi các request bị gián đoạn khi Backend khởi động lại
+    try:
+        from app.services.chat_service import ChatService
+        recovered = await ChatService.recover_pending_requests()
+        if recovered > 0:
+            logger.info(f"[Chat Durability] Recovered {recovered} pending chat request(s) on startup.")
+    except Exception as e:
+        logger.error(f"[Chat Durability] Failed to recover pending chat requests on startup: {e}")
+
     try:
         yield
     finally:
+
+        try:
+            from app.services.chat_service import ChatService
+            await ChatService.cancel_background_tasks()
+        except Exception as e:
+            logger.warning(f"[Chat Durability] Error cancelling background tasks on shutdown: {e}")
         await engine.dispose()
         logger.info("Shutting down application...")
 
@@ -76,6 +97,14 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
+    """Endpoint kiểm tra sức khoẻ Backend.
+
+    Khi FE hoặc bất kỳ client nào ping endpoint này (thường ngay khi trang web mở),
+    Backend trả về 200 ngay lập tức và đồng thời kích hoạt ngầm việc đánh thức
+    Agent Service — đảm bảo cả 3 phân hệ được wakeup song song nhau.
+    """
+    from app.services.warmup_service import fire_agent_wakeup
+    await fire_agent_wakeup()
     return {
         "status": "healthy",
         "service": settings.app_name,

@@ -1,4 +1,7 @@
 import type {
+  AccessModel,
+  AccessUser,
+  AuditLog,
   ApiResponse,
   AsyncJob,
   ChatResult,
@@ -13,7 +16,7 @@ import type {
   User,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://backend-p153-latest.onrender.com/api/v1";
 const ACCESS_TOKEN_KEY = "hr_knowledge_access_token";
 const REFRESH_TOKEN_KEY = "hr_knowledge_refresh_token";
 
@@ -224,12 +227,12 @@ async function streamRequest(
 }
 
 export const api = {
-  register: (email: string, password: string, fullName: string, department: string) =>
+  register: (email: string, password: string, fullName: string) =>
     request<User>(
       "/auth/register",
       {
         method: "POST",
-        body: JSON.stringify({ email, password, full_name: fullName, department }),
+        body: JSON.stringify({ email, password, full_name: fullName }),
       },
       false,
     ).then((response) => response.data!),
@@ -355,4 +358,12 @@ export const api = {
       body: JSON.stringify({ dataset_id: datasetId, index_version: indexVersion, model_config_id: modelConfigId }),
     }).then((response) => response.data!),
   getEvaluation: (runId: string) => request<EvaluationRun>(`/evaluation/runs/${runId}`).then((response) => response.data!),
+  getAccessModel: () => request<AccessModel>("/admin/access-model").then((response) => response.data!),
+  listAccessUsers: () => request<AccessUser[]>("/admin/users").then((response) => response.data!),
+  updateUserAccess: (userId: string, payload: { role: string; department: string }) =>
+    request<{ user_id: string; role: string; department: string }>(`/admin/users/${userId}/access`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }).then((response) => response.data!),
+  listAuditLogs: () => request<AuditLog[]>("/admin/audit-logs?limit=100").then((response) => response.data!),
 };

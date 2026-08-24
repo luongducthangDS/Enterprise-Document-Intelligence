@@ -17,6 +17,7 @@ from app.core.logging import logger
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.messages import MessageDB
+from app.domain.models.profile import ProfileDB
 from app.schemas.agent import AgentAnswerDTO
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
@@ -24,6 +25,18 @@ from app.services.content_safety import sanitize_citations_for_client
 from app.services.conversation_service import DEFAULT_CONVERSATION_TITLE, make_conversation_title
 from app.services.ticket_service import TicketService
 
+
+
+
+def _agent_role(profile_role: str) -> str:
+    """Map Backend administrative roles to the Agent's canonical authorization roles."""
+    normalized = str(profile_role or "").upper().strip()
+    aliases: dict[str, str] = {}
+    mapped = aliases.get(normalized, normalized)
+    allowed = {"EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"}
+    if mapped not in allowed:
+        raise AIAgentClientError("IDENTITY_ROLE_INVALID", f"Unsupported profile role: {normalized}", False)
+    return mapped
 
 class ChatService:
     session_factory = AsyncSessionLocal
@@ -59,7 +72,7 @@ class ChatService:
         if not cls.background_tasks_enabled:
             return 0
 
-        async with AsyncSessionLocal() as db:
+        async with cls.session_factory() as db:
             result = await db.execute(
                 select(ChatRequestDB)
                 .where(ChatRequestDB.state.in_(("QUEUED", "GENERATING")))
@@ -67,7 +80,12 @@ class ChatService:
             )
             pending = list(result.scalars().all())
             cutoff = datetime.now(UTC) - timedelta(minutes=10)
-            recoverable = [request for request in pending if request.created_at >= cutoff][:10]
+            def _to_utc(dt: datetime | None) -> datetime:
+                if dt is None:
+                    return datetime.min.replace(tzinfo=UTC)
+                return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+            recoverable = [request for request in pending if _to_utc(request.created_at) >= cutoff][:10]
             recoverable_ids = {request.id for request in recoverable}
             for request in pending:
                 if request.id not in recoverable_ids:
@@ -236,6 +254,15 @@ class ChatService:
                 chat_req = await db.get(ChatRequestDB, chat_request_id)
                 if not chat_req or chat_req.assistant_message_id is not None:
                     return
+                # Authorization identity comes from Backend DB, never frontend.
+                profile = await db.get(ProfileDB, user_id)
+                if profile is None:
+                    raise AIAgentClientError("IDENTITY_PROFILE_MISSING", "Authenticated profile no longer exists", False)
+                if not str(profile.department or "").strip() or not str(profile.role or "").strip():
+                    raise AIAgentClientError("IDENTITY_PROFILE_INCOMPLETE", "Profile role/department is incomplete", False)
+                effective_department = str(profile.department).upper().strip()
+                effective_role = _agent_role(profile.role)
+                effective_tenant = get_settings().active_tenant
                 history = await cls._load_agent_history(
                     db,
                     conversation_id,
@@ -251,8 +278,10 @@ class ChatService:
                     agent_answer = await cls.agent_client.query_agent(
                         user_id=str(user_id),
                         query=question,
-                        department=department,
+                        department=effective_department,
                         request_id=str(chat_request_id),
+                        user_role=effective_role,
+                        tenant_id=effective_tenant,
                         history=history,
                     )
                 else:
@@ -260,8 +289,10 @@ class ChatService:
                     async for event in cls.agent_client.stream_query_agent(
                         user_id=str(user_id),
                         query=question,
-                        department=department,
+                        department=effective_department,
                         request_id=str(chat_request_id),
+                        user_role=effective_role,
+                        tenant_id=effective_tenant,
                         history=history,
                     ):
                         if event["type"] == "error":

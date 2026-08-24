@@ -23,7 +23,9 @@ class AgentQueryRequest(BaseModel):
     query: str = Field(..., min_length=1)
     request_id: str = Field(..., min_length=1, max_length=128)
     user_id: str = Field(..., min_length=1, max_length=128)
-    department: str = Field(default="GENERAL", max_length=128)
+    tenant_id: str = Field(..., min_length=1, max_length=128)
+    department: str = Field(..., min_length=1, max_length=128)
+    user_role: str = Field(..., min_length=1, max_length=64)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
 
 
@@ -41,6 +43,7 @@ class IngestionJobRequest(BaseModel):
     )
     content_base64: str = Field(..., min_length=1, description="Nội dung file, base64")
     category: str = Field(default="GENERAL", max_length=64)
+    department: str = Field(default="HR", max_length=128)
     source_type: str = Field(default="official_policy", max_length=64)
     is_official_policy: bool = True
     caveat: str = Field(default="", max_length=500)
@@ -49,7 +52,15 @@ class IngestionJobRequest(BaseModel):
     # được nạp offline bằng scripts/rag_pipeline/build_chunks.py từ registry).
     authority: str = Field(default="tenant_official_policy", max_length=64)
     provenance: str = Field(default="customer_provided", max_length=64)
-    tenant: str = Field(default="", max_length=128, description="Slug doanh nghiệp sở hữu tài liệu")
+    tenant: str = Field(..., min_length=1, max_length=128, description="Slug tenant đã xác thực; bắt buộc cho mọi write")
+    access_scope: Literal["COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"] = "RESTRICTED"
+    authorized_role: str = Field(default="", max_length=64)
+    owner_user_id: str = Field(..., min_length=1, max_length=128)
+    authorization_source: Literal["RUNTIME_UPLOAD"] = "RUNTIME_UPLOAD"
+    publication_status: Literal["active", "draft", "superseded", "archived"] = "active"
+    artifact_state: Literal["frozen", "draft"] = "frozen"
+    retrieval_enabled: bool = True
+    expiry_date: str = Field(default="9999-12-31", max_length=10)
 
 
 class IndexRebuildTarget(BaseModel):
@@ -59,6 +70,7 @@ class IndexRebuildTarget(BaseModel):
 
 class IndexRebuildJobRequest(BaseModel):
     job_id: str = Field(..., min_length=1, max_length=128)
+    tenant: str = Field(..., min_length=1, max_length=128)
     documents: list[IndexRebuildTarget] = Field(
         default_factory=list, description="Rỗng = rebuild toàn bộ tài liệu đã có chunk"
     )
@@ -172,6 +184,9 @@ class Citation(BaseModel):
     title: str
     page_start: int | None = None
     page_end: int | None = None
+    sheet_start: str | None = None
+    sheet_end: str | None = None
+    department: str = "HR"
     category: str
     is_official_policy: bool
     source_type: str = Field(default="", description="government_law | official_policy | public_template | synthetic | public_article — data_origin, KHÔNG phải trạng thái phê duyệt")
@@ -180,6 +195,9 @@ class Citation(BaseModel):
     tenant: str = Field(default="", description="Slug doanh nghiệp sở hữu tài liệu, rỗng nếu không thuộc doanh nghiệp nào")
     source_section: str = Field(default="", description="Nhãn mục/điều khoản người dùng đọc được, vd '4.1. Số ngày nghỉ phép năm tiêu chuẩn' — dùng để hiển thị citation thay cho tên file kỹ thuật")
     policy_status: str = Field(default="", description="active | superseded | draft — vòng đời phê duyệt (registry publication_status), độc lập với source_type")
+    document_code: str = Field(default="", description="Mã tài liệu nghiệp vụ nếu metadata có cung cấp")
+    version: str = Field(default="", description="Phiên bản tài liệu tại thời điểm index")
+    effective_date: str = Field(default="", description="Ngày hiệu lực từ metadata tài liệu")
     excerpt: str = Field(default="", description="Đoạn văn bản của chunk được dùng làm nguồn")
 
 

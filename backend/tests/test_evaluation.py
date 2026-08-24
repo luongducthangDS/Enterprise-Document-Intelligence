@@ -24,10 +24,19 @@ async def setup_evaluation_test_data():
             admin.profile = ProfileDB(
                 id=admin_id,
                 display_name="Eval Admin",
-                role="HR_ADMIN",
+                role="SUPER_ADMIN",
                 department="HR",
             )
             session.add(admin)
+
+        admin_profile = await session.get(ProfileDB, admin_id)
+        admin_profile.role = "SUPER_ADMIN"
+        admin_profile.department = "HR"
+        employee_id = uuid.UUID("51515151-5151-4515-8515-515151515151")
+        if await session.get(UserDB, employee_id) is None:
+            employee = UserDB(id=employee_id, email="eval_employee@company.com", hashed_password=hash_password("password123"))
+            employee.profile = ProfileDB(id=employee_id, display_name="Eval Employee", role="EMPLOYEE", department="HR")
+            session.add(employee)
 
         await session.commit()
 
@@ -35,7 +44,7 @@ async def setup_evaluation_test_data():
 def get_auth_header(
     user_id: str = "55555555-5555-5555-5555-555555555555",
     email: str = "eval_admin@company.com",
-    role: str = "HR_ADMIN",
+    role: str = "SUPER_ADMIN",
 ) -> dict:
     payload = {
         "sub": user_id,
@@ -65,7 +74,7 @@ def test_create_evaluation_run_success():
 
 
 def test_employee_cannot_create_evaluation_run():
-    headers = get_auth_header(role="EMPLOYEE")
+    headers = get_auth_header(user_id="51515151-5151-4515-8515-515151515151", email="eval_employee@company.com", role="EMPLOYEE")
     response = client.post(
         "/api/v1/evaluation/runs",
         headers=headers,
