@@ -3,12 +3,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from src.agents.graph import agent, route_after_knowledge_lookup
+from src.agents.nodes.escalation import department_access_denied_node
 
 
 def test_knowledge_lookup_is_wired_and_routes_safely():
     assert "knowledge_lookup" in agent.get_graph().nodes
     assert route_after_knowledge_lookup({"skip_retrieval": True}) == "finalize"
     assert route_after_knowledge_lookup({"skip_retrieval": False}) == "retrieve"
+
+
+def test_department_scope_denial_is_clear_and_does_not_create_ticket():
+    result = department_access_denied_node({"denied_department": "FINANCE"})
+
+    assert "phòng ban khác" in result["response"]
+    assert "không nằm trong phạm vi truy cập" in result["response"]
+    assert result["escalate"] is False
+    assert result["escalate_reason"] == "department_scope_denied"
+    assert result["citations"] == []
 
 
 @pytest.mark.asyncio

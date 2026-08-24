@@ -54,8 +54,7 @@ export const DOCUMENT_STATUS_LABELS: Record<string, string> = {
 
 export const ROLE_LABELS: Record<string, string> = {
   EMPLOYEE: "Nhân viên",
-  DEPARTMENT_USER: "Người dùng phòng ban",
-  HR_ADMIN: "Quản trị tri thức",
+  DEPARTMENT_MANAGER: "Quản lý phòng ban",
   SUPER_ADMIN: "Quản trị hệ thống",
 };
 

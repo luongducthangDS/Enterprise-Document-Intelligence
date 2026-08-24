@@ -326,7 +326,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
     distances = (result.get("distances") or [[]])[0]
     from datetime import UTC, datetime
 
-    from src.agents.nodes.retrieval import _metadata_authorized, _metadata_lifecycle_allowed
+    from src.agents.nodes.retrieval import _metadata_authorized, _metadata_lifecycle_allowed, detect_department_scope_denial
     from src.security import get_authorization_engine
 
     allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
@@ -338,6 +338,15 @@ async def accounting_retrieval_node(state: dict) -> dict:
     }
 
     chunks = list(chunk_map.values())
+
+    if not chunks:
+        denied_department = await detect_department_scope_denial(col, embedding, user_context, settings)
+        if denied_department:
+            return {
+                "retrieved_chunks": [],
+                "access_denied_reason": "DEPARTMENT_SCOPE_DENIED",
+                "denied_department": denied_department,
+            }
 
     # 4. Rerank
     if settings.use_reranker and chunks:

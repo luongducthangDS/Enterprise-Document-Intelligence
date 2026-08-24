@@ -180,7 +180,7 @@ class E2ETestRunner:
             authorized_departments=["HR"],
         )
         dec_sales = auth_engine.evaluate_access(emp_user, doc_hr_dept)
-        dec_hr = auth_engine.evaluate_access(UserContext(user_id="u2", tenant_id="nexatech", role=UserRole.HR_OPERATOR, department="HR"), doc_hr_dept)
+        dec_hr = auth_engine.evaluate_access(UserContext(user_id="u2", tenant_id="nexatech", role=UserRole.EMPLOYEE, department="HR"), doc_hr_dept)
         passed_dept = (not dec_sales) and dec_hr
         self.record("Security", "DEPARTMENT Isolation Enforcement", passed_dept, f"Sales allowed: {dec_sales}, HR allowed: {dec_hr}", (time.perf_counter() - t1) * 1000)
 
@@ -193,7 +193,7 @@ class E2ETestRunner:
             department="GENERAL",
         )
         dec_ext_emp = auth_engine.evaluate_access(emp_user, doc_external)
-        dec_ext_admin = auth_engine.evaluate_access(UserContext(user_id="u3", tenant_id="nexatech", role=UserRole.ADMIN, department="IT"), doc_external)
+        dec_ext_admin = auth_engine.evaluate_access(UserContext(user_id="u3", tenant_id="nexatech", role=UserRole.SUPER_ADMIN, department="IT"), doc_external)
         passed_ext = (not dec_ext_emp) and dec_ext_admin
         self.record("Security", "EXTERNAL_REFERENCE Role Restriction", passed_ext, f"Emp allowed: {dec_ext_emp}, Admin allowed: {dec_ext_admin}", (time.perf_counter() - t2) * 1000)
 

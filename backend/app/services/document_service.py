@@ -15,6 +15,7 @@ from app.core.exceptions import AppException, ConflictError, ForbiddenError, Not
 from app.domain.models.audit import AuditLogDB
 from app.domain.models.documents import DocumentDB, IngestionJobDB
 from app.schemas.documents import DocumentMetadataUpdate
+from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, can_manage_document, can_read_document, normalized_role, same_department
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
@@ -101,18 +102,25 @@ class DocumentService:
         doc_confidentiality = confidentiality.strip() if confidentiality and confidentiality.strip() else "INTERNAL"
         doc_status = status.strip().upper() if status and status.strip() else "ACTIVE"
         normalized_scope = access_scope.strip().upper()
-        if normalized_scope == "COMPANY_WIDE":
-            normalized_scope = "DEPARTMENT"
         allowed_scopes = {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}
         if normalized_scope not in allowed_scopes:
             raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
-        normalized_role = authorized_role.strip().upper() if authorized_role and authorized_role.strip() else None
-        if normalized_scope == "ROLE" and not normalized_role:
+        normalized_authorized_role = authorized_role.strip().upper() if authorized_role and authorized_role.strip() else None
+        if normalized_scope == "ROLE" and not normalized_authorized_role:
             raise AppException(
                 status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role."
             )
         if normalized_scope != "ROLE":
-            normalized_role = None
+            normalized_authorized_role = None
+        role = normalized_role(user)
+        if role == DEPARTMENT_MANAGER:
+            if not same_department(user, doc_department):
+                raise ForbiddenError(code="DEPARTMENT_SCOPE_DENIED", message="Bạn chỉ được quản lý tài liệu của phòng ban mình.")
+            if normalized_scope not in {"DEPARTMENT", "RESTRICTED"}:
+                raise ForbiddenError(code="SCOPE_MANAGEMENT_DENIED", message="Quản lý phòng ban chỉ được tạo tài liệu nội bộ của phòng mình.")
+        elif role != SUPER_ADMIN:
+            raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền tải tài liệu.")
+
         tenant = get_settings().active_tenant
 
         doc = DocumentDB(
@@ -122,7 +130,7 @@ class DocumentService:
             tenant=tenant,
             department=doc_department.upper(),
             access_scope=normalized_scope,
-            authorized_role=normalized_role,
+            authorized_role=normalized_authorized_role,
             owner_user_id=uploader_id,
             authorization_source="RUNTIME_UPLOAD",
             authority="tenant_official_policy",
@@ -211,6 +219,8 @@ class DocumentService:
         cursor: str | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         stmt = select(DocumentDB).order_by(desc(DocumentDB.created_at))
+        if normalized_role(user) == DEPARTMENT_MANAGER:
+            stmt = stmt.where(DocumentDB.department == str(user.get("department", "")).upper().strip())
 
         if status:
             stmt = stmt.where(DocumentDB.status == status)
@@ -282,11 +292,9 @@ class DocumentService:
         if not doc:
             raise NotFoundError(code="DOCUMENT_NOT_FOUND", message="Không tìm thấy tài liệu.")
 
-        # User role confidentiality check
-        user_role = user.get("role", "EMPLOYEE")
-        if doc.confidentiality in ("RESTRICTED", "CONFIDENTIAL") and user_role not in (
-            "HR_ADMIN",
-            "SUPER_ADMIN",
+        user_role = normalized_role(user)
+        if not can_read_document(user, doc) or (
+            doc.confidentiality in ("RESTRICTED", "CONFIDENTIAL") and user_role != SUPER_ADMIN
         ):
             raise ForbiddenError(code="DOCUMENT_ACCESS_DENIED", message="Bạn không có quyền truy cập tài liệu này.")
 
@@ -350,8 +358,7 @@ class DocumentService:
         if not doc:
             raise NotFoundError(code="DOCUMENT_NOT_FOUND", message="Không tìm thấy tài liệu.")
 
-        user_role = user.get("role", "EMPLOYEE")
-        if user_role not in ("HR_ADMIN", "SUPER_ADMIN"):
+        if not can_manage_document(user, doc):
             raise ForbiddenError(
                 code="FORBIDDEN",
                 message="Bạn không có quyền cập nhật metadata cho tài liệu này.",
@@ -364,12 +371,14 @@ class DocumentService:
         }
         if data.access_scope is not None:
             normalized_scope = data.access_scope.upper().strip()
-            if normalized_scope == "COMPANY_WIDE":
-                normalized_scope = "DEPARTMENT"
             if normalized_scope not in {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}:
                 raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
+            if normalized_role(user) == DEPARTMENT_MANAGER and normalized_scope not in {"DEPARTMENT", "RESTRICTED"}:
+                raise ForbiddenError(code="SCOPE_MANAGEMENT_DENIED", message="Quản lý phòng ban không được mở tài liệu ra ngoài phòng mình.")
             doc.access_scope = normalized_scope
         if data.department is not None:
+            if normalized_role(user) == DEPARTMENT_MANAGER and not same_department(user, data.department):
+                raise ForbiddenError(code="DEPARTMENT_SCOPE_DENIED", message="Bạn không được chuyển tài liệu sang phòng ban khác.")
             doc.department = data.department.upper().strip()
         if data.authorized_role is not None:
             doc.authorized_role = data.authorized_role.upper().strip() or None
@@ -441,8 +450,7 @@ class DocumentService:
         if not doc:
             raise NotFoundError(code="DOCUMENT_NOT_FOUND", message="Không tìm thấy tài liệu.")
 
-        user_role = user.get("role", "EMPLOYEE")
-        if user_role not in ("HR_ADMIN", "SUPER_ADMIN"):
+        if not can_manage_document(user, doc):
             raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền thao tác lưu trữ tài liệu.")
 
         if doc.status == "ARCHIVED":
@@ -484,6 +492,10 @@ class DocumentService:
 
         if not job:
             raise NotFoundError(code="INGESTION_JOB_NOT_FOUND", message="Không tìm thấy tác vụ ingestion.")
+
+        document = await db.get(DocumentDB, job.document_id)
+        if document is None or not can_manage_document(user, document):
+            raise ForbiddenError(code="DEPARTMENT_SCOPE_DENIED", message="Bạn không có quyền xem tác vụ của tài liệu này.")
 
         if cls.worker_dispatch_enabled and job.state not in ("COMPLETED", "FAILED"):
             try:

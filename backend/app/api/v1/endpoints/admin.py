@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import require_role
@@ -18,25 +18,19 @@ from app.schemas.common import wrap_response
 router = APIRouter()
 
 ROLE_CAPABILITIES = {
-    "EMPLOYEE": ["chat.use", "ticket.own"],
-    "MANAGER": ["chat.use", "ticket.own", "knowledge.department"],
-    "DEPARTMENT_USER": ["chat.use", "ticket.own", "knowledge.department"],
-    "HR_OPERATOR": ["chat.use", "ticket.manage", "knowledge.department"],
-    "FINANCE_OFFICER": ["chat.use", "ticket.own", "knowledge.department"],
-    "LEGAL_COUNSEL": ["chat.use", "ticket.own", "knowledge.legal"],
-    "EXECUTIVE": ["chat.use", "knowledge.restricted"],
-    "HR_ADMIN": ["chat.use", "ticket.manage", "document.manage", "index.manage", "evaluation.manage"],
+    "EMPLOYEE": ["chat.use", "ticket.own", "knowledge.company", "knowledge.department"],
+    "DEPARTMENT_MANAGER": ["chat.use", "ticket.manage.department", "document.manage.department"],
     "SUPER_ADMIN": ["*"],
 }
 
 
 @router.get("/access-model")
-async def get_access_model(request: Request, current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"]))) -> dict[str, Any]:
+async def get_access_model(request: Request, current_user: dict[str, Any] = Depends(require_role(["SUPER_ADMIN"]))) -> dict[str, Any]:
     return wrap_response({"roles": ROLE_CAPABILITIES, "scopes": ["COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"]}, request)
 
 
 @router.get("/users")
-async def list_users(request: Request, current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])), db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
+async def list_users(request: Request, current_user: dict[str, Any] = Depends(require_role(["SUPER_ADMIN"])), db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     rows = (await db.execute(select(UserDB, ProfileDB).join(ProfileDB, ProfileDB.id == UserDB.id).order_by(ProfileDB.display_name))).all()
     data = [{"user_id": str(user.id), "email": user.email, "display_name": profile.display_name, "role": profile.role.upper(), "department": profile.department or ""} for user, profile in rows]
     return wrap_response(data, request)
@@ -55,6 +49,17 @@ async def update_user_access(user_id: str, payload: UserAccessUpdate, request: R
     if profile is None:
         raise NotFoundError(code="USER_NOT_FOUND", message="Không tìm thấy người dùng.")
     before = {"role": profile.role.upper(), "department": profile.department or ""}
+    if before["role"] == "SUPER_ADMIN" and role != "SUPER_ADMIN":
+        super_admin_count = await db.scalar(
+            select(func.count()).select_from(ProfileDB).where(func.upper(ProfileDB.role) == "SUPER_ADMIN")
+        )
+        if int(super_admin_count or 0) <= 1:
+            raise AppException(
+                status_code=409,
+                code="LAST_SUPER_ADMIN_REQUIRED",
+                message="Hệ thống phải còn ít nhất một Quản trị hệ thống.",
+            )
+
     profile.role = role
     profile.department = payload.department.strip()
     after = {"role": profile.role, "department": profile.department}

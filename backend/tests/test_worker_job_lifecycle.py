@@ -69,7 +69,7 @@ class FakeWorkerClient:
 async def test_backend_worker_jobs_reach_terminal_state_and_persist_results(db_session):
     user_id = uuid.uuid4()
     user = UserDB(id=user_id, email=f"worker-{user_id}@company.com", hashed_password="hash")
-    user.profile = ProfileDB(id=user_id, display_name="Worker Admin", role="HR_ADMIN", department="HR")
+    user.profile = ProfileDB(id=user_id, display_name="Worker Admin", role="SUPER_ADMIN", department="HR")
     db_session.add(user)
     await db_session.execute(update(IndexJobDB).values(state="COMPLETED"))
     await db_session.execute(update(EvaluationRunDB).values(state="COMPLETED"))
@@ -82,7 +82,7 @@ async def test_backend_worker_jobs_reach_terminal_state_and_persist_results(db_s
         service.worker_client = fake
         service.worker_dispatch_enabled = True
 
-    actor = {"user_id": str(user_id), "role": "HR_ADMIN"}
+    actor = {"user_id": str(user_id), "role": "SUPER_ADMIN", "department": "HR"}
     try:
         upload = UploadFile(filename="worker_lifecycle.pdf", file=io.BytesIO(b"%PDF-1.4 worker lifecycle"))
         document = await DocumentService.upload_document(db_session, actor, upload)

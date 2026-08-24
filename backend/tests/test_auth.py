@@ -48,7 +48,7 @@ async def setup_auth_test_data():
         admin.profile = ProfileDB(
             id=admin_id,
             display_name="Tran Thi B (HR)",
-            role="HR_ADMIN",
+            role="DEPARTMENT_MANAGER",
             department="HR",
         )
 
@@ -107,7 +107,7 @@ async def test_auth_service_refresh_token_success():
 
         decoded = decode_token(refresh_res.access_token)
         assert decoded["email"] == "admin@company.com"
-        assert decoded["role"] == "HR_ADMIN"
+        assert decoded["role"] == "DEPARTMENT_MANAGER"
 
 
 @pytest.mark.asyncio
@@ -166,7 +166,7 @@ def test_api_me_endpoint_success():
     res_data = response.json()
     assert res_data["success"] is True
     assert res_data["data"]["email"] == "admin@company.com"
-    assert res_data["data"]["role"] == "HR_ADMIN"
+    assert res_data["data"]["role"] == "DEPARTMENT_MANAGER"
     assert res_data["data"]["department"] == "HR"
 
 
@@ -181,7 +181,6 @@ def test_api_register_endpoint_success():
         json={
             "email": "newuser@company.com",
             "password": "securepassword123",
-            "department": "Marketing",
             "full_name": "Nguyen Van C",
         },
     )
@@ -190,7 +189,7 @@ def test_api_register_endpoint_success():
     assert res_data["success"] is True
     assert res_data["data"]["email"] == "newuser@company.com"
     assert res_data["data"]["role"] == "EMPLOYEE"
-    assert res_data["data"]["department"] == "Marketing"
+    assert res_data["data"]["department"] == "GENERAL"
 
 
 def test_api_register_endpoint_duplicate_email():
@@ -199,7 +198,6 @@ def test_api_register_endpoint_duplicate_email():
         json={
             "email": "employee@company.com",
             "password": "password123",
-            "department": "Engineering",
         },
     )
     assert response.status_code == 400
@@ -211,19 +209,18 @@ def test_api_register_endpoint_validation_error():
         json={
             "email": "invalid@company.com",
             "password": "123",
-            "department": "Engineering",
         },
     )
     assert response.status_code == 422
 
 
-def test_api_register_rejects_noncanonical_department():
+def test_api_register_rejects_self_assigned_department():
     response = client.post(
         "/api/v1/auth/register",
         json={
             "email": "wrong-department@company.com",
             "password": "password123",
-            "department": "hr ",
+            "department": "HR",
         },
     )
     assert response.status_code == 422
@@ -235,25 +232,23 @@ def test_api_register_cannot_self_assign_admin_role():
         json={
             "email": "role-escalation@company.com",
             "password": "password123",
-            "department": "HR",
             "role": "SUPER_ADMIN",
         },
     )
     assert response.status_code == 422
 
 
-def test_api_register_accepts_department_user_role():
+def test_api_register_rejects_department_manager_role():
     response = client.post(
         "/api/v1/auth/register",
         json={
             "email": "dept-user@company.com",
             "password": "password123",
-            "department": "Engineering",
-            "role": "department_user",
+            "role": "department_manager",
         },
     )
-    assert response.status_code == 201
-    assert response.json()["data"]["role"] == "DEPARTMENT_USER"
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
 
 
 def test_api_register_defaults_to_employee_without_role():
@@ -262,25 +257,24 @@ def test_api_register_defaults_to_employee_without_role():
         json={
             "email": "default-role@company.com",
             "password": "password123",
-            "department": "Finance",
         },
     )
     assert response.status_code == 201
     assert response.json()["data"]["role"] == "EMPLOYEE"
+    assert response.json()["data"]["department"] == "GENERAL"
 
 
-def test_api_register_rejects_hr_admin_role():
+def test_api_register_rejects_legacy_hr_admin_role():
     response = client.post(
         "/api/v1/auth/register",
         json={
             "email": "hr-admin-escalation@company.com",
             "password": "password123",
-            "department": "HR",
             "role": "hr_admin",
         },
     )
     assert response.status_code == 422
-    assert response.json()["error"]["code"] == "ROLE_NOT_ALLOWED_FOR_SIGNUP"
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
 
 
 def test_login_rate_limit_blocks_brute_force():

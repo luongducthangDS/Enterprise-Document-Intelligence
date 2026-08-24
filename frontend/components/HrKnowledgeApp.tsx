@@ -13,7 +13,8 @@ import { TicketsView } from "./TicketsView";
 type View = "chat" | "tickets" | "documents" | "access" | "index" | "evaluation" | "monitoring";
 
 const employeeItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Ticket của tôi", icon: Ticket }];
-const adminItems = [{ id: "documents" as const, label: "Kho tài liệu", icon: FileText }, { id: "access" as const, label: "Phân quyền", icon: ShieldCheck }, { id: "index" as const, label: "Chỉ mục tìm kiếm", icon: Database }, { id: "evaluation" as const, label: "Đánh giá chất lượng", icon: FlaskConical }, { id: "monitoring" as const, label: "Giám sát truy vấn", icon: Activity }];
+const managerItems = [{ id: "documents" as const, label: "Kho tài liệu phòng ban", icon: FileText }, { id: "index" as const, label: "Chỉ mục tìm kiếm", icon: Database }];
+const systemItems = [{ id: "access" as const, label: "Phân quyền", icon: ShieldCheck }, { id: "evaluation" as const, label: "Đánh giá chất lượng", icon: FlaskConical }, { id: "monitoring" as const, label: "Giám sát truy vấn", icon: Activity }];
 
 export function HrKnowledgeApp() {
   const [user, setUser] = useState<User | null>(null);
@@ -60,11 +61,13 @@ export function HrKnowledgeApp() {
 
   if (checkingSession) return <div className="app-loading">Đang khôi phục phiên...</div>;
   if (!user) return <LoginView onAuthenticated={setUser} />;
-  const isAdmin = ["HR_ADMIN", "SUPER_ADMIN"].includes(user.role);
-  // Admin nhìn thấy hàng đợi ticket của cả team, nên nav dùng nhãn khác employee.
-  const items = isAdmin
-    ? [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Hàng đợi ticket", icon: Ticket }, ...adminItems]
-    : employeeItems;
+  const isManager = ["DEPARTMENT_MANAGER", "SUPER_ADMIN"].includes(user.role);
+  const managedItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Hàng đợi ticket phòng ban", icon: Ticket }, ...managerItems];
+  const items = user.role === "SUPER_ADMIN"
+    ? [...managedItems, ...systemItems]
+    : isManager
+      ? managedItems
+      : employeeItems;
 
   return <main className="next-app-shell" data-ui="cusion-shell">
     <section className="next-main">

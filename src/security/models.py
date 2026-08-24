@@ -6,14 +6,9 @@ from pydantic import BaseModel, Field
 
 class UserRole(str, Enum):
     """Vai trò người dùng trong hệ sinh thái doanh nghiệp."""
-    EMPLOYEE = "EMPLOYEE"                  # Nhân viên thông thường
-    MANAGER = "MANAGER"                    # Quản lý cấp trung / Trưởng phòng
-    DEPARTMENT_USER = "DEPARTMENT_USER"    # Nhân viên nghiệp vụ theo phòng ban
-    HR_OPERATOR = "HR_OPERATOR"            # Chuyên viên nhân sự
-    LEGAL_COUNSEL = "LEGAL_COUNSEL"        # Pháp chế / Luật sư doanh nghiệp
-    FINANCE_OFFICER = "FINANCE_OFFICER"    # Chuyên viên tài chính / Kế toán
-    EXECUTIVE = "EXECUTIVE"                # Ban giám đốc / C-Level
-    ADMIN = "ADMIN"                        # Quản trị viên hệ thống
+    EMPLOYEE = "EMPLOYEE"                          # Nhân viên của một phòng ban
+    DEPARTMENT_MANAGER = "DEPARTMENT_MANAGER"      # Quản lý trong đúng phòng ban
+    SUPER_ADMIN = "SUPER_ADMIN"                    # Quản trị toàn hệ thống
 
 
 class DocumentDomain(str, Enum):
@@ -23,6 +18,7 @@ class DocumentDomain(str, Enum):
     DEPARTMENT_PROCESS = "DEPARTMENT_PROCESS"  # Quy trình SOP vận hành nội bộ phòng ban
     LEGAL = "LEGAL"                            # Văn bản quy phạm pháp luật nhà nước
     MANAGEMENT = "MANAGEMENT"                  # Quyết định điều hành & Biên bản họp lãnh đạo
+    MEETING_MINUTES = "MEETING_MINUTES"        # Biên bản họp quản lý / ban điều hành
     EXTERNAL_REFERENCE = "EXTERNAL_REFERENCE"  # Tài liệu tham khảo ngoài / Template
     # 2. System / Internal Data (Loại hoàn toàn khỏi Knowledge Retrieval & Citation)
     EVALUATION_DATA = "EVALUATION_DATA"        # Bộ dữ liệu đánh giá mô hình / Benchmark
@@ -72,7 +68,7 @@ class UserContext(BaseModel):
             raise ValueError(f"Missing authenticated identity fields: {', '.join(missing)}")
 
         role_raw = str(state["user_role"]).upper().strip()
-        role_aliases = {"SUPER_ADMIN": "ADMIN", "HR_ADMIN": "ADMIN"}
+        role_aliases = {"ADMIN": "SUPER_ADMIN", "HR_ADMIN": "DEPARTMENT_MANAGER", "MANAGER": "DEPARTMENT_MANAGER", "DEPARTMENT_USER": "EMPLOYEE"}
         try:
             role = UserRole(role_aliases.get(role_raw, role_raw))
         except ValueError as exc:

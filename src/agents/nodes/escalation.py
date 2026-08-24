@@ -21,6 +21,18 @@ OUT_OF_SCOPE_RESPONSE = (
 )
 
 
+def department_access_denied_node(state: AgentState) -> dict:
+    """Return a clear refusal without revealing protected department content."""
+    return {
+        "response": (
+            "Nội dung bạn đang hỏi thuộc tài liệu nội bộ của một phòng ban khác "
+            "và không nằm trong phạm vi truy cập của bạn."
+        ),
+        "escalate": False,
+        "escalate_reason": "department_scope_denied",
+        "citations": [],
+    }
+
 def out_of_scope_node(state: AgentState) -> dict:
     """Terminal node cho intent=pure_statutory (routing_precedence priority 2).
 

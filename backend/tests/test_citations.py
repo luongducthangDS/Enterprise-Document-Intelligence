@@ -42,7 +42,7 @@ async def setup_citations_test_data():
             admin.profile = ProfileDB(
                 id=admin_id,
                 display_name="HR Admin",
-                role="HR_ADMIN",
+                role="DEPARTMENT_MANAGER",
                 department="HR",
             )
             session.add(admin)
@@ -169,7 +169,7 @@ def test_citation_from_another_users_conversation_is_not_visible():
     headers = get_auth_header(
         user_id="99999999-9999-9999-9999-999999999999",
         email="hr_admin@company.com",
-        role="HR_ADMIN",
+        role="DEPARTMENT_MANAGER",
     )
 
     response = client.get("/api/v1/citations/cit_01", headers=headers)

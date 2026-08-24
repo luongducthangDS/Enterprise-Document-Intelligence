@@ -25,7 +25,7 @@ async def upload_document(
     status_field: str | None = Form(None, alias="status"),
     access_scope: str = Form("RESTRICTED"),
     authorized_role: str | None = Form(None),
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Admin upload tài liệu và chọn domain/phòng ban để route đúng collection."""
@@ -55,7 +55,7 @@ async def list_documents(
     indexed: bool | None = None,
     limit: int = 20,
     cursor: str | None = None,
-    current_user: dict[str, Any] = Depends(require_role(["HR_ADMIN", "SUPER_ADMIN"])),
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Danh sách tài liệu chính sách có lọc và phân trang."""

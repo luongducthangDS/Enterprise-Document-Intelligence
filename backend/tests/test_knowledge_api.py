@@ -28,6 +28,8 @@ def setup_knowledge_db():
             document_code="12_quy-che-cong-tac-phi.md",
             title="Quy chế Công tác phí và Phụ cấp Di chuyển",
             document_domain="COMPANY_POLICY",
+            access_scope="COMPANY_WIDE",
+            owner_department="GENERAL",
         )
         ver = repo.create_version(
             tenant_id="nexatech",
@@ -96,7 +98,7 @@ def setup_knowledge_db():
             session=session,
             tenant_id="nexatech",
             actor_user_id="admin_1",
-            actor_role="ADMIN",
+            actor_role="SUPER_ADMIN",
             action="BOOTSTRAP",
             entity_type="tenant",
             entity_id="nexatech",
@@ -121,7 +123,7 @@ EMP_ID = uuid.UUID("22222222-2222-4222-8222-222222222222")
 async def setup_auth_users():
     async with TestingSessionLocal() as db:
         for u_id, email, role, dept in (
-            (ADMIN_ID, "admin@nexatech.com", "ADMIN", "IT"),
+            (ADMIN_ID, "admin@nexatech.com", "SUPER_ADMIN", "IT"),
             (EMP_ID, "emp@nexatech.com", "EMPLOYEE", "SALES"),
         ):
             if await db.get(UserDB, u_id) is None:
@@ -134,7 +136,7 @@ async def setup_auth_users():
 @pytest.fixture
 def admin_headers():
     token = create_access_token(
-        {"sub": str(ADMIN_ID), "email": "admin@nexatech.com", "role": "ADMIN", "department": "IT"}
+        {"sub": str(ADMIN_ID), "email": "admin@nexatech.com", "role": "SUPER_ADMIN", "department": "IT"}
     )
     return {"Authorization": f"Bearer {token}"}
 
@@ -197,7 +199,7 @@ def test_reject_knowledge_item(admin_headers, employee_headers):
 
 
 def test_edit_knowledge_item(admin_headers, employee_headers):
-    list_res = client.get("/api/v1/knowledge/items?tenant_id=nexatech", headers=employee_headers)
+    list_res = client.get("/api/v1/knowledge/items?tenant_id=nexatech", headers=admin_headers)
     items = list_res.json()["data"]
     item_id = items[0]["knowledge_id"]
 

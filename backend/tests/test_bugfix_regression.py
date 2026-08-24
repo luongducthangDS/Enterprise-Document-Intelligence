@@ -34,7 +34,7 @@ async def setup_bugfix_test_data():
             admin.profile = ProfileDB(
                 id=admin_id,
                 display_name="Doc Admin",
-                role="HR_ADMIN",
+                role="DEPARTMENT_MANAGER",
                 department="HR",
             )
             session.add(admin)

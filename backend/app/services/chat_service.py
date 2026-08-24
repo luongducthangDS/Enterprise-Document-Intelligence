@@ -31,12 +31,9 @@ from app.services.ticket_service import TicketService
 def _agent_role(profile_role: str) -> str:
     """Map Backend administrative roles to the Agent's canonical authorization roles."""
     normalized = str(profile_role or "").upper().strip()
-    aliases = {"HR_ADMIN": "ADMIN", "SUPER_ADMIN": "ADMIN"}
+    aliases: dict[str, str] = {}
     mapped = aliases.get(normalized, normalized)
-    allowed = {
-        "EMPLOYEE", "MANAGER", "DEPARTMENT_USER", "HR_OPERATOR",
-        "LEGAL_COUNSEL", "FINANCE_OFFICER", "EXECUTIVE", "ADMIN",
-    }
+    allowed = {"EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"}
     if mapped not in allowed:
         raise AIAgentClientError("IDENTITY_ROLE_INVALID", f"Unsupported profile role: {normalized}", False)
     return mapped

@@ -45,7 +45,7 @@ async def setup_real_tickets_test_data():
 
         await ensure_user_and_profile(session, emp1_id, "emp1_real@company.com", "Employee One", "EMPLOYEE", "Sales")
         await ensure_user_and_profile(session, emp2_id, "emp2_real@company.com", "Employee Two", "EMPLOYEE", "Engineering")
-        await ensure_user_and_profile(session, admin_id, "admin_real@company.com", "HR Admin Real", "HR_ADMIN", "HR")
+        await ensure_user_and_profile(session, admin_id, "admin_real@company.com", "HR Admin Real", "DEPARTMENT_MANAGER", "HR")
 
         await session.commit()
 
@@ -180,7 +180,7 @@ class TestTicketAPIReal:
 
     def test_admin_list_and_filter_tickets(self):
         """HR Admin xem được tất cả tickets và lọc theo phòng ban / trạng thái."""
-        admin_headers = get_token_header("99999999-cccc-9999-cccc-999999999999", "admin_real@company.com", "HR_ADMIN", "HR")
+        admin_headers = get_token_header("99999999-cccc-9999-cccc-999999999999", "admin_real@company.com", "DEPARTMENT_MANAGER", "HR")
         emp1_headers = get_token_header("11111111-aaaa-1111-aaaa-111111111111", "emp1_real@company.com", "EMPLOYEE", "Sales")
 
         # Tạo ticket thuộc phòng ban TA
@@ -216,7 +216,7 @@ class TestTicketAPIReal:
     def test_ticket_lifecycle_transitions(self):
         """Vòng đời hoàn chỉnh: OPEN -> IN_PROGRESS -> RESOLVED -> CLOSED."""
         emp1_headers = get_token_header("11111111-aaaa-1111-aaaa-111111111111", "emp1_real@company.com", "EMPLOYEE", "Sales")
-        admin_headers = get_token_header("99999999-cccc-9999-cccc-999999999999", "admin_real@company.com", "HR_ADMIN", "HR")
+        admin_headers = get_token_header("99999999-cccc-9999-cccc-999999999999", "admin_real@company.com", "DEPARTMENT_MANAGER", "HR")
 
         # 1. Tạo ticket
         create_resp = client.post(
