@@ -1,4 +1,18 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+
+REGISTRATION_DEPARTMENTS = {
+    "HR",
+    "PRODUCT",
+    "ENGINEERING",
+    "IT",
+    "FINANCE",
+    "ACCOUNTING",
+    "SALES",
+    "MARKETING",
+    "OPERATIONS",
+    "LEGAL",
+}
 
 
 class RegisterRequest(BaseModel):
@@ -7,6 +21,15 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, description="Mật khẩu tối thiểu 8 ký tự")
     full_name: str | None = None
+    department: str
+
+    @field_validator("department")
+    @classmethod
+    def validate_department(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if normalized not in REGISTRATION_DEPARTMENTS:
+            raise ValueError("Phòng ban không hợp lệ")
+        return normalized
 
 
 class LoginRequest(BaseModel):

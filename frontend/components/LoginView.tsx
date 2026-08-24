@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
+import { DEPARTMENTS } from "@/lib/labels";
 import type { User } from "@/lib/types";
 
 export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
@@ -10,6 +11,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -21,7 +23,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
     setNotice("");
     try {
       if (mode === "register") {
-        await api.register(email.trim(), password, fullName.trim());
+        await api.register(email.trim(), password, fullName.trim(), department);
         setMode("login");
         setNotice("Tài khoản đã được tạo. Bạn có thể đăng nhập ngay.");
       } else {
@@ -74,6 +76,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
               <p>{mode === "login" ? "Tiếp tục tới kho tri thức nội bộ của bạn." : "Tài khoản mới được quản lý và bảo vệ theo phân quyền của hệ thống."}</p>
             </div>
             {mode === "register" && <label>Họ và tên<input autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} required /></label>}
+            {mode === "register" && <label>Phòng ban<select value={department} onChange={(event) => setDepartment(event.target.value)} required><option value="" disabled>Chọn phòng ban</option>{DEPARTMENTS.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>}
             <label>Email công việc<input autoComplete="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
             <label>Mật khẩu<input autoComplete={mode === "login" ? "current-password" : "new-password"} type="password" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required aria-describedby="password-rule" /></label>
             {mode === "register" && <p className="form-note" id="password-rule">Mật khẩu tối thiểu 8 ký tự.</p>}
@@ -83,7 +86,7 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
               {loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}
               {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
             </button>
-            <p className="form-note">{mode === "login" ? "Dùng email công ty đã đăng ký để truy cập kho tri thức nội bộ." : "Tài khoản mới mặc định là Nhân viên. Phòng ban và quyền quản lý cần được Quản trị hệ thống xác nhận."}</p>
+            <p className="form-note">{mode === "login" ? "Dùng email công ty đã đăng ký để truy cập kho tri thức nội bộ." : "Tài khoản mới mặc định là Nhân viên của phòng ban đã chọn. Quyền quản lý do Quản trị hệ thống cấp."}</p>
           </form>
         </section>
       </section>

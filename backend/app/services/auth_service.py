@@ -53,7 +53,7 @@ class AuthService:
             display_name=register_data.full_name or register_data.email.split("@")[0],
             role=requested_role,
             employment_status="full_time",
-            department="GENERAL",
+            department=register_data.department,
             contract_type="khong_xac_dinh_thoi_han",
             access_level="self_only",
         )
