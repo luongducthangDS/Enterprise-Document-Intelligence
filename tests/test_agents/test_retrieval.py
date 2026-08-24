@@ -500,7 +500,7 @@ class TestRuntimeUploadAccessFilter:
             "access_scope": "RESTRICTED",
             "owner_user_id": "owner-1",
             "department": "HR",
-            "authorized_role": "MANAGER",
+            "authorized_role": "DEPARTMENT_MANAGER",
             "publication_status": "active",
             "artifact_state": "frozen",
             "retrieval_enabled": True,
@@ -518,11 +518,11 @@ class TestRuntimeUploadAccessFilter:
         assert _runtime_allowed(self._runtime_meta(), stranger) is False
 
     def test_department_and_role_scopes_are_exact(self):
-        # DEPARTMENT cần role được roles_policy cấp scope (EMPLOYEE/DEPARTMENT_USER
+        # DEPARTMENT cần role được roles_policy cấp scope (EMPLOYEE
         # đều có) + đúng phòng; ROLE chỉ MANAGER+ theo policy.
         hr_employee = UserContext(tenant_id="nexatech", user_id="u1", department="HR", role=UserRole.EMPLOYEE)
-        eng_dept_user = UserContext(tenant_id="nexatech", user_id="u2", department="ENGINEERING", role=UserRole.DEPARTMENT_USER)
-        hr_manager = UserContext(tenant_id="nexatech", user_id="u3", department="HR", role=UserRole.MANAGER)
+        eng_dept_user = UserContext(tenant_id="nexatech", user_id="u2", department="ENGINEERING", role=UserRole.EMPLOYEE)
+        hr_manager = UserContext(tenant_id="nexatech", user_id="u3", department="HR", role=UserRole.DEPARTMENT_MANAGER)
         dept_doc = self._runtime_meta(access_scope="DEPARTMENT")
         role_doc = self._runtime_meta(access_scope="ROLE")
         assert _runtime_allowed(dept_doc, hr_employee) is True
@@ -530,10 +530,10 @@ class TestRuntimeUploadAccessFilter:
         assert _runtime_allowed(role_doc, hr_manager) is True
         assert _runtime_allowed(role_doc, hr_employee) is False
 
-    def test_company_wide_and_admin_are_still_department_bound(self):
+    def test_company_wide_and_super_admin_cross_department_boundaries(self):
         employee = UserContext(tenant_id="nexatech", user_id="u1", department="ENGINEERING", role=UserRole.EMPLOYEE)
         hr_employee = UserContext(tenant_id="nexatech", user_id="u2", department="HR", role=UserRole.EMPLOYEE)
-        admin = UserContext(tenant_id="nexatech", user_id="admin-1", department="GENERAL", role=UserRole.ADMIN)
-        assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), employee) is False
+        admin = UserContext(tenant_id="nexatech", user_id="admin-1", department="GENERAL", role=UserRole.SUPER_ADMIN)
+        assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), employee) is True
         assert _runtime_allowed(self._runtime_meta(access_scope="COMPANY_WIDE"), hr_employee) is True
-        assert _runtime_allowed(self._runtime_meta(owner_user_id="someone-else"), admin) is False
+        assert _runtime_allowed(self._runtime_meta(owner_user_id="someone-else"), admin) is True

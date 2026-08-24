@@ -39,8 +39,8 @@ _ABSTAIN_REASON_CODE: dict[str, str] = {
     "low_confidence": "missing_policy_evidence",
     "out_of_scope": "missing_policy_evidence",
     "competitor_question": "missing_policy_evidence",
+    "department_scope_denied": "missing_policy_evidence",
 }
-
 
 def _derive_runtime_state(state: AgentState) -> tuple[str, str | None]:
     """Tính tập trung MỘT LẦN, không để từng node tự set — tránh một nhánh quên

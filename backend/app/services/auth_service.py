@@ -18,10 +18,6 @@ from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserD
 
 settings = get_settings()
 
-# Vai trò được phép tự chọn khi đăng ký. Vai trò quản trị (hr_admin/
-# super_admin) chỉ được cấp bởi SUPER_ADMIN qua trang Phân quyền — trigger
-# prevent_self_privilege_escalation (migration 0003) là lớp chặn thứ hai.
-SELF_REGISTRATION_ROLES = frozenset({"employee", "department_user"})
 
 
 class AuthService:
@@ -47,16 +43,7 @@ class AuthService:
                 message="Email is already registered",
             )
 
-        requested_role = (register_data.role or "employee").strip().lower()
-        if requested_role not in SELF_REGISTRATION_ROLES:
-            raise AppException(
-                status_code=422,
-                code="ROLE_NOT_ALLOWED_FOR_SIGNUP",
-                message=(
-                    "Vai trò này không thể tự đăng ký. Vai trò quản trị chỉ do "
-                    "Quản trị hệ thống cấp sau khi tài khoản được tạo."
-                ),
-            )
+        requested_role = "EMPLOYEE"
 
         new_user = UserDB(
             email=register_data.email,
@@ -66,7 +53,7 @@ class AuthService:
             display_name=register_data.full_name or register_data.email.split("@")[0],
             role=requested_role,
             employment_status="full_time",
-            department=register_data.department.value,
+            department="GENERAL",
             contract_type="khong_xac_dinh_thoi_han",
             access_level="self_only",
         )

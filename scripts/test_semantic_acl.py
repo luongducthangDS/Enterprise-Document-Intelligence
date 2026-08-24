@@ -48,7 +48,7 @@ async def run_semantic_acl_tests():
     state_hr_op = AgentState(
         query="Quy trình tuyển dụng và các vòng phỏng vấn ứng viên của phòng nhân sự?",
         department="HR",
-        user_role="HR_OPERATOR",
+        user_role="EMPLOYEE",
         history=[],
         request_id="test-hr-op-1",
     )
@@ -66,7 +66,7 @@ async def run_semantic_acl_tests():
     state_hr_mgr = AgentState(
         query="Quy trình tuyển dụng và các vòng phỏng vấn ứng viên của phòng nhân sự?",
         department="HR",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-hr-mgr-1",
     )
@@ -84,7 +84,7 @@ async def run_semantic_acl_tests():
     state_fin_mgr = AgentState(
         query="Quy trình tuyển dụng và các vòng phỏng vấn ứng viên của phòng nhân sự?",
         department="FINANCE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-fin-mgr-1",
     )
@@ -103,7 +103,7 @@ async def run_semantic_acl_tests():
     state_fin_hrop = AgentState(
         query="Quy trình tuyển dụng và các vòng phỏng vấn ứng viên của phòng nhân sự?",
         department="FINANCE",
-        user_role="HR_OPERATOR",
+        user_role="EMPLOYEE",
         history=[],
         request_id="test-fin-hrop-1",
     )
@@ -122,7 +122,7 @@ async def run_semantic_acl_tests():
     state_hr_legal = AgentState(
         query="Bộ luật Lao động 2019 quy định thời gian thử việc tối đa là bao nhiêu ngày?",
         department="HR",
-        user_role="HR_OPERATOR",
+        user_role="EMPLOYEE",
         history=[],
         request_id="test-hr-legal-1",
     )
@@ -176,7 +176,7 @@ async def run_semantic_acl_tests():
     # 9. Test 9: ADMIN Global Override
     # -------------------------------------------------------------------------
     print("--- 9. Test Admin Global Override ---")
-    u_admin = UserContext(user_id="admin_user", department="IT", role=UserRole.ADMIN)
+    u_admin = UserContext(user_id="admin_user", department="IT", role=UserRole.SUPER_ADMIN)
     files_admin_active = auth.get_authorized_source_files(u_admin, include_disabled=False)
     files_admin_all = auth.get_authorized_source_files(u_admin, include_disabled=True)
     print(f"Số tài liệu Active Knowledge Admin được truy xuất trong RAG: {len(files_admin_active)} (Kỳ vọng: 41)")

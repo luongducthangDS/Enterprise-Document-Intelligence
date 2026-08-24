@@ -2,7 +2,7 @@ from langgraph.graph import END, StateGraph
 
 from src.agents.nodes.boundary import boundary_node
 from src.agents.nodes.condense import condense_node
-from src.agents.nodes.escalation import confidence_node, escalate_node, out_of_scope_node
+from src.agents.nodes.escalation import confidence_node, department_access_denied_node, escalate_node, out_of_scope_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
@@ -33,6 +33,8 @@ def route_after_knowledge_lookup(state: AgentState) -> str:
 
 def route_after_grade(state: AgentState) -> str:
     settings = get_settings()
+    if state.get("access_denied_reason") == "DEPARTMENT_SCOPE_DENIED":
+        return "access_denied"
     if state.get("retrieved_chunks"):
         return "generate"
     if state.get("rewrite_count", 0) >= settings.max_rewrite_retries:
@@ -89,6 +91,7 @@ def build_graph() -> StateGraph:
     graph.add_node("hallucination_check", hallucination_check_node)
     graph.add_node("confidence", confidence_node)
     graph.add_node("escalate_ticket", escalate_node)
+    graph.add_node("access_denied", department_access_denied_node)
     graph.add_node("out_of_scope", out_of_scope_node)
     graph.add_node("finalize", finalize_node)
 
@@ -118,7 +121,11 @@ def build_graph() -> StateGraph:
         {"finalize": "finalize", "retrieve": "retrieve"},
     )
     graph.add_edge("retrieve", "grade")
-    graph.add_conditional_edges("grade", route_after_grade, {"generate": "generate", "rewrite": "rewrite"})
+    graph.add_conditional_edges(
+        "grade", route_after_grade,
+        {"generate": "generate", "rewrite": "rewrite", "access_denied": "access_denied"},
+    )
+    graph.add_edge("access_denied", END)
     graph.add_edge("rewrite", "retrieve")
 
     graph.add_conditional_edges(

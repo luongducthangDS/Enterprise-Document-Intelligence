@@ -45,7 +45,7 @@ async def run_enterprise_intelligence_tests():
     state_q2 = AgentState(
         query="Quy trình cấp phát tài khoản email và máy tính xách tay cho nhân viên mới của phòng IT gồm những bước nào?",
         department="IT",
-        user_role="DEPARTMENT_USER",
+        user_role="EMPLOYEE",
         history=[],
         request_id="test-intel-q2",
     )
@@ -67,7 +67,7 @@ async def run_enterprise_intelligence_tests():
     state_q3 = AgentState(
         query="Trong các quyết định của Management tháng 8/2026, những quyết định nào được ban hành về ngân sách AI và an toàn thông tin?",
         department="EXECUTIVE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-intel-q3",
     )
@@ -89,7 +89,7 @@ async def run_enterprise_intelligence_tests():
     state_q4 = AgentState(
         query="Ai đang phụ trách các công việc (action items) liên quan đến an toàn thông tin và dự án AI?",
         department="EXECUTIVE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-intel-q4",
     )
@@ -111,7 +111,7 @@ async def run_enterprise_intelligence_tests():
     state_q5 = AgentState(
         query="Những task hoặc công việc nào trong các biên bản họp và quyết định có hạn chót (deadline) trong tháng 9/2026?",
         department="EXECUTIVE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-intel-q5",
     )
@@ -130,7 +130,7 @@ async def run_enterprise_intelligence_tests():
     state_q6 = AgentState(
         query="Quyết định MGT-DEC-2026-02 có làm thay đổi quy định làm việc từ xa (WFH) tại chính sách 05 không? Thay đổi cụ thể cho khối Kỹ thuật là gì?",
         department="EXECUTIVE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-intel-q6",
     )
@@ -156,7 +156,7 @@ async def run_enterprise_intelligence_tests():
     state_q7 = AgentState(
         query="Định mức chi phí phòng khách sạn công tác tại Hà Nội và TP.HCM theo Quyết định MGT-DEC-2026-04 là bao nhiêu và khác gì so với quy chế công tác phí 12 ban đầu?",
         department="EXECUTIVE",
-        user_role="MANAGER",
+        user_role="DEPARTMENT_MANAGER",
         history=[],
         request_id="test-intel-q7",
     )

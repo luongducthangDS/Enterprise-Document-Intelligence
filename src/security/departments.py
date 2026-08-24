@@ -13,6 +13,12 @@ _ALIASES = {
     "ACCOUNTANCY": "ACCOUNTING",
     "PRODUCT MANAGEMENT": "PRODUCT",
     "SAN PHAM": "PRODUCT",
+    # Các nhóm xử lý ticket HR đều thuộc phòng HR ở lớp phân quyền.
+    "CB": "HR",
+    "ER": "HR",
+    "TA": "HR",
+    "LD": "HR",
+    "HRBP": "HR",
 }
 
 

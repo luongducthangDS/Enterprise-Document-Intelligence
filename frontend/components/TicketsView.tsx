@@ -26,7 +26,7 @@ export function TicketsView({ user }: { user: User }) {
   const [saving, setSaving] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
-  const isAdmin = ["HR_ADMIN", "SUPER_ADMIN"].includes(user.role.toUpperCase());
+  const isAdmin = ["DEPARTMENT_MANAGER", "SUPER_ADMIN"].includes(user.role.toUpperCase());
 
   const load = useCallback(async () => {
     setLoading(true);

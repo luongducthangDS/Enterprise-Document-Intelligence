@@ -39,7 +39,7 @@ async def setup_tickets_test_data():
         other_user_id = uuid.UUID("35353535-3535-4535-8535-353535353535")
 
         await ensure_user_and_profile(session, user_id, "ticket_emp@company.com", "Ticket Employee", "EMPLOYEE", "Sales")
-        await ensure_user_and_profile(session, admin_id, "ticket_admin@company.com", "Ticket Admin", "HR_ADMIN", "HR")
+        await ensure_user_and_profile(session, admin_id, "ticket_admin@company.com", "Ticket Admin", "DEPARTMENT_MANAGER", "HR")
         await ensure_user_and_profile(session, other_user_id, "other@company.com", "Other Employee", "EMPLOYEE", "Engineering")
 
         await session.commit()
@@ -134,7 +134,7 @@ def test_update_ticket_by_admin():
     admin_headers = get_auth_header(
         user_id="44444444-4444-4444-4444-444444444444",
         email="ticket_admin@company.com",
-        role="HR_ADMIN",
+        role="DEPARTMENT_MANAGER",
         department="HR",
     )
     admin_update_res = client.patch(f"/api/v1/tickets/{ticket_id}", headers=admin_headers, json=patch_payload)
@@ -157,7 +157,7 @@ def test_approve_ticket_assigns_current_admin_and_resolution_requires_note():
     admin_headers = get_auth_header(
         user_id=admin_id,
         email="ticket_admin@company.com",
-        role="HR_ADMIN",
+        role="DEPARTMENT_MANAGER",
         department="HR",
     )
 
@@ -198,7 +198,7 @@ def test_requester_closes_resolved_ticket_and_ticket_remains_in_history():
     admin_headers = get_auth_header(
         user_id="44444444-4444-4444-4444-444444444444",
         email="ticket_admin@company.com",
-        role="HR_ADMIN",
+        role="DEPARTMENT_MANAGER",
         department="HR",
     )
     resolved = client.patch(

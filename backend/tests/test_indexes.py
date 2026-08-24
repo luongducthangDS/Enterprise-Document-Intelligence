@@ -27,10 +27,15 @@ async def setup_indexes_test_data():
             admin.profile = ProfileDB(
                 id=admin_id,
                 display_name="Index Admin",
-                role="HR_ADMIN",
+                role="DEPARTMENT_MANAGER",
                 department="HR",
             )
             session.add(admin)
+
+        admin_profile = await session.get(ProfileDB, admin_id)
+        if admin_profile:
+            admin_profile.role = "DEPARTMENT_MANAGER"
+            admin_profile.department = "HR"
 
         doc = await session.get(DocumentDB, doc_id)
         if not doc:
@@ -66,7 +71,7 @@ async def setup_indexes_test_data():
 def get_auth_header(
     user_id: str = "66666666-6666-6666-6666-666666666666",
     email: str = "idx_admin@company.com",
-    role: str = "HR_ADMIN",
+    role: str = "DEPARTMENT_MANAGER",
 ) -> dict:
     payload = {
         "sub": user_id,
@@ -164,7 +169,7 @@ def test_get_index_rebuild_job_status():
     import asyncio
     asyncio.run(set_jobs_completed())
 
-    payload = {"document_ids": None, "strategy": "REPLACE"}
+    payload = {"document_ids": ["55555555-5555-5555-5555-555555555555"], "strategy": "REPLACE"}
     create_res = client.post("/api/v1/indexes/rebuilds", headers=headers, json=payload)
     job_id = create_res.json()["data"]["job_id"]
 

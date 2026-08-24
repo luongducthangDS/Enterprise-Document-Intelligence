@@ -11,6 +11,7 @@ from app.domain.models.profile import ProfileDB
 from app.domain.models.ticket import TicketDB
 from app.schemas.agent import AgentTicketDraftDTO
 from app.schemas.ticket import TicketCreateRequest, TicketUpdateRequest
+from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, department_targets
 
 
 class TicketService:
@@ -142,8 +143,9 @@ class TicketService:
 
         stmt = select(TicketDB).options(joinedload(TicketDB.requester), joinedload(TicketDB.assignee))
 
-        # Non-admin users can only list their own tickets
-        if user_role not in ("HR_ADMIN", "SUPER_ADMIN"):
+        if user_role == DEPARTMENT_MANAGER:
+            stmt = stmt.where(TicketDB.target_department.in_(department_targets(user.get("department"))))
+        elif user_role != SUPER_ADMIN:
             stmt = stmt.where(TicketDB.requester_id == user_id)
 
         if status_filter:
@@ -200,7 +202,11 @@ class TicketService:
         user_id = uuid.UUID(user["user_id"])
         user_role = str(user.get("role", "employee")).upper()
 
-        if user_role not in ("HR_ADMIN", "SUPER_ADMIN") and ticket.requester_id != user_id:
+        manages_department = (
+            user_role == DEPARTMENT_MANAGER
+            and ticket.target_department.upper() in department_targets(user.get("department"))
+        )
+        if user_role != SUPER_ADMIN and not manages_department and ticket.requester_id != user_id:
             raise ForbiddenError(code="TICKET_ACCESS_DENIED", message="Bạn không có quyền xem ticket này.")
 
         return cls._serialize_ticket(ticket)
@@ -230,7 +236,10 @@ class TicketService:
 
         user_role = str(user.get("role", "employee")).upper()
         user_id = uuid.UUID(user["user_id"])
-        is_admin = user_role in ("HR_ADMIN", "SUPER_ADMIN")
+        is_admin = user_role == SUPER_ADMIN or (
+            user_role == DEPARTMENT_MANAGER
+            and ticket.target_department.upper() in department_targets(user.get("department"))
+        )
         requested_status = data.status.lower() if data.status is not None else None
         if not is_admin:
             if ticket.requester_id != user_id:

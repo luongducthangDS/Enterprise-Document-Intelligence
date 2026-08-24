@@ -118,8 +118,7 @@ def _metadata_lifecycle_allowed(metadata: dict, query_date_ymd: int) -> bool:
 
 def _metadata_authorized(metadata: dict, user_context: UserContext, allowed_files: set[str]) -> bool:
     """Defense-in-depth ACL used after vector and lexical retrieval."""
-    same_department = canonical_department(metadata.get("department")) == canonical_department(user_context.department)
-    registry_allowed = same_department and str(metadata.get("source_file") or "") in allowed_files
+    registry_allowed = str(metadata.get("source_file") or "") in allowed_files
     runtime_allowed = runtime_upload_metadata_allowed(user_context, metadata)
     return registry_allowed or runtime_allowed
 
@@ -136,7 +135,6 @@ def _provenance_filter(settings: Settings, user_context: UserContext | None = No
     )
     conditions = [
         file_condition,
-        {"department": canonical_department(user_context.department)},
         *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d"))),
     ]
     if settings.data_mode == "production":
@@ -179,6 +177,36 @@ def _merge_query_results(results: list[dict], limit: int) -> dict:
         "distances": [[item[1][2] for item in ranked]],
     }
 
+
+async def detect_department_scope_denial(
+    collection,
+    embedding: list[float],
+    user_context: UserContext,
+    settings: Settings,
+) -> str | None:
+    """Detect relevant department-only evidence without exposing its contents."""
+    query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
+    try:
+        result = await asyncio.to_thread(
+            partial(collection.query, where={"$and": _lifecycle_conditions(query_date_ymd)}, include=["metadatas", "distances"]),
+            query_embeddings=[embedding],
+            n_results=min(3, settings.retrieval_top_k),
+        )
+    except Exception:  # noqa: BLE001 - denial detection must not break retrieval
+        return None
+
+    metadatas = (result.get("metadatas") or [[]])[0]
+    distances = (result.get("distances") or [[]])[0]
+    user_department = canonical_department(user_context.department)
+    for metadata, distance in zip(metadatas, distances):
+        if float(distance) > settings.retrieval_max_distance:
+            continue
+        if str(metadata.get("access_scope", "")).upper() != "DEPARTMENT":
+            continue
+        document_department = canonical_department(metadata.get("department"))
+        if document_department != user_department:
+            return document_department
+    return None
 
 @lru_cache
 def _collection(collection_name: str | None = None):
@@ -319,6 +347,14 @@ async def retrieval_node(state: AgentState) -> dict:
         )
 
     chunks = list(chunk_map.values())
+    if not chunks:
+        denied_department = await detect_department_scope_denial(collection, embedding, user_context, settings)
+        if denied_department:
+            return {
+                "retrieved_chunks": [],
+                "access_denied_reason": "DEPARTMENT_SCOPE_DENIED",
+                "denied_department": denied_department,
+            }
     if settings.use_reranker and chunks:
         chunks = await _arerank(query, chunks)
 

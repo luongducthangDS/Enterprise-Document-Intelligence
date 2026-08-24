@@ -17,7 +17,7 @@ async def setup_access_admin_data():
     async with TestingSessionLocal() as db:
         for user_id, email, role, department in (
             (SUPER_ID, "access-super@company.com", "SUPER_ADMIN", "IT"),
-            (HR_ID, "access-hr@company.com", "HR_ADMIN", "HR"),
+            (HR_ID, "access-hr@company.com", "DEPARTMENT_MANAGER", "HR"),
             (TARGET_ID, "access-target@company.com", "EMPLOYEE", "SALES"),
         ):
             if await db.get(UserDB, user_id) is None:
@@ -33,8 +33,8 @@ def header(user_id: uuid.UUID, claimed_role: str) -> dict[str, str]:
 
 
 def test_access_model_and_users_are_db_authorized():
-    response = client.get("/api/v1/admin/access-model", headers=header(HR_ID, "EMPLOYEE"))
-    users = client.get("/api/v1/admin/users", headers=header(HR_ID, "EMPLOYEE"))
+    response = client.get("/api/v1/admin/access-model", headers=header(SUPER_ID, "EMPLOYEE"))
+    users = client.get("/api/v1/admin/users", headers=header(SUPER_ID, "EMPLOYEE"))
     assert response.status_code == 200
     assert "SUPER_ADMIN" in response.json()["data"]["roles"]
     assert users.status_code == 200
@@ -45,10 +45,10 @@ def test_super_admin_updates_access_and_writes_audit_using_db_role():
     response = client.patch(
         f"/api/v1/admin/users/{TARGET_ID}/access",
         headers=header(SUPER_ID, "EMPLOYEE"),
-        json={"role": "MANAGER", "department": "Engineering"},
+        json={"role": "DEPARTMENT_MANAGER", "department": "Engineering"},
     )
     assert response.status_code == 200
-    assert response.json()["data"]["role"] == "MANAGER"
+    assert response.json()["data"]["role"] == "DEPARTMENT_MANAGER"
     audit = client.get("/api/v1/admin/audit-logs", headers=header(SUPER_ID, "EMPLOYEE"))
     assert audit.status_code == 200
     entry = next(item for item in audit.json()["data"] if item["resource_id"] == str(TARGET_ID))
@@ -57,7 +57,7 @@ def test_super_admin_updates_access_and_writes_audit_using_db_role():
     assert entry["after"]["department"] == "Engineering"
 
 
-def test_forged_super_admin_claim_cannot_escalate_hr_admin():
+def test_forged_super_admin_claim_cannot_escalate_department_manager():
     response = client.patch(
         f"/api/v1/admin/users/{TARGET_ID}/access",
         headers=header(HR_ID, "SUPER_ADMIN"),

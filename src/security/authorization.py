@@ -14,10 +14,8 @@ from src.security.models import (
 
 
 def runtime_upload_access_filters(user: UserContext) -> list[dict]:
-    """One Chroma predicate per runtime grant, keeping every query under quota."""
-    combined = runtime_upload_access_condition(user)
-    runtime, department, grants = combined["$and"]
-    return [{"$and": [runtime, department, grant]} for grant in grants["$or"]]
+    """One complete Chroma predicate per runtime grant."""
+    return list(runtime_upload_access_condition(user).get("$or", []))
 
 
 def _role_policy_allows_scope(policies: dict, role: str, scope: str) -> bool:
@@ -33,41 +31,41 @@ def _role_policy_allows_scope(policies: dict, role: str, scope: str) -> bool:
 
 
 def runtime_upload_access_condition(user: UserContext) -> dict:
-    """Build a fail-closed ACL predicate; department is mandatory for every scope."""
+    """Build fail-closed ACL predicates for runtime-uploaded documents."""
     runtime = {"authorization_source": "RUNTIME_UPLOAD"}
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
     department = {"department": canonical_department(user.department)}
 
-    # Grants được gate theo roles_policy — cùng một nguồn sự thật với registry
-    # ACL (evaluate_access). Role không được policy cấp scope thì không có
-    # grant tương ứng, kể cả khi department khớp.
+    if role == UserRole.SUPER_ADMIN.value or "admin" in user.permissions:
+        return {"$or": [runtime]}
+
     policies = get_authorization_engine().policies
     grants: list[dict] = []
     if _role_policy_allows_scope(policies, role, AccessScope.COMPANY_WIDE.value):
-        grants.append({"access_scope": AccessScope.COMPANY_WIDE.value})
+        grants.append({"$and": [runtime, {"access_scope": AccessScope.COMPANY_WIDE.value}]})
     if _role_policy_allows_scope(policies, role, AccessScope.DEPARTMENT.value):
-        grants.append({"access_scope": AccessScope.DEPARTMENT.value})
+        grants.append({"$and": [runtime, department, {"access_scope": AccessScope.DEPARTMENT.value}]})
     if _role_policy_allows_scope(policies, role, AccessScope.ROLE.value):
         grants.append(
             {
                 "$and": [
+                    runtime,
+                    department,
                     {"access_scope": AccessScope.ROLE.value},
                     {"authorized_role": role},
                 ]
             }
         )
-    # Người tải lên luôn đọc lại được tài liệu RESTRICTED của chính mình để
-    # kiểm tra kết quả ingestion. Upload yêu cầu HR_ADMIN+ nên grant này trên
-    # thực tế chỉ áp cho admin.
     grants.append(
         {
             "$and": [
+                runtime,
                 {"access_scope": AccessScope.RESTRICTED.value},
                 {"owner_user_id": user.user_id},
             ]
         }
     )
-    return {"$and": [runtime, department, {"$or": grants}]}
+    return {"$or": grants}
 
 
 def runtime_upload_metadata_allowed(user: UserContext, metadata: dict[str, Any]) -> bool:
@@ -75,13 +73,15 @@ def runtime_upload_metadata_allowed(user: UserContext, metadata: dict[str, Any])
     if metadata.get("authorization_source") != "RUNTIME_UPLOAD":
         return False
 
-    if canonical_department(metadata.get("department")) != canonical_department(user.department):
-        return False
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
     scope = str(metadata.get("access_scope", "")).upper().strip()
     policies = get_authorization_engine().policies
+    if role == UserRole.SUPER_ADMIN.value or "admin" in user.permissions:
+        return True
     if scope == AccessScope.COMPANY_WIDE.value:
         return _role_policy_allows_scope(policies, role, AccessScope.COMPANY_WIDE.value)
+    if canonical_department(metadata.get("department")) != canonical_department(user.department):
+        return False
     if scope == AccessScope.DEPARTMENT.value:
         return _role_policy_allows_scope(policies, role, AccessScope.DEPARTMENT.value) and str(
             metadata.get("department", "")
@@ -125,14 +125,19 @@ class AuthorizationEngine:
             "roles_policy": {
                 "EMPLOYEE": {
                     "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT"],
-                    "allowed_domains": ["COMPANY_POLICY"],
+                    "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS"],
                     "allow_cross_department": False,
                 },
-                "ADMIN": {"allowed_scopes": ["*"], "allowed_domains": ["*"], "allow_cross_department": True},
+                "DEPARTMENT_MANAGER": {
+                    "allowed_scopes": ["COMPANY_WIDE", "DEPARTMENT", "ROLE"],
+                    "allowed_domains": ["COMPANY_POLICY", "DEPARTMENT_PROCESS", "MANAGEMENT", "MEETING_MINUTES"],
+                    "allow_cross_department": False,
+                },
+                "SUPER_ADMIN": {"allowed_scopes": ["*"], "allowed_domains": ["*"], "allow_cross_department": True},
             },
             "domain_policies": {
-                "LEGAL": {"allowed_roles": ["LEGAL_COUNSEL", "ADMIN"], "departments_with_access": []},
-                "EXTERNAL_REFERENCE": {"allowed_roles": ["ADMIN"]},
+                "LEGAL": {"allowed_roles": ["SUPER_ADMIN"], "departments_with_access": []},
+                "EXTERNAL_REFERENCE": {"allowed_roles": ["SUPER_ADMIN"]},
             },
         }
 
@@ -156,24 +161,24 @@ class AuthorizationEngine:
         ):
             return False
 
-        domain_policies = self.policies.get("domain_policies", {})
-        # Department isolation is the outer boundary. Roles can only narrow it.
-        if canonical_department(doc.department) != user_dept:
+        roles_policy = self.policies.get("roles_policy", {})
+        if user_role_str not in roles_policy and "admin" not in user.permissions:
             return False
 
-        if user.role == UserRole.ADMIN or "admin" in user.permissions:
+        domain_policies = self.policies.get("domain_policies", {})
+        if user.role == UserRole.SUPER_ADMIN or "admin" in user.permissions:
             return True
 
         # 2. Xử lý domain EXTERNAL_REFERENCE (Mặc định bị chặn cho nhân viên thông thường)
         if domain_str == DocumentDomain.EXTERNAL_REFERENCE.value:
             ext_policy = domain_policies.get("EXTERNAL_REFERENCE", {})
-            allowed_roles = [str(r).upper() for r in ext_policy.get("allowed_roles", ["ADMIN"])]
+            allowed_roles = [str(r).upper() for r in ext_policy.get("allowed_roles", ["SUPER_ADMIN"])]
             return user_role_str in allowed_roles
 
         # 3. Xử lý domain LEGAL (Mặc định PENDING_BUSINESS_DECISION; chỉ cho phép nếu role hoặc phòng ban được Admin cấu hình CẤP QUYỀN THỰC TẾ)
         if domain_str == DocumentDomain.LEGAL.value:
             legal_policy = domain_policies.get("LEGAL", {})
-            allowed_roles = [str(r).upper() for r in legal_policy.get("allowed_roles", ["ADMIN"])]
+            allowed_roles = [str(r).upper() for r in legal_policy.get("allowed_roles", ["SUPER_ADMIN"])]
             if user_role_str in allowed_roles:
                 return True
 
@@ -207,7 +212,15 @@ class AuthorizationEngine:
             return True
 
         if scope_str == AccessScope.COMPANY_WIDE.value:
-            return "COMPANY_WIDE" in allowed_scopes
+            return "COMPANY_WIDE" in allowed_scopes and doc.authorization_status == "ACTIVE"
+
+        # All narrower scopes stay inside the owning/authorized department.
+        allowed_departments = {
+            canonical_department(doc.department),
+            *(canonical_department(dept) for dept in doc.authorized_departments),
+        }
+        if user_dept not in allowed_departments:
+            return False
 
         # DEPARTMENT Scope: BẮT BUỘC Department AND Role (Chính xác theo yêu cầu)
         if scope_str == AccessScope.DEPARTMENT.value:
@@ -318,6 +331,7 @@ class AuthorizationEngine:
                 DocumentDomain.DEPARTMENT_PROCESS,
                 DocumentDomain.LEGAL,
                 DocumentDomain.MANAGEMENT,
+                DocumentDomain.MEETING_MINUTES,
                 DocumentDomain.EXTERNAL_REFERENCE,
             )
 

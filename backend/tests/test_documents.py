@@ -25,10 +25,15 @@ async def setup_documents_test_data():
             admin.profile = ProfileDB(
                 id=admin_id,
                 display_name="Doc Admin",
-                role="HR_ADMIN",
+                role="SUPER_ADMIN",
                 department="HR",
             )
             session.add(admin)
+
+        admin_profile = await session.get(ProfileDB, admin_id)
+        if admin_profile:
+            admin_profile.role = "SUPER_ADMIN"
+            admin_profile.department = "HR"
 
         user = await session.get(UserDB, user_id)
         if not user:
@@ -51,7 +56,7 @@ async def setup_documents_test_data():
 def get_auth_header(
     user_id: str = "88888888-8888-8888-8888-888888888888",
     email: str = "doc_admin@company.com",
-    role: str = "HR_ADMIN",
+    role: str = "SUPER_ADMIN",
 ) -> dict:
     payload = {
         "sub": user_id,
@@ -83,11 +88,11 @@ def test_upload_document_success():
     assert "document_id" in res["data"]
     assert "ingestion_job_id" in res["data"]
     assert res["data"]["status"] == "ACTIVE"
-    assert res["data"]["access_scope"] == "DEPARTMENT"
+    assert res["data"]["access_scope"] == "COMPANY_WIDE"
 
 
-def test_upload_document_accepts_legacy_lowercase_admin_role():
-    headers = get_auth_header(role="hr_admin")
+def test_upload_document_uses_database_super_admin_role():
+    headers = get_auth_header(role="super_admin")
     files = {"file": ("legacy_admin.pdf", io.BytesIO(b"%PDF-1.4 Legacy admin"), "application/pdf")}
 
     response = client.post("/api/v1/documents", headers=headers, files=files)
@@ -163,7 +168,7 @@ def test_get_document_detail():
 
 
 def test_update_document_metadata_success():
-    headers = get_auth_header(role="HR_ADMIN")
+    headers = get_auth_header(role="SUPER_ADMIN")
     file_content = b"%PDF-1.4 Metadata Update Test Content"
     files = {"file": ("meta_doc.pdf", io.BytesIO(file_content), "application/pdf")}
     upload_res = client.post("/api/v1/documents", headers=headers, files=files)
@@ -188,7 +193,7 @@ def test_update_document_metadata_forbidden():
         email="doc_user@company.com",
         role="EMPLOYEE",
     )
-    admin_headers = get_auth_header(role="HR_ADMIN")
+    admin_headers = get_auth_header(role="SUPER_ADMIN")
     file_content = b"%PDF-1.4 Employee Edit Test Content"
     files = {"file": ("emp_doc.pdf", io.BytesIO(file_content), "application/pdf")}
     upload_res = client.post("/api/v1/documents", headers=admin_headers, files=files)
@@ -203,7 +208,7 @@ def test_update_document_metadata_forbidden():
 
 
 def test_archive_document_and_conflict():
-    headers = get_auth_header(role="HR_ADMIN")
+    headers = get_auth_header(role="SUPER_ADMIN")
     file_content = b"%PDF-1.4 Archive Test Content"
     files = {"file": ("archive_doc.pdf", io.BytesIO(file_content), "application/pdf")}
     upload_res = client.post("/api/v1/documents", headers=headers, files=files)

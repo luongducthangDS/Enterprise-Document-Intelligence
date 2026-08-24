@@ -10,6 +10,7 @@ from app.domain.models.documents import DocumentDB
 from app.domain.models.index_job import IndexJobDB
 from app.schemas.indexes import IndexRebuildRequest
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
+from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, can_manage_document, normalized_role
 
 
 class IndexService:
@@ -43,6 +44,11 @@ class IndexService:
             )
 
         # Validate specified document readiness
+        if normalized_role(user) == DEPARTMENT_MANAGER and not request_data.document_ids:
+            raise AppException(
+                status_code=403, code="DEPARTMENT_SCOPE_DENIED",
+                message="Quản lý phòng ban phải chọn tài liệu thuộc phòng mình để lập lại chỉ mục.",
+            )
         targets: list[dict[str, str]] = []
         if request_data.document_ids:
             for doc_id_str in request_data.document_ids:
@@ -64,6 +70,11 @@ class IndexService:
                         status_code=422,
                         code="DOCUMENT_NOT_READY",
                         message=f"Tài liệu '{doc_id_str}' không tồn tại hoặc ở trạng thái không thể index.",
+                    )
+                if not can_manage_document(user, doc):
+                    raise AppException(
+                        status_code=403, code="DEPARTMENT_SCOPE_DENIED",
+                        message="Bạn chỉ được lập lại chỉ mục tài liệu của phòng ban mình.",
                     )
                 targets.append({"document_id": str(doc.id), "source_file": doc.source_file})
 
@@ -126,6 +137,9 @@ class IndexService:
                 code="INDEX_JOB_NOT_FOUND",
                 message="Không tìm thấy thông tin tác vụ tái lập chỉ mục.",
             )
+
+        if normalized_role(user) != SUPER_ADMIN and job.requested_by != uuid.UUID(str(user.get("user_id"))):
+            raise AppException(status_code=403, code="DEPARTMENT_SCOPE_DENIED", message="Bạn không có quyền xem tác vụ này.")
 
         if cls.worker_dispatch_enabled and job.state not in ("COMPLETED", "FAILED"):
             try:

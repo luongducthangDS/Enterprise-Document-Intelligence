@@ -65,7 +65,7 @@ HIT_RATE_KS = (1, 3, 5, 10, 15, 20)
 _EVAL_AUDIT_USER = UserContext(
     user_id="eval_retrieval",
     department="EXECUTIVE",
-    role=UserRole.ADMIN,
+    role=UserRole.SUPER_ADMIN,
     tenant_id="nexatech",
 )
 

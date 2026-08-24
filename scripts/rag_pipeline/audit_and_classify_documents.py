@@ -37,15 +37,15 @@ COMPANY_POLICIES = [
 
 # 2. Danh sách 9 DEPARTMENT_PROCESS (3 HR cũ + 6 phòng ban mới)
 DEPARTMENT_PROCESSES = {
-    "02_quy-trinh-tuyen-dung.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
-    "03_quy-trinh-onboarding.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
-    "04_quy-trinh-offboarding.md": ("HR", ["HR_OPERATOR", "MANAGER", "ADMIN"]),
-    "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md": ("IT", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
-    "fin_sop_01_tam-ung-quyet-toan-cong-tac-phi.md": ("FINANCE", ["FINANCE_OFFICER", "MANAGER", "ADMIN"]),
-    "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md": ("ENGINEERING", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
-    "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md": ("PROCUREMENT", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
-    "leg_sop_01_tham-dinh-hop-dong-va-nda.md": ("LEGAL_COMPLIANCE", ["LEGAL_COUNSEL", "MANAGER", "ADMIN"]),
-    "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md": ("OPERATIONS", ["DEPARTMENT_USER", "MANAGER", "ADMIN"]),
+    "02_quy-trinh-tuyen-dung.md": ("HR", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "03_quy-trinh-onboarding.md": ("HR", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "04_quy-trinh-offboarding.md": ("HR", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md": ("IT", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "fin_sop_01_tam-ung-quyet-toan-cong-tac-phi.md": ("FINANCE", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md": ("ENGINEERING", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md": ("PROCUREMENT", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "leg_sop_01_tham-dinh-hop-dong-va-nda.md": ("LEGAL_COMPLIANCE", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
+    "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md": ("OPERATIONS", ["EMPLOYEE", "DEPARTMENT_MANAGER", "SUPER_ADMIN"]),
 }
 
 # 3. Danh sách 10 LEGAL (Văn bản luật nhà nước)

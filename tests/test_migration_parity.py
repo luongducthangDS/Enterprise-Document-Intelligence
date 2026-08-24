@@ -96,12 +96,12 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         )
         employee_files = auth_engine.get_authorized_source_files(employee)
         self.assertIn("07_chinh-sach-nghi-phep.md", employee_files)
-        self.assertNotIn("02_quy-trinh-tuyen-dung.md", employee_files)
+        self.assertIn("02_quy-trinh-tuyen-dung.md", employee_files)
 
         it_user = UserContext(
             user_id="it_user",
             department="IT",
-            role=UserRole.DEPARTMENT_USER,
+            role=UserRole.EMPLOYEE,
             tenant_id="nexatech",
         )
         it_files = auth_engine.get_authorized_source_files(it_user)
@@ -131,7 +131,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         accounting_user = UserContext(
             user_id="acc_user",
             department="Accounting",
-            role=UserRole.DEPARTMENT_USER,
+            role=UserRole.EMPLOYEE,
             tenant_id="nexatech",
         )
         accounting_files = auth_engine.get_authorized_source_files(accounting_user)
@@ -140,7 +140,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         product_user = UserContext(
             user_id="prod_user",
             department="Product",
-            role=UserRole.DEPARTMENT_USER,
+            role=UserRole.EMPLOYEE,
             tenant_id="nexatech",
         )
         product_files = auth_engine.get_authorized_source_files(product_user)
@@ -150,7 +150,7 @@ class TestDomainCollectionParityAndSecurity(unittest.TestCase):
         finance_user = UserContext(
             user_id="fin_user",
             department="Finance",
-            role=UserRole.DEPARTMENT_USER,
+            role=UserRole.EMPLOYEE,
             tenant_id="nexatech",
         )
         finance_files = auth_engine.get_authorized_source_files(finance_user)

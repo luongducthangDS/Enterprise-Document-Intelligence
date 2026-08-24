@@ -141,6 +141,8 @@ class AgentState(TypedDict, total=False):
     structured_resolution: dict
     skip_retrieval: bool
     retrieved_chunks: list[RetrievedChunk]
+    access_denied_reason: str
+    denied_department: str
     # Tập chunk thực sự được viện dẫn, theo đúng thứ tự [Nguồn N] đã đánh lại
     # trong generated_answer. Bước hallucination check dựng context từ đây.
     cited_chunks: list[RetrievedChunk]

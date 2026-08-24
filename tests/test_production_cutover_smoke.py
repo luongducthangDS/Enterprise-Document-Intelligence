@@ -43,7 +43,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
         state = AgentState(
             query="Quy trình tuyển dụng và phỏng vấn ứng viên của phòng nhân sự",
             tenant_id="nexatech",
-            user_role="HR_OPERATOR",
+            user_role="EMPLOYEE",
             department="HR",
             history=[],
             request_id="smoke-test-b",
@@ -59,7 +59,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
         state = AgentState(
             query="Quy trình tuyển dụng và phỏng vấn ứng viên của phòng nhân sự",
             tenant_id="nexatech",
-            user_role="DEPARTMENT_USER",
+            user_role="EMPLOYEE",
             department="FINANCE",
             history=[],
             request_id="smoke-test-c",
@@ -96,7 +96,7 @@ class TestProductionCutoverSmoke(unittest.IsolatedAsyncioTestCase):
         state = AgentState(
             query="Quy định hạn mức khách sạn công tác",
             tenant_id="nexatech",
-            user_role="MANAGER",
+            user_role="DEPARTMENT_MANAGER",
             department="EXECUTIVE",
             history=[],
             request_id="smoke-test-g-audit",
