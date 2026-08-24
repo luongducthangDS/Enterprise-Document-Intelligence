@@ -4,14 +4,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 REGISTRATION_DEPARTMENTS = {
     "HR",
     "PRODUCT",
-    "ENGINEERING",
-    "IT",
-    "FINANCE",
     "ACCOUNTING",
-    "SALES",
-    "MARKETING",
-    "OPERATIONS",
-    "LEGAL",
 }
 
 

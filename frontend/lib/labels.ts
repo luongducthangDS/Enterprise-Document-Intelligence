@@ -88,7 +88,7 @@ export const SOURCE_TYPE_LABELS: Record<string, string> = {
 };
 
 /** Danh sách phòng ban dùng chung cho đăng ký, ticket và upload (khớp danh mục phân quyền). */
-export const DEPARTMENTS = ["HR", "Product", "Engineering", "IT", "Finance", "Accounting", "Sales", "Marketing", "Operations", "Legal"];
+export const DEPARTMENTS = ["HR", "Product", "Accounting"];
 
 export function chatStateLabel(value: string | null | undefined): string {
   if (!value) return "—";
