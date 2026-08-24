@@ -182,6 +182,7 @@ def test_api_register_endpoint_success():
             "email": "newuser@company.com",
             "password": "securepassword123",
             "full_name": "Nguyen Van C",
+            "department": "Engineering",
         },
     )
     assert response.status_code == 201
@@ -189,7 +190,7 @@ def test_api_register_endpoint_success():
     assert res_data["success"] is True
     assert res_data["data"]["email"] == "newuser@company.com"
     assert res_data["data"]["role"] == "EMPLOYEE"
-    assert res_data["data"]["department"] == "GENERAL"
+    assert res_data["data"]["department"] == "ENGINEERING"
 
 
 def test_api_register_endpoint_duplicate_email():
@@ -198,6 +199,7 @@ def test_api_register_endpoint_duplicate_email():
         json={
             "email": "employee@company.com",
             "password": "password123",
+            "department": "HR",
         },
     )
     assert response.status_code == 400
@@ -209,18 +211,33 @@ def test_api_register_endpoint_validation_error():
         json={
             "email": "invalid@company.com",
             "password": "123",
+            "department": "HR",
         },
     )
     assert response.status_code == 422
 
 
-def test_api_register_rejects_self_assigned_department():
+def test_api_register_accepts_selected_department():
     response = client.post(
         "/api/v1/auth/register",
         json={
             "email": "wrong-department@company.com",
             "password": "password123",
             "department": "HR",
+        },
+    )
+    assert response.status_code == 201
+    assert response.json()["data"]["department"] == "HR"
+    assert response.json()["data"]["role"] == "EMPLOYEE"
+
+
+def test_api_register_rejects_unknown_department():
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "unknown-department@company.com",
+            "password": "password123",
+            "department": "Unknown Team",
         },
     )
     assert response.status_code == 422
@@ -233,6 +250,7 @@ def test_api_register_cannot_self_assign_admin_role():
             "email": "role-escalation@company.com",
             "password": "password123",
             "role": "SUPER_ADMIN",
+            "department": "HR",
         },
     )
     assert response.status_code == 422
@@ -245,6 +263,7 @@ def test_api_register_rejects_department_manager_role():
             "email": "dept-user@company.com",
             "password": "password123",
             "role": "department_manager",
+            "department": "Engineering",
         },
     )
     assert response.status_code == 422
@@ -257,11 +276,12 @@ def test_api_register_defaults_to_employee_without_role():
         json={
             "email": "default-role@company.com",
             "password": "password123",
+            "department": "Accounting",
         },
     )
     assert response.status_code == 201
     assert response.json()["data"]["role"] == "EMPLOYEE"
-    assert response.json()["data"]["department"] == "GENERAL"
+    assert response.json()["data"]["department"] == "ACCOUNTING"
 
 
 def test_api_register_rejects_legacy_hr_admin_role():
@@ -271,6 +291,7 @@ def test_api_register_rejects_legacy_hr_admin_role():
             "email": "hr-admin-escalation@company.com",
             "password": "password123",
             "role": "hr_admin",
+            "department": "HR",
         },
     )
     assert response.status_code == 422
