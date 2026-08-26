@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     conversations,
     documents,
     evaluation,
+    document_submissions,
     indexes,
     ingestion,
     knowledge,
@@ -23,6 +24,7 @@ api_v1_router.include_router(chat.router, prefix="/chat", tags=["Chat"])
 api_v1_router.include_router(citations.router, prefix="/citations", tags=["Citations"])
 api_v1_router.include_router(tickets.router, prefix="/tickets", tags=["Tickets"])
 api_v1_router.include_router(documents.router, prefix="/documents", tags=["Documents"])
+api_v1_router.include_router(document_submissions.router, prefix="/document-submissions", tags=["Document Review"])
 api_v1_router.include_router(ingestion.router, prefix="/ingestion-jobs", tags=["Ingestion Jobs"])
 api_v1_router.include_router(indexes.router, prefix="/indexes", tags=["Indexes"])
 api_v1_router.include_router(evaluation.router, prefix="/evaluation", tags=["Evaluation"])

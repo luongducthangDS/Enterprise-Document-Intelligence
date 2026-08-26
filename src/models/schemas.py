@@ -61,6 +61,12 @@ class IngestionJobRequest(BaseModel):
     artifact_state: Literal["frozen", "draft"] = "frozen"
     retrieval_enabled: bool = True
     expiry_date: str = Field(default="9999-12-31", max_length=10)
+    staging_source_stem: str = Field(default="", max_length=384)
+
+
+class DocumentAnalysisJobRequest(IngestionJobRequest):
+    submission_id: str = Field(..., min_length=1, max_length=128)
+
 
 
 class IndexRebuildTarget(BaseModel):

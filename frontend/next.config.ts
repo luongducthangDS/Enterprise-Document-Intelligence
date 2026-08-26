@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
+const isStaticExport = process.env.NEXT_OUTPUT_MODE !== "server";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: "export", // Bắt buộc để xuất trang tĩnh cho Cloudflare Pages
+  ...(isStaticExport && { output: "export" as const }),
   images: {
     unoptimized: true, // Tránh lỗi khi dùng thẻ <Image /> của Next.js
   },

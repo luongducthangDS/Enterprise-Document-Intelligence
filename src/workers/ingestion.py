@@ -37,8 +37,8 @@ from src.ingestion.indexer import (
 )
 from src.ingestion.metadata import Chunk
 from src.models.schemas import IngestionJobRequest
-from src.workers.jobs import ProgressCallback
 from src.security.tenant_resolver import validate_tenant_id
+from src.workers.jobs import ProgressCallback
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +176,15 @@ async def run_ingestion(
     progress("EMBEDDING", 60)
     vector_count = await asyncio.to_thread(_index_chunks, chunks, settings)
     collection_name = collection_name_for_chunks(chunks, settings)
+    if request.staging_source_stem:
+        try:
+            staging_collection = get_collection(
+                get_chroma_client(settings), f"{collection_name}_staging"
+            )
+            delete_by_source_stem(staging_collection, request.staging_source_stem, tenant)
+        except Exception as exc:  # cleanup must not invalidate a successful publication
+            logger.warning("Không dọn được staging vector %s: %s", request.staging_source_stem, exc)
+
 
     progress("INDEXING", 90)
     logger.info(

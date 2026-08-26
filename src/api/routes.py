@@ -14,6 +14,7 @@ from src.models.schemas import (
     AgentQueryRequest,
     ChatRequest,
     ChatResponse,
+    DocumentAnalysisJobRequest,
     EvaluationJobRequest,
     IndexRebuildJobRequest,
     IngestionJobRequest,
@@ -21,6 +22,7 @@ from src.models.schemas import (
     JobStatusResponse,
 )
 from src.security.identity_signature import verify_identity_signature
+from src.workers.document_analysis import run_document_analysis
 from src.workers.evaluation import run_evaluation
 from src.workers.indexing import run_index_rebuild
 from src.workers.ingestion import run_ingestion
@@ -126,7 +128,7 @@ async def agent_status():
 # submit job kèm job_id của mình rồi poll GET /agent/jobs/{job_id} và mirror
 # state/stage/progress vào DB. Contract đầy đủ: docs/rag-pipeline/AGENT_WORKERS.md.
 
-_POLL_AFTER_MS: dict[str, int] = {"INGESTION": 1000, "INDEX_REBUILD": 2000, "EVALUATION": 3000}
+_POLL_AFTER_MS: dict[str, int] = {"DOCUMENT_ANALYSIS": 1000, "INGESTION": 1000, "INDEX_REBUILD": 2000, "EVALUATION": 3000}
 
 
 def _submit_job(kind: JobKind, job_id: str, runner: JobRunner) -> JobAcceptedResponse:
@@ -151,6 +153,16 @@ async def submit_ingestion_job(
     """Parse -> chunk -> embed -> index 1 tài liệu Backend upload lên."""
     _verify_service_token(x_service_token)
     return _submit_job("INGESTION", request.job_id, lambda progress: run_ingestion(request, progress))
+
+
+@router.post("/agent/jobs/document-analysis", response_model=JobAcceptedResponse, status_code=status.HTTP_202_ACCEPTED)
+async def submit_document_analysis_job(
+    request: DocumentAnalysisJobRequest,
+    x_service_token: str | None = Header(default=None),
+) -> JobAcceptedResponse:
+    """Extract, chunk, embed and index a document in the isolated review area."""
+    _verify_service_token(x_service_token)
+    return _submit_job("DOCUMENT_ANALYSIS", request.job_id, lambda progress: run_document_analysis(request, progress))
 
 
 @router.post("/agent/jobs/index-rebuild", response_model=JobAcceptedResponse, status_code=status.HTTP_202_ACCEPTED)

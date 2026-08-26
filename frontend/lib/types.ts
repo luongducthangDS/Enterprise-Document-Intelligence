@@ -210,6 +210,61 @@ export type DocumentDetail = {
   index: { indexed: boolean; index_version: string | null };
 };
 
+export type DocumentSubmissionSummary = {
+  submission_id: string;
+  title: string;
+  source_file: string;
+  category: string;
+  department: string;
+  version: string | null;
+  status: string;
+  stage: string;
+  progress_percent: number;
+  extract_method: string | null;
+  chunk_count: number;
+  submitted_by: string;
+  created_at: string;
+  published_document_id: string | null;
+  error: string | null;
+};
+
+export type SubmissionChunk = {
+  chunk_index: number;
+  content: string;
+  heading_path?: string | null;
+  page_start?: number | null;
+  page_end?: number | null;
+  char_count: number;
+};
+
+export type DocumentSubmissionDetail = DocumentSubmissionSummary & {
+  metadata: {
+    title: string;
+    source_file: string;
+    category: string;
+    department: string;
+    version: string | null;
+    effective_date: string | null;
+    confidentiality: string;
+    access_scope: string;
+    authorized_role: string | null;
+  };
+  analysis: {
+    extract_method: string | null;
+    extracted_text: string;
+    character_count: number;
+    chunk_count: number;
+    chunks: SubmissionChunk[];
+    warnings: string[];
+  };
+  review: {
+    reviewed_by: string | null;
+    reviewed_at: string | null;
+    note: string | null;
+  };
+  poll_after_ms: number;
+};
+
 export type AsyncJob = {
   job_id: string;
   state: string;

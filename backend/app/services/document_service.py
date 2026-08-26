@@ -15,7 +15,14 @@ from app.core.exceptions import AppException, ConflictError, ForbiddenError, Not
 from app.domain.models.audit import AuditLogDB
 from app.domain.models.documents import DocumentDB, IngestionJobDB
 from app.schemas.documents import DocumentMetadataUpdate
-from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, can_manage_document, can_read_document, normalized_role, same_department
+from app.services.access_control import (
+    DEPARTMENT_MANAGER,
+    SUPER_ADMIN,
+    can_manage_document,
+    can_read_document,
+    normalized_role,
+    same_department,
+)
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
@@ -62,6 +69,7 @@ class DocumentService:
         status: str | None = None,
         access_scope: str = "RESTRICTED",
         authorized_role: str | None = None,
+        staging_submission_id: str | None = None,
     ) -> dict[str, Any]:
         uploader_id_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
         try:
@@ -126,6 +134,8 @@ class DocumentService:
         doc = DocumentDB(
             title=doc_title,
             source_file=filename,
+            content_type=file.content_type,
+            file_content=contents,
             category=doc_category,
             tenant=tenant,
             department=doc_department.upper(),
@@ -191,6 +201,7 @@ class DocumentService:
                         "caveat": doc.caveat or "",
                         "authority": "tenant_official_policy",
                         "provenance": "customer_provided",
+                        "staging_source_stem": f"{staging_submission_id}__{os.path.splitext(filename)[0]}" if staging_submission_id else "",
                     }
                 )
             except WorkerJobClientError as exc:

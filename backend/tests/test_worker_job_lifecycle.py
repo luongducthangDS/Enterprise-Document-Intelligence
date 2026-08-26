@@ -128,10 +128,12 @@ async def test_worker_client_uses_agent_worker_contract_paths():
         transport=httpx.MockTransport(handler),
     )
     await client.submit_ingestion({"job_id": "job-1"})
+    await client.submit_document_analysis({"job_id": "analysis-1"})
     await client.get_status("job-1")
 
     assert [request.url.path for request in requests] == [
         "/api/v1/agent/jobs/ingestion",
+        "/api/v1/agent/jobs/document-analysis",
         "/api/v1/agent/jobs/job-1",
     ]
     assert all(request.headers["X-Service-Token"] == "secret" for request in requests)

@@ -48,6 +48,9 @@ class WorkerJobClient:
     async def submit_ingestion(self, payload: dict[str, Any]) -> dict[str, Any]:
         return await self._request("POST", "/jobs/ingestion", payload)
 
+    async def submit_document_analysis(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return await self._request("POST", "/jobs/document-analysis", payload)
+
     async def submit_index_rebuild(self, payload: dict[str, Any]) -> dict[str, Any]:
         return await self._request("POST", "/jobs/index-rebuild", payload)
 

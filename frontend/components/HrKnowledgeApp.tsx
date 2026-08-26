@@ -6,7 +6,8 @@ import { api, clearSession, hasSession } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { AccessAdmin } from "./AccessAdmin";
 import { ChatView } from "./ChatView";
-import { DocumentsView, OperationsView } from "./KnowledgeAdmin";
+import { OperationsView } from "./KnowledgeAdmin";
+import { DocumentReview } from "./DocumentReview";
 import { LoginView } from "./LoginView";
 import { TicketsView } from "./TicketsView";
 
@@ -78,7 +79,7 @@ export function HrKnowledgeApp() {
       <div className="view-body">
         <ChatView user={user} onLogout={logout} hidden={view !== "chat"} />
         {view === "tickets" && <TicketsView user={user} />}
-        {view === "documents" && <DocumentsView />}
+        {view === "documents" && <DocumentReview user={user} />}
         {view === "access" && <AccessAdmin canManage={user.role === "SUPER_ADMIN"} />}
         {view === "index" && <OperationsView mode="index" />}
         {view === "evaluation" && <OperationsView mode="evaluation" />}

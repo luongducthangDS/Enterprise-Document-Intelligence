@@ -36,7 +36,7 @@ from src.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
 
-JobKind = Literal["INGESTION", "INDEX_REBUILD", "EVALUATION"]
+JobKind = Literal["DOCUMENT_ANALYSIS", "INGESTION", "INDEX_REBUILD", "EVALUATION"]
 JobState = Literal["QUEUED", "PROCESSING", "COMPLETED", "FAILED"]
 
 TERMINAL_STATES: frozenset[str] = frozenset({"COMPLETED", "FAILED"})

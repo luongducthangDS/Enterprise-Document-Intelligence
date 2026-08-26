@@ -38,6 +38,8 @@ export const JOB_STAGE_LABELS: Record<string, string> = {
   CHUNKING: "Đang chia đoạn nội dung",
   EMBEDDING: "Đang tạo vector ngữ nghĩa",
   INDEXING: "Đang ghi vào chỉ mục",
+  INDEXING_STAGING: "Đang tạo chỉ mục chờ duyệt",
+  PENDING_REVIEW: "Sẵn sàng để duyệt",
   PREPARING: "Đang chuẩn bị",
   LOADING_DATASET: "Đang nạp bộ câu hỏi đánh giá",
   RUNNING: "Đang chạy đánh giá",

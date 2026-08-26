@@ -11,6 +11,8 @@ import type {
   ConversationDetail,
   DocumentDetail,
   DocumentListItem,
+  DocumentSubmissionDetail,
+  DocumentSubmissionSummary,
   EvaluationRun,
   TicketItem,
   User,
@@ -343,6 +345,33 @@ export const api = {
       body: form,
     }).then((response) => response.data!);
   },
+  uploadDocumentSubmission: (file: File, metadata: Record<string, string>) => {
+    const form = new FormData();
+    form.append("file", file);
+    Object.entries(metadata).forEach(([key, value]) => value && form.append(key, value));
+    return request<{ submission_id: string; analysis_job_id: string; status: string; stage: string; poll_after_ms: number }>(
+      "/document-submissions",
+      { method: "POST", headers: idempotencyHeaders(), body: form },
+    ).then((response) => response.data!);
+  },
+  listDocumentSubmissions: (status?: string) => {
+    const suffix = status ? `?submission_status=${encodeURIComponent(status)}` : "";
+    return request<DocumentSubmissionSummary[]>(`/document-submissions${suffix}`).then((response) => response.data!);
+  },
+  getDocumentSubmission: (submissionId: string) =>
+    request<DocumentSubmissionDetail>(`/document-submissions/${submissionId}`).then((response) => response.data!),
+  approveDocumentSubmission: (submissionId: string, note = "") =>
+    request<DocumentSubmissionDetail>(`/document-submissions/${submissionId}/approve`, {
+      method: "POST",
+      headers: idempotencyHeaders(),
+      body: JSON.stringify({ note: note || null }),
+    }).then((response) => response.data!),
+  rejectDocumentSubmission: (submissionId: string, note = "") =>
+    request<DocumentSubmissionDetail>(`/document-submissions/${submissionId}/reject`, {
+      method: "POST",
+      headers: idempotencyHeaders(),
+      body: JSON.stringify({ note: note || null }),
+    }).then((response) => response.data!),
   getIngestionJob: (jobId: string) => request<AsyncJob>(`/ingestion-jobs/${jobId}`).then((response) => response.data!),
   startIndexRebuild: (documentIds: string[], strategy: string) =>
     request<{ job_id: string; state: string; poll_after_ms: number }>("/indexes/rebuilds", {

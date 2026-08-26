@@ -11,6 +11,7 @@ from app.core.database import AsyncSessionLocal, Base
 from app.schemas.agent import AgentAnswerDTO
 from app.services.chat_service import ChatService
 from app.services.document_service import DocumentService
+from app.services.document_submission_service import DocumentSubmissionService
 from app.services.evaluation_service import EvaluationService
 from app.services.index_service import IndexService
 from fastapi.testclient import TestClient
@@ -95,7 +96,7 @@ async def setup_test_database():
     original_background_tasks_enabled = ChatService.background_tasks_enabled
     ChatService.agent_client = FakeAgentClient()
     ChatService.background_tasks_enabled = False
-    worker_services = (DocumentService, IndexService, EvaluationService)
+    worker_services = (DocumentService, DocumentSubmissionService, IndexService, EvaluationService)
     original_dispatch = [service.worker_dispatch_enabled for service in worker_services]
     for service in worker_services:
         service.worker_dispatch_enabled = False
