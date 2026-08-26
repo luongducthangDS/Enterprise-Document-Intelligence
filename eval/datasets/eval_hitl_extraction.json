@@ -1,0 +1,103 @@
+[
+  {
+    "document_name": "mgt_dec_01_ngan-sach-chuyen-doi-so-ai.md",
+    "document_summary": "Quyết định phê duyệt dự án Chuyển đổi số và Triển khai Hệ thống Doc Intelligence AI năm 2026 với tổng ngân sách 2,5 tỷ VNĐ, phân công trách nhiệm cho các phòng ban IT, HR, Tài chính - Kế toán.",
+    "expected_decisions": [
+      "Phê duyệt triển khai Dự án NexaTech Document Intelligence Platform (Doc AI Agent) nhằm số hóa, trích xuất tri thức và tự động hóa quy trình tra cứu",
+      "Phê duyệt tổng ngân sách Giai đoạn 1: 2.500.000.000 VNĐ",
+      "Phê duyệt cơ cấu ngân sách: 1,2 tỷ VNĐ cho bản quyền AI & hạ tầng Cloud, 900 triệu VNĐ cho phát triển phần mềm, 400 triệu VNĐ cho đào tạo và kiểm định an toàn"
+    ],
+    "expected_responsibilities": [
+      "Khối Kỹ thuật & IT (Ông Nguyễn Văn An - Trưởng phòng IT): Thiết kế kiến trúc bảo mật đa tầng, kết nối dữ liệu nội bộ, đảm bảo tuân thủ RBAC",
+      "Phòng Nhân sự (Bà Lê Thị Mai - Trưởng phòng HR): Chuẩn hóa dữ liệu chính sách nhân sự, quy trình tuyển dụng và hội nhập nhân viên; tổ chức 03 buổi hội thảo đào tạo người dùng cuối",
+      "Phòng Tài chính - Kế toán (Ông Phạm Quốc Hùng - Kế toán trưởng): Thực hiện giải ngân theo tiến độ và kiểm soát chi phí trong hạn mức được phê duyệt"
+    ],
+    "expected_deadlines": [
+      "Giai đoạn 1 (Tháng 08 - Tháng 10/2026): Thử nghiệm nội bộ tại 3 phòng ban HR, Finance, IT",
+      "Giai đoạn 2 (Tháng 11/2026 trở đi): Mở rộng toàn tập đoàn",
+      "Nghiệm thu kỹ thuật: Trước ngày 30/09/2026",
+      "Tổ chức 03 buổi hội thảo đào tạo người dùng cuối: Trước ngày 15/10/2026"
+    ],
+    "document_type": "decision_or_meeting_minutes"
+  },
+  {
+    "document_name": "mgt_dec_02_dieu-chinh-hybrid-wfh-2026.md",
+    "document_summary": "Quyết định điều chỉnh mô hình làm việc Hybrid Working và thời gian WFH năm 2026, cho phép khối Công nghệ & Sản phẩm chuyển sang Hybrid 2-3 và siết chặt tiêu chuẩn bảo mật khi WFH.",
+    "expected_decisions": [
+      "Sửa đổi mô hình Hybrid Working thành 2-3 (WFH tối đa 3 ngày/tuần) cho khối Công nghệ & Sản phẩm nếu đạt KPI từ loại B trở lên; khối Nghiệp vụ văn phòng giữ nguyên Hybrid 3-2.",
+      "Siết chặt tiêu chuẩn bảo mật khi WFH: Bắt buộc sử dụng VPN chuyên dụng, cài đặt phần mềm Endpoint Protection và nghiêm cấm truy cập tài liệu mật qua Wi-Fi công cộng."
+    ],
+    "expected_responsibilities": [
+      "Phòng Nhân sự (Bà Lê Thị Mai - Trưởng phòng HR)",
+      "Phòng CNTT (Ông Nguyễn Văn An - Trưởng phòng IT)"
+    ],
+    "expected_deadlines": [
+      "25/08/2026: Cập nhật biểu mẫu đăng ký lịch WFH trên cổng thông tin HRIS",
+      "31/08/2026: Hướng dẫn các Trưởng bộ phận phê duyệt lịch làm việc theo tỷ lệ mới",
+      "30/08/2026: Nâng cấp băng thông hạ tầng VPN và kiểm tra kết nối cho 100% nhân viên khối Kỹ thuật"
+    ],
+    "document_type": "decision_or_meeting_minutes"
+  },
+  {
+    "document_name": "mgt_dec_03_siet-chat-an-toan-thong-tin-byod.md",
+    "document_summary": "Quyết định ban hành quy chế siết chặt an toàn thông tin, kiểm soát thiết bị cá nhân (BYOD), quy định chế tài xử lý vi phạm và phân công nhiệm vụ triển khai DLP, rà soát tài khoản và NDA.",
+    "expected_decisions": [
+      "Yêu cầu cài đặt chứng chỉ bảo mật và phần mềm MDM trên thiết bị cá nhân khi sử dụng cho công việc.",
+      "Tuyệt đối cấm sao chép dữ liệu nội bộ, mã nguồn sang USB cá nhân hoặc dịch vụ lưu trữ đám mây ngoài.",
+      "Áp dụng chế tài kỷ luật từ khiển trách đến sa thải và bồi thường thiệt hại đối với hành vi vi phạm."
+    ],
+    "expected_responsibilities": [
+      "Phòng CNTT (Ông Nguyễn Văn An - Trưởng phòng IT)",
+      "Ban Pháp chế & Tuân thủ (Bà Hoàng Thu Trang - Trưởng ban Pháp chế)"
+    ],
+    "expected_deadlines": [
+      "15/09/2026: Phòng CNTT triển khai giải pháp DLP trên toàn bộ máy trạm văn phòng.",
+      "05/09/2026: Phòng CNTT kiểm tra và thu hồi quyền truy cập tài khoản không hoạt động trên 30 ngày.",
+      "20/09/2026: Ban Pháp chế & Tuân thủ rà soát NDA và gửi yêu cầu ký cam kết bảo mật bổ sung cho 100% nhân sự."
+    ],
+    "document_type": "decision"
+  },
+  {
+    "document_name": "mgt_dec_04_han-muc-chi-tieu-tai-chinh-q3.md",
+    "document_summary": "Quyết định phê duyệt hạn mức chi tiêu tài chính, phân quyền ký duyệt theo cấp bậc và điều chỉnh tăng định mức công tác phí khách sạn áp dụng từ Quý 3/2026.",
+    "expected_decisions": [
+      "Phân quyền phê duyệt chi tiêu: Trưởng phòng/Quản lý cấp trung dưới 20 triệu VNĐ, Giám đốc Khối/C-Level từ 20 đến 200 triệu VNĐ, Tổng Giám đốc trên 200 triệu VNĐ hoặc chi ngoài ngân sách.",
+      "Nâng định mức khách sạn công tác tại đô thị loại đặc biệt lên 1.200.000 VNĐ/đêm (nhân viên) và 1.800.000 VNĐ/đêm (quản lý).",
+      "Áp dụng định mức khách sạn tại các tỉnh/thành phố khác là 900.000 VNĐ/đêm (nhân viên) và 1.300.000 VNĐ/đêm (quản lý)."
+    ],
+    "expected_responsibilities": [
+      "Phòng Tài chính - Kế toán (Ông Phạm Quốc Hùng - Kế toán trưởng)",
+      "Phòng Mua sắm (Bà Vũ Mai Lan - Trưởng phòng Mua sắm)"
+    ],
+    "expected_deadlines": [
+      "Trước ngày 28/08/2026: Cập nhật ma trận phê duyệt hạn mức trên phần mềm ERP",
+      "Trước ngày 31/08/2026: Ban hành hướng dẫn hóa đơn điện tử hợp lệ cho các khoản chi phí trên 1.200.000 VNĐ",
+      "Trước ngày 10/09/2026: Ký kết hợp đồng đối tác lưu trú với chiết khấu 15%"
+    ],
+    "document_type": "decision_or_meeting_minutes"
+  },
+  {
+    "document_name": "bod_mm_01_hop-giao-ban-ban-giam-doc-082026.md",
+    "document_summary": "Biên bản họp giao ban Ban Giám đốc tháng 08/2026 của Tập đoàn NexaTech, tập trung đánh giá tiến độ dự án AI Doc Intelligence, tình hình nhân sự, chi phí hoạt động và ban hành các quyết định, phân công công việc liên quan.",
+    "expected_decisions": [
+      "Thông qua việc ban hành Quyết định MGT-DEC-2026-02 áp dụng mô hình Hybrid 2-3 cho Khối Kỹ thuật từ ngày 01/09/2026.",
+      "Phê duyệt chủ trương nâng hạn mức phòng khách sạn tại Hà Nội và TP.HCM lên 1.200.000 VNĐ/đêm.",
+      "Yêu cầu toàn bộ các phòng ban hoàn thành việc rà soát và cập nhật SOP nghiệp vụ trước ngày 15/09/2026 để chuẩn bị nạp vào hệ thống AI."
+    ],
+    "expected_responsibilities": [
+      "Phạm Quốc Hùng (Phòng Tài chính)",
+      "Lê Thị Mai (Phòng Nhân sự)",
+      "Nguyễn Văn An (Phòng CNTT)",
+      "Hoàng Thu Trang (Ban Pháp chế)"
+    ],
+    "expected_deadlines": [
+      "25/08/2026",
+      "28/08/2026",
+      "01/09/2026",
+      "05/09/2026",
+      "10/09/2026",
+      "15/09/2026"
+    ],
+    "document_type": "decision_or_meeting_minutes"
+  }
+]

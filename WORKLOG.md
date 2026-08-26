@@ -1,4 +1,4 @@
-# Worklog — Team [Tên Team]
+# Worklog — Team AI20K-Build-Phase-Cohort-3 (Project P-153)
 
 > Ghi lại tất cả công việc đã làm theo ngày. Ai làm gì, kết quả gì.
 
@@ -77,14 +77,89 @@
 
 ---
 
-## [YYYY-MM-DD]
+## [2026-08-20]
 
 | Member | Task | Status | Output | Time |
 |--------|------|--------|--------|------|
-| | | | | |
+| Lương Đức Thắng | Thiết kế mở rộng module retrieval cho domain Kế toán (`src/domains/accounting/retrieval_ext.py`) | ✅ Done | `src/domains/accounting/`, test suite | 2h |
+| minhphu | Thu thập tài liệu quy định Kế toán và phân loại document registry cho Accounting | ✅ Done | `data/raw/accounting/`, `data/metadata/` | 2h |
+| Dương | Khảo sát cập nhật giao diện Next.js hỗ trợ chọn phòng ban (`HR`, `Accounting`, `Product`) | ✅ Done | `frontend/components/` | 1.5h |
+| hthanhson | Thiết kế mô hình phân quyền phòng ban tại backend API (`src/security/departments.py`) | ✅ Done | `src/security/` | 2h |
 
-**Tổng kết ngày:**
+**Tổng kết ngày:** Bắt đầu mở rộng hệ thống từ chỉ chuyên biệt HR sang đa phòng ban (Multi-domain), tạo nền tảng cho domain Kế toán và Sản phẩm.
 
 ---
 
-<!-- Format: copy block trên cho mỗi ngày làm việc -->
+## [2026-08-21]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| Lương Đức Thắng | Xây dựng migration `0010_department_roles_and_company_scope.sql` và `0011_classify_existing_knowledge_documents.sql` | ✅ Done | `supabase/migrations/0010_*.sql`, `0011_*.sql` | 2.5h |
+| hthanhson | Cập nhật `access_control.py` với logic fail-closed cho `COMPANY_WIDE` vs `DEPARTMENT_SPECIFIC` | ✅ Done | `backend/app/services/access_control.py` | 2h |
+| Dương | Chuẩn hóa toàn bộ nhãn giao diện tiếng Việt và tối ưu font typography trên Next.js | ✅ Done | `frontend/lib/labels.ts`, `frontend/app/layout.tsx` | 1.5h |
+| minhphu | Xây dựng kịch bản kiểm thử E2E Live 46 test cases không mock dependency | ✅ Done | `tests/e2e/live_harness.py`, `test_live_e2e.py` | 3h |
+
+**Tổng kết ngày:** Hoàn thiện cơ chế phân quyền truy cập theo phòng ban (Department ACL) và chuẩn bị hạ tầng kiểm thử E2E Live trên môi trường thật.
+
+---
+
+## [2026-08-22]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| Lương Đức Thắng | Chạy 46 ca kiểm thử Live E2E, lập báo cáo `docs/E2E_TEST_REPORT.md` (36 PASS, 8 FAIL, 2 Critical) | ✅ Done | `docs/E2E_TEST_REPORT.md` | 3h |
+| Lương Đức Thắng | Khắc phục triệt để BUG-01 (DTO mapping `pure_statutory`), BUG-02 (indexer collection SSOT resolver), BUG-03 (409 conflict) | ✅ Done | `docs/E2E_REMEDIATION_REPORT.md`, `src/ingestion/indexer.py` | 3.5h |
+| minhphu / Dương | Kiểm thử UX Persona QC Report (`docs/UX_PERSONA_QC_REPORT_20260822.md`), bỏ animation quay vô hạn ở UI chat | ✅ Done | commit `08487c4`, `docs/UX_PERSONA_QC_REPORT_20260822.md` | 2h |
+| hthanhson | Sửa phân quyền profile roles và cập nhật test fixtures post-merge | ✅ Done | commit `a82809a`, `backend/tests/` | 1.5h |
+
+**Tổng kết ngày:** Ngày đột phá về chất lượng — chạy kiểm thử E2E thật và remediation dứt điểm các lỗi nghiêm trọng về collection naming và contract mapping giữa Backend và Agent.
+
+---
+
+## [2026-08-23]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| minhphu / Lương Đức Thắng | Thực hiện Product Content Audit 2026-08-23 (findings C-01 → C-29, addendum A-J) | ✅ Done | `docs/PRODUCT_CONTENT_AUDIT_20260823.md`, `PILOT_READINESS_IMPLEMENTATION_PLAN_20260823.md` | 3h |
+| Lương Đức Thắng | Cập nhật định vị Agent thành 'Trợ lý Tri thức Nội bộ' (bỏ ràng buộc HR trong prompt greeting/clarify/refusal) | ✅ Done | commit `164affe`, `src/agents/nodes/` | 1.5h |
+| hthanhson | Thắt chặt bảo mật phân quyền phòng ban fail-closed, scope corpus đúng phòng | ✅ Done | commit `6ac054e`, `backend/app/services/` | 2h |
+| Dương | Cập nhật form đăng ký cho phép chọn phòng ban (`DepartmentSelect`) và kết nối API | ✅ Done | commit `4c960f4`, `frontend/components/LoginView.tsx` | 2h |
+
+**Tổng kết ngày:** Hoàn thành định vị Trợ lý Tri thức Doanh nghiệp toàn diện, củng cố toàn bộ các tầng bảo mật ACL và kế hoạch sẵn sàng thử nghiệm (Pilot Readiness).
+
+---
+
+## [2026-08-24]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| Lương Đức Thắng | Thiết kế Schema & Migration `0012_document_review_workflow.sql` cho luồng HITL Document Review | ✅ Done | `supabase/migrations/0012_*.sql` | 2h |
+| Lương Đức Thắng | Xây dựng Worker phân tích bóc tách cấu trúc tài liệu bằng LLM (`src/workers/document_analysis.py`) | ✅ Done | `src/workers/document_analysis.py`, Pydantic schemas | 3h |
+| hthanhson | Xây dựng Endpoints API nạp và duyệt tài liệu (`/api/v1/document-submissions`) | ✅ Done | `backend/app/api/v1/endpoints/document_submissions.py`, service | 2.5h |
+
+**Tổng kết ngày:** Đặt nền móng kỹ thuật cho tính năng Human-in-the-Loop (HITL) — bóc tách tự động Quyết định, Trách nhiệm, Deadline và hỗ trợ phê duyệt trước khi lưu vector database.
+
+---
+
+## [2026-08-25]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| Dương | Xây dựng Component giao diện duyệt tài liệu HITL `DocumentReview.tsx` | ✅ Done | `frontend/components/DocumentReview.tsx` | 3.5h |
+| hthanhson | Bổ sung Rate Limiting cho login và chính sách mật khẩu tối thiểu 8 ký tự | ✅ Done | commit `8b58cfd`, `backend/app/services/auth_service.py` | 2h |
+| Lương Đức Thắng | Viết test suite kiểm thử quy trình phân tích tài liệu và API submissions | ✅ Done | `tests/test_workers/test_document_analysis.py`, `backend/tests/test_document_submissions.py` | 2h |
+
+**Tổng kết ngày:** Hoàn tất trọn vẹn giao diện và backend cho tính năng Document Review HITL, đồng thời gia cố an ninh vận hành hệ thống.
+
+---
+
+## [2026-08-26]
+
+| Member | Task | Status | Output | Time |
+|--------|------|--------|--------|------|
+| Lương Đức Thắng / hthanhson | Viết file cấu hình Blueprint Render Cloud (`render.yaml`) và dịch vụ `warmup_service.py` | ✅ Done | `render.yaml`, `backend/app/services/warmup_service.py` | 2h |
+| Dương | Tích hợp Component `WarmupPing.tsx` tự động giữ ấm container Backend & Agent trên cloud | ✅ Done | `frontend/components/WarmupPing.tsx` | 1h |
+| Dương / hthanhson | Fix bug FE gọi sai service URL (`fbd0704`) và fix bug định tuyến ticket sai phòng ban (`09a9967`) | ✅ Done | `frontend/lib/api.ts`, `backend/app/services/ticket_service.py` | 1.5h |
+| Lương Đức Thắng | Rà soát toàn bộ dự án, cập nhật và hoàn thiện 100% các file Markdown (`README.md`, `ARCHITECTURE.md`, `JOURNAL.md`, `WORKLOG.md`, `eval/`, `presentation/`) | ✅ Done | Trọn bộ 10 Deliverables | 2.5h |
+
+**Tổng kết ngày:** Hệ thống hoàn toàn sẵn sàng cho Demo Day với đầy đủ tính năng Multi-domain, Document Review HITL, Phân quyền ACL, Blueprint Render Cloud, và toàn bộ 10 Deliverables hoàn chỉnh.

@@ -1,0 +1,23 @@
+{
+  "router": {
+    "passed": 20,
+    "total": 20,
+    "accuracy": 100.0,
+    "avg_latency_ms": 623.3367599998019
+  },
+  "acl": {
+    "passed": 15,
+    "total": 15,
+    "security_rate": 100.0
+  },
+  "hitl": {
+    "valid": 5,
+    "total": 5,
+    "compliance": 100.0
+  },
+  "operations": {
+    "valid": 18,
+    "total": 18,
+    "grounded_rate": 100.0
+  }
+}

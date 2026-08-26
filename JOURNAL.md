@@ -1,4 +1,4 @@
-# Weekly Journal — Team [Tên Team]
+# Weekly Journal — Team AI20K-Build-Phase-Cohort-3 (Project P-153)
 
 > Ghi lại mỗi tuần: học được gì, khó khăn gì, quyết định gì, kế hoạch tiếp.
 
@@ -103,9 +103,46 @@
 - Migration vá production nên idempotent và giới hạn phạm vi, đặc biệt khi schema đã tồn tại trước lịch sử migration trong repo.
 
 ### Kế hoạch tuần sau
-- Không tune hoặc chạy lại held-out; mở workstream riêng để reconcile qrel/chunk index và contract trước release kế tiếp.
-- Peer review chéo: Dương review phần minhphu trước khi merge `develop`.
+- [ ] Mở rộng hệ thống thành Trợ lý Tri thức Nội bộ Đa phòng ban (Enterprise Internal Knowledge System).
+- [ ] Thiết kế cơ chế phân quyền truy cập theo phòng ban (Department ACL) và cách ly dữ liệu tri thức.
+- [ ] Xây dựng quy trình bóc tách và duyệt tài liệu có con người can thiệp (Human-in-the-Loop Document Review).
+- [ ] Thực hiện kiểm thử chấp nhận toàn diện E2E Live và khắc phục các điểm nghẽn tích hợp.
+- [ ] Chuẩn bị kịch bản triển khai cloud và tài liệu Demo Day hoàn chỉnh.
 
 ---
 
-<!-- Tiếp tục copy block trên cho Week 4, 5, 6 -->
+## Week 4: 2026-08-20 - 2026-08-26
+
+### Mục tiêu tuần này
+- [x] Mở rộng định vị và năng lực từ HR Agent sang Enterprise Internal Knowledge Assistant đa phòng ban (HR, Kế toán, Sản phẩm, Vận hành).
+- [x] Thiết lập phân quyền tri thức theo phòng ban (Department ACL) với cơ chế fail-closed, bổ sung migrations `0010`, `0011`.
+- [x] Xây dựng trọn vẹn quy trình Human-in-the-Loop Document Review: API nạp bài (`/api/v1/document-submissions`), Worker bóc tách LLM cấu trúc (`src/workers/document_analysis.py`), Migration `0012`, và giao diện duyệt (`DocumentReview.tsx`).
+- [x] Chạy 46 ca kiểm thử E2E Live Acceptance Tests, lập báo cáo phát hiện lỗi và hoàn thành đợt Remediation khắc phục triệt để BUG-01 → BUG-07.
+- [x] Tăng cường an ninh vận hành: Rate limit đăng nhập, chính sách mật khẩu 8 ký tự, che giấu PII, và làm sạch thông tin bí mật.
+- [x] Cấu hình Blueprint triển khai Render Cloud (`render.yaml`) và dịch vụ Warmup Ping (`WarmupPing.tsx`, `warmup_service.py`) triệt tiêu cold start.
+- [x] Hoàn thiện trọn bộ 10 Deliverables theo tiêu chuẩn BTC AI20K.
+
+### Đã hoàn thành
+- **Multi-domain Knowledge Expansion:** Bổ sung các bộ dữ liệu và bộ sưu tập vector chuyên biệt cho Kế toán (`accounting`), Sản phẩm (`product`), và phạm vi toàn công ty (`COMPANY_WIDE`).
+- **Department-Scoped ACL & Fail-Closed:** Áp dụng bộ lọc quyền chặt chẽ tại tầng Backend và Retrieval (`src/security/departments.py`, `access_control.py`), ngăn ngừa hoàn toàn việc nhân viên phòng ban này truy cập tài liệu nhạy cảm của phòng ban khác.
+- **HITL Document Review Workflow:** Xây dựng thành công quy trình 5 bước nạp tài liệu → LLM bóc tách Quyết định, Trách nhiệm, Thời hạn → Chuyên viên kiểm tra và phê duyệt trên UI → Tự động nạp vào Vector DB.
+- **E2E Remediation:** Khắc phục lỗi lệch intent DTO `pure_statutory` (BUG-01), thống nhất resolver collection Vector DB theo tenant (BUG-02), xử lý xung đột 409 khi nạp trùng file (BUG-03), sửa định tuyến ticket theo đúng phòng ban.
+- **DevOps & Cloud Readiness:** Viết file cấu hình `render.yaml` chuẩn cho cả 3 container (Frontend, Backend, Agent), tích hợp `WarmupPing` ping tự động mỗi 4 phút để giữ dịch vụ luôn sẵn sàng.
+- **Tài liệu & Deliverables:** Đồng bộ toàn diện `README.md`, `ARCHITECTURE.md`, `JOURNAL.md`, `WORKLOG.md`, `eval/results/report.md`, `eval/EVAL_EVIDENCES.md`, và `presentation/README.md`.
+
+### Khó khăn & Giải pháp
+| Khó khăn | Giải pháp | Kết quả |
+|----------|-----------|---------|
+| Trôi cấu hình tên collection Vector DB khiến tài liệu upload mới bị ghi vào collection ma (BUG-02) | Chuẩn hóa hàm `collection_name_for_department` sử dụng resolver duy nhất `get_tenant_collection_name(tenant)` làm Single Source of Truth (SSOT) | 100% tài liệu nạp mới được lưu đúng collection và tra cứu được ngay |
+| Khởi động lạnh (Cold Start) trên cloud free tier gây timeout request đầu tiên | Xây dựng service `WarmupPing` ở Frontend và endpoint `/api/v1/warmup` ở Backend để chủ động giữ ấm kết nối | Loại bỏ hiện tượng timeout, thời gian phản hồi lượt đầu giảm từ 45s xuống mức bình thường |
+| Xung đột tên schema và vai trò sau khi merge nhánh tính năng Kế toán | Lập tài liệu hòa giải Semantic ACL, chuẩn hóa phân quyền vai trò trong profile DB và cập nhật test fixtures | Toàn bộ 114 test backend và test suite agent pass ổn định |
+
+### Bài học
+- Thiết kế bảo mật phân quyền (ACL) phải tuân thủ nguyên tắc **Fail-Closed** ngay từ tầng lọc dữ liệu vector, không chỉ dựa vào việc ẩn nút bấm trên giao diện.
+- Cơ chế Human-in-the-Loop (HITL) là cầu nối bắt buộc giữa AI tự động và độ tin cậy nghiệp vụ doanh nghiệp — việc cho phép chuyên viên xem và sửa đổi các trường thông tin bóc tách trước khi lưu kho tri thức giúp triệt tiêu 100% rủi ro ảo giác trong dữ liệu chính thức.
+- Tự động hóa kiểm thử E2E không mock dependency là cách duy nhất phát hiện ra các lỗi lệch giao thức (DTO mismatch) và trôi môi trường (env drift) trước ngày Demo Day.
+
+### Kế hoạch tiếp theo (Demo Day & Production)
+- [ ] Thực hành thuyết trình Pitch Deck 10 slides theo kịch bản 10 phút.
+- [ ] Quay video demo sản phẩm (3-5 phút) bao gồm luồng Chat đa phòng ban, Phân quyền ACL và Quy trình duyệt tài liệu HITL.
+- [ ] Triển khai chính thức lên Render Cloud và Vercel theo blueprint đã cấu hình.

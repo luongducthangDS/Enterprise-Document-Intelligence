@@ -1,0 +1,182 @@
+[
+  {
+    "question": "Phòng ban cần gửi phiếu yêu cầu văn phòng phẩm vào thời gian nào hàng tháng?",
+    "expected_answer": "Các phòng ban tổng hợp nhu cầu văn phòng phẩm và gửi phiếu yêu cầu từ ngày 20 đến ngày 25 hàng tháng.",
+    "ground_truth_context": "Các phòng ban tổng hợp nhu cầu văn phòng phẩm và gửi phiếu yêu cầu từ ngày **20 đến ngày 25 hàng tháng**.",
+    "source_document": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md"
+  },
+  {
+    "question": "Định mức cấp phát văn phòng phẩm cho mỗi nhân viên là bao nhiêu tiền một tháng?",
+    "expected_answer": "Tối đa 150.000 VNĐ/nhân viên/tháng.",
+    "ground_truth_context": "Định mức tiêu chuẩn: Tối đa **150.000 VNĐ/nhân viên/tháng**.",
+    "source_document": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md"
+  },
+  {
+    "question": "Nhân viên làm mất thẻ ra vào tòa nhà thì phải làm gì và phí cấp lại là bao nhiêu?",
+    "expected_answer": "Nhân viên báo ngay cho Lễ tân tòa nhà để hủy mã thẻ cũ và nộp phí cấp lại thẻ mới là 100.000 VNĐ.",
+    "ground_truth_context": "Trường hợp làm mất thẻ: Nhân viên báo ngay cho Lễ tân tòa nhà để hủy mã thẻ cũ và nộp phí cấp lại thẻ mới là **100.000 VNĐ**.",
+    "source_document": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_sop_01_quan-ly-van-phong-pham-co-so-vat-chat.md"
+  },
+  {
+    "question": "Từ khi nào công ty chuyển sang mua sắm thiết bị CNTT theo hình thức đấu thầu tập trung?",
+    "expected_answer": "Chuyển đổi 100% việc mua sắm thiết bị CNTT sang hình thức đấu thầu tập trung theo quý kể từ Q4/2026.",
+    "ground_truth_context": "DEC-OPS-01: Chuyển đổi 100% việc mua sắm thiết bị CNTT sang hình thức đấu thầu tập trung theo quý kể từ Q4/2026.",
+    "source_document": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md"
+  },
+  {
+    "question": "Hạn chót áp dụng quy trình đặt phòng khách sạn và vé máy bay trực tuyến qua cổng doanh nghiệp là khi nào?",
+    "expected_answer": "Trước ngày 01/10/2026.",
+    "ground_truth_context": "DEC-OPS-02: Áp dụng quy trình đặt phòng khách sạn và vé máy bay trực tuyến qua cổng doanh nghiệp tập trung trước ngày 01/10/2026.",
+    "source_document": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md"
+  },
+  {
+    "question": "Ai phụ trách xây dựng hợp đồng khung mua sắm 50 laptop Dell Latitude và thời hạn hoàn thành là bao giờ?",
+    "expected_answer": "Vũ Mai Lan phụ trách, thời hạn hoàn thành là 15/09/2026.",
+    "ground_truth_context": "Xây dựng hợp đồng khung mua sắm 50 laptop Dell Latitude | Vũ Mai Lan | Mua sắm | 15/09/2026 | HIGH | Đang thực hiện",
+    "source_document": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "ops_mm_01_hop-lien-phong-ban-chi-phi-thiet-bi.md"
+  },
+  {
+    "question": "HR cần gửi thông tin nhân sự mới cho IT trước bao nhiêu ngày?",
+    "expected_answer": "Trước ngày nhận việc tối thiểu 03 ngày làm việc, HR gửi ticket thông tin nhân sự theo 03_quy-trinh-onboarding.md.",
+    "ground_truth_context": "Trước ngày nhận việc tối thiểu **03 ngày làm việc**, HR gửi ticket thông tin nhân sự theo `03_quy-trinh-onboarding.md`.",
+    "source_document": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md"
+  },
+  {
+    "question": "Khi nhân viên nghỉ việc, tài khoản email và VPN sẽ bị khóa vào thời điểm nào?",
+    "expected_answer": "IT tiến hành vô hiệu hóa tài khoản email, Slack, VPN đúng 17:30 ngày làm việc cuối cùng của nhân viên theo 04_quy-trinh-offboarding.md.",
+    "ground_truth_context": "IT tiến hành vô hiệu hóa tài khoản email, Slack, VPN đúng **17:30 ngày làm việc cuối cùng** của nhân viên theo `04_quy-trinh-offboarding.md`.",
+    "source_document": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md"
+  },
+  {
+    "question": "Quy trình thu hồi laptop khi nhân viên nghỉ việc như thế nào?",
+    "expected_answer": "Nhân viên bàn giao laptop trực tiếp tại bàn IT Helpdesk; IT thực hiện sao lưu dữ liệu công việc bàn giao cho Quản lý trực tiếp và tiến hành xóa trắng dữ liệu bảo mật (Secure Wipe).",
+    "ground_truth_context": "Nhân viên bàn giao laptop trực tiếp tại bàn IT Helpdesk; IT thực hiện sao lưu dữ liệu công việc bàn giao cho Quản lý trực tiếp và tiến hành xóa trắng dữ liệu bảo mật (Secure Wipe).",
+    "source_document": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "it_sop_01_cap-phat-thu-hoi-tai-khoan-thiet-bi.md"
+  },
+  {
+    "question": "Trực on-call cuối tuần được nhận phụ cấp bao nhiêu tiền?",
+    "expected_answer": "Phụ cấp trực duy trì kết nối: 300.000 VNĐ/đêm ngày thường và 600.000 VNĐ/ngày cuối tuần.",
+    "ground_truth_context": "Phụ cấp trực duy trì kết nối: **300.000 VNĐ/đêm** ngày thường và **600.000 VNĐ/ngày** cuối tuần.",
+    "source_document": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md"
+  },
+  {
+    "question": "Khi nhận được cảnh báo sự cố, kỹ sư trực on-call có bao nhiêu thời gian để xác nhận?",
+    "expected_answer": "Kỹ sư trực phải bấm xác nhận (Acknowledge) trong vòng 15 phút.",
+    "ground_truth_context": "Kỹ sư trực phải bấm xác nhận (Acknowledge) trong vòng **15 phút**.",
+    "source_document": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md"
+  },
+  {
+    "question": "Khi xảy ra sự cố Severity 1 sập dịch vụ lõi thì cần làm gì?",
+    "expected_answer": "Kích hoạt ngay kênh khẩn cấp CSIRT theo Quyết định MGT-DEC-2026-06 và báo cáo CTO trong vòng 30 phút.",
+    "ground_truth_context": "Nếu sự cố Severity 1 (Sập dịch vụ lõi): Kích hoạt ngay kênh khẩn cấp CSIRT theo Quyết định MGT-DEC-2026-06 và báo cáo CTO trong vòng 30 phút.",
+    "source_document": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "eng_sop_01_quy-trinh-oncall-xu-ly-su-co.md"
+  },
+  {
+    "question": "Mua sắm dưới 20 triệu thì cần bao nhiêu báo giá và ai phê duyệt?",
+    "expected_answer": "Yêu cầu tối thiểu 01 báo giá hợp lệ từ nhà cung cấp uy tín; Trưởng phòng yêu cầu phê duyệt.",
+    "ground_truth_context": "Mua sắm thông thường (Dưới 20.000.000 VNĐ): Yêu cầu tối thiểu 01 báo giá hợp lệ từ nhà cung cấp uy tín; Trưởng phòng yêu cầu phê duyệt.",
+    "source_document": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md"
+  },
+  {
+    "question": "Đối với gói chào hàng cạnh tranh từ 20 triệu đến 200 triệu, cần thu thập bao nhiêu báo giá và ai là người phê duyệt?",
+    "expected_answer": "Bắt buộc thu thập tối thiểu 03 báo giá độc lập từ 3 nhà cung cấp khác nhau; lập Bảng so sánh chỉ tiêu kỹ thuật - giá - bảo hành; Giám đốc Khối phê duyệt.",
+    "ground_truth_context": "Chào hàng cạnh tranh (Từ 20.000.000 VNĐ đến 200.000.000 VNĐ): Bắt buộc thu thập tối thiểu 03 báo giá độc lập từ 3 nhà cung cấp khác nhau; lập Bảng so sánh chỉ tiêu kỹ thuật - giá - bảo hành; Giám đốc Khối phê duyệt.",
+    "source_document": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md"
+  },
+  {
+    "question": "Mua thiết bị CNTT hoặc phần mềm bản quyền thì mất tối đa bao nhiêu ngày làm việc?",
+    "expected_answer": "Tối đa 07 ngày làm việc.",
+    "ground_truth_context": "Mua sắm thiết bị CNTT, máy chủ, phần mềm bản quyền: Tối đa 07 ngày làm việc.",
+    "source_document": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "prc_sop_01_quy-trinh-mua-sam-lua-chon-nha-thau.md"
+  },
+  {
+    "question": "Ban Pháp chế cần bao nhiêu thời gian để thẩm định một thỏa thuận NDA mẫu chuẩn của công ty?",
+    "expected_answer": "Thẩm định và phản hồi trong vòng 24 giờ làm việc.",
+    "ground_truth_context": "**Thỏa thuận NDA mẫu chuẩn của NexaTech**: Thẩm định và phản hồi trong vòng **24 giờ làm việc**.",
+    "source_document": "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "leg_sop_01_tham-dinh-hop-dong-va-nda.md"
+  },
+  {
+    "question": "Hợp đồng thương mại có giá trị dưới 500 triệu đồng thì thời hạn thẩm định pháp lý là bao lâu?",
+    "expected_answer": "Thẩm định trong vòng 03 ngày làm việc.",
+    "ground_truth_context": "**Hợp đồng thương mại giá trị dưới 500.000.000 VNĐ**: Thẩm định trong vòng **03 ngày làm việc**.",
+    "source_document": "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "leg_sop_01_tham-dinh-hop-dong-va-nda.md"
+  },
+  {
+    "question": "Các điều khoản bắt buộc phải có trong hợp đồng là gì?",
+    "expected_answer": "Điều khoản về Bảo vệ Quyền sở hữu Trí tuệ (IP Rights), Điều khoản Tuân thủ Bảo vệ Dữ liệu Cá nhân theo Nghị định 13/2023/NĐ-CP, và Điều khoản Giải quyết Tranh chấp: Ưu tiên thương lượng; nếu không thành thì giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).",
+    "ground_truth_context": "- Điều khoản về Bảo vệ Quyền sở hữu Trí tuệ (IP Rights): Toàn bộ mã nguồn, tài liệu, kết quả nghiên cứu phát triển thuộc sở hữu tuyệt đối của NexaTech.\n- Điều khoản Tuân thủ Bảo vệ Dữ liệu Cá nhân theo Nghị định 13/2023/NĐ-CP.\n- Điều khoản Giải quyết Tranh chấp: Ưu tiên thương lượng; nếu không thành thì giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).",
+    "source_document": "leg_sop_01_tham-dinh-hop-dong-va-nda.md",
+    "department": "operations",
+    "intent": "in_scope",
+    "category": "operations_sop",
+    "source_file": "leg_sop_01_tham-dinh-hop-dong-va-nda.md"
+  }
+]

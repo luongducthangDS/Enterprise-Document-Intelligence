@@ -26,7 +26,14 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore) -> dict:
         try:
             result = await agent.ainvoke({"query": item["query"]})
         except Exception as e:  # noqa: BLE001
-            return {**item, "error": str(e), "passed": False}
+            return {
+                **item,
+                "error": str(e),
+                "actual_state": "ERROR",
+                "actual_reason_code": str(e),
+                "passed": False,
+            }
+
 
     state, reason_code = _derive_runtime_state(result)
     passed = state == item["expected_state"]
