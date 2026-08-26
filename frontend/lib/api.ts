@@ -18,7 +18,7 @@ import type {
   User,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://backend-p153-latest.onrender.com/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const ACCESS_TOKEN_KEY = "hr_knowledge_access_token";
 const REFRESH_TOKEN_KEY = "hr_knowledge_refresh_token";
 

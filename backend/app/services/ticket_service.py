@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -11,7 +11,12 @@ from app.domain.models.profile import ProfileDB
 from app.domain.models.ticket import TicketDB
 from app.schemas.agent import AgentTicketDraftDTO
 from app.schemas.ticket import TicketCreateRequest, TicketUpdateRequest
-from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, department_targets
+from app.services.access_control import (
+    DEPARTMENT_MANAGER,
+    SUPER_ADMIN,
+    canonical_department,
+    department_targets,
+)
 
 
 class TicketService:
@@ -88,9 +93,16 @@ class TicketService:
         ticket_id = uuid.uuid4()
         ticket_code = f"TCK-{datetime.now(UTC).year}-{ticket_id.hex[:8].upper()}"
 
-        dept = (data.target_department or "HRBP").upper()
-        if dept not in ("CB", "ER", "TA", "LD", "HRBP"):
-            dept = "HRBP"
+        raw_dept = (data.target_department or "HRBP").strip()
+        upper_raw = raw_dept.upper()
+        if upper_raw in ("CB", "ER", "TA", "LD", "HRBP"):
+            dept = upper_raw
+        else:
+            canonical = canonical_department(raw_dept)
+            if canonical in ("HR", "ACCOUNTING", "PRODUCT"):
+                dept = canonical
+            else:
+                dept = "HRBP"
 
         prio = (data.priority or "Medium").strip().capitalize()
         if prio not in ("Low", "Medium", "High"):
@@ -144,14 +156,18 @@ class TicketService:
         stmt = select(TicketDB).options(joinedload(TicketDB.requester), joinedload(TicketDB.assignee))
 
         if user_role == DEPARTMENT_MANAGER:
-            stmt = stmt.where(TicketDB.target_department.in_(department_targets(user.get("department"))))
+            targets = {t.upper() for t in department_targets(user.get("department"))}
+            stmt = stmt.where(func.upper(TicketDB.target_department).in_(targets))
         elif user_role != SUPER_ADMIN:
             stmt = stmt.where(TicketDB.requester_id == user_id)
 
         if status_filter:
             stmt = stmt.where(TicketDB.status == status_filter.lower())
         if department_filter:
-            stmt = stmt.where(TicketDB.target_department == department_filter.upper())
+            canonical_filter = canonical_department(department_filter)
+            stmt = stmt.where(
+                func.upper(TicketDB.target_department).in_({department_filter.upper(), canonical_filter})
+            )
         if priority_filter:
             stmt = stmt.where(TicketDB.priority == priority_filter.strip().capitalize())
 
@@ -204,7 +220,7 @@ class TicketService:
 
         manages_department = (
             user_role == DEPARTMENT_MANAGER
-            and ticket.target_department.upper() in department_targets(user.get("department"))
+            and ticket.target_department.upper() in {t.upper() for t in department_targets(user.get("department"))}
         )
         if user_role != SUPER_ADMIN and not manages_department and ticket.requester_id != user_id:
             raise ForbiddenError(code="TICKET_ACCESS_DENIED", message="Bạn không có quyền xem ticket này.")
@@ -238,7 +254,7 @@ class TicketService:
         user_id = uuid.UUID(user["user_id"])
         is_admin = user_role == SUPER_ADMIN or (
             user_role == DEPARTMENT_MANAGER
-            and ticket.target_department.upper() in department_targets(user.get("department"))
+            and ticket.target_department.upper() in {t.upper() for t in department_targets(user.get("department"))}
         )
         requested_status = data.status.lower() if data.status is not None else None
         if not is_admin:

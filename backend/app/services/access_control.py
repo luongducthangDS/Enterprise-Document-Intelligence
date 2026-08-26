@@ -20,7 +20,15 @@ def canonical_department(value: str | None) -> str:
     raw = str(value or "").strip()
     ascii_value = unicodedata.normalize("NFKD", raw).encode("ascii", "ignore").decode("ascii")
     normalized = re.sub(r"[^A-Z0-9]+", "_", ascii_value.upper()).strip("_")
-    aliases = {"HUMAN_RESOURCES": "HR", "HUMAN_RESOURCE": "HR", "NHAN_SU": "HR", "KE_TOAN": "ACCOUNTING"}
+    aliases = {
+        "HUMAN_RESOURCES": "HR",
+        "HUMAN_RESOURCE": "HR",
+        "NHAN_SU": "HR",
+        "KE_TOAN": "ACCOUNTING",
+        "ACCOUNTANCY": "ACCOUNTING",
+        "PRODUCT_MANAGEMENT": "PRODUCT",
+        "SAN_PHAM": "PRODUCT",
+    }
     return aliases.get(normalized, normalized) or "GENERAL"
 
 

@@ -43,9 +43,14 @@ async def setup_real_tickets_test_data():
         emp2_id = uuid.UUID("22222222-bbbb-2222-bbbb-222222222222")
         admin_id = uuid.UUID("99999999-cccc-9999-cccc-999999999999")
 
+        acc_mgr_id = uuid.UUID("33333333-cccc-3333-cccc-333333333333")
+        prod_mgr_id = uuid.UUID("44444444-cccc-4444-cccc-444444444444")
+
         await ensure_user_and_profile(session, emp1_id, "emp1_real@company.com", "Employee One", "EMPLOYEE", "Sales")
         await ensure_user_and_profile(session, emp2_id, "emp2_real@company.com", "Employee Two", "EMPLOYEE", "Engineering")
         await ensure_user_and_profile(session, admin_id, "admin_real@company.com", "HR Admin Real", "DEPARTMENT_MANAGER", "HR")
+        await ensure_user_and_profile(session, acc_mgr_id, "acc_mgr@company.com", "Accounting Manager", "DEPARTMENT_MANAGER", "Accounting")
+        await ensure_user_and_profile(session, prod_mgr_id, "prod_mgr@company.com", "Product Manager", "DEPARTMENT_MANAGER", "Product")
 
         await session.commit()
 
@@ -265,3 +270,130 @@ class TestTicketAPIReal:
         assert close_resp.status_code == 200
         assert close_resp.json()["data"]["status"] == "closed"
         assert close_resp.json()["data"]["closed_at"] is not None
+
+    def test_create_ticket_accounting_and_product_departments(self):
+        """Kiểm tra tạo ticket gửi tới các phòng ban Accounting, Product, HR chuẩn hóa đúng canonical."""
+        emp_headers = get_token_header("11111111-aaaa-1111-aaaa-111111111111", "emp1_real@company.com", "EMPLOYEE", "Sales")
+
+        # 1. Tạo ticket phòng Accounting (FE gửi "Accounting")
+        resp_acc = client.post(
+            "/api/v1/tickets",
+            json={
+                "employee_question": "Tôi muốn hỏi về thủ tục xuất hóa đơn VAT và hoàn ứng công tác",
+                "category": "accounting_invoicing",
+                "target_department": "Accounting",
+                "priority": "High",
+            },
+            headers=emp_headers,
+        )
+        assert resp_acc.status_code == 201
+        data_acc = resp_acc.json()["data"]
+        assert data_acc["target_department"] == "ACCOUNTING"
+        assert data_acc["employee_question"].startswith("Tôi muốn hỏi về thủ tục xuất hóa đơn")
+
+        # 2. Tạo ticket phòng Product (FE gửi "Product")
+        resp_prod = client.post(
+            "/api/v1/tickets",
+            json={
+                "employee_question": "Đề xuất tính năng tích hợp AI search cho khách hàng",
+                "category": "product_feature",
+                "target_department": "Product",
+                "priority": "Medium",
+            },
+            headers=emp_headers,
+        )
+        assert resp_prod.status_code == 201
+        data_prod = resp_prod.json()["data"]
+        assert data_prod["target_department"] == "PRODUCT"
+
+        # 3. Tạo ticket phòng HR (FE gửi "HR")
+        resp_hr = client.post(
+            "/api/v1/tickets",
+            json={
+                "employee_question": "Hỏi về nội quy làm việc hybrid toàn công ty",
+                "category": "general_hr",
+                "target_department": "HR",
+                "priority": "Low",
+            },
+            headers=emp_headers,
+        )
+        assert resp_hr.status_code == 201
+        data_hr = resp_hr.json()["data"]
+        assert data_hr["target_department"] == "HR"
+
+    def test_department_manager_scoped_tickets(self):
+        """Kiểm tra phân quyền Department Manager chỉ xem và quản lý đúng ticket phòng ban mình."""
+        emp_headers = get_token_header("11111111-aaaa-1111-aaaa-111111111111", "emp1_real@company.com", "EMPLOYEE", "Sales")
+        acc_mgr_headers = get_token_header("33333333-cccc-3333-cccc-333333333333", "acc_mgr@company.com", "DEPARTMENT_MANAGER", "Accounting")
+        prod_mgr_headers = get_token_header("44444444-cccc-4444-cccc-444444444444", "prod_mgr@company.com", "DEPARTMENT_MANAGER", "Product")
+        hr_mgr_headers = get_token_header("99999999-cccc-9999-cccc-999999999999", "admin_real@company.com", "DEPARTMENT_MANAGER", "HR")
+
+        # Tạo ticket Accounting
+        res1 = client.post(
+            "/api/v1/tickets",
+            json={"employee_question": "Yêu cầu quyết toán chi phí tháng 8", "target_department": "Accounting"},
+            headers=emp_headers,
+        )
+        acc_ticket_id = res1.json()["data"]["id"]
+
+        # Tạo ticket Product
+        res2 = client.post(
+            "/api/v1/tickets",
+            json={"employee_question": "Yêu cầu chỉnh sửa luồng checkout", "target_department": "Product"},
+            headers=emp_headers,
+        )
+        prod_ticket_id = res2.json()["data"]["id"]
+
+        # 1. Accounting Manager chỉ thấy ticket Accounting
+        acc_list = client.get("/api/v1/tickets", headers=acc_mgr_headers)
+        assert acc_list.status_code == 200
+        acc_tickets = acc_list.json()["data"]
+        acc_ids = [t["id"] for t in acc_tickets]
+        assert acc_ticket_id in acc_ids
+        assert prod_ticket_id not in acc_ids
+        assert all(t["target_department"] == "ACCOUNTING" for t in acc_tickets)
+
+        # 2. Product Manager chỉ thấy ticket Product
+        prod_list = client.get("/api/v1/tickets", headers=prod_mgr_headers)
+        assert prod_list.status_code == 200
+        prod_tickets = prod_list.json()["data"]
+        prod_ids = [t["id"] for t in prod_tickets]
+        assert prod_ticket_id in prod_ids
+        assert acc_ticket_id not in prod_ids
+        assert all(t["target_department"] == "PRODUCT" for t in prod_tickets)
+
+        # 3. HR Manager không thấy ticket của Accounting hay Product
+        hr_list = client.get("/api/v1/tickets", headers=hr_mgr_headers)
+        assert hr_list.status_code == 200
+        hr_ids = [t["id"] for t in hr_list.json()["data"]]
+        assert acc_ticket_id not in hr_ids
+        assert prod_ticket_id not in hr_ids
+
+        # 4. Accounting Manager xem chi tiết ticket Accounting thành công
+        acc_detail = client.get(f"/api/v1/tickets/{acc_ticket_id}", headers=acc_mgr_headers)
+        assert acc_detail.status_code == 200
+        assert acc_detail.json()["data"]["target_department"] == "ACCOUNTING"
+
+        # 5. Accounting Manager cố tình xem ticket Product -> 403 Forbidden
+        forbidden_detail = client.get(f"/api/v1/tickets/{prod_ticket_id}", headers=acc_mgr_headers)
+        assert forbidden_detail.status_code == 403
+        assert forbidden_detail.json()["error"]["code"] == "TICKET_ACCESS_DENIED"
+
+        # 6. Accounting Manager cập nhật tiếp nhận ticket Accounting -> 200 OK
+        patch_acc = client.patch(
+            f"/api/v1/tickets/{acc_ticket_id}",
+            json={"status": "in_progress"},
+            headers=acc_mgr_headers,
+        )
+        assert patch_acc.status_code == 200
+        assert patch_acc.json()["data"]["status"] == "in_progress"
+        assert patch_acc.json()["data"]["assignee_id"] == "33333333-cccc-3333-cccc-333333333333"
+
+        # 7. Accounting Manager cố cập nhật ticket Product -> 403 Forbidden
+        patch_forbidden = client.patch(
+            f"/api/v1/tickets/{prod_ticket_id}",
+            json={"status": "in_progress"},
+            headers=acc_mgr_headers,
+        )
+        assert patch_forbidden.status_code == 403
+        assert patch_forbidden.json()["error"]["code"] == "FORBIDDEN"

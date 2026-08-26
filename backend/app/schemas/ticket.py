@@ -8,7 +8,7 @@ class TicketCreateRequest(BaseModel):
 
     employee_question: str = Field(..., alias="user_query", description="Câu hỏi / Yêu cầu của nhân viên")
     escalate_reason: str = Field("user_requested_human", description="Lý do chuyển tiếp ticket")
-    target_department: str = Field("HRBP", description="Phòng ban tiếp nhận (CB, ER, TA, LD, HRBP)")
+    target_department: str = Field("HRBP", description="Phòng ban tiếp nhận (CB, ER, TA, LD, HRBP, HR, ACCOUNTING, PRODUCT)")
     priority: str = Field("Medium", description="Mức độ ưu tiên (Low, Medium, High)")
     category: str | None = Field("GENERAL", description="Phân loại chủ đề")
     confidence_score: float | None = Field(None, ge=0.0, le=1.0, description="Điểm độ tin cậy RAG")
