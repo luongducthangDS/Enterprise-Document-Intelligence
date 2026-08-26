@@ -41,6 +41,7 @@ export type CitationSummary = {
 
 export type CitationDetail = {
   citation_id: string;
+  public_url?: string | null;
   document_code?: string | null;
   document: {
     document_id: string;
@@ -50,6 +51,7 @@ export type CitationDetail = {
     status: string;
     is_official_policy?: boolean;
     source_type?: string | null;
+    public_url?: string | null;
   };
   location: { page: number | null; sheet?: string | null; section: string | null; chunk_id?: string | null };
   excerpt: string;
@@ -184,6 +186,7 @@ export type DocumentListItem = {
   version: string | null;
   effective_date: string | null;
   status: string;
+  public_url?: string | null;
   ingestion_state: string;
   indexed: boolean;
   created_at: string;
@@ -196,6 +199,7 @@ export type DocumentDetail = {
   version: string | null;
   effective_date: string | null;
   status: string;
+  public_url?: string | null;
   language: string;
   source_file: string;
   checksum: string;
@@ -218,6 +222,7 @@ export type DocumentSubmissionSummary = {
   department: string;
   version: string | null;
   status: string;
+  public_url?: string | null;
   stage: string;
   progress_percent: number;
   extract_method: string | null;

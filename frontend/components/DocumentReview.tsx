@@ -14,6 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import type {
   DocumentDetail,
   DocumentListItem,
@@ -135,7 +136,8 @@ export function DocumentReview({ user }: { user: User }) {
     setUploadError("");
     setActiveSubmission(null);
     try {
-      const created = await api.uploadDocumentSubmission(fileInput, {
+      // 1. Request 1: Gửi file lên Backend để phân tích và trích xuất chunk
+      const backendPromise = api.uploadDocumentSubmission(fileInput, {
         title: String(form.get("title") ?? ""),
         category: String(form.get("category") ?? ""),
         department: String(form.get("department") ?? ""),
@@ -144,6 +146,25 @@ export function DocumentReview({ user }: { user: User }) {
         access_scope: String(form.get("access_scope") ?? "RESTRICTED"),
         confidentiality: "INTERNAL",
       });
+
+      // 2. Request 2: Upload trực tiếp file lên Cloudinary từ Browser
+      const cloudinaryPromise = uploadToCloudinary(fileInput).catch((err) => {
+        console.warn("Cloudinary upload warning:", err);
+        return null;
+      });
+
+      // Chờ cả 2 request hoàn tất
+      const [created, publicUrl] = await Promise.all([backendPromise, cloudinaryPromise]);
+
+      // 3. Request 3: Nếu Cloudinary trả về public_url, gửi về Backend lưu vào Supabase
+      if (publicUrl && created?.submission_id) {
+        try {
+          await api.updateSubmissionPublicUrl(created.submission_id, publicUrl);
+        } catch (patchErr) {
+          console.error("Không thể lưu public_url vào Supabase:", patchErr);
+        }
+      }
+
       formElement.reset();
       await pollSubmission(created.submission_id);
     } catch (reason) {

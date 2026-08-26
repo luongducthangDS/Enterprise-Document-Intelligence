@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.auth_deps import get_current_user, require_role
 from app.api.dependencies.db_deps import get_db
 from app.schemas.common import wrap_response
+from app.schemas.document_submissions import DocumentPublicUrlUpdate
 from app.schemas.documents import DocumentArchiveRequest, DocumentMetadataUpdate
 from app.services.document_service import DocumentService
 
@@ -123,3 +124,22 @@ async def archive_document(
         reason=reason,
     )
     return wrap_response(data, request)
+
+
+@router.patch("/{document_id}/public-url")
+async def update_document_public_url(
+    document_id: str,
+    payload: DocumentPublicUrlUpdate,
+    request: Request,
+    current_user: dict[str, Any] = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Cập nhật public CDN URL (Cloudinary) cho tài liệu chính thức."""
+    data = await DocumentService.update_public_url(
+        db=db,
+        user=current_user,
+        document_id=document_id,
+        public_url=payload.public_url,
+    )
+    return wrap_response(data, request)
+

@@ -25,3 +25,5 @@ async def get_citation_detail(
         user=current_user,
     )
     return wrap_response(data, request)
+
+

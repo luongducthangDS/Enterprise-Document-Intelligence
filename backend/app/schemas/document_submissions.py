@@ -13,3 +13,8 @@ class SubmissionMetadataUpdate(BaseModel):
     effective_date: str | None = Field(default=None, max_length=32)
     access_scope: str | None = Field(default=None, min_length=1, max_length=32)
     authorized_role: str | None = Field(default=None, max_length=64)
+
+
+class DocumentPublicUrlUpdate(BaseModel):
+    public_url: str = Field(..., min_length=1, description="Public CDN URL (Cloudinary/S3)")
+

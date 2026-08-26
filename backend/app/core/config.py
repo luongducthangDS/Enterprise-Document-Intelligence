@@ -40,8 +40,8 @@ class Settings(BaseSettings):
     database_pool_size: int = Field(default=5, ge=1, le=10)
     database_max_overflow: int = Field(default=0, ge=0, le=10)
     database_pool_timeout_seconds: float = Field(default=30.0, gt=0)
-    database_pool_recycle_seconds: int = Field(default=300, ge=30)
-    database_pool_pre_ping: bool = False
+    database_pool_recycle_seconds: int = Field(default=60, ge=10)
+    database_pool_pre_ping: bool = True
     database_echo: bool = False
     database_use_transaction_pooler: bool = True
 

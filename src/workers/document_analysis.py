@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import tempfile
 
 from src.config import Settings, get_settings
 from src.ingestion.chunk_builder import build_chunks_from_text
@@ -30,6 +31,21 @@ def _staging_collection_name(production_name: str) -> str:
     return f"{production_name}_staging"
 
 
+def _get_staging_root(settings: Settings, tenant: str, submission_id: str) -> str:
+    primary_root = os.path.join(settings.data_dir, "staging", tenant, submission_id)
+    try:
+        os.makedirs(primary_root, exist_ok=True)
+        test_file = os.path.join(primary_root, ".perm_test")
+        with open(test_file, "w") as f:
+            f.write("ok")
+        os.remove(test_file)
+        return primary_root
+    except (PermissionError, OSError):
+        fallback_root = os.path.join(tempfile.gettempdir(), "p153_staging", tenant, submission_id)
+        os.makedirs(fallback_root, exist_ok=True)
+        return fallback_root
+
+
 def _analyse_and_index(
     request: DocumentAnalysisJobRequest,
     source_file: str,
@@ -40,10 +56,9 @@ def _analyse_and_index(
     tenant = validate_tenant_id(request.tenant)
     staging_source_file = f"{request.submission_id}__{source_file}"
     staging_stem = os.path.splitext(staging_source_file)[0]
-    root = os.path.join(settings.data_dir, "staging", tenant, request.submission_id)
+    root = _get_staging_root(settings, tenant, request.submission_id)
     raw_path = os.path.join(root, source_file)
     processed_path = os.path.join(root, f"{os.path.splitext(source_file)[0]}.md")
-    os.makedirs(root, exist_ok=True)
     with open(raw_path, "wb") as handle:
         handle.write(content)
 

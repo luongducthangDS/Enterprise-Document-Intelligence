@@ -98,6 +98,11 @@ class DocumentDB(Base):
         nullable=True,
     )
 
+    public_url: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
     chroma_indexed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
@@ -239,6 +244,7 @@ class DocumentSubmissionDB(Base):
     publication_job_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("ingestion_jobs.id", ondelete="SET NULL"), nullable=True
     )
+    public_url: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False, index=True
     )

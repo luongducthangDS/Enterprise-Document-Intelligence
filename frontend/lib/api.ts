@@ -335,6 +335,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ reason: "SUPERSEDED_BY_NEW_VERSION" }),
     }).then((response) => response.data!),
+  updateDocumentPublicUrl: (documentId: string, publicUrl: string) =>
+    request<DocumentDetail>(`/documents/${documentId}/public-url`, {
+      method: "PATCH",
+      headers: idempotencyHeaders(),
+      body: JSON.stringify({ public_url: publicUrl }),
+    }).then((response) => response.data!),
   uploadDocument: (file: File, metadata: Record<string, string>) => {
     const form = new FormData();
     form.append("file", file);
@@ -354,6 +360,12 @@ export const api = {
       { method: "POST", headers: idempotencyHeaders(), body: form },
     ).then((response) => response.data!);
   },
+  updateSubmissionPublicUrl: (submissionId: string, publicUrl: string) =>
+    request<DocumentSubmissionDetail>(`/document-submissions/${submissionId}/public-url`, {
+      method: "PATCH",
+      headers: idempotencyHeaders(),
+      body: JSON.stringify({ public_url: publicUrl }),
+    }).then((response) => response.data!),
   listDocumentSubmissions: (status?: string) => {
     const suffix = status ? `?submission_status=${encodeURIComponent(status)}` : "";
     return request<DocumentSubmissionSummary[]>(`/document-submissions${suffix}`).then((response) => response.data!);

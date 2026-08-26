@@ -156,3 +156,56 @@ def test_rejected_submission_never_becomes_official():
         assert all(item["title"] != "rejected-policy.pdf" for item in documents)
     finally:
         DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+def test_update_public_url_on_submission_and_document():
+    headers = auth_header(ADMIN_ID, "review-admin@company.com")
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = CompletedAnalysisWorker()
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        created = client.post(
+            "/api/v1/document-submissions",
+            headers=headers,
+            files={"file": ("public_url_policy.pdf", io.BytesIO(b"%PDF-1.4 public url test"), "application/pdf")},
+            data={"title": "Tài liệu test Cloudinary URL", "department": "HR", "access_scope": "RESTRICTED"},
+        ).json()["data"]
+        sub_id = created["submission_id"]
+
+        # Update public_url on submission
+        cloud_url = "https://res.cloudinary.com/test-cloud/image/upload/v12345/public_url_policy.pdf"
+        patch_res = client.patch(
+            f"/api/v1/document-submissions/{sub_id}/public-url",
+            headers=headers,
+            json={"public_url": cloud_url},
+        )
+        assert patch_res.status_code == 200
+        assert patch_res.json()["data"]["public_url"] == cloud_url
+
+        # Approve and check if public_url propagates to official document
+        client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        approved = client.post(
+            f"/api/v1/document-submissions/{sub_id}/approve",
+            headers=headers,
+            json={"note": "Approved with Cloudinary URL"},
+        )
+        assert approved.status_code == 200
+        doc_id = approved.json()["data"]["published_document_id"]
+
+        # Verify document detail has public_url
+        doc_detail = client.get(f"/api/v1/documents/{doc_id}", headers=headers)
+        assert doc_detail.status_code == 200
+        assert doc_detail.json()["data"]["public_url"] == cloud_url
+
+        # Update document public_url directly
+        new_cloud_url = "https://res.cloudinary.com/test-cloud/image/upload/v67890/public_url_policy_v2.pdf"
+        patch_doc = client.patch(
+            f"/api/v1/documents/{doc_id}/public-url",
+            headers=headers,
+            json={"public_url": new_cloud_url},
+        )
+        assert patch_doc.status_code == 200
+        assert patch_doc.json()["data"]["public_url"] == new_cloud_url
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
