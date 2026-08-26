@@ -126,3 +126,9 @@ scripts/build_eval_evidence_docx_*.py
 
 # QA artifacts chứa token/tài khoản test tạm — không track
 qa/
+
+# One-off local migration / seed scripts
+scripts/account/insert_accounting_docs_to_supabase.py
+scripts/account/map_supabase_with_chroma.py
+scripts/account/upload_accounting_docs_to_cloudinary.py
+
