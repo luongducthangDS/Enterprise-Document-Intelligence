@@ -40,7 +40,7 @@ data/metadata/*
 *.db-wal
 *.sqlite3
 *.zip
-
+supabase/
 # Local vector store
 storage/
 
