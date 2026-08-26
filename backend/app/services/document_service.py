@@ -70,6 +70,7 @@ class DocumentService:
         access_scope: str = "RESTRICTED",
         authorized_role: str | None = None,
         staging_submission_id: str | None = None,
+        public_url: str | None = None,
     ) -> dict[str, Any]:
         uploader_id_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
         try:
@@ -149,6 +150,7 @@ class DocumentService:
             effective_date=effective_date,
             confidentiality=doc_confidentiality,
             status=doc_status,
+            public_url=public_url.strip() if public_url and public_url.strip() else None,
             uploaded_by=uploader_id,
         )
         db.add(doc)
@@ -267,6 +269,7 @@ class DocumentService:
                     "version": doc.version,
                     "effective_date": doc.effective_date,
                     "status": doc.status,
+                    "public_url": doc.public_url,
                     "ingestion_state": current_ingestion_state,
                     "indexed": is_indexed,
                     "created_at": doc.created_at.isoformat(),
@@ -332,6 +335,7 @@ class DocumentService:
             "version": doc.version,
             "effective_date": doc.effective_date,
             "status": doc.status,
+            "public_url": doc.public_url,
             "language": "vi",
             "source_file": doc.source_file,
             "checksum": checksum,
@@ -348,6 +352,33 @@ class DocumentService:
                 "index_version": index_version,
             },
         }
+
+    @classmethod
+    async def update_public_url(
+        cls,
+        db: AsyncSession,
+        user: dict[str, Any],
+        document_id: str,
+        public_url: str,
+    ) -> dict[str, Any]:
+        try:
+            doc_uuid = uuid.UUID(document_id)
+        except ValueError:
+            raise NotFoundError(code="DOCUMENT_NOT_FOUND", message="Không tìm thấy tài liệu.")
+
+        stmt = select(DocumentDB).where(DocumentDB.id == doc_uuid)
+        res = await db.execute(stmt)
+        doc = res.scalars().first()
+
+        if not doc:
+            raise NotFoundError(code="DOCUMENT_NOT_FOUND", message="Không tìm thấy tài liệu.")
+
+        if not can_manage_document(user, doc):
+            raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền cập nhật tài liệu này.")
+
+        doc.public_url = public_url.strip() if public_url and public_url.strip() else None
+        await db.commit()
+        return await cls.get_document_detail(db, user, document_id)
 
     @classmethod
     async def update_document_metadata(

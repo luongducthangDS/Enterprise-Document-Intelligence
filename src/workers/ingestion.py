@@ -19,6 +19,7 @@ import binascii
 import json
 import logging
 import os
+import tempfile
 
 from src.config import Settings, get_settings
 from src.ingestion.chunk_builder import build_chunks_from_text
@@ -51,24 +52,46 @@ class IngestionError(RuntimeError):
     """Lỗi nghiệp vụ của ingestion — thông điệp trả thẳng cho Backend."""
 
 
+def _ensure_writable_dir(primary_path: str, fallback_subdir: str) -> str:
+    try:
+        os.makedirs(primary_path, exist_ok=True)
+        test_file = os.path.join(primary_path, ".perm_test")
+        with open(test_file, "w") as f:
+            f.write("ok")
+        os.remove(test_file)
+        return primary_path
+    except (PermissionError, OSError):
+        fallback = os.path.join(tempfile.gettempdir(), "p153_ingestion", fallback_subdir)
+        os.makedirs(fallback, exist_ok=True)
+        return fallback
+
+
 def upload_dir(settings: Settings) -> str:
-    return os.path.join(settings.data_dir, "raw", "uploads")
+    return _ensure_writable_dir(os.path.join(settings.data_dir, "raw", "uploads"), "raw_uploads")
 
 
 def processed_dir(settings: Settings) -> str:
-    return os.path.join(settings.data_dir, "processed")
+    return _ensure_writable_dir(os.path.join(settings.data_dir, "processed"), "processed")
 
 
 def chunks_dir(settings: Settings) -> str:
-    return os.path.join(settings.data_dir, "chunks")
+    return _ensure_writable_dir(os.path.join(settings.data_dir, "chunks"), "chunks")
 
 
 def _atomic_write_json(path: str, data) -> None:
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    tmp_path = f"{path}.tmp"
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    os.replace(tmp_path, path)
+    try:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        tmp_path = f"{path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, path)
+    except (PermissionError, OSError):
+        fallback_path = os.path.join(tempfile.gettempdir(), "p153_ingestion", os.path.basename(path))
+        os.makedirs(os.path.dirname(fallback_path), exist_ok=True)
+        tmp_path = f"{fallback_path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, fallback_path)
 
 
 def _decode_content(content_base64: str) -> bytes:

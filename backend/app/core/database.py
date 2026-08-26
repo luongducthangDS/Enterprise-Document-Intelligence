@@ -21,7 +21,10 @@ engine = create_async_engine(
     max_overflow=settings.database_max_overflow,
     pool_timeout=settings.database_pool_timeout_seconds,
     pool_recycle=settings.database_pool_recycle_seconds,
-    connect_args={"statement_cache_size": 0},
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    },
 )
 
 AsyncSessionLocal = async_sessionmaker(

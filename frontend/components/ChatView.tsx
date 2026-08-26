@@ -2,11 +2,12 @@
 
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
-import { BookOpenCheck, CircleAlert, FileSearch, LoaderCircle, LogOut, MessageCircleQuestion, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, Send, ShieldCheck, Square, Trash2 } from "lucide-react";
+import { BookOpenCheck, CircleAlert, FileSearch, LoaderCircle, LogOut, MessageCircleQuestion, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import { chatStateLabel, conversationStateLabel, roleLabel, sourceTypeLabel } from "@/lib/labels";
 import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, User } from "@/lib/types";
 import { useSystemDialog } from "@/components/SystemDialog";
+import { DocumentViewer } from "@/components/DocumentViewer";
 
 type UiMessage =
   | { id: string; kind: "user"; content: string }
@@ -69,7 +70,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   const [conversationPanelVisible, setConversationPanelVisible] = useState(true);
   const [compactLayout, setCompactLayout] = useState(false);
   const [conversationPanelWidth, setConversationPanelWidth] = useState(292);
-  const [citationPanelWidth, setCitationPanelWidth] = useState(340);
+  const [citationPanelWidth, setCitationPanelWidth] = useState(580);
   const mounted = useRef(true);
   const creatingConversation = useRef(false);
   const initializingConversation = useRef(false);
@@ -84,7 +85,11 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
     const savedWidth = Number(window.localStorage.getItem("hr_knowledge_conversation_panel_width"));
     if (Number.isFinite(savedWidth) && savedWidth >= 240 && savedWidth <= 420) setConversationPanelWidth(savedWidth);
     const savedCitationWidth = Number(window.localStorage.getItem("hr_knowledge_citation_panel_width"));
-    if (Number.isFinite(savedCitationWidth) && savedCitationWidth >= 280 && savedCitationWidth <= 480) setCitationPanelWidth(savedCitationWidth);
+    if (Number.isFinite(savedCitationWidth) && savedCitationWidth >= 320 && savedCitationWidth <= 1200) {
+      setCitationPanelWidth(savedCitationWidth);
+    } else {
+      setCitationPanelWidth(580);
+    }
   }, []);
 
   useEffect(() => {
@@ -134,7 +139,8 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   }
 
   function updateCitationPanelWidth(width: number) {
-    const nextWidth = Math.min(480, Math.max(280, Math.round(width)));
+    const maxWidth = typeof window !== "undefined" ? Math.min(1100, Math.round(window.innerWidth * 0.75)) : 950;
+    const nextWidth = Math.min(maxWidth, Math.max(320, Math.round(width)));
     setCitationPanelWidth(nextWidth);
     window.localStorage.setItem("hr_knowledge_citation_panel_width", String(nextWidth));
   }
@@ -158,8 +164,9 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   function resizeCitationPanelWithKeyboard(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
-    updateCitationPanelWidth(citationPanelWidth + (event.key === "ArrowLeft" ? 12 : -12));
+    updateCitationPanelWidth(citationPanelWidth + (event.key === "ArrowLeft" ? 16 : -16));
   }
+
 
   const updateConversationStack = useCallback(() => {
     const list = conversationList.current;
@@ -477,7 +484,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             </div>;
           })}
         </div>
-                <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
+        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
         <div className="bar-resizer conversation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng lịch sử hội thoại" aria-orientation="vertical" aria-valuemin={240} aria-valuemax={420} aria-valuenow={conversationPanelWidth} tabIndex={0} onPointerDown={beginConversationPanelResize} onPointerMove={moveConversationPanelResize} onPointerUp={endConversationPanelResize} onPointerCancel={endConversationPanelResize} onKeyDown={resizeConversationPanelWithKeyboard} />
       </aside>
       <section className="chat-main" data-ui="dashboard">
@@ -521,14 +528,29 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       </section>
 
       <aside className={`citation-panel ${citation ? "open" : ""}`} style={{ "--citation-panel-width": `${citationPanelWidth}px` } as CSSProperties}>
-        <div className="bar-resizer citation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng nguồn đối soát" aria-orientation="vertical" aria-valuemin={280} aria-valuemax={480} aria-valuenow={citationPanelWidth} tabIndex={citation ? 0 : -1} onPointerDown={beginCitationPanelResize} onPointerMove={moveCitationPanelResize} onPointerUp={endCitationPanelResize} onPointerCancel={endCitationPanelResize} onKeyDown={resizeCitationPanelWithKeyboard} />
+        <div className="bar-resizer citation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng nguồn đối soát" aria-orientation="vertical" aria-valuemin={320} aria-valuemax={1100} aria-valuenow={citationPanelWidth} tabIndex={citation ? 0 : -1} onPointerDown={beginCitationPanelResize} onPointerMove={moveCitationPanelResize} onPointerUp={endCitationPanelResize} onPointerCancel={endCitationPanelResize} onKeyDown={resizeCitationPanelWithKeyboard} />
         <header><div><p className="eyebrow">NGUỒN ĐỐI SOÁT</p><h3>{citation?.document.title ?? "Chọn một trích dẫn"}</h3></div><button className="icon-command" onClick={() => setCitation(null)}>×</button></header>
-        {citation ? <div className="citation-detail animate__animated animate__slideInRight motion-view">
-          <div className="citation-trust-row"><span className={`status-pill ${isOfficialCitation(citation) ? "success" : "warning"}`}>{isOfficialCitation(citation) ? <><ShieldCheck size={12} /> Chính sách chính thức</> : "Nguồn tham khảo"}</span><span className="source-type">{formatSourceType(citation.source_type ?? citation.document.source_type)}</span></div>
-          <dl><div><dt>Trạng thái</dt><dd>{citation.document.status}</dd></div><div><dt>Phiên bản</dt><dd>{citation.document.version ?? "—"}</dd></div><div><dt>Trang / mục</dt><dd>{citation.location.page ?? "—"} · {citation.location.section ?? "—"}</dd></div><div><dt>Hiệu lực</dt><dd>{citation.document.effective_date ?? "—"}</dd></div>{citation.document_code && <div><dt>Mã tài liệu</dt><dd>{citation.document_code}</dd></div>}</dl>
-          <blockquote>{citation.excerpt || "Nguồn đã được ghi nhận nhưng chưa có đoạn trích để hiển thị."}</blockquote>
-          {(citation.caveat || citation.conflict_warning) && <div className="inline-warning">{citation.caveat ?? "Nguồn này có thông tin cần đối soát thêm."}</div>}
+        {citation ? <div className="citation-detail animate__animated animate__slideInRight motion-view" style={{ overflowY: "auto", height: "calc(100% - 64px)" }}>
+          {/* <div className="citation-trust-row shrink-0">
+            <span className={`status-pill ${isOfficialCitation(citation) ? "success" : "warning"}`}>
+              {isOfficialCitation(citation) ? <><ShieldCheck size={12} /> Chính sách chính thức</> : "Nguồn tham khảo"}
+            </span>
+            <span className="source-type">{formatSourceType(citation.source_type ?? citation.document.source_type)}</span>
+          </div> */}
+          <dl>
+            <div><dt>Trang / mục</dt><dd className="truncate" title={`${citation.location.page ?? "—"} · ${citation.location.section ?? "—"}`}>{citation.location.page ?? "—"} · {citation.location.section ?? "—"}</dd></div>
+            <div><dt>Hiệu lực</dt><dd className="truncate" title={citation.document.effective_date ?? "—"}>{citation.document.effective_date ?? "—"}</dd></div>
+            <div><dt>Trạng thái</dt><dd className="truncate" title={citation.document.status}>{citation.document.status}</dd></div>
+            <div><dt>Phiên bản</dt><dd className="truncate" title={citation.document.version ?? "1.0"}>{citation.document.version ?? "1.0"}</dd></div>
+          </dl>
+          <DocumentViewer key={citation.document.document_id || citation.public_url || citation.document.title} citation={citation} />
+          {(citation.caveat || citation.conflict_warning)
+            && <div className="inline-warning shrink-0">{citation.caveat ?? "Nguồn này có thông tin cần đối soát thêm."}
+            </div>}
         </div> : <div className="panel-empty"><FileSearch size={26} /><p>Mở một thẻ nguồn trong câu trả lời để kiểm tra tài liệu.</p></div>}
+
+
+
       </aside>
     </div>
   );

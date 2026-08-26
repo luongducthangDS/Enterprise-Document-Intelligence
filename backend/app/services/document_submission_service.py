@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import get_settings
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.audit import AuditLogDB
-from app.domain.models.documents import DocumentSubmissionDB
+from app.domain.models.documents import DocumentDB, DocumentSubmissionDB
 from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, normalized_role, same_department
 from app.services.document_service import (
     ALLOWED_EXTENSIONS,
@@ -290,6 +290,7 @@ class DocumentSubmissionService:
                 staging_submission_id=str(submission.id),
                 access_scope=submission.access_scope,
                 authorized_role=submission.authorized_role,
+                public_url=submission.public_url,
             )
         except Exception:
             submission.status = "PUBLISH_FAILED"
@@ -314,6 +315,27 @@ class DocumentSubmissionService:
                 after_state={"status": "PUBLISHING", "document_id": published["document_id"]},
             )
         )
+        await db.commit()
+        return cls._detail(submission)
+
+    @classmethod
+    async def update_public_url(
+        cls, db: AsyncSession, user: dict[str, Any], submission_id: str, public_url: str
+    ) -> dict[str, Any]:
+        submission = await cls._load(db, user, submission_id)
+        actor_id = cls._actor_id(user)
+        role = normalized_role(user)
+        if submission.submitted_by != actor_id and role != SUPER_ADMIN and not (
+            role == DEPARTMENT_MANAGER and same_department(user, submission.department)
+        ):
+            raise ForbiddenError("Bạn không có quyền cập nhật đường dẫn tài liệu này.", "FORBIDDEN")
+
+        clean_url = public_url.strip() if public_url and public_url.strip() else None
+        submission.public_url = clean_url
+        if submission.published_document_id:
+            doc = await db.get(DocumentDB, submission.published_document_id)
+            if doc:
+                doc.public_url = clean_url
         await db.commit()
         return cls._detail(submission)
 
@@ -357,6 +379,7 @@ class DocumentSubmissionService:
             "department": item.department,
             "version": item.version,
             "status": item.status,
+            "public_url": item.public_url,
             "stage": item.stage,
             "progress_percent": item.progress_percent,
             "extract_method": item.extract_method,

@@ -87,9 +87,11 @@ class CitationService:
             is_official_policy = bool(is_official_policy)
 
         source_type = found_item.get("source_type") or (doc.source_type if doc else None)
+        public_url = doc.public_url if doc else None
 
         return {
             "citation_id": clean_cit_id,
+            "public_url": public_url,
             "document": {
                 "document_id": document_id,
                 "title": redact_pii(title),
@@ -98,6 +100,7 @@ class CitationService:
                 "status": document_status,
                 "is_official_policy": is_official_policy,
                 "source_type": source_type,
+                "public_url": public_url,
             },
             "location": {
                 "page": found_item.get("page") or found_item.get("page_start"),
@@ -111,3 +114,5 @@ class CitationService:
             "is_official_policy": is_official_policy,
             "source_type": source_type,
         }
+
+

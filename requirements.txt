@@ -13,11 +13,15 @@ langgraph>=0.2.0
 # Database — Supabase PostgreSQL (user/RBAC, chat history, ticket, knowledge layer)
 supabase>=2.0.0
 sqlalchemy>=2.0.30
+greenlet>=3.0.0
 alembic>=1.14.0
 psycopg2-binary>=2.9.9
 asyncpg>=0.29.0
 email-validator>=2.0.0
 python-multipart>=0.0.9
+bcrypt>=4.0.0
+passlib[bcrypt]>=1.7.4
+pyjwt[crypto]>=2.9.0
 
 # Vector Store — cần >=1.0.0 để tương thích CloudClient (Chroma Cloud), bản
 # 0.6.3 lỗi "KeyError: '_type'" khi get_or_create_collection trên cloud.

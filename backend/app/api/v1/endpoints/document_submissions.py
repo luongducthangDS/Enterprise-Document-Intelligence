@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.auth_deps import get_current_user, require_role
 from app.api.dependencies.db_deps import get_db
 from app.schemas.common import wrap_response
-from app.schemas.document_submissions import SubmissionReviewRequest
+from app.schemas.document_submissions import DocumentPublicUrlUpdate, SubmissionReviewRequest
 from app.services.document_submission_service import DocumentSubmissionService
 
 router = APIRouter()
@@ -91,3 +91,22 @@ async def reject_submission(
         db, current_user, submission_id, payload.note if payload else None
     )
     return wrap_response(data, request)
+
+
+@router.patch("/{submission_id}/public-url")
+async def update_submission_public_url(
+    submission_id: str,
+    payload: DocumentPublicUrlUpdate,
+    request: Request,
+    current_user: dict[str, Any] = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Cập nhật public CDN URL (Cloudinary) cho tài liệu chờ duyệt."""
+    data = await DocumentSubmissionService.update_public_url(
+        db=db,
+        user=current_user,
+        submission_id=submission_id,
+        public_url=payload.public_url,
+    )
+    return wrap_response(data, request)
+
