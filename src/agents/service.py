@@ -284,7 +284,10 @@ async def astream_answer(
             capture_cm.__exit__(None, None, None)
 
     safe_response = _sanitize_response(state)
-    stage_timings_ms["total"] = round((time.perf_counter() - started_at) * 1000)
+    total_ms = round((time.perf_counter() - started_at) * 1000)
+    stage_timings_ms["total"] = total_ms
+    runtime_state, reason_code = _derive_runtime_state(state)
+    print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
     _log_audit(state, stage_timings_ms, network_calls)
 
     safe_citations = sanitize_citations(state.get("citations", []))
