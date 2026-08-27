@@ -12,33 +12,41 @@ import { useEffect } from "react";
  * Sử dụng keepalive: true để đảm bảo request được gửi đi ngay cả khi
  * người dùng chuyển trang trước khi fetch hoàn tất.
  */
+function getHealthUrl(rawUrl: string | undefined): string | null {
+  if (!rawUrl) return null;
+  const cleaned = rawUrl.trim().replace(/\/api\/v1.*$/, "").replace(/\/+$/, "");
+  return cleaned ? `${cleaned}/health` : null;
+}
+
 export default function WarmupPing() {
   useEffect(() => {
     const targets: string[] = [];
 
-    // Target 1: Backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (backendUrl) {
-      targets.push(backendUrl.replace(/\/api\/v1.*$/, "") + "/health");
+    const backendHealth = getHealthUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+    if (backendHealth) targets.push(backendHealth);
+
+    const agentHealth = getHealthUrl(process.env.NEXT_PUBLIC_AGENT_BASE_URL);
+    if (agentHealth) targets.push(agentHealth);
+
+    if (targets.length === 0) {
+      console.warn("[WarmupPing] Không tìm thấy URL của Backend hoặc Agent để đánh thức.");
+      return;
     }
 
-    // Target 2: AI Agent Service (tùy chọn — thêm NEXT_PUBLIC_AGENT_BASE_URL khi build)
-    const agentUrl = process.env.NEXT_PUBLIC_AGENT_BASE_URL;
-    if (agentUrl) {
-      targets.push(agentUrl.replace(/\/api\/v1.*$/, "") + "/health");
-    }
+    console.info("[WarmupPing] 🚀 Đang gửi tín hiệu đánh thức song song tới:", targets);
 
-    if (targets.length === 0) return;
-
-    // Bắn song song tất cả target cùng một lúc — fire-and-forget, không block UI
     Promise.all(
       targets.map((url) =>
-        fetch(url, { method: "GET", keepalive: true }).catch(() => {
-          /* Bỏ qua lỗi — chỉ cần gửi tín hiệu đánh thức */
-        })
+        fetch(url, { method: "GET", keepalive: true, mode: "cors" })
+          .then((res) => {
+            console.info(`[WarmupPing] ✅ Đã đánh thức thành công: ${url} (HTTP ${res.status})`);
+          })
+          .catch((err) => {
+            console.warn(`[WarmupPing] ⚠️ Không thể kết nối trực tiếp tới ${url}:`, err);
+          })
       )
     );
-  }, []); // Chỉ chạy 1 lần khi mount
+  }, []);
 
-  return null; // Không render bất cứ thứ gì ra DOM
+  return null;
 }

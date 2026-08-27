@@ -79,4 +79,5 @@ app.include_router(router, prefix="/api/v1")
 
 @app.get("/health")
 async def health():
+    print("[HEALTH] 🟢 Agent Service health check ping received")
     return {"status": "ok", "env": settings.app_env}
