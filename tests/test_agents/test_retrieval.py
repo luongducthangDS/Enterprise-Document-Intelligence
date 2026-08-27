@@ -6,9 +6,11 @@ from src.agents.nodes.retrieval import (
     _amerge_bm25,
     _arerank,
     _expand_retrieval_query,
+    _is_multi_source_query,
     _merge_query_results,
     _provenance_filter,
     _retrieval_filters,
+    _round_robin_sources,
     grade_node,
     retrieval_node,
     rewrite_node,
@@ -18,11 +20,17 @@ from src.retrieval.bm25 import BM25
 from src.security import UserContext, UserRole
 
 
-def _chunk(chunk_id: str, distance: float = 0.1, score=None, text: str = "nội dung") -> dict:
+def _chunk(
+    chunk_id: str,
+    distance: float = 0.1,
+    score=None,
+    text: str = "nội dung",
+    source_file: str = "doc.md",
+) -> dict:
     return {
         "chunk_id": chunk_id,
         "text": text,
-        "source_file": "doc.md",
+        "source_file": source_file,
         "title": "Chính sách A",
         "category": "leave_policies",
         "is_official_policy": True,
@@ -316,6 +324,38 @@ class TestRerank:
             result = await _arerank("câu hỏi", chunks)
 
         assert result == []
+
+    def test_detects_explicit_multi_source_queries_only(self):
+        assert _is_multi_source_query("Hãy đối chiếu PRD, báo cáo tuần và báo cáo scan")
+        assert _is_multi_source_query("Tổng hợp biểu đồ funnel với blocker")
+        assert not _is_multi_source_query("Nhân viên có bao nhiêu ngày phép năm?")
+
+    def test_round_robin_preserves_rank_while_covering_sources(self):
+        chunks = [
+            _chunk("a1", score=0.99, source_file="a.pdf"),
+            _chunk("a2", score=0.98, source_file="a.pdf"),
+            _chunk("b1", score=0.90, source_file="b.xlsx"),
+            _chunk("c1", score=0.80, source_file="c.docx"),
+            _chunk("b2", score=0.70, source_file="b.xlsx"),
+        ]
+
+        result = _round_robin_sources(chunks, limit=5)
+
+        assert [chunk["chunk_id"] for chunk in result] == ["a1", "b1", "c1", "a2", "b2"]
+
+    @pytest.mark.asyncio
+    async def test_multi_source_rerank_scores_full_pool_then_diversifies(self):
+        chunks = [
+            _chunk("a1", source_file="a.pdf"),
+            _chunk("a2", source_file="a.pdf"),
+            _chunk("b1", source_file="b.xlsx"),
+        ]
+        ranked = [(0, 0.99), (1, 0.98), (2, 0.80)]
+        with patch("src.agents.nodes.retrieval.rerank", return_value=ranked) as reranker:
+            result = await _arerank("đối chiếu nhiều nguồn", chunks, diversify_sources=True)
+
+        assert reranker.call_args.kwargs["top_n"] == len(chunks)
+        assert [chunk["chunk_id"] for chunk in result] == ["a1", "b1", "a2"]
 
 
 class TestGradeNode:

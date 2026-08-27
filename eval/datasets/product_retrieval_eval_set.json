@@ -66,7 +66,7 @@
     "department": "Product",
     "owner": "Product Analytics",
     "feature": "Notification Center",
-    "source_files": ["Notification_Metrics.pdf"],
+    "source_files": ["Notification_Metrics.xlsx"],
     "expected_behavior": "Trả lời open rate hiện tại 20.5% và target 24.0%."
   },
   {
@@ -158,5 +158,47 @@
     "feature": "Cross-feature",
     "source_files": [],
     "expected_behavior": "Không bịa câu trả lời từ Product corpus; nêu ngoài phạm vi hoặc chuyển đúng nơi phụ trách."
+  },
+  {
+    "id": "product_017",
+    "question": "Recommendation System đã đủ điều kiện mở rộng beta chưa? Hãy đối chiếu PRD, báo cáo tuần và báo cáo latency scan; nêu từng gate còn thiếu và dẫn nguồn.",
+    "type": "in_scope",
+    "difficulty": "hard",
+    "reasoning": "multi_document_synthesis",
+    "modalities": ["docx_table", "pdf_table", "scanned_image"],
+    "demo_priority": true,
+    "department": "Product",
+    "owner": "Product Management",
+    "feature": "Recommendation System",
+    "source_files": ["PRD_Recommendation_System.docx", "Product_Weekly_Recommendation.pdf", "Recommendation_Latency_Report_Scan.pdf"],
+    "expected_behavior": "Kết luận chưa đủ điều kiện: CTR 7,4% dưới 8,0%; p95 280 ms vượt target 200 ms và ngưỡng mở rộng 220 ms; tracking completeness 94% dưới 98%. Giữ beta 20% và trích dẫn cả ba nguồn."
+  },
+  {
+    "id": "product_018",
+    "question": "Checkout Redesign có nên rollout 100% chưa? Hãy tổng hợp biểu đồ funnel, bảng experiment, guardrail và blocker; so sánh số liệu hiện tại với target và dẫn nguồn.",
+    "type": "in_scope",
+    "difficulty": "hard",
+    "reasoning": "multi_document_synthesis",
+    "modalities": ["xlsx_table", "xlsx_chart", "pdf_table", "docx_table"],
+    "demo_priority": true,
+    "department": "Product",
+    "owner": "Product Management",
+    "feature": "Checkout Redesign",
+    "source_files": ["Funnel_Metrics_August.xlsx", "Checkout_Experiment_Report.pdf", "Sprint_Planning_12.docx", "PRD_Checkout_Redesign.pdf"],
+    "expected_behavior": "Kết luận chưa rollout 100%: conversion 44,8% còn thiếu 2,2 điểm % so với target 47%; payment error 2,6% vượt threshold 2,3%; payment timeout chiếm 38,4% lỗi và owner là Platform; load test đến hạn 25/09/2026."
+  },
+  {
+    "id": "product_019",
+    "question": "Search Improvements nên ưu tiên accent-insensitive hay fuzzy search? Hãy đối chiếu bảng experiment, phản hồi người dùng và mục tiêu trong PRD rồi giải thích trade-off.",
+    "type": "in_scope",
+    "difficulty": "hard",
+    "reasoning": "multi_document_synthesis",
+    "modalities": ["xlsx_table", "docx_table", "pdf_text"],
+    "demo_priority": true,
+    "department": "Product",
+    "owner": "Product Management",
+    "feature": "Search Improvements",
+    "source_files": ["Search_Experiment_Results.xlsx", "Search_Interview_Notes.docx", "PRD_Search_Improvements.pdf"],
+    "expected_behavior": "Ưu tiên accent-insensitive: giải quyết pain point tìm không dấu, tăng success rate từ 68% lên 72,1%, giảm zero-result từ 11,2% xuống 7,8% và giữ p95 192 ms; fuzzy đạt 73%/6,9% nhưng p95 245 ms nên đang hold. Cả hai vẫn dưới target PRD 75%."
   }
 ]

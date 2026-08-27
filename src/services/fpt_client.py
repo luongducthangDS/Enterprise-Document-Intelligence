@@ -36,6 +36,13 @@ def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
             return result
         except requests.exceptions.RequestException as e:
             last_exc = e
+            # 524 nghĩa là upstream model đã xử lý quá lâu và gateway đóng
+            # request. Retry ngay cùng payload thường lại tốn trọn timeout,
+            # vượt ngân sách HTTP giữa Backend -> Agent mà không tăng cơ hội
+            # thành công. Caller nên chuyển model/fallback thay vì gọi lại.
+            if isinstance(e, requests.exceptions.HTTPError) and e.response is not None:
+                if e.response.status_code == 524:
+                    break
             if attempt < retries:
                 delay = min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0)
                 time.sleep(delay)

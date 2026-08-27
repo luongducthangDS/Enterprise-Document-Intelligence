@@ -26,12 +26,12 @@ def main() -> None:
     with Path(args.registry).open(encoding="utf-8", newline="") as handle:
         registry = list(csv.DictReader(handle))
     for row in registry:
-        if row.get("department") != "Product":
+        if row.get("department", "").strip().casefold() != "product":
             errors.append(f"{row.get('source_file')}: department != Product")
         if row.get("document_domain") != "COMPANY_POLICY":
             errors.append(f"{row.get('source_file')}: document_domain != COMPANY_POLICY")
-        if row.get("access_scope") != "COMPANY_WIDE":
-            errors.append(f"{row.get('source_file')}: access_scope != COMPANY_WIDE")
+        if row.get("access_scope") not in {"DEPARTMENT", "COMPANY_WIDE"}:
+            errors.append(f"{row.get('source_file')}: unsupported access_scope")
         if not row.get("owner", "").strip():
             errors.append(f"{row.get('source_file')}: missing owner")
 
@@ -52,6 +52,7 @@ def main() -> None:
     dataset = json.loads(Path(args.dataset).read_text(encoding="utf-8"))
     qrels = json.loads(Path(args.qrels).read_text(encoding="utf-8"))
     dataset_ids = {item["id"] for item in dataset}
+    demo_cases = [item for item in dataset if item.get("demo_priority")]
     for item in dataset:
         if item.get("department") != "Product":
             errors.append(f"{item['id']}: department != Product")
@@ -59,6 +60,22 @@ def main() -> None:
             errors.append(f"{item['id']}: missing owner")
         if item["type"] == "in_scope" and not qrels.get(item["id"]):
             errors.append(f"{item['id']}: missing qrels")
+    for item in demo_cases:
+        if item.get("difficulty") != "hard":
+            errors.append(f"{item['id']}: demo case must have difficulty=hard")
+        if item.get("reasoning") != "multi_document_synthesis":
+            errors.append(f"{item['id']}: demo case must require multi-document synthesis")
+        if len(item.get("source_files", [])) < 3:
+            errors.append(f"{item['id']}: demo case must declare at least 3 sources")
+    demo_modalities = {modality for item in demo_cases for modality in item.get("modalities", [])}
+    if len(demo_cases) < 3:
+        errors.append("hard-demo coverage requires at least 3 cases")
+    if not any("table" in modality for modality in demo_modalities):
+        errors.append("hard-demo coverage missing table modality")
+    if "xlsx_chart" not in demo_modalities:
+        errors.append("hard-demo coverage missing xlsx_chart modality")
+    if "scanned_image" not in demo_modalities:
+        errors.append("hard-demo coverage missing scanned_image modality")
     for eval_id in qrels:
         if eval_id not in dataset_ids:
             errors.append(f"qrels references unknown eval id: {eval_id}")
