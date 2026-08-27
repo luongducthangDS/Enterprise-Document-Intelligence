@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -64,6 +64,24 @@ class Settings(BaseSettings):
     chroma_cloud_api_key: str = ""
     chroma_cloud_tenant: str = ""
     chroma_cloud_database: str = ""
+
+    # LLM Providers (FPT.AI Marketplace / OpenAI)
+    # Cờ bật tắt nhanh: USE_GLM=ON (dùng GLM-5.2 qua FPT Cloud) | USE_GLM=OFF (dùng OpenAI)
+    use_glm: bool = Field(default=False)
+    llm_provider: Literal["auto", "fpt", "openai"] = "auto"
+    openai_api_key: str = ""
+    openai_base_url: str = "https://api.openai.com/v1"
+
+    @field_validator("use_glm", mode="before")
+    @classmethod
+    def _parse_use_glm(cls, v):
+        if isinstance(v, str):
+            val = v.strip().upper()
+            if val in ("ON", "TRUE", "1", "YES", "ENABLE", "ENABLED"):
+                return True
+            if val in ("OFF", "FALSE", "0", "NO", "DISABLE", "DISABLED"):
+                return False
+        return bool(v)
 
     # FPT.AI Marketplace (embedding/VLM/rerank/chat gateway)
     fpt_api_key: str = ""

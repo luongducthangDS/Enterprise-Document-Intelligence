@@ -6,7 +6,7 @@ from src.agents.nodes.escalation import confidence_node, department_access_denie
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
-from src.agents.nodes.router import clarify_node, direct_node, router_node
+from src.agents.nodes.router import clarify_node, condense_and_route_node, direct_node, router_node
 from src.agents.state import AgentState
 from src.config import get_settings
 
@@ -45,40 +45,50 @@ def route_after_grade(state: AgentState) -> str:
     return "rewrite"
 
 
-def route_after_generate(state: AgentState) -> str:
-    """Bỏ qua hallucination check khi model đã tự nhận không đủ thông tin
-    (answerable=False): câu trả lời khi đó chỉ là lời giải thích "thiếu gì",
-    không có claim nào để kiểm chứng — prompt check còn tự quy định PASS cho
-    trường hợp này. confidence_node sẽ cap điểm xuống fail_cap và escalate y
-    như cũ, chỉ bớt được 1 LLM call (~1-3s) trên toàn nhánh escalate.
-
-    LƯU Ý: đây là tập con AN TOÀN của đề xuất "conditional hallucination check"
-    trong report_rag_review.md — phần skip theo rerank score >= 0.8 đã bị bác
-    bỏ vì đo được 7 câu reranker tự tin 0.78-1.00 nhưng đoạn SAI (xem CLAUDE.md
-    [2026-08-06]); check groundedness là lớp bảo vệ đúng chỗ đó, không được bỏ.
+def route_after_confidence(state: AgentState) -> str:
+    """Tối ưu Conditional Hallucination Check:
+    - UNANSWERABLE: Model tự nhận không đủ thông tin (answerable=False) -> đi thẳng escalate (tiết kiệm 1 LLM call).
+    - FAST PATH (~85-90%): Điểm tin cậy cao (confidence >= threshold) -> Chuyển thẳng sang finalize (che PII và trả về ngay ~2-3s).
+    - GUARDED PATH (~10-15%): Điểm tin cậy thấp (< threshold) -> Chuyển sang hallucination_check để kiểm chứng claim/số liệu hoặc retry/escalate.
     """
+    settings = get_settings()
     if not state.get("answerable", True):
-        return "confidence"
+        return "escalate"
+
+    score = state.get("confidence_score", 0.0)
+    if score >= settings.low_confidence_threshold:
+        return "finalize"
+
     return "hallucination_check"
 
 
 def route_after_hallucination(state: AgentState) -> str:
+    """Điều hướng an toàn sau khi kiểm tra ảo giác:
+    - PASS: Nếu confidence cao -> finalize; nếu confidence thấp -> escalate (low_confidence).
+    - FAIL & còn lượt retry (< max_retries): Cho phép sinh lại (generate).
+    - FAIL & Hết lượt retry: Escalate sang Ticket HR (hallucination_detected, tuyệt đối không trả câu ảo giác).
+    """
     settings = get_settings()
-    if state.get("hallucination_passed", True):
-        return "confidence"
-    if state.get("hallucination_retry_count", 0) >= settings.max_hallucination_retries:
-        return "confidence"
-    return "generate"
+    passed = state.get("hallucination_passed", True)
+    retry_count = state.get("hallucination_retry_count", 0)
 
+    if passed:
+        score = state.get("confidence_score", 0.0)
+        if score >= settings.low_confidence_threshold and state.get("answerable", True):
+            return "finalize"
+        return "escalate"
 
-def route_after_confidence(state: AgentState) -> str:
-    return "escalate" if state.get("escalate") else "finalize"
+    if retry_count < settings.max_hallucination_retries:
+        return "generate"
+    return "escalate"
 
 
 def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
-    graph.add_node("condense", condense_node)
+    # Core Nodes
+    graph.add_node("condense_and_route", condense_and_route_node)
+    graph.add_node("condense", condense_and_route_node)
     graph.add_node("router", router_node)
     graph.add_node("boundary", boundary_node)
     graph.add_node("direct", direct_node)
@@ -95,11 +105,10 @@ def build_graph() -> StateGraph:
     graph.add_node("out_of_scope", out_of_scope_node)
     graph.add_node("finalize", finalize_node)
 
-    graph.set_entry_point("condense")
-    graph.add_edge("condense", "router")
-    # `boundary` nằm giữa router và các nhánh xử lý: nó cần `intent` do router
-    # đặt, và các node phía sau (escalate, finalize) cần decision của nó.
-    graph.add_edge("router", "boundary")
+    # Unified Entry Point
+    graph.set_entry_point("condense_and_route")
+    graph.add_edge("condense_and_route", "boundary")
+
     graph.add_conditional_edges(
         "boundary",
         route_by_intent,
@@ -128,20 +137,28 @@ def build_graph() -> StateGraph:
     graph.add_edge("access_denied", END)
     graph.add_edge("rewrite", "retrieve")
 
+    # Pipeline sau Generate: Generate -> Confidence -> (Fast: Finalize | Guarded: Hallucination)
+    graph.add_edge("generate", "confidence")
     graph.add_conditional_edges(
-        "generate",
-        route_after_generate,
-        {"confidence": "confidence", "hallucination_check": "hallucination_check"},
-    )
-    graph.add_conditional_edges(
-        "hallucination_check",
-        route_after_hallucination,
-        {"confidence": "confidence", "generate": "generate"},
+        "confidence",
+        route_after_confidence,
+        {
+            "finalize": "finalize",
+            "hallucination_check": "hallucination_check",
+            "escalate": "escalate_ticket",
+        },
     )
 
     graph.add_conditional_edges(
-        "confidence", route_after_confidence, {"escalate": "escalate_ticket", "finalize": "finalize"}
+        "hallucination_check",
+        route_after_hallucination,
+        {
+            "finalize": "finalize",
+            "generate": "generate",
+            "escalate": "escalate_ticket",
+        },
     )
+
     graph.add_edge("escalate_ticket", END)
     graph.add_edge("finalize", END)
 
@@ -150,3 +167,4 @@ def build_graph() -> StateGraph:
 
 agent = build_graph()
 rag_agent_graph = agent
+

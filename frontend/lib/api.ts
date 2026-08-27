@@ -147,6 +147,7 @@ async function streamRequest(
   body: unknown,
   onEvent: (event: ChatStreamEvent) => void,
   allowRefresh = true,
+  signal?: AbortSignal,
 ): Promise<void> {
   const headers = new Headers({
     "Content-Type": "application/json",
@@ -163,13 +164,17 @@ async function streamRequest(
       method: "POST",
       headers,
       body: JSON.stringify(body),
+      signal,
     });
-  } catch {
+  } catch (error) {
+    if (signal?.aborted || (error instanceof DOMException && error.name === "AbortError")) {
+      throw error;
+    }
     throw new ApiClientError("Không thể kết nối tới Backend.", "NETWORK_ERROR", 0, true);
   }
 
   if (response.status === 401 && allowRefresh && (await refreshSession())) {
-    return streamRequest(path, body, onEvent, false);
+    return streamRequest(path, body, onEvent, false, signal);
   }
   if (!response.ok) {
     let payload: ApiResponse<unknown> | null = null;
@@ -217,15 +222,26 @@ async function streamRequest(
     }
   }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    buffer += decoder.decode(value, { stream: !done });
-    const blocks = buffer.split(/\r?\n\r?\n/);
-    buffer = blocks.pop() ?? "";
-    blocks.forEach(consume);
-    if (done) break;
+  try {
+    while (true) {
+      if (signal?.aborted) {
+        await reader.cancel();
+        break;
+      }
+      const { done, value } = await reader.read();
+      if (value) buffer += decoder.decode(value, { stream: !done });
+      const blocks = buffer.split(/\r?\n\r?\n/);
+      buffer = blocks.pop() ?? "";
+      blocks.forEach(consume);
+      if (done) break;
+    }
+    if (buffer.trim()) consume(buffer);
+  } catch (error) {
+    if (signal?.aborted || (error instanceof DOMException && error.name === "AbortError")) {
+      throw error;
+    }
+    throw error;
   }
-  if (buffer.trim()) consume(buffer);
 }
 
 export const api = {
@@ -286,7 +302,8 @@ export const api = {
     conversationId: string,
     question: string,
     onEvent: (event: ChatStreamEvent) => void,
-  ) => streamRequest("/chat/requests/stream", { conversation_id: conversationId, question }, onEvent),
+    signal?: AbortSignal,
+  ) => streamRequest("/chat/requests/stream", { conversation_id: conversationId, question }, onEvent, true, signal),
   getChatRequest: (chatRequestId: string, signal?: AbortSignal) =>
     request<ChatResult>(`/chat/requests/${chatRequestId}`, { signal }).then((response) => response.data!),
   retryChatRequest: (chatRequestId: string) =>

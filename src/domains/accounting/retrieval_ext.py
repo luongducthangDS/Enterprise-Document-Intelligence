@@ -9,6 +9,7 @@ Bao gồm:
 from __future__ import annotations
 
 import re
+import time
 
 # ─── G1: Nhận diện query kế toán ─────────────────────────────────────────────
 _ACCOUNTING_KEYWORD_PATTERN = re.compile(
@@ -280,10 +281,12 @@ async def accounting_retrieval_node(state: dict) -> dict:
             "rewrite_count": 999,
         }
 
+    t_start = time.perf_counter()
     query = _expand_accounting_query(raw_query)
     effective_top_k = _get_accounting_top_k(raw_query, settings.retrieval_top_k)
 
     # 1. Tính embedding câu hỏi
+    t_embed = time.perf_counter()
     with llm_trace.Timer("embedding", "fpt_cloud"):
         vectors = await asyncio.to_thread(
             embed_batch,
@@ -293,6 +296,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
             api_key=settings.fpt_api_key,
         )
         embedding = vectors[0]
+    embed_ms = round((time.perf_counter() - t_embed) * 1000)
 
     # 2. Kết nối collection Kế toán tenant-scoped trên Chroma Cloud
     from src.security import UserContext
@@ -305,6 +309,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
     filters = _accounting_retrieval_filters(settings, user_context)
 
     # 3. Vector search: one quota-safe branch per access grant, then deduplicate.
+    t_search = time.perf_counter()
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
         branch_results = await asyncio.gather(
             *[
@@ -319,6 +324,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
         from src.agents.nodes.retrieval import _merge_query_results
 
         result = _merge_query_results(branch_results, effective_top_k)
+    search_ms = round((time.perf_counter() - t_search) * 1000)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
@@ -348,8 +354,10 @@ async def accounting_retrieval_node(state: dict) -> dict:
                 "denied_department": denied_department,
             }
 
+    rerank_ms = 0
     # 4. Rerank
     if settings.use_reranker and chunks:
+        t_rerank = time.perf_counter()
         try:
             ranked = await asyncio.to_thread(
                 rerank,
@@ -373,12 +381,9 @@ async def accounting_retrieval_node(state: dict) -> dict:
         except Exception as e:
             print(f"[accounting_rerank] fail-closed {type(e).__name__}: {e}")
             chunks = []
+        rerank_ms = round((time.perf_counter() - t_rerank) * 1000)
 
     # G9: Early-Exit Grade — bypass rewrite loop nếu đã có đủ chunk chất lượng tốt.
-    # Ngưỡng được hiệu chỉnh theo loại tài liệu:
-    # - Tài liệu OCR từ ảnh/scan (fixed_assets_management, invoices_and_tax) có điểm reranker
-    #   thấp hơn chuẩn do chất lượng text thô — hạ ngưỡng để vẫn kích hoạt early-exit.
-    # - Tài liệu text gốc (pdf/docx) dùng ngưỡng chuẩn chặt hơn.
     is_ocr_category = any(c.get("category", "") in ("fixed_assets_management", "invoices_and_tax") for c in chunks)
     early_exit_min_chunks = 2 if is_ocr_category else 3
     early_exit_distance_cap = 0.37 if is_ocr_category else 0.30
@@ -390,6 +395,9 @@ async def accounting_retrieval_node(state: dict) -> dict:
         or (c.get("score") is not None and c["score"] >= early_exit_score_floor)
     ]
     should_early_exit = len(high_quality_chunks) >= early_exit_min_chunks
+
+    total_retrieval_ms = round((time.perf_counter() - t_start) * 1000)
+    print(f"[TIMING] [retrieve:accounting] {total_retrieval_ms}ms (embed: {embed_ms}ms, search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)}")
 
     return {
         "retrieved_chunks": chunks,

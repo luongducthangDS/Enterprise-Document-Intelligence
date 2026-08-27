@@ -1,5 +1,6 @@
 import json
 import re
+import time
 import unicodedata
 from functools import lru_cache
 from pathlib import Path
@@ -203,18 +204,7 @@ def _requires_personal_data(query: str) -> bool:
 
 
 def confidence_node(state: AgentState) -> dict:
-    """Confidence = độ liên quan của đoạn tốt nhất, kết hợp kết quả hallucination check.
-
-    Ưu tiên `score` của reranker: nó nằm trong khoảng 0-1 và trải rộng gần hết
-    khoảng đó (đo thực tế: 0.80 cho đoạn trả lời đúng, 0.57 cho đoạn liên quan,
-    0.00002 cho đoạn lạc đề), nên so với ngưỡng mới có ý nghĩa.
-
-    Chỉ khi không có reranker mới lùi về khoảng cách cosine — nhưng khi đó
-    dùng thang co giãn theo `retrieval_max_distance` thay vì `1 - distance`:
-    khoảng cách cosine thực đo chỉ dao động 0.10-0.23, nên `1 - distance` luôn
-    cho ra 0.77-0.90 và không bao giờ chạm được ngưỡng escalate — tức là vô
-    hiệu hoá toàn bộ nhánh escalate mà không có triệu chứng nào nhìn thấy được.
-    """
+    t_conf_start = time.perf_counter()
     settings = get_settings()
     chunks = state.get("retrieved_chunks", [])
     hallucination_passed = state.get("hallucination_passed", True)
@@ -228,28 +218,15 @@ def confidence_node(state: AgentState) -> dict:
     else:
         best_distance = min(c["distance"] for c in chunks)
         near, far = settings.distance_confidence_near, settings.distance_confidence_far
-        # Neo theo phân phối distance đo thực tế trên 100 câu eval (in-scope
-        # median 0.137, out-of-scope median 0.181): <= near coi như chắc chắn,
-        # >= far coi như không liên quan, ở giữa nội suy tuyến tính.
         score = (far - best_distance) / (far - near) if far > near else 0.0
         score = max(0.0, min(1.0, score))
-    # Cả hai tín hiệu dưới đây đều có nghĩa "câu trả lời không đáng tin, phải
-    # escalate", nên cap được NEO THEO ngưỡng thay vì là hằng số rời. Cap cũ
-    # (0.3) từng được chọn cho ngưỡng 0.5; khi hạ ngưỡng xuống 0.2 nó lập tức
-    # nằm TRÊN ngưỡng và vô hiệu hoá escalate mà không có triệu chứng nào.
+
     fail_cap = settings.low_confidence_threshold / 2
     if not hallucination_passed:
         score = min(score, fail_cap)
-    # Reranker có thể rất tự tin về một đoạn SAI (đo được: 10/29 câu in_scope
-    # fail có score 0.78-1.00 nhưng không hề chứa câu trả lời) — không ngưỡng
-    # nào trên score bắt được nhóm này. Chỉ chính model đọc context mới biết
-    # đoạn trích có trả lời được câu hỏi không, nên tín hiệu đó được ưu tiên.
     if not answerable:
         score = min(score, fail_cap)
 
-    # G11: Domain-specific confidence floor override (ví dụ: OCR docs kế toán
-    # có reranker score thấp do noise text nhưng câu trả lời vẫn đúng).
-    # Chỉ các domain implement adjust_confidence() mới ảnh hưởng; HR không đụng.
     from src.domains import get_matching_domain
     query = state.get("condensed_query") or state.get("query", "")
     domain = get_matching_domain(query, state.get("category"))
@@ -260,6 +237,11 @@ def confidence_node(state: AgentState) -> dict:
     if score < settings.low_confidence_threshold:
         result["escalate"] = True
         result["escalate_reason"] = "low_confidence"
+
+    conf_ms = round((time.perf_counter() - t_conf_start) * 1000, 2)
+    path_str = "FAST_PATH (Bypassing Hallucination Check)" if (answerable and score >= settings.low_confidence_threshold) else "GUARDED_PATH (Requires Verification/Escalation)"
+    print(f"[TIMING] [confidence] {conf_ms}ms | score={round(score, 3)} (threshold: {settings.low_confidence_threshold}) -> {path_str}")
+
     return result
 
 
@@ -324,7 +306,10 @@ def escalate_node(state: AgentState) -> dict:
             ),
         }
 
-    reason = state.get("escalate_reason")
+    if state.get("hallucination_passed") is False:
+        reason = "hallucination_detected"
+    else:
+        reason = state.get("escalate_reason")
     if not reason:
         if intent == "out_of_scope_or_personal" and _requires_personal_data(query):
             reason = "personal_data_required"
@@ -341,7 +326,7 @@ def escalate_node(state: AgentState) -> dict:
     # cầu đã được chuẩn bị — và chỉ ra người phụ trách theo registry.
     partial_answer = str(state.get("generated_answer") or "").strip()
     has_cited_evidence = bool(state.get("citations"))
-    if reason == "low_confidence" and state.get("answerable") is False and partial_answer and has_cited_evidence:
+    if reason == "low_confidence" and state.get("answerable") is False and partial_answer and has_cited_evidence and state.get("hallucination_passed", True):
         response = (
             partial_answer
             + "\n\nLưu ý: câu trả lời này mới dựa trên phần bằng chứng truy xuất được; "

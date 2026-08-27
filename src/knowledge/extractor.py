@@ -271,12 +271,15 @@ def extract_document_knowledge_via_llm(
     user_prompt = f"TÀI LIỆU CẦN TRÍCH XUẤT (Mã tài liệu: {source_file}):\n\n{raw_content}"
     
     try:
+        from src.agents.llm import resolve_llm_endpoint
+
+        target_model, base_url, api_key = resolve_llm_endpoint(settings.llm_model)
         response_text = chat_completion(
             system=_EXTRACTION_SYSTEM_PROMPT,
             user=user_prompt,
-            model=settings.llm_model,
-            base_url=settings.fpt_base_url,
-            api_key=settings.fpt_api_key,
+            model=target_model,
+            base_url=base_url,
+            api_key=api_key,
             temperature=0.1,
         )
     except Exception as e:

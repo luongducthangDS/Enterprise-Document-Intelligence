@@ -355,9 +355,9 @@ async def answer(
             capture_cm.__exit__(None, None, None)
     safe_response = _sanitize_response(state)
     total_ms = round((time.perf_counter() - started_at) * 1000)
-    _log_audit(state, {"total": total_ms} if profiling else None, network_calls)
-
     runtime_state, reason_code = _derive_runtime_state(state)
+    print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
+    _log_audit(state, {"total": total_ms} if profiling else None, network_calls)
     return AgentAnswer(
         response=safe_response,
         intent=state.get("intent", "hr_question"),

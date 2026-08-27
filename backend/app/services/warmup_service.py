@@ -1,90 +1,63 @@
-"""WarmupService: Quản lý việc đánh thức Agent Service khi Backend được wakeup.
-
-Cơ chế:
-- Được gọi từ endpoint /health của Backend.
-- Khi FE ping /health → Backend trả 200 ngay lập tức + fire-and-forget ping Agent /health.
-- Debounce 5 phút: nếu Agent vừa được ping gần đây → bỏ qua, không spam.
-- Chỉ kích hoạt khi APP_ENV == production.
-"""
-from __future__ import annotations
-
 import asyncio
-import time
-
 import httpx
-
 from app.core.config import get_settings
 from app.core.logging import logger
 
-_settings = get_settings()
-
-# Thời gian debounce: không ping lại Agent trong vòng 5 phút kể từ lần ping cuối
-_DEBOUNCE_SECONDS = 300.0
-
-_last_wakeup_time: float = 0.0
-_wakeup_lock = asyncio.Lock()
+settings = get_settings()
 
 
-def _agent_health_url() -> str:
-    """Chuyển đổi AI_AGENT_SERVICE_URL sang /health URL của Agent.
+class WarmupService:
+    """Service kiểm tra sức khỏe và đánh thức (Warmup) Agent Service từ Backend."""
 
-    Ví dụ: https://agent.onrender.com/api/v1/agent → https://agent.onrender.com/health
-    """
-    base = _settings.ai_agent_service_url
-    return base.split("/api/v1")[0].rstrip("/") + "/health"
+    @classmethod
+    async def check_and_warmup_on_startup(cls, max_wait_seconds: float = 30.0) -> bool:
+        """Chạy đúng 1 lần duy nhất trong Startup Lifespan của Backend.
+        Thăm dò /health tới Agent Service để đảm bảo Agent đã sẵn sàng trước khi nhận traffic.
+        """
+        base_url = settings.ai_agent_service_url.rstrip("/").split("/api/v1")[0]
+        health_url = f"{base_url}/health"
+        logger.info(f"[Startup Lifespan] 🔍 Đang kiểm tra kết nối tới AI Agent tại {health_url}...")
+
+        start_time = asyncio.get_event_loop().time()
+        timeout = 5.0
+
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            while (asyncio.get_event_loop().time() - start_time) < max_wait_seconds:
+                try:
+                    res = await client.get(health_url)
+                    if res.status_code == 200:
+                        elapsed = asyncio.get_event_loop().time() - start_time
+                        logger.info(f"[Startup Lifespan] ✅ AI Agent Service đã SẴN SÀNG (phản hồi sau {elapsed:.2f}s)!")
+                        return True
+                except Exception as e:
+                    logger.debug(f"[Startup Lifespan] Đang đợi Agent Service khởi động: {e}")
+                await asyncio.sleep(2.0)
+
+        logger.warning(
+            f"[Startup Lifespan] ⚠️ AI Agent Service chưa phản hồi sau {max_wait_seconds}s (sẽ tự động đánh thức khi có request)."
+        )
+        return False
+
+    @classmethod
+    def trigger_background_warmup(cls) -> None:
+        """Kích hoạt tác vụ bất đồng bộ đánh thức Agent trong background khi có lỗi timeout/mất kết nối."""
+        async def _ping():
+            base_url = settings.ai_agent_service_url.rstrip("/").split("/api/v1")[0]
+            health_url = f"{base_url}/health"
+            try:
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    await client.get(health_url)
+                    logger.info(f"[WarmupService] 🔔 Đã gửi tín hiệu đánh thức Agent tại {health_url}")
+            except Exception as e:
+                logger.debug(f"[WarmupService] Gửi tín hiệu đánh thức Agent thất bại: {e}")
+
+        try:
+            asyncio.create_task(_ping())
+        except Exception as e:
+            logger.debug(f"[WarmupService] Không thể tạo background task warmup: {e}")
 
 
 async def fire_agent_wakeup() -> None:
-    """Kích hoạt đánh thức Agent ngầm (fire-and-forget).
+    """Helper gọi nhanh trigger_background_warmup."""
+    WarmupService.trigger_background_warmup()
 
-    Hàm này không block caller — nó tạo một asyncio task riêng và trả về ngay.
-    Chỉ thực sự gửi ping khi:
-      1. APP_ENV == production
-      2. Chưa ping trong vòng 5 phút gần đây (debounce)
-    """
-    if _settings.app_env != "production":
-        return
-    if not _settings.ai_agent_service_url:
-        return
-
-    asyncio.create_task(_do_wakeup())
-
-
-async def _do_wakeup() -> None:
-    """Thực hiện vòng polling đánh thức Agent cho đến khi nhận được HTTP 200."""
-    global _last_wakeup_time
-
-    async with _wakeup_lock:
-        now = time.monotonic()
-        if now - _last_wakeup_time < _DEBOUNCE_SECONDS:
-            logger.debug(
-                f"[WarmupService] Agent đã được đánh thức gần đây "
-                f"({now - _last_wakeup_time:.0f}s trước). Bỏ qua."
-            )
-            return
-        _last_wakeup_time = now
-
-    health_url = _agent_health_url()
-    logger.info(f"[WarmupService] 🚀 Bắt đầu đánh thức Agent tại {health_url}...")
-
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        for attempt in range(1, 16):  # tối đa ~70s (14 lần x 5s)
-            try:
-                res = await client.get(health_url)
-                if res.status_code == 200:
-                    logger.info(
-                        f"[WarmupService] ✅ Agent sẵn sàng sau {attempt} lần thử!"
-                    )
-                    return
-                logger.debug(
-                    f"[WarmupService] Agent trả về {res.status_code} "
-                    f"(lần {attempt}/15) — đang chờ khởi động..."
-                )
-            except Exception as exc:
-                logger.debug(
-                    f"[WarmupService] Chưa kết nối được tới Agent "
-                    f"(lần {attempt}/15): {type(exc).__name__}"
-                )
-            await asyncio.sleep(5.0)
-
-    logger.warning("[WarmupService] ⚠️ Agent không phản hồi sau 70s.")

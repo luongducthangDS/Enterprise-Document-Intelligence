@@ -31,7 +31,14 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
 
-    # Chat Job Durability: Tự động phục hồi các request bị gián đoạn khi Backend khởi động lại
+    # 1. Warmup / Health Check tới AI Agent Service (chạy 1 lần duy nhất khi Backend khởi động)
+    try:
+        from app.services.warmup_service import WarmupService
+        await WarmupService.check_and_warmup_on_startup(max_wait_seconds=25.0)
+    except Exception as e:
+        logger.warning(f"[Startup Lifespan] Warmup AI Agent gặp lỗi: {e}")
+
+    # 2. Chat Job Durability: Tự động phục hồi các request bị gián đoạn khi Backend khởi động lại
     try:
         from app.services.chat_service import ChatService
         recovered = await ChatService.recover_pending_requests()
@@ -97,14 +104,7 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Endpoint kiểm tra sức khoẻ Backend.
-
-    Khi FE hoặc bất kỳ client nào ping endpoint này (thường ngay khi trang web mở),
-    Backend trả về 200 ngay lập tức và đồng thời kích hoạt ngầm việc đánh thức
-    Agent Service — đảm bảo cả 3 phân hệ được wakeup song song nhau.
-    """
-    from app.services.warmup_service import fire_agent_wakeup
-    await fire_agent_wakeup()
+    """Endpoint kiểm tra sức khoẻ Backend."""
     return {
         "status": "healthy",
         "service": settings.app_name,

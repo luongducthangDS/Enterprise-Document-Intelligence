@@ -169,75 +169,186 @@ Chỉ trả về câu trả lời, không thêm lời dẫn."""
 _CLARIFY_SYSTEM = """Câu hỏi của nhân viên về tài liệu nội bộ nhưng còn mập mờ, có thể hiểu theo nhiều nghĩa. Hãy đặt lại ĐÚNG 1 câu hỏi làm rõ, ngắn gọn, lịch sự, giúp xác định đúng ý người hỏi (vd hỏi rõ là nghỉ phép năm, nghỉ ốm hay nghỉ việc hẳn). Chỉ trả về câu hỏi làm rõ, không thêm lời dẫn."""
 
 
-async def router_node(state: AgentState) -> dict:
+def _format_history_text(
+    history: list[dict],
+    max_turns: int,
+    max_content_chars: int = 2000,
+    injection_hits: list[str] | None = None,
+) -> str:
+    from src.agents.guardrails import strip_injection
+
+    recent = history[-max_turns:] if max_turns > 0 else history
+    lines = []
+    for turn in recent:
+        role = "Người dùng" if turn.get("role") == "user" else "Trợ lý"
+        content = str(turn.get("content", ""))[:max_content_chars]
+        content, hits = strip_injection(content)
+        if hits and injection_hits is not None:
+            injection_hits.extend(hits)
+        lines.append(f"{role}: {content}")
+    return "\n".join(lines)
+
+
+def _get_unified_condense_router_system() -> str:
+    from src.config import get_settings
+    internal_names = ", ".join(get_settings().internal_company_names)
+    return f"""Bạn là bộ điều hướng ý định và tổng hợp ngữ cảnh hội thoại cho trợ lý tri thức nội bộ ({internal_names}).
+
+Nhiệm vụ:
+1. Xử lý ngữ cảnh (Condense): Đọc lịch sử hội thoại (nếu có trong <HISTORY>) và câu hỏi hiện tại trong <CURRENT_QUERY>, viết lại thành `condensed_query` độc lập mang đầy đủ ngữ cảnh (thay thế đại từ mơ hồ, giữ nguyên dữ kiện định lượng). Nếu không có lịch sử hoặc câu hỏi đã độc lập, giữ nguyên câu hỏi.
+2. Phân loại ý định (Intent): Phân loại câu hỏi vào ĐÚNG 1 trong 5 nhóm sau:
+   - "greeting": Chào hỏi, cảm ơn, tạm biệt, xã giao (vd "chào bạn", "cảm ơn nhé").
+   - "hr_question": Câu hỏi chính sách, quy chế, quy trình nội bộ ({internal_names}) đã rõ ràng, có thể trả lời bằng tài liệu chung (vd "Thời gian thử việc tối đa là bao lâu?", "Checkout Redesign release khi nào?").
+   - "ambiguous": Câu hỏi thiếu thông tin cụ thể hoặc đa nghĩa, cần hỏi lại để làm rõ (vd "Tôi còn bao nhiêu ngày phép?", "Bao giờ thì thưởng về?"). Kèm theo `clarifying_question` là 1 câu hỏi làm rõ ngắn gọn, lịch sự.
+   - "pure_statutory": Câu hỏi hỏi thẳng văn bản pháp luật/nghị định quốc gia hoặc thủ tục với cơ quan nhà nước, không hỏi chính sách công ty áp dụng ra sao (vd "Điều 112 Bộ luật Lao động quy định nghỉ lễ thế nào?").
+   - "out_of_scope_or_personal": Tra cứu dữ liệu cá nhân thực tế (đơn của tôi đã duyệt chưa, số dư lương tháng này...) hoặc hỏi về công ty khác không phải {internal_names}, hoặc ngoài phạm vi công việc.
+
+TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON (KHÔNG KÈM TEXT NÀO KHÁC):
+{{
+  "condensed_query": "câu hỏi độc lập mang đủ ngữ cảnh",
+  "intent": "greeting" | "hr_question" | "ambiguous" | "pure_statutory" | "out_of_scope_or_personal",
+  "clarifying_question": "câu hỏi làm rõ ngắn gọn nếu intent=ambiguous, ngược lại để null"
+}}"""
+
+
+async def condense_and_route_node(state: AgentState) -> dict:
+    """Unified node: gộp xử lý ngữ cảnh lịch sử (Condense) và phân loại ý định (Router)
+    vào 1 lượt gọi LLM duy nhất (gpt-4o-mini) với đầu ra JSON định dạng có cấu trúc.
+    """
+    from src.agents.guardrails import detect_injection
     from src.config import get_settings
 
-    query = state.get("condensed_query") or state.get("query", "")
-    # Deterministic brand guard for the course/demo scope: named companies that are
-    # not the internal demo persona must not be treated as currently applicable HR policy.
-    if _mentions_competitor_company(query):
-        return {"intent": "out_of_scope_or_personal"}
+    node_start_t = time.perf_counter()
+    query = state.get("query", "")
+    history = state.get("history") or []
+    settings = get_settings()
 
-    # --- Domain-Specific Personal Data / ABSTAIN Guardrail (G5) ---
+    injection_hits: list[str] = []
+    if settings.guardrail_injection_enabled:
+        injection_hits.extend(detect_injection(query))
+
+    # Guard công ty đối thủ
+    if _mentions_competitor_company(query):
+        return {
+            "condensed_query": query,
+            "intent": "out_of_scope_or_personal",
+            "guardrail_injection_detected": bool(injection_hits),
+        }
+
+    # Guard dữ liệu cá nhân theo Domain (G5)
     domain = get_conversation_domain(query, state.get("category"), state.get("history"))
     if domain:
         is_personal, reason_code = domain.check_personal_data_query(query)
         if is_personal:
             return {
+                "condensed_query": query,
                 "intent": "out_of_scope_or_personal",
                 "escalate_reason": reason_code or "domain_personal_data_detected",
                 "verifier_called": False,
+                "guardrail_injection_detected": bool(injection_hits),
             }
 
-    # --- G10: Domain Early-Pass — câu hỏi chính sách kế toán confirmed → không qua escalate ---
-    # Nếu G1 đã xác nhận query thuộc phạm vi kế toán/tài chính (accounting domain matched),
-    # thì đây CHẮC CHẮN là câu hỏi chính sách nội bộ, không cần để LLM router có thể phân loại
-    # nhầm thành out_of_scope_or_personal (đo được: "phòng nào vượt ngân sách" bị router nhầm).
-    # Điều kiện: query phải cụ thể (≥ 6 từ) và KHÔNG chứa đại từ chỉ định mơ hồ (này/đó/kia...)
-    # để tránh bypass câu hỏi ambiguous như "Hợp đồng này thanh toán thế nào?"
+    # G10: Domain Early-Pass kế toán
     _g10_ambiguous_refs = re.compile(r"\b(n[aà]y|[đd][oó]|kia|v[uừ]a r[oồ]i|tr[eê]n|d[uư][oớ]i)\b", re.IGNORECASE)
-    # HR bảo hiểm/người phụ thuộc có thể chứa từ "chi phí"; không bypass router.
     _g10_hr_exclusions = re.compile(
         r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
         re.IGNORECASE,
     )
     if domain and getattr(domain, "domain_name", None) == "accounting":
         query_words = query.split()
-        if (
-            len(query_words) >= 6
-            and not _g10_ambiguous_refs.search(query)
-            and not _g10_hr_exclusions.search(query)
-        ):
-            return {"intent": "hr_question"}
-    # Đây là nhóm thuật ngữ HR chuyên biệt, không mang nghĩa mập mờ và không
-    # cần tốn một lượt LLM chỉ để phân loại. Guard tên công ty ở trên vẫn chạy
-    # trước để câu hỏi Hybrid của doanh nghiệp khác không lọt vào RAG nội bộ.
-    if _EXPLICIT_HYBRID_PATTERN.search(query):
-        return {"intent": "hr_question"}
+        if len(query_words) >= 6 and not _g10_ambiguous_refs.search(query) and not _g10_hr_exclusions.search(query):
+            return {
+                "condensed_query": query,
+                "intent": "hr_question",
+                "guardrail_injection_detected": bool(injection_hits),
+            }
 
-    # Product đã dùng chung RAG pipeline với HR. Giữ nhãn intent legacy
-    # `hr_question` để không đổi graph/contract; các feature canonical rõ ràng
-    # đi thẳng vào retrieval thay vì bị router HR cũ đánh nhầm là out-of-scope.
-    if _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query):
-        return {"intent": "hr_question"}
+    # Heuristics: Hybrid policy / Product knowledge
+    if _EXPLICIT_HYBRID_PATTERN.search(query) or _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query):
+        return {
+            "condensed_query": query,
+            "intent": "hr_question",
+            "guardrail_injection_detected": bool(injection_hits),
+        }
 
-    # router_model rỗng -> None -> acall_llm dùng llm_model như cũ.
-    settings = get_settings()
+    # Chuẩn bị Prompt
+    history_text = _format_history_text(
+        history,
+        settings.max_history_turns,
+        settings.max_history_content_chars,
+        injection_hits,
+    ) if history else ""
+
+    if history_text:
+        user_prompt = f"<HISTORY>\n{history_text}\n</HISTORY>\n\n<CURRENT_QUERY>{query}</CURRENT_QUERY>"
+    else:
+        user_prompt = f"<CURRENT_QUERY>{query}</CURRENT_QUERY>"
+
     model = settings.router_model or None
+    t_start = time.perf_counter()
     raw = await acall_llm(
-        _get_router_system(),
-        query,
+        _get_unified_condense_router_system(),
+        user_prompt,
         temperature=0.0,
         model=model,
         enable_thinking=thinking_arg(settings.thinking_router),
     )
-    match = _INTENT_PATTERN.search(raw.strip().lower())
-    # Không parse được thì coi là hr_question — thử RAG còn hơn im lặng/escalate nhầm.
-    intent: Intent = match.group(0) if match else "hr_question"  # type: ignore[assignment]
+    llm_ms = round((time.perf_counter() - t_start) * 1000)
+
+    # Parse JSON output có fallback an toàn
+    condensed_query = query
+    intent_str = "hr_question"
+    clarifying_q = None
+
+    clean_raw = raw.strip()
+    if clean_raw.startswith("```json"):
+        clean_raw = clean_raw[7:]
+    if clean_raw.startswith("```"):
+        clean_raw = clean_raw[3:]
+    if clean_raw.endswith("```"):
+        clean_raw = clean_raw[:-3]
+
+    try:
+        data = json.loads(clean_raw.strip())
+        if isinstance(data, dict):
+            condensed_query = str(data.get("condensed_query") or query).strip()
+            intent_str = str(data.get("intent") or "").strip().lower()
+            clarifying_q = data.get("clarifying_question")
+    except Exception:
+        match = _INTENT_PATTERN.search(raw.strip().lower())
+        intent_str = match.group(0) if match else "hr_question"
+
+    valid_intents = {"greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"}
+    if intent_str not in valid_intents:
+        match = _INTENT_PATTERN.search(intent_str)
+        intent: Intent = match.group(0) if match else "hr_question"  # type: ignore[assignment]
+    else:
+        intent: Intent = intent_str  # type: ignore[assignment]
+
+    result: dict = {
+        "condensed_query": condensed_query or query,
+        "intent": intent,
+        "guardrail_injection_detected": bool(injection_hits) or state.get("guardrail_injection_detected", False),
+    }
+
+    if intent == "ambiguous" and clarifying_q:
+        result["needs_clarification"] = True
+        result["clarifying_question"] = clarifying_q
+        result["response"] = clarifying_q
 
     if intent == "out_of_scope_or_personal" and settings.escalation_guard_enabled:
-        return await _guard_escalation(query, model)
-    return {"intent": intent}
+        guard_res = await _guard_escalation(condensed_query, model)
+        result.update(guard_res)
+
+    total_router_ms = round((time.perf_counter() - node_start_t) * 1000)
+    print(f"[TIMING] [condense_and_route] {total_router_ms}ms (LLM: {llm_ms}ms, model: {model or 'default'}) | intent={intent}")
+
+    return result
+
+
+async def router_node(state: AgentState) -> dict:
+    """Tương thích ngược: router_node ủy thác sang condense_and_route_node."""
+    return await condense_and_route_node(state)
 
 
 def _has_policy_signal(query: str) -> bool:
@@ -337,6 +448,10 @@ async def direct_node(state: AgentState) -> dict:
 
 
 async def clarify_node(state: AgentState) -> dict:
+    existing_q = state.get("clarifying_question")
+    if existing_q:
+        return {"needs_clarification": True, "clarifying_question": existing_q, "response": existing_q}
+
     from src.config import get_settings
 
     settings = get_settings()

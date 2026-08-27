@@ -336,7 +336,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
     return () => window.cancelAnimationFrame(frame);
   }, [conversations, updateConversationStack]);
 
-  async function poll(chatRequestId: string, pollAfterMs: number) {
+  async function poll(chatRequestId: string, pollAfterMs: number, placeholderMessageId?: string) {
     const controller = new AbortController();
     pollController.current?.abort();
     pollController.current = controller;
@@ -351,30 +351,161 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       if (!mounted.current) return;
       setProcessingState(result.state);
     } while (!TERMINAL_STATES.has(result.state));
-    setMessages((current) => [...current, { id: result.assistant_message_id ?? chatRequestId, kind: "assistant", result }]);
+
+    const finalMessageId = result.assistant_message_id ?? chatRequestId;
+    setMessages((current) => {
+      if (placeholderMessageId) {
+        const index = current.findIndex((m) => m.id === placeholderMessageId);
+        if (index !== -1) {
+          const next = [...current];
+          next[index] = { id: finalMessageId, kind: "assistant", result };
+          return next;
+        }
+      }
+      const existingIdx = current.findIndex((m) => m.id === finalMessageId);
+      if (existingIdx !== -1) {
+        const next = [...current];
+        next[existingIdx] = { id: finalMessageId, kind: "assistant", result };
+        return next;
+      }
+      return [...current, { id: finalMessageId, kind: "assistant", result }];
+    });
+    void loadConversations();
     if (pollController.current === controller) pollController.current = null;
   }
 
   async function sendQuestion(text: string) {
     const cleanQuestion = text.trim();
     if (!conversationId || !cleanQuestion || busy || conversationState !== "ACTIVE") return;
-    setMessages((current) => [...current, { id: crypto.randomUUID(), kind: "user", content: cleanQuestion }]);
+    const userMsgId = crypto.randomUUID();
+    const assistantMsgId = crypto.randomUUID();
+
+    setMessages((current) => [
+      ...current,
+      { id: userMsgId, kind: "user", content: cleanQuestion },
+    ]);
     setQuestion("");
     setBusy(true);
     setError("");
     setProcessingState("QUEUED");
+
+    const controller = new AbortController();
+    pollController.current?.abort();
+    pollController.current = controller;
+
+    let activeChatRequestId: string | null = null;
+    let accumulatedAnswer = "";
+    let receivedResult = false;
+    const accumulatedCitations: CitationSummary[] = [];
+
     try {
-      const created = await api.createChatRequest(conversationId, cleanQuestion);
-      await poll(created.chat_request_id, created.poll_after_ms);
-      await loadConversations();
+      await api.streamChatRequest(
+        conversationId,
+        cleanQuestion,
+        (event) => {
+          if (!mounted.current) return;
+          if (event.type === "request") {
+            activeChatRequestId = event.chat_request_id;
+            setProcessingState(event.state || "QUEUED");
+            // Cập nhật sidebar ngầm (Non-blocking)
+            void loadConversations();
+          } else if (event.type === "status") {
+            setProcessingState(event.value);
+          } else if (event.type === "answer_delta") {
+            accumulatedAnswer += event.content;
+            setMessages((current) => {
+              const existingIdx = current.findIndex((m) => m.id === assistantMsgId);
+              const streamingResult: ChatResult = {
+                chat_request_id: activeChatRequestId || "",
+                conversation_id: conversationId,
+                user_message_id: userMsgId,
+                assistant_message_id: assistantMsgId,
+                state: "GENERATING",
+                answer_status: null,
+                answer: accumulatedAnswer,
+                citations: accumulatedCitations,
+                warnings: [],
+                clarification: null,
+                failure: null,
+                latency_ms: null,
+              };
+              if (existingIdx !== -1) {
+                const next = [...current];
+                next[existingIdx] = { id: assistantMsgId, kind: "assistant", result: streamingResult };
+                return next;
+              }
+              return [...current, { id: assistantMsgId, kind: "assistant", result: streamingResult }];
+            });
+          } else if (event.type === "citation") {
+            accumulatedCitations.push({
+              citation_id: crypto.randomUUID(),
+              title: event.title,
+              page: event.page_start,
+              sheet: null,
+              section: null,
+              version: null,
+              effective_date: null,
+              source_type: "internal_policy",
+              is_official_policy: event.is_official_policy,
+            });
+            setMessages((current) => {
+              const existingIdx = current.findIndex((m) => m.id === assistantMsgId);
+              if (existingIdx !== -1 && current[existingIdx].kind === "assistant") {
+                const prevResult = (current[existingIdx] as { result: ChatResult }).result;
+                const next = [...current];
+                next[existingIdx] = {
+                  ...current[existingIdx],
+                  result: { ...prevResult, citations: [...accumulatedCitations] },
+                };
+                return next;
+              }
+              return current;
+            });
+          } else if (event.type === "result") {
+            receivedResult = true;
+            const result = event.data;
+            const finalId = result.assistant_message_id ?? activeChatRequestId ?? assistantMsgId;
+            setMessages((current) => {
+              const existingIdx = current.findIndex((m) => m.id === assistantMsgId || m.id === finalId);
+              if (existingIdx !== -1) {
+                const next = [...current];
+                next[existingIdx] = { id: finalId, kind: "assistant", result };
+                return next;
+              }
+              return [...current, { id: finalId, kind: "assistant", result }];
+            });
+            // Cập nhật sidebar ngầm (Non-blocking)
+            void loadConversations();
+          }
+        },
+        controller.signal,
+      );
+
+      // Nếu stream kết thúc mà chưa nhận được event result hoàn chỉnh, fallback sang poll
+      if (!receivedResult && activeChatRequestId) {
+        await poll(activeChatRequestId, 1000, assistantMsgId);
+      }
     } catch (reason) {
-      if (isAbortError(reason)) return;
-      setError(reason instanceof ApiClientError ? reason.message : "Không thể xử lý câu hỏi.");
+      if (isAbortError(reason) || controller.signal.aborted) return;
+
+      // Fallback sang Polling nếu stream bị gián đoạn và đã có chat_request_id
+      if (activeChatRequestId && !receivedResult) {
+        try {
+          await poll(activeChatRequestId, 1000, assistantMsgId);
+          return;
+        } catch (pollReason) {
+          if (isAbortError(pollReason)) return;
+          setError(pollReason instanceof ApiClientError ? pollReason.message : "Không thể xử lý câu hỏi.");
+        }
+      } else {
+        setError(reason instanceof ApiClientError ? reason.message : "Không thể xử lý câu hỏi.");
+      }
     } finally {
       if (mounted.current) {
         setBusy(false);
         setProcessingState(null);
       }
+      if (pollController.current === controller) pollController.current = null;
     }
   }
 
@@ -396,12 +527,15 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
     try {
       const created = await api.retryChatRequest(chatRequestId);
       await poll(created.chat_request_id, created.poll_after_ms);
+      void loadConversations();
     } catch (reason) {
       if (isAbortError(reason)) return;
       setError(reason instanceof ApiClientError ? reason.message : "Không thể thử lại yêu cầu.");
     } finally {
-      setBusy(false);
-      setProcessingState(null);
+      if (mounted.current) {
+        setBusy(false);
+        setProcessingState(null);
+      }
     }
   }
 
@@ -548,7 +682,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
           {messages.map((message) => message.kind === "user"
             ? <div className="message user-message" key={message.id}><div className="message-body">{message.content}</div></div>
             : <AssistantMessage key={message.id} result={message.result} onCitation={openCitation} onRetry={retry} />)}
-          {processingState && (
+          {processingState && !messages.some((m) => m.kind === "assistant" && m.result.state === "GENERATING") && (
             <div className="message assistant-message animate__animated animate__fadeInLeft motion-message"><div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div><div className="message-body processing processing-pulse animate__animated animate__pulse animate__infinite"><strong>Đang xử lý</strong><span>{chatStateLabel(processingState)}</span></div></div>
           )}
           {error && <div className="stream-error"><CircleAlert size={17} /><span>{error}</span>{!conversationId && !busy && <button className="secondary-command" onClick={() => void startConversation()}><RefreshCw size={16} /> Thử lại</button>}</div>}
@@ -609,15 +743,17 @@ function AssistantMessage({ result, onCitation, onRetry }: {
   onCitation: (citation: CitationSummary) => void;
   onRetry: (requestId: string) => void;
 }) {
+  const isGenerating = result.state === "GENERATING";
   return <div className="message assistant-message">
     <div className="assistant-avatar"><BookOpenCheck size={18} /></div>
     <div className="message-body answer-body">
       <div className="answer-meta">
-        <span className={`status-pill ${result.state === "COMPLETED" ? "success" : result.state === "FAILED" ? "danger" : "warning"}`}>{chatStateLabel(result.answer_status ?? result.state)}</span>
+        <span className={`status-pill ${result.state === "COMPLETED" ? "success" : result.state === "FAILED" ? "danger" : isGenerating ? "neutral" : "warning"}`}>{chatStateLabel(result.answer_status ?? result.state)}</span>
         {result.latency_ms !== null && <span>{formatLatency(result.latency_ms)}</span>}
       </div>
       {result.state === "CLARIFICATION_REQUIRED" ? <div className="clarification-copy"><MessageCircleQuestion size={20} /><div><strong>Cần làm rõ thêm</strong><p>{result.clarification?.question}</p><small>Nhập câu trả lời trong ô chat để tiếp tục cùng phiên.</small></div></div>
         : <AnswerMarkdown content={result.answer ?? result.failure?.message ?? ""} />}
+      {isGenerating && <span className="typing-cursor" style={{ opacity: 0.8, animation: "pulse 1s infinite" }}> ▌</span>}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
       {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
       {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}

@@ -25,20 +25,22 @@ async def _warmup_retrieval() -> None:
     warm-up chỉ khiến request đầu chậm như trước, còn chết lúc startup thì hỏng
     cả agent.
     """
-    from src.agents.nodes.retrieval import _aembed_query, _collection
+    from src.agents.nodes.retrieval import _aembed_query, _bm25_index, _collection
 
     started = time.perf_counter()
     try:
         embedding = await _aembed_query("chính sách nghỉ phép")
         collection = await asyncio.to_thread(_collection)
         await asyncio.to_thread(collection.query, query_embeddings=[embedding], n_results=1)
+        # Nạp trước BM25 Corpus vào bộ nhớ đệm ngay khi khởi động để loại bỏ cold-start
+        await asyncio.to_thread(_bm25_index)
     # Log warm-up cố ý viết KHÔNG DẤU: nó chạy trong lifespan, và console
     # Windows mặc định cp1252 làm print tiếng Việt ném UnicodeEncodeError —
     # ở đây lỗi đó giết luôn startup của cả service.
     except Exception as e:  # noqa: BLE001 — warm-up hỏng không được chặn startup
         print(f"[warmup] skipped: {type(e).__name__}: {e}")
         return
-    print(f"[warmup] retrieval ready in {round((time.perf_counter() - started) * 1000)}ms")
+    print(f"[warmup] retrieval and BM25 index ready in {round((time.perf_counter() - started) * 1000)}ms")
 
 
 @asynccontextmanager

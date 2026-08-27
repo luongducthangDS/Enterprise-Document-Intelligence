@@ -14,6 +14,55 @@ def thinking_arg(enabled: bool) -> bool | None:
     return None if enabled else False
 
 
+def resolve_llm_endpoint(
+    model: str | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
+) -> tuple[str, str, str]:
+    """Phân giải (model, base_url, api_key) dựa trên cấu hình USE_GLM và Provider."""
+    settings = get_settings()
+
+    # Nếu caller đã chỉ định rõ cả base_url và api_key và model thì dùng nguyên
+    if base_url and api_key and model:
+        return model, base_url, api_key
+
+    # 1. Nhánh USE_GLM = ON (True) -> Dùng GLM-5.2 qua FPT Cloud
+    if settings.use_glm:
+        target_model = model or (
+            settings.llm_model
+            if (settings.llm_model and not settings.llm_model.lower().startswith("gpt-"))
+            else "GLM-5.2"
+        )
+        if target_model.lower().startswith("gpt-4o-mini"):
+            target_model = (
+                settings.router_model
+                if (settings.router_model and not settings.router_model.lower().startswith("gpt-"))
+                else "DeepSeek-V4-Flash"
+            )
+        elif target_model.lower().startswith("gpt-4o"):
+            target_model = "GLM-5.2"
+
+        resolved_base_url = base_url or settings.fpt_base_url
+        resolved_api_key = api_key or settings.fpt_api_key
+        return target_model, resolved_base_url, resolved_api_key
+
+    # 2. Nhánh USE_GLM = OFF (False) -> Dùng OpenAI (gpt-4o / gpt-4o-mini)
+    target_model = model or "gpt-4o"
+    if target_model in ("GLM-5.2", "glm-5.2"):
+        target_model = "gpt-4o"
+    elif target_model in ("DeepSeek-V4-Flash", "deepseek-v4-flash"):
+        target_model = "gpt-4o-mini"
+
+    is_openai = True
+    if settings.llm_provider == "fpt":
+        is_openai = False
+
+    resolved_base_url = base_url or (settings.openai_base_url if is_openai else settings.fpt_base_url)
+    resolved_api_key = api_key or (settings.openai_api_key if is_openai else settings.fpt_api_key)
+
+    return target_model, resolved_base_url, resolved_api_key
+
+
 async def acall_llm(
     system: str,
     user: str,
@@ -28,7 +77,7 @@ async def acall_llm(
     timeout: int = 30,
     retries: int = 0,
 ) -> str:
-    """Gọi LLM qua FPT.AI Marketplace mà không block event loop —
+    """Gọi LLM (OpenAI hoặc FPT.AI Marketplace) mà không block event loop —
     fpt_client.chat_completion dùng requests đồng bộ nên chạy trong thread pool.
 
     `model=None` dùng `llm_model` (model của agent). Truyền model khác khi cần
@@ -37,14 +86,18 @@ async def acall_llm(
     `enable_thinking=None` giữ nguyên mặc định của model; `False` tắt
     chain-of-thought (xem fpt_client._post_chat_completion để biết số đo).
     """
-    settings = get_settings()
+    effective_model, effective_base_url, effective_api_key = resolve_llm_endpoint(
+        model=model,
+        base_url=base_url,
+        api_key=api_key,
+    )
     return await asyncio.to_thread(
         chat_completion,
         system,
         user,
-        model=model or settings.llm_model,
-        base_url=base_url or settings.fpt_base_url,
-        api_key=api_key or settings.fpt_api_key,
+        model=effective_model,
+        base_url=effective_base_url,
+        api_key=effective_api_key,
         temperature=temperature,
         enable_thinking=enable_thinking,
         timeout=timeout,

@@ -48,27 +48,6 @@ class AIAgentClient:
         self.service_token = service_token
         self.transport = transport
 
-    async def _wait_until_agent_ready(self, client: httpx.AsyncClient, max_wait_seconds: float = 50.0) -> bool:
-        """Thăm dò endpoint /health liên tục cho tới khi container Agent tỉnh ngủ và trả về HTTP 200."""
-        if self.transport is not None:
-            return False
-        import asyncio
-        import time
-        health_url = self.base_url.split("/api/v1")[0] + "/health"
-        logger.info(f"[Render Cold-Start] Đang gửi tín hiệu và thăm dò đánh thức Agent tại {health_url} (tối đa {max_wait_seconds}s)...")
-        start = time.time()
-        while (time.time() - start) < max_wait_seconds:
-            try:
-                res = await client.get(health_url, timeout=8.0)
-                if res.status_code == 200:
-                    logger.info(f"[Render Cold-Start] ✅ Agent đã thức dậy và sẵn sàng (sau {time.time() - start:.1f}s)!")
-                    return True
-            except Exception as e:
-                logger.debug(f"[Render Cold-Start] Đang chờ container khởi động: {e}")
-            await asyncio.sleep(4.0)
-        return False
-
-
     async def query_agent(
         self,
         user_id: str,
@@ -79,6 +58,8 @@ class AIAgentClient:
         tenant_id: str,
         history: list[dict[str, str]] | None = None,
     ) -> AgentAnswerDTO:
+        from app.services.warmup_service import WarmupService
+
         payload = {
             "user_id": user_id,
             "query": query,
@@ -93,51 +74,35 @@ class AIAgentClient:
             headers["X-Service-Token"] = self.service_token
             headers["X-Identity-Signature"] = _identity_signature(payload, self.service_token)
 
-        max_retries = 3
-        last_exception = None
-
         async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
-            for attempt in range(1, max_retries + 1):
-                try:
-                    response = await client.post(f"{self.base_url}/query", json=payload, headers=headers)
-                    response.raise_for_status()
-                    return AgentAnswerDTO.model_validate(response.json())
-                except httpx.HTTPStatusError as exc:
-                    last_exception = exc
-                    # Nếu gặp lỗi 502/503 (Render container đang ngủ / khởi động lại)
-                    if exc.response.status_code in (502, 503) and attempt == 1:
-                        logger.warning(
-                            f"[AIAgentClient] Nhận HTTP {exc.response.status_code} từ Agent (Render Cold Start). Đang tự động đợi Agent tỉnh dậy..."
-                        )
-                        ready = await self._wait_until_agent_ready(client, max_wait_seconds=50.0)
-                        if ready:
-                            continue
-
-                    retryable = exc.response.status_code >= 500
-                    logger.error(f"AI Agent returned HTTP {exc.response.status_code}: {exc}")
-                    raise AIAgentClientError(
-                        "AGENT_SERVICE_ERROR", "AI Agent service returned an error", retryable
-                    ) from exc
-                except (httpx.TimeoutException, httpx.ConnectError) as exc:
-                    last_exception = exc
-                    if attempt == 1:
-                        logger.warning(
-                            f"[AIAgentClient] Lỗi kết nối/timeout tới Agent (Render Cold Start). Đang đợi Agent tỉnh dậy..."
-                        )
-                        ready = await self._wait_until_agent_ready(client, max_wait_seconds=50.0)
-                        if ready:
-                            continue
-                    logger.error(f"AI Agent request timed out: {exc}")
-                    raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out") from exc
-                except httpx.RequestError as exc:
-                    logger.error(f"Failed to communicate with AI Agent Service: {exc}")
-                    raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable") from exc
-                except (ValidationError, ValueError) as exc:
-                    logger.error(f"AI Agent returned an invalid response: {exc}")
-                    raise AIAgentClientError("AGENT_INVALID_RESPONSE", "AI Agent response is invalid", False) from exc
-
-            if last_exception:
-                raise AIAgentClientError("AGENT_SERVICE_ERROR", "AI Agent service returned an error after retries") from last_exception
+            try:
+                response = await client.post(f"{self.base_url}/query", json=payload, headers=headers)
+                response.raise_for_status()
+                return AgentAnswerDTO.model_validate(response.json())
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in (502, 503):
+                    logger.warning(
+                        f"[AIAgentClient] Nhận HTTP {exc.response.status_code} từ Agent. Kích hoạt WarmupService đánh thức Agent..."
+                    )
+                    WarmupService.trigger_background_warmup()
+                retryable = exc.response.status_code >= 500
+                logger.error(f"AI Agent returned HTTP {exc.response.status_code}: {exc}")
+                raise AIAgentClientError(
+                    "AGENT_SERVICE_ERROR", "AI Agent service returned an error", retryable
+                ) from exc
+            except (httpx.TimeoutException, httpx.ConnectError) as exc:
+                logger.warning(
+                    f"[AIAgentClient] Timeout/Mất kết nối tới AI Agent ({exc}). Đang kích hoạt WarmupService đánh thức Agent..."
+                )
+                WarmupService.trigger_background_warmup()
+                raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out", True) from exc
+            except httpx.RequestError as exc:
+                logger.error(f"Failed to communicate with AI Agent Service: {exc}")
+                WarmupService.trigger_background_warmup()
+                raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable", True) from exc
+            except (ValidationError, ValueError) as exc:
+                logger.error(f"AI Agent returned an invalid response: {exc}")
+                raise AIAgentClientError("AGENT_INVALID_RESPONSE", "AI Agent response is invalid", False) from exc
 
 
 
@@ -205,8 +170,11 @@ class AIAgentClient:
                 raise
             except httpx.TimeoutException as exc:
                 logger.error(f"AI Agent stream timed out: {exc}")
-                raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out") from exc
+                WarmupService.trigger_background_warmup()
+                raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out", True) from exc
             except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in (502, 503):
+                    WarmupService.trigger_background_warmup()
                 retryable = exc.response.status_code >= 500
                 logger.error(f"AI Agent stream returned HTTP {exc.response.status_code}: {exc}")
                 raise AIAgentClientError(
@@ -214,4 +182,5 @@ class AIAgentClient:
                 ) from exc
             except httpx.RequestError as exc:
                 logger.error(f"Failed to stream from AI Agent Service: {exc}")
-                raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable") from exc
+                WarmupService.trigger_background_warmup()
+                raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable", True) from exc

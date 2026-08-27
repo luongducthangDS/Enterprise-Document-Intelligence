@@ -1,5 +1,6 @@
 import asyncio
 import re
+import time
 from datetime import UTC, datetime
 from functools import lru_cache, partial
 
@@ -338,6 +339,7 @@ async def retrieval_node(state: AgentState) -> dict:
     from src.domains import get_conversation_domain
     from src.domains.accounting.retrieval_ext import accounting_retrieval_node
 
+    t_retrieval_start = time.perf_counter()
     query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
     domain = get_conversation_domain(query, state.get("category"), state.get("history"))
     if domain and domain.domain_name == "accounting":
@@ -351,12 +353,15 @@ async def retrieval_node(state: AgentState) -> dict:
         else resolve_tenant_collection(user_context)
     )
 
+    t_embed_start = time.perf_counter()
     with llm_trace.Timer("embedding", "fpt_cloud"):
         embedding = await _aembed_query(query)
+    embed_ms = round((time.perf_counter() - t_embed_start) * 1000)
 
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
         collection = _collection(collection_name)
 
+    t_search_start = time.perf_counter()
     filters = _retrieval_filters(settings, user_context)
     with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
         branch_results = await asyncio.gather(
@@ -370,6 +375,7 @@ async def retrieval_node(state: AgentState) -> dict:
             ]
         )
         result = _merge_query_results(branch_results, settings.retrieval_top_k)
+    search_ms = round((time.perf_counter() - t_search_start) * 1000)
 
     ids = (result.get("ids") or [[]])[0]
     documents = (result.get("documents") or [[]])[0]
@@ -398,11 +404,21 @@ async def retrieval_node(state: AgentState) -> dict:
                 "access_denied_reason": "DEPARTMENT_SCOPE_DENIED",
                 "denied_department": denied_department,
             }
+
+    rerank_ms = 0
     if settings.use_reranker and chunks:
+        t_rerank_start = time.perf_counter()
         if _is_multi_source_query(query):
             chunks = await _arerank(query, chunks, diversify_sources=True)
         else:
             chunks = await _arerank(query, chunks)
+        rerank_ms = round((time.perf_counter() - t_rerank_start) * 1000)
+
+    total_retrieval_ms = round((time.perf_counter() - t_retrieval_start) * 1000)
+    print(
+        f"[TIMING] [retrieve] {total_retrieval_ms}ms "
+        f"(embed: {embed_ms}ms, vector_search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)}"
+    )
 
     # Observability & Audit Trail Logging
     req_id = state.get("request_id") or "req_default"
@@ -485,6 +501,29 @@ async def _amerge_bm25(
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
 
 
+def _round_robin_sources(
+    chunks: list[RetrievedChunk],
+    top_k: int = 5,
+    limit: int | None = None,
+) -> list[RetrievedChunk]:
+    """Lấy vòng tròn xen kẽ các source_file khác nhau."""
+    from collections import defaultdict
+
+    by_source: dict[str, list[RetrievedChunk]] = defaultdict(list)
+    for c in chunks:
+        by_source[c["source_file"]].append(c)
+
+    result: list[RetrievedChunk] = []
+    sources = list(by_source.keys())
+    idx = 0
+    while len(result) < top_k and any(by_source.values()):
+        src = sources[idx % len(sources)]
+        if by_source[src]:
+            result.append(by_source[src].pop(0))
+        idx += 1
+    return result
+
+
 async def _arerank(
     query: str,
     chunks: list[RetrievedChunk],
@@ -536,18 +575,7 @@ async def _arerank(
 
 
 def grade_node(state: AgentState) -> dict:
-    """Lọc chunk không đủ liên quan.
-
-    Ưu tiên score của reranker (0-1, cùng thang cho mọi câu hỏi) và chỉ dùng
-    khoảng cách embedding khi không có score — khoảng cách cosine phụ thuộc
-    từng câu hỏi nên ngưỡng tĩnh trên nó rất khó chỉnh (đo được: phân phối
-    distance của câu in-scope và out-of-scope chồng lấn nặng).
-
-    KHÔNG có fallback kiểu "lọc hết thì lấy tạm top-3": để danh sách rỗng đi
-    tiếp là đúng thiết kế — generate sẽ nói "chưa đủ thông tin" và confidence
-    thấp sẽ escalate thành ticket. Fallback im lặng làm tê liệt toàn bộ nhánh
-    escalate đó.
-    """
+    t_grade_start = time.perf_counter()
     settings = get_settings()
     chunks = state.get("retrieved_chunks", [])
 
@@ -557,15 +585,17 @@ def grade_node(state: AgentState) -> dict:
     else:
         relevant = [c for c in chunks if c["distance"] <= settings.retrieval_max_distance]
 
+    grade_ms = round((time.perf_counter() - t_grade_start) * 1000, 2)
+    print(f"[TIMING] [grade] {grade_ms}ms | input_chunks={len(chunks)} -> relevant_chunks={len(relevant)}")
+
     return {"retrieved_chunks": relevant}
 
 
 async def rewrite_node(state: AgentState) -> dict:
     from src.config import get_settings
 
+    t_rewrite_start = time.perf_counter()
     query = state.get("condensed_query") or state.get("query", "")
-    # temperature=0.0: cùng lý do như condense_node — đây là node quyết định query
-    # đưa vào retrieval lần thử lại, không phải node sinh văn phong tự nhiên.
     settings = get_settings()
     model = settings.router_model or None
     rewritten = (
@@ -578,4 +608,6 @@ async def rewrite_node(state: AgentState) -> dict:
         )
     ).strip()
     rewrite_count = state.get("rewrite_count", 0) + 1
+    rewrite_ms = round((time.perf_counter() - t_rewrite_start) * 1000)
+    print(f"[TIMING] [rewrite] {rewrite_ms}ms | attempt={rewrite_count}")
     return {"rewritten_query": rewritten, "rewrite_count": rewrite_count}

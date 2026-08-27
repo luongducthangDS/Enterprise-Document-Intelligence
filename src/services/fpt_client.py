@@ -80,9 +80,14 @@ def _post_chat_completion(
     """
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload: dict = {"model": model, "messages": messages}
-    if temperature is not None:
+
+    # Các model thế hệ mới của OpenAI (gpt-5*, o1*, o3*) cố định temperature=1.0 và từ chối param temperature != 1
+    lower_model = model.lower()
+    is_fixed_temp_model = "openai.com" in base_url.lower() and lower_model.startswith(("gpt-5", "o1", "o3", "o4"))
+    if temperature is not None and not is_fixed_temp_model:
         payload["temperature"] = temperature
-    if enable_thinking is not None:
+
+    if enable_thinking is not None and "openai.com" not in base_url.lower():
         payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 
     captured_usage: dict = {}

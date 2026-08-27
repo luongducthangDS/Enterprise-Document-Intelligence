@@ -1,4 +1,5 @@
 import re
+import time
 
 import requests
 
@@ -427,6 +428,7 @@ def _resolve_answer_type(answer: str) -> tuple[str, AnswerType]:
 async def generate_node(state: AgentState) -> dict:
     from src.config import get_settings
 
+    t_gen_start = time.perf_counter()
     query = state.get("condensed_query") or state.get("query", "")
     chunks = state.get("retrieved_chunks", [])
 
@@ -447,7 +449,9 @@ async def generate_node(state: AgentState) -> dict:
     domain_rules = domain.get_generation_rules() if domain else ""
     system_prompt = f"{_GENERATE_SYSTEM}\n\n{domain_rules}" if domain_rules else _GENERATE_SYSTEM
 
+    t_llm_start = time.perf_counter()
     answer = (await _call_generation_llm(system_prompt, user_prompt)).strip()
+    llm_ms = round((time.perf_counter() - t_llm_start) * 1000)
 
     # Một câu tổng hợp có thể thiếu đúng một nguồn sau rerank nhưng vẫn có đủ
     # bằng chứng để trả lời phần lớn câu hỏi. Model đôi khi hiểu "chưa đủ mọi
@@ -511,6 +515,13 @@ Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng �
         )
         for c in cited_chunks
     ]
+
+    total_gen_ms = round((time.perf_counter() - t_gen_start) * 1000)
+    print(
+        f"[TIMING] [generate] {total_gen_ms}ms (LLM: {llm_ms}ms, model: {get_settings().llm_model}) "
+        f"| citations={len(citations)} | answerable={answerable}"
+    )
+
     return {
         "generated_answer": answer,
         "citations": citations,
@@ -526,6 +537,7 @@ Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng �
 async def hallucination_check_node(state: AgentState) -> dict:
     from src.config import get_settings
 
+    t_check_start = time.perf_counter()
     chunks = state.get("cited_chunks") or state.get("retrieved_chunks", [])
     answer = state.get("generated_answer", "")
     cited_chunks, source_numbers = _cited_chunks(answer, chunks)
@@ -541,6 +553,8 @@ async def hallucination_check_node(state: AgentState) -> dict:
     if deterministic is not None:
         if not deterministic:
             retry_count += 1
+        check_ms = round((time.perf_counter() - t_check_start) * 1000)
+        print(f"[TIMING] [hallucination_check] {check_ms}ms | method=deterministic_numeric_grounding | verdict={'PASS' if deterministic else 'FAIL'} | retry={retry_count}")
         return {
             "hallucination_passed": deterministic,
             "hallucination_retry_count": retry_count,
@@ -564,6 +578,8 @@ async def hallucination_check_node(state: AgentState) -> dict:
 
     if not passed:
         retry_count += 1
+    check_ms = round((time.perf_counter() - t_check_start) * 1000)
+    print(f"[TIMING] [hallucination_check] {check_ms}ms | method=llm_judge ({model or 'default'}) | verdict={'PASS' if passed else 'FAIL'} | retry={retry_count}")
     return {
         "hallucination_passed": passed,
         "hallucination_retry_count": retry_count,
@@ -579,11 +595,15 @@ def finalize_node(state: AgentState) -> dict:
     """
     from src.config import get_settings
 
+    t_fin_start = time.perf_counter()
     answer = state.get("generated_answer", "")
     pii_found: list[str] = []
     if get_settings().guardrail_pii_redaction_enabled:
         answer, pii_found = redact_pii(answer)
         if pii_found:
             print(f"[guardrail] PII bị che trong response: {pii_found}")
+
+    fin_ms = round((time.perf_counter() - t_fin_start) * 1000, 2)
+    print(f"[TIMING] [finalize] {fin_ms}ms | pii_redacted={bool(pii_found)}")
 
     return {"response": answer, "guardrail_pii_redacted": bool(pii_found)}
