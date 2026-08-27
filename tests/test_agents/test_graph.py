@@ -142,7 +142,7 @@ async def test_unanswerable_generation_skips_hallucination_check_and_escalates()
         "ids": [["x::0001"]],
         "documents": [["Nội dung về chủ đề khác."]],
         "metadatas": [
-            [{"source_file": "x.md", "title": "Tài liệu X", "category": "leave_policies", "is_official_policy": True}]
+            [{"source_file": "x.md", "title": "Tài liệu X", "category": "leave_policies", "is_official_policy": True, "department": "HR"}]
         ],
         "distances": [[0.05]],
     }
@@ -153,6 +153,7 @@ async def test_unanswerable_generation_skips_hallucination_check_and_escalates()
         patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")),
         patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
         patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+        patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
         patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
         patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
         patch(
@@ -186,6 +187,7 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
         patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")),
         patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
         patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+        patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
         patch("src.agents.nodes.retrieval.acall_llm", new=AsyncMock(return_value="câu hỏi viết lại")),
         patch(
             "src.agents.nodes.generation.acall_llm",
@@ -207,3 +209,122 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
     assert result["retrieved_chunks"] == []
     assert result["escalate"] is True
     assert result["escalate_reason"] == "low_confidence"
+
+
+@pytest.mark.asyncio
+async def test_fast_path_bypasses_hallucination_check_when_confidence_is_high():
+    """FAST PATH: Khi reranker score cao (>= 0.2) và answerable=True,
+    đồ thị chuyển thẳng sang finalize, KHÔNG gọi hallucination_check (tiết kiệm 1 LLM call)."""
+    chroma_result = {
+        "ids": [["leave::0001"]],
+        "documents": [["Nhân viên chính thức được nghỉ 12 ngày phép năm."]],
+        "metadatas": [
+            [
+                {
+                    "source_file": "leave.md",
+                    "title": "Chính sách nghỉ phép",
+                    "category": "leave_policies",
+                    "is_official_policy": True,
+                    "department": "HR",
+                }
+            ]
+        ],
+        "distances": [[0.05]],
+    }
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = chroma_result
+
+    # generation LLM mock chỉ cần 1 phần tử (câu trả lời) — nếu graph gọi hallucination check,
+    # mock sẽ cạn hoặc await_count > 1.
+    gen_llm = AsyncMock(return_value="Bạn được nghỉ 12 ngày phép năm [Nguồn 1].")
+
+    with (
+        patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value='{"condensed_query": "Nghỉ phép", "intent": "hr_question"}')),
+        patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
+        patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+        patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
+        patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
+        patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
+        patch("src.agents.nodes.retrieval.rerank", return_value=[(0, 0.95)]),
+        patch("src.agents.nodes.generation.acall_llm", new=gen_llm),
+    ):
+        result = await agent.ainvoke(
+            {
+                "query": "Tôi được nghỉ bao nhiêu ngày phép năm?",
+                "tenant_id": "nexatech",
+                "user_id": "graph-test-user",
+                "department": "HR",
+                "user_role": "EMPLOYEE",
+            }
+        )
+
+    assert result.get("escalate") is not True
+    assert "12 ngày" in result["response"]
+    assert "hallucination_passed" not in result  # Hallucination check node was completely bypassed!
+    assert gen_llm.await_count == 1  # Exactly 1 generation call, 0 judge calls
+
+
+@pytest.mark.asyncio
+async def test_guarded_path_escalates_and_hides_hallucinated_text_when_check_fails():
+    """GUARDED PATH & FAIL-SAFE: Khi confidence thấp hoặc phát hiện ảo giác
+    sau số lần retry tối đa (max_hallucination_retries=2), hệ thống chuyển sang
+    escalate_ticket với lý do hallucination_detected và KHÔNG hiển thị text bịa."""
+    chroma_result = {
+        "ids": [["leave::0001"]],
+        "documents": [["Nhân viên chính thức được nghỉ 12 ngày phép năm."]],
+        "metadatas": [
+            [
+                {
+                    "source_file": "leave.md",
+                    "title": "Chính sách nghỉ phép",
+                    "category": "leave_policies",
+                    "is_official_policy": True,
+                    "department": "HR",
+                }
+            ]
+        ],
+        "distances": [[0.05]],
+    }
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = chroma_result
+
+    # Giả lập model sinh câu trả lời bịa số liệu, sau đó hallucination check phát hiện FAIL
+    # Generate 1 -> Hallucination FAIL -> Generate 2 (retry 1) -> Hallucination FAIL -> Generate 3 (retry 2) -> Hallucination FAIL -> Escalate!
+    gen_llm = AsyncMock(side_effect=[
+        "Bạn được nghỉ 50 ngày phép năm [Nguồn 1].",  # Gen 1
+        "FAIL",                                      # Hallucination Check 1
+        "Bạn được nghỉ 45 ngày phép năm [Nguồn 1].",  # Gen 2
+        "FAIL",                                      # Hallucination Check 2
+        "Bạn được nghỉ 40 ngày phép năm [Nguồn 1].",  # Gen 3
+        "FAIL",                                      # Hallucination Check 3 -> Max retries reached
+    ])
+
+    with (
+        patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value='{"condensed_query": "Nghỉ phép", "intent": "hr_question"}')),
+        patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
+        patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
+        patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
+        patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
+        patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
+        # Rerank score thấp (0.1 < 0.2 threshold) -> rơi vào Guarded Path
+        patch("src.agents.nodes.retrieval.rerank", return_value=[(0, 0.10)]),
+        patch("src.agents.nodes.generation.acall_llm", new=gen_llm),
+    ):
+        result = await agent.ainvoke(
+            {
+                "query": "Tôi được nghỉ bao nhiêu ngày phép năm?",
+                "tenant_id": "nexatech",
+                "user_id": "graph-test-user",
+                "department": "HR",
+                "user_role": "EMPLOYEE",
+            }
+        )
+
+    assert result["escalate"] is True
+    assert result["escalate_reason"] == "hallucination_detected"
+    assert result["hallucination_passed"] is False
+    # Không để lộ câu trả lời bịa đặt ra response của user
+    assert "50 ngày" not in result["response"]
+    assert "45 ngày" not in result["response"]
+    assert "chưa đủ căn cứ" in result["response"]
+

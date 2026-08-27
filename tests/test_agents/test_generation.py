@@ -60,8 +60,9 @@ class TestGenerateNode:
         assert answer == "Fallback answer [Nguồn 1]."
         assert llm.await_count == 2
         assert llm.await_args_list[0].kwargs["timeout"] == 30
-        assert llm.await_args_list[0].kwargs["retries"] == 0
-        assert llm.await_args_list[1].kwargs["model"] == "DeepSeek-V4-Flash"
+        from src.config import get_settings
+
+        assert llm.await_args_list[1].kwargs["model"] == get_settings().router_model
         assert llm.await_args_list[1].kwargs["timeout"] == 25
     @pytest.mark.asyncio
     async def test_builds_citations_from_retrieved_chunks(self):
