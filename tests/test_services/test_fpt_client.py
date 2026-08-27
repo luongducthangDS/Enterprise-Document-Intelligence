@@ -1,3 +1,4 @@
+import pytest
 import requests
 
 from src.services import fpt_client
@@ -196,6 +197,31 @@ class TestChatCompletion:
             enable_thinking=False,
         )
         assert captured["json"]["chat_template_kwargs"] == {"enable_thinking": False}
+
+    def test_524_fails_fast_without_retry(self, monkeypatch):
+        _no_sleep(monkeypatch)
+        calls = 0
+
+        def fake_post(url, headers, json, timeout):
+            nonlocal calls
+            calls += 1
+            response = requests.Response()
+            response.status_code = 524
+            response.url = url
+            raise requests.exceptions.HTTPError("524 upstream timeout", response=response)
+
+        _patch_post(monkeypatch, fake_post)
+        with pytest.raises(requests.exceptions.HTTPError):
+            fpt_client.chat_completion(
+                "sys",
+                "usr",
+                model="GLM-5.2",
+                base_url="https://fake.example",
+                api_key="k",
+                retries=2,
+            )
+
+        assert calls == 1
 
 
 class TestExtractPageMarkdown:

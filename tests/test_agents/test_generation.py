@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import requests
 
 from src.agents.nodes.generation import (
     ANSWER_TYPE_GENERAL_MARKER,
@@ -8,6 +9,7 @@ from src.agents.nodes.generation import (
     ANSWER_TYPE_PERSONALIZED_MARKER,
     INSUFFICIENT_MARKER,
     _build_context_block,
+    _call_generation_llm,
     _check_numeric_grounding,
     _cited_chunks,
     _extract_numeric_claims,
@@ -45,6 +47,22 @@ def _chunk(chunk_id: str, **overrides) -> dict:
 
 
 class TestGenerateNode:
+    @pytest.mark.asyncio
+    async def test_generation_falls_back_to_fast_model_after_provider_524(self):
+        response = requests.Response()
+        response.status_code = 524
+        error = requests.exceptions.HTTPError("524 upstream timeout", response=response)
+        llm = AsyncMock(side_effect=[error, "Fallback answer [Nguồn 1]."])
+
+        with patch("src.agents.nodes.generation.acall_llm", new=llm):
+            answer = await _call_generation_llm("system", "user")
+
+        assert answer == "Fallback answer [Nguồn 1]."
+        assert llm.await_count == 2
+        assert llm.await_args_list[0].kwargs["timeout"] == 30
+        assert llm.await_args_list[0].kwargs["retries"] == 0
+        assert llm.await_args_list[1].kwargs["model"] == "DeepSeek-V4-Flash"
+        assert llm.await_args_list[1].kwargs["timeout"] == 25
     @pytest.mark.asyncio
     async def test_builds_citations_from_retrieved_chunks(self):
         chunks = [

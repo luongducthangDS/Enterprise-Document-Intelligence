@@ -1,5 +1,7 @@
 import re
 
+import requests
+
 from src.agents.guardrails import detect_injection, redact_pii, strip_injection
 from src.agents.llm import acall_llm, thinking_arg
 from src.agents.state import AgentState, AnswerType, Citation, RetrievedChunk
@@ -89,6 +91,40 @@ def _should_retry_partial_multi_source_answer(query: str, chunks: list[Retrieved
     """
     sources = {str(chunk.get("source_file") or chunk["chunk_id"]).strip().casefold() for chunk in chunks}
     return len(sources) >= 2 and bool(_MULTI_SOURCE_REQUEST_PATTERN.search(query))
+
+
+async def _call_generation_llm(system_prompt: str, user_prompt: str) -> str:
+    """Generate trong ngân sách Backend và fallback model khi GLM bị 524.
+
+    Primary và fallback đều không tự retry ở HTTP layer. Một lần gọi chậm tối
+    đa 30 giây; nếu provider GLM lỗi mạng/5xx/524, chuyển ngay sang fast model
+    với thinking tắt thay vì lặp lại cùng request tới ba lần.
+    """
+    from src.config import get_settings
+
+    settings = get_settings()
+    try:
+        return await acall_llm(
+            system_prompt,
+            user_prompt,
+            temperature=0.0,
+            enable_thinking=thinking_arg(settings.thinking_generation),
+            timeout=30,
+            retries=0,
+        )
+    except requests.exceptions.RequestException:
+        fallback_model = settings.router_model
+        if not fallback_model or fallback_model == settings.llm_model:
+            raise
+        return await acall_llm(
+            system_prompt,
+            user_prompt,
+            temperature=0.0,
+            model=fallback_model,
+            enable_thinking=False,
+            timeout=25,
+            retries=0,
+        )
 
 
 def _extract_numeric_claims(answer: str) -> list[str]:
@@ -411,14 +447,7 @@ async def generate_node(state: AgentState) -> dict:
     domain_rules = domain.get_generation_rules() if domain else ""
     system_prompt = f"{_GENERATE_SYSTEM}\n\n{domain_rules}" if domain_rules else _GENERATE_SYSTEM
 
-    answer = (
-        await acall_llm(
-            system_prompt,
-            user_prompt,
-            temperature=0.0,
-            enable_thinking=thinking_arg(get_settings().thinking_generation),
-        )
-    ).strip()
+    answer = (await _call_generation_llm(system_prompt, user_prompt)).strip()
 
     # Một câu tổng hợp có thể thiếu đúng một nguồn sau rerank nhưng vẫn có đủ
     # bằng chứng để trả lời phần lớn câu hỏi. Model đôi khi hiểu "chưa đủ mọi
@@ -429,12 +458,17 @@ async def generate_node(state: AgentState) -> dict:
         retry_prompt = f"""{user_prompt}
 
 Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng đúng chủ đề từ nhiều tài liệu. KHÔNG dùng {INSUFFICIENT_MARKER} chỉ vì chưa có đủ mọi nguồn người dùng liệt kê. Hãy trả lời phần kết luận có căn cứ, dẫn [Nguồn N] cho từng ý, rồi nêu ngắn gọn tài liệu hoặc tiêu chí nào chưa có trong context nên chưa thể xác nhận đầy đủ. Không suy đoán phần còn thiếu."""
+        # Lượt sửa chỉ dùng fast model một lần để tổng thời gian xấu nhất vẫn
+        # nằm dưới timeout 120 giây của Backend.
         answer = (
             await acall_llm(
                 system_prompt,
                 retry_prompt,
                 temperature=0.0,
-                enable_thinking=thinking_arg(get_settings().thinking_generation),
+                model=get_settings().router_model or None,
+                enable_thinking=False,
+                timeout=25,
+                retries=0,
             )
         ).strip()
 
