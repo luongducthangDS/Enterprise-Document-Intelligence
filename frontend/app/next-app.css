@@ -1233,6 +1233,18 @@ h3 {
   transform: translateY(-2px);
 }
 
+.prompt-row button strong,
+.prompt-row button span { display: block; }
+.prompt-row button strong {
+  margin-bottom: 6px;
+  color: rgba(6,78,59,.9);
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.prompt-row button span { color: var(--ink); line-height: 1.45; }
+.prompt-row button:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
 .message {
   max-width: 900px;
   display: flex;

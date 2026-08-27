@@ -15,6 +15,31 @@ type UiMessage =
 
 const TERMINAL_STATES = new Set(["COMPLETED", "REFUSED", "CLARIFICATION_REQUIRED", "FAILED"]);
 
+type StarterPrompt = {
+  label: string;
+  question: string;
+};
+
+const DEFAULT_STARTER_PROMPTS: StarterPrompt[] = [
+  { label: "Chính sách hybrid", question: "Quy định làm việc hybrid như thế nào?" },
+  { label: "Phép năm", question: "Nhân viên có bao nhiêu ngày phép năm?" },
+];
+
+const PRODUCT_DEMO_PROMPTS: StarterPrompt[] = [
+  {
+    label: "Đa nguồn + ảnh scan",
+    question: "Recommendation System đã đủ điều kiện mở rộng beta chưa? Hãy đối chiếu PRD, báo cáo tuần và báo cáo latency scan; nêu từng gate còn thiếu và dẫn nguồn.",
+  },
+  {
+    label: "Bảng + biểu đồ funnel",
+    question: "Checkout Redesign có nên rollout 100% chưa? Hãy tổng hợp biểu đồ funnel, bảng experiment, guardrail và blocker; so sánh số liệu hiện tại với target và dẫn nguồn.",
+  },
+  {
+    label: "Bảng experiment + research",
+    question: "Search Improvements nên ưu tiên accent-insensitive hay fuzzy search? Hãy đối chiếu bảng experiment, phản hồi người dùng và mục tiêu trong PRD rồi giải thích trade-off.",
+  },
+];
+
 function wait(milliseconds: number) {
   return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 }
@@ -80,6 +105,9 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   const citationPanelResize = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
   const pollController = useRef<AbortController | null>(null);
   const storageKey = `hr_knowledge_active_conversation:${user.id}`;
+  const starterPrompts = user.department.trim().toUpperCase() === "PRODUCT"
+    ? PRODUCT_DEMO_PROMPTS
+    : DEFAULT_STARTER_PROMPTS;
 
   useEffect(() => {
     const savedWidth = Number(window.localStorage.getItem("hr_knowledge_conversation_panel_width"));
@@ -504,10 +532,15 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             <div className="empty-chat animate__animated animate__zoomIn motion-view">
               <div className="empty-icon"><BookOpenCheck size={28} /></div>
               <h2>Bạn cần tra cứu thông tin nào?</h2>
-              <p>Đặt câu hỏi cụ thể về quy trình, quy định hoặc chính sách nội bộ để nhận câu trả lời kèm nguồn tài liệu.</p>
+              <p>{user.department.trim().toUpperCase() === "PRODUCT"
+                ? "Chọn một tình huống khó để tổng hợp dữ liệu từ nhiều tài liệu, bảng, biểu đồ và ảnh scan kèm nguồn đối soát."
+                : "Đặt câu hỏi cụ thể về quy trình, quy định hoặc chính sách nội bộ để nhận câu trả lời kèm nguồn tài liệu."}</p>
               <div className="prompt-row">
-                {["Quy định làm việc hybrid như thế nào?", "Nhân viên có bao nhiêu ngày phép năm?"].map((item) => (
-                  <button key={item} onClick={() => void sendQuestion(item)}>{item}</button>
+                {starterPrompts.map((item) => (
+                  <button key={item.label} onClick={() => void sendQuestion(item.question)}>
+                    <strong>{item.label}</strong>
+                    <span>{item.question}</span>
+                  </button>
                 ))}
               </div>
             </div>

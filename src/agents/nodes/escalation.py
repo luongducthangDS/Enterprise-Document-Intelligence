@@ -339,11 +339,21 @@ def escalate_node(state: AgentState) -> dict:
     # Không nói "đã gửi tới bộ phận X": sản phẩm chưa tích hợp với hệ thống HR
     # nào, nên câu đó là claim sai. Chỉ nói đúng thứ đã xảy ra — nội dung yêu
     # cầu đã được chuẩn bị — và chỉ ra người phụ trách theo registry.
-    response = (
-        "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. "
-        "Mình đã chuẩn bị nội dung yêu cầu hỗ trợ để bạn chuyển tới người phụ trách."
-        + _owner_phrase(boundary)
-    )
+    partial_answer = str(state.get("generated_answer") or "").strip()
+    has_cited_evidence = bool(state.get("citations"))
+    if reason == "low_confidence" and state.get("answerable") is False and partial_answer and has_cited_evidence:
+        response = (
+            partial_answer
+            + "\n\nLưu ý: câu trả lời này mới dựa trên phần bằng chứng truy xuất được; "
+            "chưa đủ để xác nhận toàn bộ yêu cầu."
+            + _owner_phrase(boundary)
+        )
+    else:
+        response = (
+            "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. "
+            "Mình đã chuẩn bị nội dung yêu cầu hỗ trợ để bạn chuyển tới người phụ trách."
+            + _owner_phrase(boundary)
+        )
     return {
         "escalate": True,
         "escalate_reason": reason,

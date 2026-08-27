@@ -72,6 +72,23 @@ _HALLUCINATION_SYSTEM = """Bạn kiểm tra xem câu trả lời có bám sát H
 # kiểu "[Nguồn 1]" (bị strip trước khi extract, xem _extract_numeric_claims).
 _NUMERIC_CLAIM_PATTERN = re.compile(r"\d(?:[\d.,]*\d)?%?")
 _CITATION_MARKER_STRIP = re.compile(r"\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\]", re.IGNORECASE)
+_MULTI_SOURCE_REQUEST_PATTERN = re.compile(
+    r"tổng hợp|đối chiếu|đa nguồn|nhiều (?:nguồn|tài liệu)|"
+    r"(?:prd|báo cáo|scan|bảng|biểu đồ|chart).{0,64}(?:và|với).{0,64}"
+    r"(?:prd|báo cáo|scan|bảng|biểu đồ|chart)",
+    re.IGNORECASE,
+)
+
+
+def _should_retry_partial_multi_source_answer(query: str, chunks: list[RetrievedChunk]) -> bool:
+    """Retry một lần khi model từ chối oan dù đã có bằng chứng đa nguồn.
+
+    Điều kiện cố ý chặt: user phải yêu cầu tổng hợp rõ ràng và context phải có
+    ít nhất hai tài liệu. Câu hỏi thật sự ngoài kho hoặc chỉ có một nguồn vẫn
+    giữ nguyên fail-closed hiện tại.
+    """
+    sources = {str(chunk.get("source_file") or chunk["chunk_id"]).strip().casefold() for chunk in chunks}
+    return len(sources) >= 2 and bool(_MULTI_SOURCE_REQUEST_PATTERN.search(query))
 
 
 def _extract_numeric_claims(answer: str) -> list[str]:
@@ -402,6 +419,24 @@ async def generate_node(state: AgentState) -> dict:
             enable_thinking=thinking_arg(get_settings().thinking_generation),
         )
     ).strip()
+
+    # Một câu tổng hợp có thể thiếu đúng một nguồn sau rerank nhưng vẫn có đủ
+    # bằng chứng để trả lời phần lớn câu hỏi. Model đôi khi hiểu "chưa đủ mọi
+    # nguồn user nêu" thành "hoàn toàn không có thông tin" và phát sentinel.
+    # Retry đúng một lần, yêu cầu trả lời phần có căn cứ và nêu giới hạn; không
+    # nới guardrail cho câu ngoài kho hay context đơn nguồn.
+    if INSUFFICIENT_MARKER in answer and _should_retry_partial_multi_source_answer(query, chunks):
+        retry_prompt = f"""{user_prompt}
+
+Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng đúng chủ đề từ nhiều tài liệu. KHÔNG dùng {INSUFFICIENT_MARKER} chỉ vì chưa có đủ mọi nguồn người dùng liệt kê. Hãy trả lời phần kết luận có căn cứ, dẫn [Nguồn N] cho từng ý, rồi nêu ngắn gọn tài liệu hoặc tiêu chí nào chưa có trong context nên chưa thể xác nhận đầy đủ. Không suy đoán phần còn thiếu."""
+        answer = (
+            await acall_llm(
+                system_prompt,
+                retry_prompt,
+                temperature=0.0,
+                enable_thinking=thinking_arg(get_settings().thinking_generation),
+            )
+        ).strip()
 
     answerable = INSUFFICIENT_MARKER not in answer
     if not answerable:

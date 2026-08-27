@@ -140,6 +140,80 @@ class TestGenerateNode:
         assert result["generated_answer"].startswith("Đoạn trích chỉ nói")
 
     @pytest.mark.asyncio
+    async def test_multi_source_marker_retries_and_returns_grounded_partial_answer(self):
+        chunks = [
+            _chunk("prd", source_file="prd.docx"),
+            _chunk("scan", source_file="latency.pdf"),
+        ]
+        first = f"{INSUFFICIENT_MARKER} Thiếu báo cáo tuần."
+        second = (
+            f"{ANSWER_TYPE_NA_MARKER} Chưa nên mở rộng beta: latency chưa đạt target "
+            "[Nguồn 1, 2]. Chưa có báo cáo tuần để xác nhận đầy đủ."
+        )
+        llm = AsyncMock(side_effect=[first, second])
+
+        with patch("src.agents.nodes.generation.acall_llm", new=llm):
+            result = await generate_node(
+                {
+                    "query": "Hãy đối chiếu PRD, báo cáo tuần và latency scan",
+                    "retrieved_chunks": chunks,
+                }
+            )
+
+        assert llm.await_count == 2
+        assert result["answerable"] is True
+        assert result["answer_type"] == "not_applicable"
+        assert "Chưa nên mở rộng beta" in result["generated_answer"]
+        assert len(result["citations"]) == 2
+
+    @pytest.mark.asyncio
+    async def test_single_source_insufficient_answer_does_not_retry(self):
+        answer = f"{INSUFFICIENT_MARKER} Không có dữ liệu đúng chủ đề."
+        llm = AsyncMock(return_value=answer)
+        with patch("src.agents.nodes.generation.acall_llm", new=llm):
+            result = await generate_node(
+                {"query": "Hãy đối chiếu các nguồn", "retrieved_chunks": [_chunk("a")]}
+            )
+
+        assert llm.await_count == 1
+        assert result["answerable"] is False
+
+    @pytest.mark.asyncio
+    async def test_recommendation_beta_question_uses_all_three_requested_sources(self):
+        chunks = [
+            _chunk("prd", source_file="PRD_Recommendation_System.docx"),
+            _chunk("weekly", source_file="Product_Weekly_Recommendation.pdf"),
+            _chunk("latency", source_file="Recommendation_Latency_Report_Scan.pdf"),
+        ]
+        first = f"{INSUFFICIENT_MARKER} Chưa đủ căn cứ."
+        second = (
+            f"{ANSWER_TYPE_NA_MARKER} Chưa đủ điều kiện mở rộng beta [Nguồn 1, 2, 3]. "
+            "CTR, latency và tracking còn thiếu target."
+        )
+
+        with patch(
+            "src.agents.nodes.generation.acall_llm",
+            new=AsyncMock(side_effect=[first, second]),
+        ):
+            result = await generate_node(
+                {
+                    "query": (
+                        "Recommendation System đã đủ điều kiện mở rộng beta chưa? "
+                        "Hãy đối chiếu PRD, báo cáo tuần và báo cáo latency scan; "
+                        "nêu từng tiêu chí chưa đạt và dẫn nguồn."
+                    ),
+                    "retrieved_chunks": chunks,
+                }
+            )
+
+        assert result["answerable"] is True
+        assert [item["source_file"] for item in result["citations"]] == [
+            "PRD_Recommendation_System.docx",
+            "Product_Weekly_Recommendation.pdf",
+            "Recommendation_Latency_Report_Scan.pdf",
+        ]
+
+    @pytest.mark.asyncio
     async def test_normal_answer_is_answerable(self):
         with patch("src.agents.nodes.generation.acall_llm", new=AsyncMock(return_value="12 ngày [Nguồn 1].")):
             result = await generate_node({"query": "Mấy ngày phép?", "retrieved_chunks": [_chunk("a")]})

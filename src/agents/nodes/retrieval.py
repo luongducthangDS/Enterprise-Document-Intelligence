@@ -24,6 +24,12 @@ from src.services.fpt_client import embed_batch, rerank
 
 _REWRITE_SYSTEM = """Bạn giúp viết lại câu hỏi tri thức nội bộ HR hoặc Product để tìm kiếm tài liệu chính xác hơn. Giữ nguyên ý định gốc của người hỏi, nhưng diễn đạt lại rõ ràng hơn, thêm từ khoá chuyên môn liên quan nếu có thể. Chỉ trả về câu hỏi đã viết lại, không giải thích."""
 _HYBRID_QUERY_PATTERN = re.compile(r"\b(?:hybrid|wfh)\b|làm việc từ xa", re.IGNORECASE)
+_MULTI_SOURCE_QUERY_PATTERN = re.compile(
+    r"tổng hợp|đối chiếu|đa nguồn|nhiều (?:nguồn|tài liệu)|"
+    r"(?:bảng|biểu đồ|chart).{0,48}(?:và|với).{0,48}(?:báo cáo|prd|blocker|guardrail)|"
+    r"(?:prd|báo cáo).{0,48}(?:và|với).{0,48}(?:prd|báo cáo|scan)",
+    re.IGNORECASE,
+)
 _REFERRAL_QUERY_PATTERN = re.compile(
     r"\breferral\b"
     r"|(?:giới thiệu|gioi thieu).{0,48}(?:ứng tuyển|ung tuyen|ứng viên|ung vien|người quen|nguoi quen|bạn|ban)"
@@ -78,6 +84,43 @@ def _expand_retrieval_query(query: str) -> str:
     if not expansions:
         return query
     return f"{query}\nTừ khóa liên quan: {'; '.join(expansions)}"
+
+
+def _is_multi_source_query(query: str) -> bool:
+    """Chỉ bật source diversification khi người dùng yêu cầu tổng hợp rõ ràng."""
+    return bool(_MULTI_SOURCE_QUERY_PATTERN.search(query))
+
+
+def _round_robin_sources(chunks: list[RetrievedChunk], limit: int) -> list[RetrievedChunk]:
+    """Giữ thứ tự reranker nhưng tránh để một tài liệu chiếm toàn bộ context.
+
+    Mỗi vòng lấy chunk tốt nhất tiếp theo của từng source. Câu hỏi một nguồn
+    không đổi hành vi; câu tổng hợp nhận được độ phủ tài liệu tốt hơn trong
+    cùng token budget.
+    """
+    groups: dict[str, list[RetrievedChunk]] = {}
+    source_order: list[str] = []
+    for chunk in chunks:
+        source = str(chunk.get("source_file") or chunk["chunk_id"])
+        if source not in groups:
+            groups[source] = []
+            source_order.append(source)
+        groups[source].append(chunk)
+
+    diversified: list[RetrievedChunk] = []
+    offset = 0
+    while len(diversified) < limit:
+        added = False
+        for source in source_order:
+            if offset < len(groups[source]):
+                diversified.append(groups[source][offset])
+                added = True
+                if len(diversified) == limit:
+                    break
+        if not added:
+            break
+        offset += 1
+    return diversified
 
 
 def _lifecycle_conditions(query_date_ymd: int) -> list[dict]:
@@ -356,7 +399,10 @@ async def retrieval_node(state: AgentState) -> dict:
                 "denied_department": denied_department,
             }
     if settings.use_reranker and chunks:
-        chunks = await _arerank(query, chunks)
+        if _is_multi_source_query(query):
+            chunks = await _arerank(query, chunks, diversify_sources=True)
+        else:
+            chunks = await _arerank(query, chunks)
 
     # Observability & Audit Trail Logging
     req_id = state.get("request_id") or "req_default"
@@ -439,7 +485,12 @@ async def _amerge_bm25(
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
 
 
-async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+async def _arerank(
+    query: str,
+    chunks: list[RetrievedChunk],
+    *,
+    diversify_sources: bool = False,
+) -> list[RetrievedChunk]:
     """Xếp hạng lại bằng cross-encoder qua FPT.AI Marketplace, cắt còn rerank_top_k.
 
     Dense retrieval hay tìm đúng TÀI LIỆU nhưng sai ĐOẠN (đo được: Document
@@ -460,7 +511,7 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             model=settings.reranker_model,
             base_url=settings.fpt_base_url,
             api_key=settings.fpt_api_key,
-            top_n=settings.rerank_top_k,
+            top_n=len(chunks) if diversify_sources else settings.rerank_top_k,
         )
     except Exception as e:  # noqa: BLE001
         # Fail closed: dense distance không cùng thang với reranker score. Dùng
@@ -474,10 +525,14 @@ async def _arerank(query: str, chunks: list[RetrievedChunk]) -> list[RetrievedCh
             chunk = chunks[index]
             chunk["score"] = score
             reranked.append(chunk)
-    return sorted(
+    ordered = sorted(
         reranked,
         key=lambda chunk: (-(chunk.get("score") or 0.0), chunk["chunk_id"]),
-    )[: settings.rerank_top_k]
+    )
+    if diversify_sources:
+        eligible = [chunk for chunk in ordered if (chunk.get("score") or 0.0) >= settings.rerank_min_score]
+        return _round_robin_sources(eligible, settings.rerank_top_k)
+    return ordered[: settings.rerank_top_k]
 
 
 def grade_node(state: AgentState) -> dict:

@@ -148,6 +148,36 @@ class TestEscalateNode:
         result = escalate_node(state)
         assert result["escalate_reason"] == "low_confidence"
 
+    def test_low_confidence_preserves_cited_partial_answer(self):
+        state = {
+            "query": "Đối chiếu PRD và báo cáo tuần",
+            "intent": "hr_question",
+            "escalate_reason": "low_confidence",
+            "answerable": False,
+            "generated_answer": "PRD cho thấy latency chưa đạt [Nguồn 1].",
+            "citations": [{"chunk_id": "prd::0001"}],
+        }
+
+        result = escalate_node(state)
+
+        assert result["escalate"] is True
+        assert result["response"].startswith("PRD cho thấy latency chưa đạt")
+        assert "mới dựa trên phần bằng chứng" in result["response"]
+
+    def test_low_confidence_without_citations_keeps_safe_generic_response(self):
+        state = {
+            "query": "Đối chiếu PRD và báo cáo tuần",
+            "intent": "hr_question",
+            "escalate_reason": "low_confidence",
+            "answerable": False,
+            "generated_answer": "Một kết luận chưa có nguồn.",
+            "citations": [],
+        }
+
+        result = escalate_node(state)
+
+        assert result["response"].startswith("Xin lỗi, mình chưa đủ căn cứ")
+
     def test_employee_relations_gets_high_priority(self):
         state = {"query": "Tôi bị quấy rối ở công ty", "intent": "hr_question"}
         result = escalate_node(state)
