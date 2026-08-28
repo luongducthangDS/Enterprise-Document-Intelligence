@@ -249,7 +249,19 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       setConversationState(created.state);
       setMessages([]);
       window.localStorage.setItem(storageKey, created.conversation_id);
-      await loadConversations();
+      setConversations((current) => [
+        {
+          conversation_id: created.conversation_id,
+          title: created.title ?? "Hội thoại mới",
+          state: created.state,
+          created_at: created.created_at || new Date().toISOString(),
+          updated_at: created.created_at || new Date().toISOString(),
+          ended_at: null,
+          message_count: 0,
+          last_message_at: null,
+        },
+        ...current.filter((c) => c.conversation_id !== created.conversation_id),
+      ]);
     } catch (reason) {
       if (mounted.current) {
         setError(reason instanceof ApiClientError ? reason.message : "Không thể tạo cuộc hội thoại.");
@@ -258,7 +270,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
       creatingConversation.current = false;
       if (mounted.current) setBusy(false);
     }
-  }, [loadConversations, storageKey]);
+  }, [storageKey]);
 
   const openConversation = useCallback(async (selectedId: string) => {
     if (selectedId === conversationId) {
@@ -407,8 +419,6 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
           if (event.type === "request") {
             activeChatRequestId = event.chat_request_id;
             setProcessingState(event.state || "QUEUED");
-            // Cập nhật sidebar ngầm (Non-blocking)
-            void loadConversations();
           } else if (event.type === "status") {
             setProcessingState(event.value);
           } else if (event.type === "answer_delta") {
