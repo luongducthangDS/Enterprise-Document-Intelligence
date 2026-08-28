@@ -108,7 +108,7 @@ app.include_router(api_v1_router, prefix="/api/v1")
 async def health_check():
     """Endpoint kiểm tra sức khoẻ Backend. Đồng thời kích hoạt ngầm đánh thức Agent qua mạng nội bộ."""
     from app.services.warmup_service import WarmupService
-    WarmupService.trigger_background_warmup()
+    # WarmupService.trigger_background_warmup()
     return {
         "status": "healthy",
         "service": settings.app_name,
