@@ -33,6 +33,10 @@ class CitationDTO(BaseModel):
         default=True, description="Xác định tài liệu chính sách chính thức hay không"
     )
     source_type: str | None = Field(default=None, description="Loại nguồn tài liệu")
+    public_url: str | None = Field(default=None, description="Public URL mở tài liệu trực tiếp")
+    document_id: str | None = Field(default=None, description="ID tài liệu trong DB")
+    chunk_id: str | None = Field(default=None, description="ID chunk trích dẫn")
+    excerpt: str | None = Field(default=None, description="Đoạn trích dẫn")
 
 
 class MessageDTO(BaseModel):

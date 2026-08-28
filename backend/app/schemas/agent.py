@@ -34,6 +34,8 @@ class AgentCitationDTO(BaseModel):
     version: str = ""
     effective_date: str = ""
     excerpt: str = ""
+    public_url: str | None = None
+    document_id: str | None = None
 
 
 class AgentTicketDraftDTO(BaseModel):

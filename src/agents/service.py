@@ -319,6 +319,10 @@ async def astream_answer(
             "title": citation.title,
             "page_start": citation.page_start,
             "is_official_policy": citation.is_official_policy,
+            "public_url": citation.public_url,
+            "document_id": citation.document_id,
+            "excerpt": citation.excerpt,
+            "section": citation.source_section,
         }
 
     yield {

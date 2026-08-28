@@ -6,7 +6,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,6 +16,7 @@ from app.core.exceptions import AppException, ConflictError, ForbiddenError, Not
 from app.core.logging import logger
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
+from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
 from app.domain.models.profile import ProfileDB
 from app.schemas.agent import AgentAnswerDTO
@@ -317,6 +318,31 @@ class ChatService:
                             True,
                         )
                 mapped = AgentAnswerAdapter.map(agent_answer, chat_request_id)
+
+                # Đính kèm public_url và document_id từ DocumentDB vào từng citation
+                if mapped.citations:
+                    titles = [c["title"] for c in mapped.citations if c.get("title")]
+                    source_files = [c["source_file"] for c in mapped.citations if c.get("source_file")]
+                    if titles or source_files:
+                        doc_res = await db.execute(
+                            select(DocumentDB).where(
+                                or_(DocumentDB.title.in_(titles), DocumentDB.source_file.in_(source_files))
+                            )
+                        )
+                        docs = doc_res.scalars().all()
+                        doc_map: dict[str, DocumentDB] = {}
+                        for d in docs:
+                            if d.source_file:
+                                doc_map[d.source_file.casefold()] = d
+                            if d.title:
+                                doc_map[d.title.casefold()] = d
+                        for c in mapped.citations:
+                            sf = (c.get("source_file") or "").casefold()
+                            tt = (c.get("title") or "").casefold()
+                            matched_doc = doc_map.get(sf) or doc_map.get(tt)
+                            if matched_doc:
+                                c["public_url"] = matched_doc.public_url
+                                c["document_id"] = str(matched_doc.id)
 
                 assistant_msg_id = uuid.uuid4()
                 assistant_msg = MessageDB(

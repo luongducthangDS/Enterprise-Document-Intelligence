@@ -106,6 +106,8 @@ class Citation(TypedDict):
     version: str
     effective_date: str
     excerpt: str
+    public_url: str | None
+    document_id: str | None
 
 
 class AgentState(TypedDict, total=False):

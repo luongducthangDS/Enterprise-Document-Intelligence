@@ -205,6 +205,8 @@ class Citation(BaseModel):
     version: str = Field(default="", description="Phiên bản tài liệu tại thời điểm index")
     effective_date: str = Field(default="", description="Ngày hiệu lực từ metadata tài liệu")
     excerpt: str = Field(default="", description="Đoạn văn bản của chunk được dùng làm nguồn")
+    public_url: str | None = Field(default=None, description="Public URL xem tài liệu trực tiếp từ storage/Cloudinary")
+    document_id: str | None = Field(default=None, description="ID tài liệu tương ứng trong database")
 
 
 class Message(BaseModel):

@@ -250,6 +250,10 @@ class TestAstreamAnswer:
                 "title": "Chính sách nghỉ phép",
                 "page_start": 3,
                 "is_official_policy": True,
+                "public_url": None,
+                "document_id": None,
+                "excerpt": "",
+                "section": "",
             }
         ]
 

@@ -512,6 +512,8 @@ Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng �
             version=c.get("version") or "",
             effective_date=c.get("effective_date") or "",
             excerpt=c.get("text") or "",
+            public_url=c.get("public_url"),
+            document_id=c.get("document_id"),
         )
         for c in cited_chunks
     ]

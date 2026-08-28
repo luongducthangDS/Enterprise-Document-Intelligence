@@ -28,7 +28,7 @@ export type ChatStreamEvent =
   | { type: "status"; value: string }
   | { type: "tool_start" | "tool_end"; tool: string }
   | { type: "answer_delta"; content: string }
-  | { type: "citation"; source: string; title: string; page_start: number | null; is_official_policy: boolean }
+  | { type: "citation"; source: string; title: string; page_start: number | null; is_official_policy: boolean; public_url?: string | null; document_id?: string | null; excerpt?: string; section?: string | null }
   | { type: "done"; answer?: unknown }
   | { type: "error"; code?: string; message: string; status?: number; retryable?: boolean }
   | { type: "result"; data: ChatResult };

@@ -99,6 +99,8 @@ class AgentAnswerAdapter:
                 "tenant": item.tenant,
                 "policy_status": item.policy_status or None,
                 "excerpt": item.excerpt,
+                "public_url": item.public_url or None,
+                "document_id": item.document_id or None,
             }
             citations_by_source[source_key] = citation
             citations.append(citation)

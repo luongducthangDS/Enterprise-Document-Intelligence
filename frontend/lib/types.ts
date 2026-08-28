@@ -37,6 +37,9 @@ export type CitationSummary = {
   is_official_policy?: boolean;
   source_type?: string | null;
   excerpt?: string;
+  public_url?: string | null;
+  document_id?: string | null;
+  chunk_id?: string | null;
 };
 
 export type CitationDetail = {

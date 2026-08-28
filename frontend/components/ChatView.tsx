@@ -438,15 +438,18 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             });
           } else if (event.type === "citation") {
             accumulatedCitations.push({
-              citation_id: crypto.randomUUID(),
+              citation_id: event.document_id || crypto.randomUUID(),
               title: event.title,
               page: event.page_start,
               sheet: null,
-              section: null,
+              section: event.section || null,
               version: null,
               effective_date: null,
               source_type: "internal_policy",
               is_official_policy: event.is_official_policy,
+              public_url: event.public_url || null,
+              document_id: event.document_id || null,
+              excerpt: event.excerpt || undefined,
             });
             setMessages((current) => {
               const existingIdx = current.findIndex((m) => m.id === assistantMsgId);
@@ -613,6 +616,34 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   }
 
   async function openCitation(item: CitationSummary) {
+    // Nếu citation đã có sẵn public_url hoặc excerpt trong câu trả lời -> Mở ngay lập tức không cần đợi BE!
+    if (item.public_url || item.excerpt) {
+      setCitation({
+        citation_id: item.citation_id,
+        public_url: item.public_url ?? null,
+        document: {
+          document_id: item.document_id || `doc_${item.citation_id}`,
+          title: item.title,
+          version: item.version ?? null,
+          effective_date: item.effective_date ?? null,
+          status: "ACTIVE",
+          is_official_policy: item.is_official_policy,
+          source_type: item.source_type,
+          public_url: item.public_url ?? null,
+        },
+        location: {
+          page: item.page ?? null,
+          sheet: item.sheet ?? null,
+          section: item.section ?? null,
+          chunk_id: item.chunk_id ?? null,
+        },
+        excerpt: item.excerpt || "",
+        is_official_policy: item.is_official_policy,
+        source_type: item.source_type,
+      });
+      return;
+    }
+
     try {
       setCitation(await api.getCitation(item.citation_id));
     } catch (reason) {

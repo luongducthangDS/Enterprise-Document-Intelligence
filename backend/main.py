@@ -85,9 +85,10 @@ async def log_requests_middleware(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     duration_ms = (time.time() - start_time) * 1000
-    logger.info(
-        f"[{request_id}] {request.method} {request.url.path} - Status: {response.status_code} - Duration: {duration_ms:.2f}ms"
-    )
+    if request.url.path != "/health":
+        logger.info(
+            f"[{request_id}] {request.method} {request.url.path} - Status: {response.status_code} - Duration: {duration_ms:.2f}ms"
+        )
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Process-Time"] = f"{duration_ms:.2f}ms"
     return response
