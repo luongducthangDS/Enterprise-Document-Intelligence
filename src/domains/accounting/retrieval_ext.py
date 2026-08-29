@@ -20,7 +20,9 @@ _ACCOUNTING_KEYWORD_PATTERN = re.compile(
     r"|lương thưởng|thưởng kpi|thưởng hiệu suất|hệ số kpi|hệ số thưởng"
     r"|tài sản cố định|tscđ|biên bản bàn giao|biên bản giao nhận"
     r"|quyết toán chi phí|báo cáo quyết toán|bc-qtcp|vượt ngân sách"
-    r"|hoa hồng|phụ cấp|khấu hao|định khoản|bảng lương)\b",
+    r"|hoa hồng|phụ cấp|khấu hao|định khoản|bảng lương"
+    r"|hạn mức|hạn mức chi tiêu|hạn mức duyệt|chi tiêu|chi tiêu nội bộ"
+    r"|khoản chi|mua hàng|đề nghị thanh toán|đề nghị mua hàng)\b",
     re.IGNORECASE,
 )
 _ACCOUNTING_CATEGORY_PREFIX = (
@@ -157,8 +159,6 @@ def _accounting_provenance_filter(settings, user_context) -> dict:
         {"effective_date_ymd": {"$lte": query_date_ymd}},
         {"expiry_date_ymd": {"$gte": query_date_ymd}},
     ]
-    if settings.data_mode == "production":
-        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return {"$and": conditions}
 
 
@@ -286,56 +286,78 @@ async def accounting_retrieval_node(state: dict) -> dict:
     effective_top_k = _get_accounting_top_k(raw_query, settings.retrieval_top_k)
 
     # 1. Tính embedding câu hỏi
-    t_embed = time.perf_counter()
-    with llm_trace.Timer("embedding", "fpt_cloud"):
-        vectors = await asyncio.to_thread(
-            embed_batch,
-            [f"query: {query}"],
-            model=settings.embedding_model,
-            base_url=settings.fpt_base_url,
-            api_key=settings.fpt_api_key,
-        )
-        embedding = vectors[0]
-    embed_ms = round((time.perf_counter() - t_embed) * 1000)
+    from src.agents.llm import resolve_embedding_endpoint
+    from src.agents.nodes.retrieval import _arerank
 
-    # 2. Kết nối collection Kế toán tenant-scoped trên Chroma Cloud
-    from src.security import UserContext
+    from datetime import UTC, datetime
+
+    from src.agents.nodes.retrieval import _collection, _merge_query_results, _metadata_authorized, _metadata_lifecycle_allowed, detect_department_scope_denial
+    from src.security import UserContext, get_authorization_engine
 
     user_context = UserContext.from_state(state)
-    client = get_chroma_client(settings)
     collection_name = collection_name_for_department("Accounting", settings, user_context.tenant_id)
+
+    t_embed = time.perf_counter()
+    emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
+
+    # Song song hoa: embed + auth_filter cung luc (IO-bound voi CPU-bound)
+    async def _embed_accounting() -> list[float]:
+        try:
+            input_text = f"query: {query}" if "e5" in emb_model.lower() else query
+            vectors = await asyncio.to_thread(
+                embed_batch,
+                [input_text],
+                model=emb_model,
+                base_url=emb_base_url,
+                api_key=emb_api_key,
+            )
+            return vectors[0]
+        except Exception as e:
+            print(f"[accounting_embed] Loi embedding ({type(e).__name__}: {e}), fallback sang BM25")
+            return []
+
+    async def _get_accounting_allowed_files() -> set[str]:
+        return set(await asyncio.to_thread(
+            get_authorization_engine().get_authorized_source_files, user_context
+        ))
+
+    with llm_trace.Timer("embedding", "fpt_cloud" if settings.use_glm else "openai"):
+        embedding, allowed_files = await asyncio.gather(
+            _embed_accounting(),
+            _get_accounting_allowed_files(),
+        )
+    embed_ms = round((time.perf_counter() - t_embed) * 1000)
+
+    # 2. Ket noi collection Ke toan tenant-scoped tren Chroma Cloud (tai su dung RAM singleton)
     # Dedicated domain collection is mandatory. Never fall back across domains.
-    col = get_collection(client, collection_name)
+    col = _collection(collection_name)
     filters = _accounting_retrieval_filters(settings, user_context)
 
     # 3. Vector search: one quota-safe branch per access grant, then deduplicate.
     t_search = time.perf_counter()
-    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
-        branch_results = await asyncio.gather(
-            *[
-                asyncio.to_thread(
-                    partial(col.query, where=where),
-                    query_embeddings=[embedding],
-                    n_results=effective_top_k,
+    ids, documents, metadatas, distances = [], [], [], []
+    if embedding:
+        with llm_trace.Timer("vector_search", "chroma_cloud", n_results=effective_top_k):
+            try:
+                branch_results = await asyncio.gather(
+                    *[
+                        asyncio.to_thread(
+                            partial(col.query, where=where),
+                            query_embeddings=[embedding],
+                            n_results=effective_top_k,
+                        )
+                        for where in filters
+                    ]
                 )
-                for where in filters
-            ]
-        )
-        from src.agents.nodes.retrieval import _merge_query_results
-
-        result = _merge_query_results(branch_results, effective_top_k)
+                result = _merge_query_results(branch_results, effective_top_k)
+                ids = (result.get("ids") or [[]])[0]
+                documents = (result.get("documents") or [[]])[0]
+                metadatas = (result.get("metadatas") or [[]])[0]
+                distances = (result.get("distances") or [[]])[0]
+            except Exception as e:
+                print(f"[accounting_search] Chroma query error: {e}")
     search_ms = round((time.perf_counter() - t_search) * 1000)
 
-    ids = (result.get("ids") or [[]])[0]
-    documents = (result.get("documents") or [[]])[0]
-    metadatas = (result.get("metadatas") or [[]])[0]
-    distances = (result.get("distances") or [[]])[0]
-    from datetime import UTC, datetime
-
-    from src.agents.nodes.retrieval import _metadata_authorized, _metadata_lifecycle_allowed, detect_department_scope_denial
-    from src.security import get_authorization_engine
-
-    allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
     chunk_map = {
         chunk_id: _to_accounting_chunk(chunk_id, text, meta, distance)
@@ -343,9 +365,15 @@ async def accounting_retrieval_node(state: dict) -> dict:
         if _metadata_lifecycle_allowed(meta, query_date_ymd) and _metadata_authorized(meta, user_context, allowed_files)
     }
 
+    if settings.use_hybrid:
+        from src.agents.nodes.retrieval import _amerge_bm25
+        chunk_map = await _amerge_bm25(
+            query, ids, chunk_map, settings, user_context=user_context, collection_name=collection_name
+        )
+
     chunks = list(chunk_map.values())
 
-    if not chunks:
+    if not chunks and embedding:
         denied_department = await detect_department_scope_denial(col, embedding, user_context, settings)
         if denied_department:
             return {
@@ -358,29 +386,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
     # 4. Rerank
     if settings.use_reranker and chunks:
         t_rerank = time.perf_counter()
-        try:
-            ranked = await asyncio.to_thread(
-                rerank,
-                query,
-                [c["text"] for c in chunks],
-                model=settings.reranker_model,
-                base_url=settings.fpt_base_url,
-                api_key=settings.fpt_api_key,
-                top_n=settings.rerank_top_k,
-            )
-            reranked = []
-            for index, score in ranked:
-                if 0 <= index < len(chunks):
-                    chunk = chunks[index]
-                    chunk["score"] = score
-                    reranked.append(chunk)
-            chunks = sorted(
-                reranked,
-                key=lambda chunk: (-(chunk.get("score") or 0.0), chunk["chunk_id"]),
-            )[: settings.rerank_top_k]
-        except Exception as e:
-            print(f"[accounting_rerank] fail-closed {type(e).__name__}: {e}")
-            chunks = []
+        chunks = await _arerank(query, chunks)
         rerank_ms = round((time.perf_counter() - t_rerank) * 1000)
 
     # G9: Early-Exit Grade — bypass rewrite loop nếu đã có đủ chunk chất lượng tốt.
@@ -397,9 +403,10 @@ async def accounting_retrieval_node(state: dict) -> dict:
     should_early_exit = len(high_quality_chunks) >= early_exit_min_chunks
 
     total_retrieval_ms = round((time.perf_counter() - t_start) * 1000)
-    print(f"[TIMING] [retrieve:accounting] {total_retrieval_ms}ms (embed: {embed_ms}ms, search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)}")
+    top_sources = list({c.get('source_file') for c in chunks[:5] if c.get('source_file')})
+    print(f"[TIMING] [retrieve:accounting] {total_retrieval_ms}ms (embed: {embed_ms}ms, search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)} | sources={top_sources}")
 
     return {
         "retrieved_chunks": chunks,
-        "rewrite_count": 999 if should_early_exit else 0,
+        "rewrite_count": 999 if should_early_exit else state.get("rewrite_count", 0),
     }

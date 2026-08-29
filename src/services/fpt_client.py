@@ -174,6 +174,67 @@ def chat_completion(
     return message.get("content") or message.get("reasoning_content") or ""
 
 
+def _llm_rerank_sync(
+    query: str,
+    documents: list[str],
+    model: str,
+    base_url: str,
+    api_key: str,
+    top_n: int | None = None,
+    timeout: int = 30,
+) -> list[tuple[int, float]]:
+    import json
+    import re
+
+    # Chỉ đưa top 6 ứng viên tốt nhất vào LLM Reranker để giảm latency
+    max_eval = min(len(documents), 6)
+    snippets = []
+    for i in range(max_eval):
+        doc = documents[i]
+        t = doc[:140].replace("\n", " ")
+        snippets.append(f"[{i}] {t}")
+    prompt_context = "\n".join(snippets)
+
+    system_prompt = (
+        "Bạn là bộ thẩm định độ liên quan (Reranker). Đánh giá mức độ liên quan của từng [index] đối với câu hỏi.\n"
+        "Chỉ trả về duy nhất JSON array: "
+        '[{"index": 0, "score": 0.95}, ...]. Score từ 0.0 đến 1.0.'
+    )
+    user_prompt = f"Câu hỏi: {query}\n\nĐoạn trích:\n{prompt_context}"
+
+    try:
+        raw_msg = _post_chat_completion(
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+            model=model,
+            base_url=base_url,
+            api_key=api_key,
+            temperature=0.0,
+            timeout=timeout,
+            retries=1,
+        )
+        raw = raw_msg.get("content") or ""
+        match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
+        json_str = match.group(0) if match else raw.strip()
+        data = json.loads(json_str)
+        scored: list[tuple[int, float]] = []
+        seen_indices = set()
+        for item in data:
+            idx = int(item["index"])
+            if 0 <= idx < len(documents):
+                scored.append((idx, float(item["score"])))
+                seen_indices.add(idx)
+        # Bổ sung các index còn lại (nếu có) với điểm thấp
+        for i in range(len(documents)):
+            if i not in seen_indices:
+                scored.append((i, 0.05))
+        scored.sort(key=lambda item: (-item[1], item[0]))
+        return scored[:top_n] if top_n is not None else scored
+    except Exception as e:
+        print(f"[llm_rerank_sync] Fallback: {e}")
+        scored = [(i, max(0.1, 0.9 - i * 0.05)) for i in range(len(documents))]
+        return scored[:top_n] if top_n is not None else scored
+
+
 def rerank(
     query: str,
     documents: list[str],
@@ -184,19 +245,28 @@ def rerank(
     timeout: int = 60,
     retries: int = 2,
 ) -> list[tuple[int, float]]:
-    """Gọi endpoint /rerank (cross-encoder) trên FPT.AI Marketplace.
+    """Gọi endpoint /rerank (cross-encoder) trên FPT.AI Marketplace hoặc OpenAI LLM Reranker khi USE_GLM=OFF.
 
     Trả về [(index trong `documents`, relevance_score)] đã sắp xếp giảm dần.
-    `relevance_score` nằm trong khoảng 0-1 (server đã áp sigmoid), nên dùng
-    trực tiếp được làm ngưỡng lọc và làm điểm confidence — khác với logit thô
-    của cross-encoder chạy local.
-
-    Chạy qua gateway thay vì tải model 560M về máy: không thêm dependency nặng
-    (sentence-transformers/torch), không phụ thuộc cache HuggingFace của từng
-    máy, và deploy được lên môi trường không có GPU/disk lớn.
+    `relevance_score` nằm trong khoảng 0-1.
     """
     if not documents:
         return []
+
+    from src.config import get_settings
+    settings = get_settings()
+
+    if not settings.use_glm or "openai" in base_url.lower():
+        return _llm_rerank_sync(
+            query,
+            documents,
+            model=settings.openai_rerank_model or "gpt-4o-mini",
+            base_url=settings.openai_base_url,
+            api_key=settings.openai_api_key,
+            top_n=top_n,
+            timeout=min(timeout, 20),
+        )
+
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload: dict = {"model": model, "query": query, "documents": documents}
     if top_n is not None:
@@ -233,10 +303,14 @@ def embed_batch(
     captured_usage: dict = {}
 
     def _call() -> list[list[float]]:
+        payload: dict = {"model": model, "input": texts}
+        if "openai.com" in base_url.lower() and model.startswith("text-embedding-3"):
+            payload["dimensions"] = 1024
+
         r = _session.post(
             f"{base_url}/embeddings",
             headers=headers,
-            json={"model": model, "input": texts},
+            json=payload,
             timeout=timeout,
         )
         r.raise_for_status()

@@ -21,6 +21,7 @@ class MappedAgentResult:
     # 'general_policy' | 'personalized' | 'not_applicable' | None — chuyển tiếp
     # nguyên vẹn từ agent, KHÔNG suy diễn lại ở backend (xem AgentAnswerDTO.answer_type).
     answer_type: str | None = None
+    quick_prompts: list[str] | None = None
 
 
 class AgentAnswerAdapter:
@@ -160,4 +161,5 @@ class AgentAnswerAdapter:
             retryable=False,
             answer_type=answer.answer_type,
             boundary=boundary,
+            quick_prompts=answer.quick_prompts or None,
         )

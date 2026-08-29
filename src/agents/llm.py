@@ -63,6 +63,72 @@ def resolve_llm_endpoint(
     return target_model, resolved_base_url, resolved_api_key
 
 
+def resolve_embedding_endpoint(
+    model: str | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
+) -> tuple[str, str, str]:
+    """Phân giải (model, base_url, api_key) cho Embedding dựa trên USE_GLM."""
+    settings = get_settings()
+    if base_url and api_key and model:
+        return model, base_url, api_key
+
+    if settings.use_glm:
+        target_model = model or settings.embedding_model
+        resolved_base_url = base_url or settings.fpt_base_url
+        resolved_api_key = api_key or settings.fpt_api_key
+    else:
+        target_model = model or settings.openai_embedding_model or "text-embedding-3-small"
+        resolved_base_url = base_url or settings.openai_base_url
+        resolved_api_key = api_key or settings.openai_api_key
+
+    return target_model, resolved_base_url, resolved_api_key
+
+
+def resolve_vlm_endpoint(
+    model: str | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
+) -> tuple[str, str, str]:
+    """Phân giải (model, base_url, api_key) cho VLM (Vision / PDF) dựa trên USE_GLM."""
+    settings = get_settings()
+    if base_url and api_key and model:
+        return model, base_url, api_key
+
+    if settings.use_glm:
+        target_model = model or "Qwen2.5-VL-7B-Instruct"
+        resolved_base_url = base_url or settings.fpt_base_url
+        resolved_api_key = api_key or settings.fpt_api_key
+    else:
+        target_model = model or settings.openai_vlm_model or "gpt-4o"
+        resolved_base_url = base_url or settings.openai_base_url
+        resolved_api_key = api_key or settings.openai_api_key
+
+    return target_model, resolved_base_url, resolved_api_key
+
+
+def resolve_reranker_endpoint(
+    model: str | None = None,
+    base_url: str | None = None,
+    api_key: str | None = None,
+) -> tuple[str, str, str]:
+    """Phân giải (model, base_url, api_key) cho Reranker dựa trên USE_GLM."""
+    settings = get_settings()
+    if base_url and api_key and model:
+        return model, base_url, api_key
+
+    if settings.use_glm:
+        target_model = model or settings.reranker_model
+        resolved_base_url = base_url or settings.fpt_base_url
+        resolved_api_key = api_key or settings.fpt_api_key
+    else:
+        target_model = model or getattr(settings, "openai_reranker_model", None) or "gpt-4o-mini"
+        resolved_base_url = base_url or settings.openai_base_url
+        resolved_api_key = api_key or settings.openai_api_key
+
+    return target_model, resolved_base_url, resolved_api_key
+
+
 async def acall_llm(
     system: str,
     user: str,

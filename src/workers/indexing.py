@@ -83,16 +83,19 @@ def resolve_targets(request: IndexRebuildJobRequest, settings: Settings) -> list
 
 
 def _reindex_one(chunks: list[Chunk], collection, settings: Settings, replace: bool) -> int:
+    from src.agents.llm import resolve_embedding_endpoint
+
+    emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
     texts = [c.embedding_text for c in chunks]
     embeddings = embed_texts(
         texts,
-        model=settings.embedding_model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
+        model=emb_model,
+        base_url=emb_base_url,
+        api_key=emb_api_key,
         batch_size=settings.embedding_batch_size,
     )
     for c in chunks:
-        c.metadata.embedding_model = settings.embedding_model
+        c.metadata.embedding_model = emb_model
 
     if replace:
         delete_by_source_stem(

@@ -218,18 +218,31 @@ class ConversationService:
         result_messages = fetched_messages[:limit]
         next_cursor = result_messages[-1][0].created_at.isoformat() if has_more and result_messages else None
 
-        message_items = [
-            {
-                "message_id": str(msg.id),
-                "role": msg.role,
-                "content": msg.content,
-                "chat_request_id": str(msg.chat_request_id) if msg.chat_request_id else None,
-                "answer_status": answer_status,
-                "citations": sanitize_citations_for_client(msg.citations),
-                "created_at": msg.created_at.isoformat(),
-            }
-            for msg, answer_status in result_messages
-        ]
+        message_items = []
+        for msg, answer_status in result_messages:
+            quick_prompts = None
+            if msg.role in ("assistant", "ASSISTANT") and (
+                "trợ lý tri thức nội bộ" in (msg.content or "").lower()
+                or "chọn một gợi ý bên dưới" in (msg.content or "").lower()
+            ):
+                quick_prompts = [
+                    "Nhân viên có bao nhiêu ngày phép năm?",
+                    "Quy định làm việc hybrid như thế nào?",
+                    "Quy định về bảo hiểm sức khỏe tự nguyện cho nhân viên như thế nào?",
+                ]
+
+            message_items.append(
+                {
+                    "message_id": str(msg.id),
+                    "role": msg.role,
+                    "content": msg.content,
+                    "chat_request_id": str(msg.chat_request_id) if msg.chat_request_id else None,
+                    "answer_status": answer_status,
+                    "citations": sanitize_citations_for_client(msg.citations),
+                    "created_at": msg.created_at.isoformat(),
+                    "quick_prompts": quick_prompts,
+                }
+            )
 
         return {
             "conversation_id": str(conversation_id),

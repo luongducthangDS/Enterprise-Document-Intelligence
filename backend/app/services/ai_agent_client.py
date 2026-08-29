@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from app.core.config import get_settings
 from app.core.logging import logger
 from app.schemas.agent import AgentAnswerDTO
+from app.services.warmup_service import WarmupService
 
 settings = get_settings()
 

@@ -42,17 +42,17 @@ def strip_markdown_fence(text: str) -> str:
     return m.group(1) if m else text
 
 
-def extract_page_markdown(image_bytes: bytes, model: str = VLM_MODEL, retries: int = 2) -> str:
-    """Đọc FPT_API_KEY/base_url qua Settings tại thời điểm gọi (không phải lúc
-    import module) — để import module này không crash khi thiếu env var ở
-    những nhánh không thực sự cần VLM (vd chỉ dùng pdfplumber text-layer)."""
-    settings = get_settings()
+def extract_page_markdown(image_bytes: bytes, model: str | None = None, retries: int = 2) -> str:
+    """Trích xuất trang PDF qua VLM. Khi USE_GLM=OFF tự động dùng OpenAI gpt-4o vision."""
+    from src.agents.llm import resolve_vlm_endpoint
+
+    vlm_model, vlm_base_url, vlm_api_key = resolve_vlm_endpoint(model=model)
     content = _fpt_extract_page_markdown(
         image_bytes,
         prompt=PROMPT,
-        model=model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
+        model=vlm_model,
+        base_url=vlm_base_url,
+        api_key=vlm_api_key,
         retries=retries,
     )
     return strip_markdown_fence(content)

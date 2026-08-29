@@ -120,23 +120,30 @@ def _safe_source_file(source_file: str) -> str:
 
 def _index_chunks(chunks: list[Chunk], settings: Settings) -> int:
     """Embed + upsert (blocking — gọi qua asyncio.to_thread)."""
+    from src.agents.llm import resolve_embedding_endpoint
+
+    emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
     texts = [c.embedding_text for c in chunks]
+    print(f"[DOC-INGESTION] Embedding {len(chunks)} chunks with model={emb_model}, base_url={emb_base_url}")
     embeddings = embed_texts(
         texts,
-        model=settings.embedding_model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
+        model=emb_model,
+        base_url=emb_base_url,
+        api_key=emb_api_key,
         batch_size=settings.embedding_batch_size,
     )
+    print(f"[DOC-INGESTION] Generated {len(embeddings)} embeddings successfully")
     for c in chunks:
-        c.metadata.embedding_model = settings.embedding_model
+        c.metadata.embedding_model = emb_model
 
     client = get_chroma_client(settings)
     collection_name = collection_name_for_chunks(chunks, settings)
+    print(f"[DOC-INGESTION] Indexing official into Chroma collection: {collection_name}")
     collection = get_collection(client, collection_name)
     stem = chunks[0].metadata.source_stem
     delete_by_source_stem(collection, stem, chunks[0].metadata.tenant)
     upsert_chunks(collection, chunks, embeddings)
+    print(f"[DOC-INGESTION] Official index completed: {len(chunks)} chunks in {collection_name}")
     return len(chunks)
 
 
@@ -150,6 +157,7 @@ async def run_ingestion(
     stem = os.path.splitext(source_file)[0]
     tenant = validate_tenant_id(request.tenant)
 
+    print(f"[DOC-INGESTION] Starting Ingestion for file: {source_file}, Tenant: {tenant}, Dept: {request.department}")
     progress("EXTRACTING", 10)
     content = _decode_content(request.content_base64)
     raw_path = os.path.join(upload_dir(settings), tenant, source_file)
@@ -161,9 +169,12 @@ async def run_ingestion(
     os.makedirs(os.path.dirname(processed_path), exist_ok=True)
     try:
         text, method = await asyncio.to_thread(extract_document, raw_path, processed_path)
+        print(f"[DOC-INGESTION] Extracted {len(text)} chars via {method}")
     except UnsupportedDocumentError as exc:
+        print(f"[DOC-INGESTION-ERROR] Unsupported format: {exc}")
         raise IngestionError(str(exc)) from exc
     if not text.strip():
+        print("[DOC-INGESTION-ERROR] Extracted text is empty")
         raise IngestionError("Không trích xuất được văn bản nào từ file (có thể là bản scan không đọc được).")
 
     progress("CHUNKING", 40)
@@ -191,7 +202,9 @@ async def run_ingestion(
         settings=settings,
     )
     if not chunks:
+        print("[DOC-INGESTION-ERROR] No chunks generated")
         raise IngestionError("Tài liệu không tạo được chunk nào sau khi làm sạch.")
+    print(f"[DOC-INGESTION] Created {len(chunks)} chunks")
 
     chunks_path = os.path.join(chunks_dir(settings), tenant, f"{stem}.json")
     _atomic_write_json(chunks_path, [c.model_dump() for c in chunks])
@@ -201,15 +214,17 @@ async def run_ingestion(
     collection_name = collection_name_for_chunks(chunks, settings)
     if request.staging_source_stem:
         try:
+            print(f"[DOC-INGESTION] Cleaning staging vectors: {request.staging_source_stem}")
             staging_collection = get_collection(
                 get_chroma_client(settings), f"{collection_name}_staging"
             )
             delete_by_source_stem(staging_collection, request.staging_source_stem, tenant)
         except Exception as exc:  # cleanup must not invalidate a successful publication
+            print(f"[DOC-INGESTION-WARN] Could not clean staging vector: {exc}")
             logger.warning("Không dọn được staging vector %s: %s", request.staging_source_stem, exc)
 
-
     progress("INDEXING", 90)
+    print(f"[DOC-INGESTION] Completed publication for {source_file}: {vector_count} vectors in {collection_name}")
     logger.info(
         "Ingestion job %s: %s -> %d chunk (%s), collection=%s",
         request.job_id,

@@ -58,6 +58,15 @@ function historyToUi(message: ConversationMessage): UiMessage {
   const state = message.answer_status === "CLARIFICATION_REQUIRED" ? "CLARIFICATION_REQUIRED"
     : message.answer_status === "INSUFFICIENT_EVIDENCE" ? "REFUSED"
       : "COMPLETED";
+  const quickPrompts = (message.quick_prompts && message.quick_prompts.length > 0)
+    ? message.quick_prompts
+    : (message.content && (message.content.includes("trợ lý tri thức nội bộ") || message.content.includes("chọn một gợi ý bên dưới")))
+      ? [
+        "Nhân viên có bao nhiêu ngày phép năm?",
+        "Quy định làm việc hybrid như thế nào?",
+        "Quy định về bảo hiểm sức khỏe tự nguyện cho nhân viên như thế nào?",
+      ]
+      : null;
   return {
     id: message.message_id,
     kind: "assistant",
@@ -74,6 +83,7 @@ function historyToUi(message: ConversationMessage): UiMessage {
       clarification,
       failure: null,
       latency_ms: null,
+      quick_prompts: quickPrompts,
     },
   };
 }
@@ -722,7 +732,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
           )}
           {messages.map((message) => message.kind === "user"
             ? <div className="message user-message" key={message.id}><div className="message-body">{message.content}</div></div>
-            : <AssistantMessage key={message.id} result={message.result} onCitation={openCitation} onRetry={retry} />)}
+            : <AssistantMessage key={message.id} result={message.result} onCitation={openCitation} onRetry={retry} onQuickPrompt={(q) => void sendQuestion(q)} />)}
           {processingState && !messages.some((m) => m.kind === "assistant" && m.result.state === "GENERATING") && (
             <div className="message assistant-message animate__animated animate__fadeInLeft motion-message"><div className="assistant-avatar"><LoaderCircle className="spin" size={18} /></div><div className="message-body processing processing-pulse animate__animated animate__pulse animate__infinite"><strong>Đang xử lý</strong><span>{chatStateLabel(processingState)}</span></div></div>
           )}
@@ -779,10 +789,11 @@ function formatSourceType(value: string | null | undefined) {
   return sourceTypeLabel(value);
 }
 
-function AssistantMessage({ result, onCitation, onRetry }: {
+function AssistantMessage({ result, onCitation, onRetry, onQuickPrompt }: {
   result: ChatResult;
   onCitation: (citation: CitationSummary) => void;
   onRetry: (requestId: string) => void;
+  onQuickPrompt: (question: string) => void;
 }) {
   const isGenerating = result.state === "GENERATING";
   return <div className="message assistant-message">
@@ -797,6 +808,18 @@ function AssistantMessage({ result, onCitation, onRetry }: {
       {isGenerating && <span className="typing-cursor" style={{ opacity: 0.8, animation: "pulse 1s infinite" }}> ▌</span>}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
       {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
+      {!!result.quick_prompts?.length && (
+        <div className="quick-prompt-row">
+          <small className="quick-prompt-label">Gợi ý câu hỏi:</small>
+          <div className="quick-prompt-chips">
+            {result.quick_prompts.map((prompt) => (
+              <button key={prompt} className="quick-prompt-chip" onClick={() => onQuickPrompt(prompt)}>
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
     </div>

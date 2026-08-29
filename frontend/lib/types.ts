@@ -156,6 +156,9 @@ export type ChatResult = {
   // null khi tải lại lịch sử hoặc poll: decision hiện chỉ đi kèm event `result`
   // của lượt chat đang chạy (chat_requests chưa có cột lưu boundary).
   boundary?: BoundaryDecision | null;
+  // Non-empty chỉ khi intent=capability_discovery: danh sách câu hỏi gợi ý
+  // để frontend render thành Quick Prompt chips có thể bấm.
+  quick_prompts?: string[] | null;
 };
 
 export type ConversationMessage = {
@@ -166,6 +169,7 @@ export type ConversationMessage = {
   answer_status?: string | null;
   citations?: CitationSummary[] | null;
   created_at: string;
+  quick_prompts?: string[] | null;
 };
 
 /** GET /conversations item. Kept explicit so Backend can implement the list contract without UI changes. */

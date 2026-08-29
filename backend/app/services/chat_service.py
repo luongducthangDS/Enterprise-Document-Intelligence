@@ -391,7 +391,12 @@ class ChatService:
                 await db.commit()
                 if on_event is not None:
                     await on_event(
-                        {"type": "result", "data": cls._status_payload(chat_req, boundary=mapped.boundary)}
+                        {
+                            "type": "result",
+                            "data": cls._status_payload(
+                                chat_req, boundary=mapped.boundary, quick_prompts=mapped.quick_prompts
+                            ),
+                        }
                     )
 
             except Exception as exc:
@@ -433,17 +438,15 @@ class ChatService:
         return cls._status_payload(chat_req)
 
     @staticmethod
-    def _status_payload(chat_req: ChatRequestDB, boundary: dict[str, Any] | None = None) -> dict[str, Any]:
-        """`boundary` được truyền vào thay vì đọc từ DB.
-
-        `chat_requests` hiện chưa có migration trong supabase/migrations (xem
-        báo cáo audit), nên chưa thể thêm cột `boundary`/`scenario_id` mà không
-        có migration nền. Hệ quả đã lường trước: decision chỉ có trên event
-        `result` của lượt chat đang chạy; khi client poll lại hoặc tải lại lịch
-        sử thì field này là null và FE bỏ qua phần render action.
-        """
+    def _status_payload(
+        chat_req: ChatRequestDB,
+        boundary: dict[str, Any] | None = None,
+        quick_prompts: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """`boundary` và `quick_prompts` được truyền vào thay vì đọc từ DB."""
         return {
             "boundary": boundary,
+            "quick_prompts": quick_prompts,
             "chat_request_id": str(chat_req.id),
             "conversation_id": str(chat_req.conversation_id),
             "user_message_id": str(chat_req.user_message_id) if chat_req.user_message_id else None,
@@ -677,7 +680,12 @@ class ChatService:
                     chat_req.latency_ms = int((time.monotonic() - start_time) * 1000)
                     await db.commit()
                     await on_event(
-                        {"type": "result", "data": cls._status_payload(chat_req, boundary=mapped.boundary)}
+                        {
+                            "type": "result",
+                            "data": cls._status_payload(
+                                chat_req, boundary=mapped.boundary, quick_prompts=mapped.quick_prompts
+                            ),
+                        }
                     )
 
         except Exception as exc:

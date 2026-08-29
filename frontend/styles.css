@@ -2811,3 +2811,55 @@ button.citation-card {
   color: var(--text-muted, #64748b);
 }
 
+/* Quick Prompt Chips */
+.quick-prompt-row {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-subtle, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-prompt-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quick-prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-prompt-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--brand-primary, #0284c7);
+  background: var(--brand-subtle, #f0f9ff);
+  border: 1px solid var(--brand-border, #bae6fd);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  text-align: left;
+  line-height: 1.3;
+}
+
+.quick-prompt-chip:hover {
+  background: var(--brand-primary, #0284c7);
+  color: #ffffff;
+  border-color: var(--brand-primary, #0284c7);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
+
+.quick-prompt-chip:active {
+  transform: translateY(0);
+}
+

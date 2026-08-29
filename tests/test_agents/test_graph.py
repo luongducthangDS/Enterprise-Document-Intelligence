@@ -25,7 +25,7 @@ def test_department_scope_denial_is_clear_and_does_not_create_ticket():
 @pytest.mark.asyncio
 async def test_greeting_flow_skips_rag_and_returns_direct_response():
     with patch(
-        "src.agents.nodes.router.acall_llm", new=AsyncMock(side_effect=["greeting", "Chào bạn, mình có thể giúp gì?"])
+        "src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="Chào bạn, mình có thể giúp gì?")
     ):
         result = await agent.ainvoke({"query": "Chào bạn"})
 
@@ -106,6 +106,7 @@ async def test_hr_question_flow_returns_grounded_answer_with_citations():
         patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
         patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
         patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
+        patch("src.agents.nodes.retrieval.rerank", return_value=[(0, 0.95)]),
         patch(
             "src.agents.nodes.generation.acall_llm",
             new=AsyncMock(side_effect=["Bạn được nghỉ 12 ngày phép năm [Nguồn 1].", "PASS"]),
@@ -156,6 +157,7 @@ async def test_unanswerable_generation_skips_hallucination_check_and_escalates()
         patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
         patch("src.agents.nodes.retrieval._metadata_authorized", return_value=True),
         patch("src.agents.nodes.retrieval._metadata_lifecycle_allowed", return_value=True),
+        patch("src.agents.nodes.retrieval.rerank", return_value=[(0, 0.95)]),
         patch(
             "src.agents.nodes.generation.acall_llm",
             new=AsyncMock(side_effect=[f"{INSUFFICIENT_MARKER} Đoạn trích không nói về đồng phục."]),
@@ -188,6 +190,7 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
         patch("src.agents.nodes.retrieval._aembed_query", new=AsyncMock(return_value=[0.1, 0.2])),
         patch("src.agents.nodes.retrieval._collection", return_value=mock_collection),
         patch("src.agents.nodes.retrieval.detect_department_scope_denial", new=AsyncMock(return_value=None)),
+        patch("src.agents.nodes.retrieval.rerank", return_value=[]),
         patch("src.agents.nodes.retrieval.acall_llm", new=AsyncMock(return_value="câu hỏi viết lại")),
         patch(
             "src.agents.nodes.generation.acall_llm",
@@ -196,7 +199,7 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
     ):
         result = await agent.ainvoke(
             {
-                "query": "Câu hỏi không có tài liệu liên quan",
+                "query": "Quy định nghỉ phép không có tài liệu liên quan",
                 "tenant_id": "nexatech",
                 "user_id": "graph-test-user",
                 "department": "HR",
@@ -206,6 +209,7 @@ async def test_hr_question_with_no_relevant_chunks_escalates_after_rewrite_retry
 
     # max_rewrite_retries mặc định = 1 -> retrieve -> grade -> rewrite -> retrieve -> grade -> generate
     assert result["rewrite_count"] == 1
+
     assert result["retrieved_chunks"] == []
     assert result["escalate"] is True
     assert result["escalate_reason"] == "low_confidence"
@@ -326,5 +330,4 @@ async def test_guarded_path_escalates_and_hides_hallucinated_text_when_check_fai
     # Không để lộ câu trả lời bịa đặt ra response của user
     assert "50 ngày" not in result["response"]
     assert "45 ngày" not in result["response"]
-    assert "chưa đủ căn cứ" in result["response"]
-
+    assert "chưa có trong tài liệu nội bộ" in result["response"]

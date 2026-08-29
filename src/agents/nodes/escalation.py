@@ -335,8 +335,8 @@ def escalate_node(state: AgentState) -> dict:
         )
     else:
         response = (
-            "Xin lỗi, mình chưa đủ căn cứ để trả lời chắc chắn câu hỏi này. "
-            "Mình đã chuẩn bị nội dung yêu cầu hỗ trợ để bạn chuyển tới người phụ trách."
+            "Thông tin này hiện chưa có trong tài liệu nội bộ mình đang quản lý. "
+            "Nếu bạn cần hỗ trợ thêm, hãy liên hệ trực tiếp với người phụ trách bên dưới nhé."
             + _owner_phrase(boundary)
         )
     return {

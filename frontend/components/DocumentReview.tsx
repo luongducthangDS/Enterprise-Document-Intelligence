@@ -72,6 +72,7 @@ export function DocumentReview({ user }: { user: User }) {
   const [filters, setFilters] = useState({ category: "", status: "", indexed: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [uploadBusy, setUploadBusy] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState<DocumentSubmissionDetail | null>(null);
   const [uploadError, setUploadError] = useState("");
@@ -134,6 +135,7 @@ export function DocumentReview({ user }: { user: User }) {
 
     setUploadBusy(true);
     setUploadError("");
+    setSuccessMessage("");
     setActiveSubmission(null);
     try {
       // 1. Request 1: Gửi file lên Backend để phân tích và trích xuất chunk
@@ -166,7 +168,10 @@ export function DocumentReview({ user }: { user: User }) {
       }
 
       formElement.reset();
-      await pollSubmission(created.submission_id);
+      const finalAnalysis = await pollSubmission(created.submission_id);
+      if (finalAnalysis?.status === "PENDING_REVIEW") {
+        setSuccessMessage(`Phân tích tài liệu "${finalAnalysis.title}" thành công! Tài liệu đã sẵn sàng để kiểm duyệt.`);
+      }
     } catch (reason) {
       setUploadError(friendlyError(reason, "Không thể tải lên và phân tích tài liệu."));
     } finally {
@@ -178,6 +183,8 @@ export function DocumentReview({ user }: { user: User }) {
     try {
       setSubmissionDetail(await api.getDocumentSubmission(id));
       setReviewNote("");
+      setError("");
+      setSuccessMessage("");
     } catch (reason) {
       setError(friendlyError(reason, "Không mở được tài liệu chờ duyệt."));
     }
@@ -186,11 +193,21 @@ export function DocumentReview({ user }: { user: User }) {
   async function approveSubmission() {
     if (!submissionDetail) return;
     setReviewBusy(true);
+    setError("");
+    setSuccessMessage("");
     try {
       const current = await api.approveDocumentSubmission(submissionDetail.submission_id, reviewNote);
       setSubmissionDetail(current);
       setActiveSubmission(current);
-      await pollSubmission(current.submission_id);
+      const result = await pollSubmission(current.submission_id);
+      if (result?.status === "PUBLISH_FAILED") {
+        setError(result.error || "Không thể xuất bản tài liệu vào kho chính thức.");
+      } else if (result?.status === "PUBLISHED") {
+        setSuccessMessage(`Đã duyệt và xuất bản tài liệu "${result.title}" thành công vào kho tri thức!`);
+        setSubmissionDetail(null);
+        setActiveSubmission(null);
+        await load();
+      }
     } catch (reason) {
       setError(friendlyError(reason, "Không thể duyệt và xuất bản tài liệu."));
     } finally {
@@ -201,9 +218,13 @@ export function DocumentReview({ user }: { user: User }) {
   async function rejectSubmission() {
     if (!submissionDetail) return;
     setReviewBusy(true);
+    setError("");
+    setSuccessMessage("");
     try {
       const current = await api.rejectDocumentSubmission(submissionDetail.submission_id, reviewNote);
-      setSubmissionDetail(current);
+      setSuccessMessage(`Đã từ chối tài liệu "${current.title}".`);
+      setSubmissionDetail(null);
+      setActiveSubmission(null);
       await load();
     } catch (reason) {
       setError(friendlyError(reason, "Không thể từ chối tài liệu."));
@@ -216,6 +237,7 @@ export function DocumentReview({ user }: { user: User }) {
     if (!documentDetail) return;
     try {
       await api.archiveDocument(documentDetail.document_id);
+      setSuccessMessage(`Đã lưu trữ tài liệu "${documentDetail.title}".`);
       setDocumentDetail(null);
       await load();
     } catch (reason) {
@@ -233,6 +255,22 @@ export function DocumentReview({ user }: { user: User }) {
         <p>Tài liệu được phân tích trong vùng riêng và chỉ được Trợ lý AI sử dụng sau khi phê duyệt.</p>
       </div>
     </div>
+
+    {error && (
+      <div className="error-banner animate__animated animate__fadeIn">
+        <CircleAlert size={18} />
+        <span>{error}</span>
+        <button type="button" onClick={() => setError("")} aria-label="Đóng" style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "inherit" }}><X size={16} /></button>
+      </div>
+    )}
+
+    {successMessage && (
+      <div className="success-banner animate__animated animate__fadeIn" style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "8px", background: "rgba(34, 197, 94, 0.15)", border: "1px solid rgba(34, 197, 94, 0.3)", color: "#15803d", marginBottom: "1rem" }}>
+        <CheckCircle2 size={18} />
+        <span>{successMessage}</span>
+        <button type="button" onClick={() => setSuccessMessage("")} aria-label="Đóng" style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "inherit" }}><X size={16} /></button>
+      </div>
+    )}
 
     <div className="document-tabs" role="tablist">
       <button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>

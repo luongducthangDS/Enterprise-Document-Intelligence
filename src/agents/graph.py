@@ -6,7 +6,7 @@ from src.agents.nodes.escalation import confidence_node, department_access_denie
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
-from src.agents.nodes.router import clarify_node, condense_and_route_node, direct_node, router_node
+from src.agents.nodes.router import clarify_node, condense_and_route_node, direct_node, capability_node, router_node
 from src.agents.state import AgentState
 from src.config import get_settings
 
@@ -15,6 +15,8 @@ def route_by_intent(state: AgentState) -> str:
     intent = state.get("intent", "hr_question")
     if intent == "greeting":
         return "direct"
+    if intent == "capability_discovery":
+        return "capability"
     if intent == "ambiguous":
         return "clarify"
     # Routing precedence priority 2 (NexaTech Type-C contract v3.1.0): pure
@@ -91,6 +93,7 @@ def build_graph() -> StateGraph:
     graph.add_node("condense", condense_and_route_node)
     graph.add_node("router", router_node)
     graph.add_node("boundary", boundary_node)
+    graph.add_node("capability", capability_node)
     graph.add_node("direct", direct_node)
     graph.add_node("clarify", clarify_node)
     graph.add_node("knowledge_lookup", knowledge_lookup_node)
@@ -114,12 +117,14 @@ def build_graph() -> StateGraph:
         route_by_intent,
         {
             "direct": "direct",
+            "capability": "capability",
             "clarify": "clarify",
             "escalate": "escalate_ticket",
             "out_of_scope": "out_of_scope",
             "retrieve": "knowledge_lookup",
         },
     )
+    graph.add_edge("capability", END)
     graph.add_edge("direct", END)
     graph.add_edge("clarify", END)
     graph.add_edge("out_of_scope", END)

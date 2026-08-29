@@ -66,7 +66,7 @@ class TestRouterNode:
     @pytest.mark.asyncio
     async def test_unparseable_output_falls_back_to_hr_question(self):
         with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="không rõ")):
-            result = await router_node({"query": "abc"})
+            result = await router_node({"query": "Quy định số ngày nghỉ phép năm của công ty"})
         assert result["intent"] == "hr_question"
 
 
@@ -209,14 +209,13 @@ class TestVerifierTelemetry:
 
     @pytest.mark.asyncio
     async def test_reports_unchanged_route_when_verifier_confirms(self):
-        """Đây là ca cần đếm được: verifier tốn tiền nhưng chỉ xác nhận điều đã
-        rõ. Tỷ lệ này tăng = tín hiệu thêm pre-filter."""
+        """Verifier được gọi khi câu có business signal + policy signal nhưng LLM xác nhận personal_data_required."""
         with patch(
             "src.agents.nodes.router.acall_llm",
             new=AsyncMock(side_effect=["out_of_scope_or_personal", "personal_data_required"]),
         ):
             result = await router_node(
-                {"query": "Làm thế nào để fix lỗi NullReferenceException trong code C#?"}
+                {"query": "Quy chế khen thưởng định kỳ của công ty được tính thế nào?"}
             )
 
         assert result["verifier_called"] is True
@@ -230,6 +229,143 @@ class TestVerifierTelemetry:
             result = await router_node({"query": "Nghỉ phép năm được mấy ngày?"})
 
         assert "verifier_called" not in result
+
+
+class TestSimpleGreetingFastPath:
+    """Kiểm tra fast-path cho câu chào hỏi thuần túy (≤ 5 từ) không gọi LLM Router."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Chào bạn",
+            "Xin chào",
+            "Xin chào bạn",
+            "Hello",
+            "Hi",
+            "Hey",
+            "Cảm ơn nhé",
+            "Ok cảm ơn",
+            "Cảm ơn bạn nhiều",
+            "Thanks",
+            "Bye",
+            "Tạm biệt",
+            "Tạm biệt nhé",
+        ],
+    )
+    async def test_simple_greetings_skip_llm_router(self, query):
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+            result = await router_node({"query": query})
+
+        assert result["intent"] == "greeting"
+        llm.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_greeting_with_business_question_does_not_fast_route(self):
+        """Câu chào kèm câu hỏi nghiệp vụ không bị bắt nhầm bởi greeting regex."""
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="hr_question")) as llm:
+            result = await router_node({"query": "Chào bạn, cho mình hỏi chính sách nghỉ phép năm thế nào?"})
+
+        assert result["intent"] == "hr_question"
+        llm.assert_called_once()
+
+
+class TestWhitelistGuard:
+    """Kiểm tra Whitelist Guard: word-boundary, case-sensitive acronyms và shadow/live mode."""
+
+    def test_word_boundary_avoids_vietnamese_accent_collision(self):
+        from src.agents.nodes.router import _has_any_business_signal
+
+        # "vui" chứa "ui", "tốt" chứa "ot", "vất vả" chứa "vat" sau khi bỏ dấu
+        # Nhờ word-boundary (\b) và lọc acronym ngắn, câu này KHÔNG được nhận là có signal
+        assert _has_any_business_signal("Hôm nay tôi rất vui, thời tiết tốt") is False
+        assert _has_any_business_signal("Công việc hôm nay vất vả quá") is False
+        assert _has_any_business_signal("Thời tiết Hà Nội hôm nay thế nào?") is False
+        assert _has_any_business_signal("Học lập trình Python từ đâu?") is False
+        assert _has_any_business_signal("Nấu món phở bò truyền thống") is False
+
+    def test_case_sensitive_acronyms_detected(self):
+        from src.agents.nodes.router import _has_any_business_signal
+
+        # Các acronym nghiệp vụ quan trọng khi viết hoa được nhận diện chính xác
+        assert _has_any_business_signal("Quy định tính thuế VAT thế nào?") is True
+        assert _has_any_business_signal("Làm thêm giờ OT tính lương ra sao?") is True
+        assert _has_any_business_signal("Tài liệu API thanh toán nằm ở đâu?") is True
+        assert _has_any_business_signal("Hướng dẫn thiết kế UI/UX theo chuẩn") is True
+
+    def test_business_terms_detected_with_word_boundary(self):
+        from src.agents.nodes.router import _has_any_business_signal
+
+        assert _has_any_business_signal("Chính sách nghỉ phép năm là bao nhiêu ngày?") is True
+        assert _has_any_business_signal("Quy định tạm ứng chi phí công tác") is True
+        assert _has_any_business_signal("Báo cáo tài chính quý 3 nộp khi nào?") is True
+        assert _has_any_business_signal("Checkout redesign khi nào release?") is True
+        assert _has_any_business_signal("Thời gian thử việc tối đa theo luật?") is True
+
+    @pytest.mark.asyncio
+    async def test_shadow_mode_logs_and_marks_state_without_blocking(self):
+        """Shadow mode: câu không có signal vẫn được chuyển xuống LLM nhưng state có whitelist_shadow_would_block."""
+        settings = get_settings()
+        original = settings.whitelist_guard_shadow
+        try:
+            settings.whitelist_guard_shadow = True
+            with patch("src.agents.nodes.router.acall_llm", new=AsyncMock(return_value="out_of_scope_or_personal")) as llm:
+                result = await router_node({"query": "Học lập trình Python thế nào?"})
+
+            assert result["intent"] == "out_of_scope_or_personal"
+            assert result.get("whitelist_shadow_would_block") is True
+            assert result.get("whitelist_blocked") is not True
+            llm.assert_called_once()
+        finally:
+            settings.whitelist_guard_shadow = original
+
+    @pytest.mark.asyncio
+    async def test_live_mode_blocks_immediately_without_llm(self):
+        """Live mode (whitelist_guard_shadow=False): câu không có signal bị từ chối ngay 0ms, không gọi LLM."""
+        settings = get_settings()
+        original = settings.whitelist_guard_shadow
+        try:
+            settings.whitelist_guard_shadow = False
+            with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+                result = await router_node({"query": "Học lập trình Python thế nào?"})
+
+            assert result["intent"] == "out_of_scope_or_personal"
+            assert result.get("whitelist_blocked") is True
+            assert result.get("verifier_called") is False
+            llm.assert_not_called()
+        finally:
+            settings.whitelist_guard_shadow = original
+
+
+class TestGuardTier0:
+    """Tier-0 trong _guard_escalation: chặn các câu không có business signal trước khi gọi LLM Verifier."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Nấu phở bò truyền thống mất bao lâu?",
+            "Đi du lịch Đà Lạt cần chuẩn bị những gì?",
+        ],
+    )
+    async def test_tier0_skips_verifier_for_non_business_query(self, query):
+        """Khi shadow mode bật: router LLM vẫn gọi (1 lần), nhưng Tier-0 trong guard chặn không gọi LLM Verifier."""
+        settings = get_settings()
+        original = settings.whitelist_guard_shadow
+        try:
+            settings.whitelist_guard_shadow = True
+            with patch(
+                "src.agents.nodes.router.acall_llm",
+                new=AsyncMock(return_value="out_of_scope_or_personal"),
+            ) as llm:
+                result = await router_node({"query": query})
+
+            assert result["intent"] == "out_of_scope_or_personal"
+            assert result.get("verifier_called") is False
+            # Chỉ gọi router LLM (ở shadow mode), KHÔNG gọi verifier LLM
+            assert llm.await_count == 1
+        finally:
+            settings.whitelist_guard_shadow = original
 
 
 class TestG3Regression:
@@ -309,5 +445,109 @@ class TestG3Regression:
             result = await router_node({"condensed_query": "Quy định số ngày phép năm nay được mấy ngày?"})
         assert result["intent"] == "hr_question"
         assert llm.await_count == 1
+
+
+class TestChitChatFastPath:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "bạn là ai",
+            "bạn tên gì",
+            "bạn thông minh quá",
+            "bot ơi",
+            "bạn có khỏe không",
+            "bạn nghĩ sao",
+            "hay đấy",
+            "giỏi thật",
+        ],
+    )
+    async def test_chit_chat_fast_path_returns_greeting(self, query):
+        from src.agents.nodes.router import condense_and_route_node
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+            result = await condense_and_route_node({"query": query})
+        assert result["intent"] == "greeting"
+        llm.assert_not_called()
+
+
+class TestCapabilityDiscoveryFastPath:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "tôi có thể hỏi gì",
+            "tôi có thể hỏi những gì",
+            "bạn có thể làm gì",
+            "bạn có thể giúp gì",
+            "bạn giúp được gì",
+            "bạn làm được gì",
+            "bạn hỗ trợ gì",
+            "bạn biết gì",
+            "bạn có khả năng gì",
+            "các chủ đề bạn hỗ trợ",
+        ],
+    )
+    async def test_capability_queries_return_capability_discovery(self, query):
+        from src.agents.nodes.router import condense_and_route_node
+        with patch("src.agents.nodes.router.acall_llm", new=AsyncMock()) as llm:
+            result = await condense_and_route_node({"query": query})
+        assert result["intent"] == "capability_discovery"
+        llm.assert_not_called()
+
+
+class TestCapabilityDiscoveryNoFalsePositive:
+    """Đảm bảo câu hỏi nghiệp vụ thật KHÔNG bị Capability tier nuốt nhầm."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Cho tôi mẫu đơn xin nghỉ phép",
+            "Hướng dẫn quy trình xin nghỉ phép thế nào?",
+            "Cho tôi ví dụ về chính sách phúc lợi",
+            "Bên mình hỗ trợ những khoản phụ cấp gì?",
+            "bạn có biết quy định nghỉ thai sản không",
+        ],
+    )
+    async def test_business_query_not_captured_by_capability(self, query):
+        from src.agents.nodes.router import condense_and_route_node
+        with patch(
+            "src.agents.nodes.router.acall_llm",
+            new=AsyncMock(return_value='{"condensed_query": "...", "intent": "hr_question", "clarifying_question": null}'),
+        ):
+            result = await condense_and_route_node({"query": query})
+        assert result.get("intent") != "capability_discovery", (
+            f"Business query was wrongly captured by capability tier: {query!r}"
+        )
+
+
+class TestChitChatNoFalsePositive:
+    """Đảm bảo câu hỏi follow-up ngắn không bị chit-chat tier nhận nhầm."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Thế nào?",
+            "Vậy thế nào rồi?",
+        ],
+    )
+    async def test_short_followup_not_fast_pathed_as_greeting(self, query):
+        from src.agents.nodes.router import condense_and_route_node
+        result = await condense_and_route_node({"query": query})
+        # Không có business signal -> whitelist guard block, nhưng KHÔNG được fast-path thành greeting
+        assert result.get("intent") != "greeting"
+
+
+class TestCapabilityNode:
+    @pytest.mark.asyncio
+    async def test_capability_node_returns_template_and_quick_prompts(self):
+        from src.agents.nodes.router import capability_node
+        result = await capability_node({"intent": "capability_discovery"})
+        assert "response" in result
+        assert "HR & Nhân sự" in result["response"]
+        assert "Kế toán & Tài chính" in result["response"]
+        assert "Product & Tech" in result["response"]
+        assert len(result.get("quick_prompts", [])) >= 3
 
 

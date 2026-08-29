@@ -156,6 +156,10 @@ def _log_audit(
         if state["verifier_called"]:
             audit["verifier_changed_route"] = state.get("verifier_changed_route", False)
             audit["verifier_latency_ms"] = state.get("verifier_latency_ms")
+    if state.get("whitelist_shadow_would_block"):
+        audit["whitelist_shadow_would_block"] = True
+    if state.get("whitelist_blocked"):
+        audit["whitelist_blocked"] = True
     if stage_timings_ms is not None:
         audit["stage_timings_ms"] = stage_timings_ms
     if network_calls:
@@ -293,6 +297,10 @@ async def astream_answer(
     safe_citations = sanitize_citations(state.get("citations", []))
     ticket_draft = _build_ticket_draft(state)
     runtime_state, reason_code = _derive_runtime_state(state)
+    # Safety: quick_prompts chỉ được phép non-empty khi intent=capability_discovery
+    _quick_prompts = state.get("quick_prompts", [])
+    if _quick_prompts and state.get("intent") != "capability_discovery":
+        _quick_prompts = []
     final_answer = AgentAnswer(
         response=safe_response,
         intent=state.get("intent", "hr_question"),
@@ -307,6 +315,7 @@ async def astream_answer(
         state=runtime_state,
         reason_code=reason_code,
         answer_type=state.get("answer_type"),
+        quick_prompts=_quick_prompts,
     )
 
     for chunk in _chunk_answer_text(safe_response):
@@ -365,6 +374,10 @@ async def answer(
     runtime_state, reason_code = _derive_runtime_state(state)
     print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
     _log_audit(state, {"total": total_ms} if profiling else None, network_calls)
+    # Safety: quick_prompts chỉ được phép non-empty khi intent=capability_discovery
+    _quick_prompts = state.get("quick_prompts", [])
+    if _quick_prompts and state.get("intent") != "capability_discovery":
+        _quick_prompts = []
     return AgentAnswer(
         response=safe_response,
         intent=state.get("intent", "hr_question"),
@@ -379,4 +392,5 @@ async def answer(
         state=runtime_state,
         reason_code=reason_code,
         answer_type=state.get("answer_type"),
+        quick_prompts=_quick_prompts,
     )

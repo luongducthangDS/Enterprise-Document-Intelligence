@@ -85,7 +85,7 @@ class AgentBoundaryDecisionDTO(BaseModel):
 
 class AgentAnswerDTO(BaseModel):
     response: str
-    intent: Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
+    intent: Literal["greeting", "capability_discovery", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
     confidence_score: float | None = Field(default=None, ge=0.0, le=1.0)
     citations: list[AgentCitationDTO] = Field(default_factory=list)
     needs_clarification: bool = False
@@ -100,6 +100,7 @@ class AgentAnswerDTO(BaseModel):
     # Nullable: agent bản cũ / lượt không qua generate_node (greeting, clarify,
     # escalate, out_of_scope) chưa/không gửi field này.
     answer_type: str | None = None
+    quick_prompts: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_control_fields(self):

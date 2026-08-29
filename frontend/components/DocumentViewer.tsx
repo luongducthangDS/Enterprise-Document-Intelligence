@@ -98,8 +98,9 @@ function flattenMarkdownExcerpt(text: string): string {
     .replace(/\*\*([^*]+)\*\*/g, "$1")               // bold
     .replace(/\*([^*]+)\*/g, "$1")                   // italic *
     .replace(/_{1,2}([^_]+)_{1,2}/g, "$1")           // italic/bold _
-    .replace(/\r?\n+/g, " ")                         // gộp mọi xuống dòng thành 1 khoảng trắng
-    .replace(/\s{2,}/g, " ")
+    .replace(/\s*\|\s*/g, " · ")                     // biến cột bảng thành dấu chấm phân cách sạch
+    .replace(/\r?\n+/g, "  \n")                      // giữ ngắt dòng nhẹ giữa các ý
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
 }
 
@@ -354,7 +355,7 @@ function DocxViewer({
       "p, .docx_paragraph, tr, li, h1, h2, h3, h4, h5, h6, blockquote"
     );
 
-    let bestElement: HTMLElement | null = null;
+    const matchedElements: { el: HTMLElement; score: number }[] = [];
     let highestScore = 0;
 
     elements.forEach((el) => {
@@ -373,40 +374,47 @@ function DocxViewer({
         }
       });
 
+      if (score >= 6) {
+        matchedElements.push({ el, score });
+      }
       if (score > highestScore) {
         highestScore = score;
-        bestElement = el;
       }
     });
 
-    // CHỈ bôi vàng ĐOẠN VĂN KHỚP NHẤT (BEST MATCH)
-    if (bestElement && highestScore >= 6) {
-      const targetEl = bestElement as HTMLElement;
-      targetEl.classList.add("docx-notebook-highlight");
-      targetEl.style.setProperty("background-color", "#fef08a", "important");
-      targetEl.style.setProperty("border-left", "4px solid #eab308", "important");
-      targetEl.style.setProperty("padding", "4px 8px", "important");
-      targetEl.style.setProperty("border-radius", "4px", "important");
+    // Bôi vàng TẤT CẢ các đoạn văn đạt ngưỡng điểm tốt (từ 35% điểm cao nhất trở lên)
+    const minThreshold = Math.max(6, highestScore * 0.35);
+    const qualifying = matchedElements.filter((m) => m.score >= minThreshold);
 
-      // Bôi vàng các thẻ chữ con bên trong đoạn văn đó
-      targetEl.querySelectorAll<HTMLElement>("span, b, strong, em, i, a").forEach((child) => {
-        child.classList.add("docx-notebook-highlight");
-        child.style.setProperty("background-color", "#fef08a", "important");
-        child.style.setProperty("color", "#000000", "important");
+    if (qualifying.length > 0) {
+      qualifying.forEach(({ el }) => {
+        el.classList.add("docx-notebook-highlight");
+        el.style.setProperty("background-color", "#fef08a", "important");
+        el.style.setProperty("border-left", "4px solid #eab308", "important");
+        el.style.setProperty("padding", "4px 8px", "important");
+        el.style.setProperty("border-radius", "4px", "important");
+
+        // Bôi vàng các thẻ chữ con bên trong đoạn văn đó
+        el.querySelectorAll<HTMLElement>("span, b, strong, em, i, a").forEach((child) => {
+          child.classList.add("docx-notebook-highlight");
+          child.style.setProperty("background-color", "#fef08a", "important");
+          child.style.setProperty("color", "#000000", "important");
+        });
       });
 
-      // Tự động cuộn đến đoạn văn được highlight
+      // Tự động cuộn đến đoạn văn đầu tiên trong danh sách highlight
+      const firstTarget = qualifying[0].el;
       const viewport = root.closest(".docx-viewport-container") as HTMLElement | null;
       if (viewport) {
         const vRect = viewport.getBoundingClientRect();
-        const elRect = targetEl.getBoundingClientRect();
+        const elRect = firstTarget.getBoundingClientRect();
         const scrollTarget = viewport.scrollTop + (elRect.top - vRect.top) - (viewport.clientHeight / 3);
         viewport.scrollTo({
           top: Math.max(0, scrollTarget),
           behavior: "smooth",
         });
       } else {
-        targetEl.scrollIntoView({
+        firstTarget.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });

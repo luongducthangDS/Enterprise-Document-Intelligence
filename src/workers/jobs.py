@@ -148,21 +148,27 @@ class JobStore:
         return record
 
     async def _run(self, job_id: str, kind: JobKind, runner: JobRunner) -> None:
+        import traceback
         lock = self._kind_locks.setdefault(kind, asyncio.Lock())
-        # Giữ nguyên QUEUED trong lúc chờ lock — Backend poll ra "đang xếp hàng"
-        # đúng như thực tế, thay vì PROCESSING giả.
+        print(f"[JOB-START] job_id={job_id} kind={kind} (Waiting for worker lock...)")
         async with lock:
+            print(f"[JOB-RUNNING] job_id={job_id} kind={kind} started processing")
             self._update(job_id, state="PROCESSING", stage="STARTED", progress_percent=1)
 
             def progress(stage: str, percent: int) -> None:
-                self._update(job_id, stage=stage, progress_percent=max(0, min(100, int(percent))))
+                p = max(0, min(100, int(percent)))
+                print(f"[JOB-PROGRESS] job_id={job_id} kind={kind} -> {stage} ({p}%)")
+                self._update(job_id, stage=stage, progress_percent=p)
 
             try:
                 result = await runner(progress)
             except asyncio.CancelledError:
+                print(f"[JOB-CANCELLED] job_id={job_id} kind={kind}")
                 self._update(job_id, state="FAILED", stage="CANCELLED", error="Job bị huỷ")
                 raise
             except Exception as exc:  # noqa: BLE001 — lỗi 1 job không được giết agent
+                err_tb = traceback.format_exc()
+                print(f"[JOB-FAILED] 🔴 job_id={job_id} kind={kind} error={type(exc).__name__}: {exc}\n{err_tb}")
                 logger.exception("Job %s (%s) thất bại", job_id, kind)
                 self._update(
                     job_id,
@@ -172,6 +178,7 @@ class JobStore:
                 )
                 return
 
+            print(f"[JOB-SUCCESS] 🟢 job_id={job_id} kind={kind} completed successfully")
             self._update(
                 job_id,
                 state="COMPLETED",

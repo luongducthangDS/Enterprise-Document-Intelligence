@@ -78,11 +78,13 @@ class DocumentSubmissionService:
         if cls.worker_dispatch_enabled and submission.status in ANALYSIS_ACTIVE_STATES:
             try:
                 worker = await cls.worker_client.get_status(str(submission.id))
-            except WorkerJobClientError:
+            except WorkerJobClientError as exc:
+                print(f"[SUBMISSION-SYNC-WARN] WorkerJobClientError for submission {submission.id}: {exc}")
                 worker = None
             if worker:
                 submission.stage = str(worker.get("stage", submission.stage))
                 submission.progress_percent = int(worker.get("progress_percent", submission.progress_percent))
+                print(f"[SUBMISSION-SYNC] submission_id={submission.id} worker_state={worker.get('state')} stage={submission.stage} progress={submission.progress_percent}%")
                 if worker.get("state") == "COMPLETED":
                     result = worker.get("result") or {}
                     submission.status = "PENDING_REVIEW"
@@ -94,24 +96,29 @@ class DocumentSubmissionService:
                     submission.chunk_count = int(result.get("chunk_count") or len(submission.chunks))
                     submission.analysis_warnings = list(result.get("warnings") or [])
                     submission.error = None
+                    print(f"[SUBMISSION-SYNC] 🟢 Submission {submission.id} is now PENDING_REVIEW ({submission.chunk_count} chunks)")
                 elif worker.get("state") == "FAILED":
                     submission.status = "ANALYSIS_FAILED"
                     submission.stage = "FAILED"
                     submission.error = cls._safe_error(worker.get("error"))
+                    print(f"[SUBMISSION-SYNC] 🔴 Submission {submission.id} ANALYSIS_FAILED: {submission.error}")
                 await db.commit()
 
         if submission.status in PUBLICATION_ACTIVE_STATES and submission.publication_job_id:
             job = await DocumentService.get_ingestion_job(db, user, str(submission.publication_job_id))
+            print(f"[SUBMISSION-PUBLISH-SYNC] submission_id={submission.id} pub_job_id={submission.publication_job_id} job_state={job.get('state')} stage={job.get('stage')}")
             if job["state"] == "COMPLETED":
                 submission.status = "PUBLISHED"
                 submission.stage = "PUBLISHED"
                 submission.progress_percent = 100
                 submission.error = None
+                print(f"[SUBMISSION-PUBLISH-SYNC] 🟢 Submission {submission.id} PUBLISHED successfully!")
                 await db.commit()
             elif job["state"] == "FAILED":
                 submission.status = "PUBLISH_FAILED"
                 submission.stage = "FAILED"
-                submission.error = "Không thể xuất bản tài liệu vào kho chính thức."
+                submission.error = job.get("error") or "Không thể xuất bản tài liệu vào kho chính thức."
+                print(f"[SUBMISSION-PUBLISH-SYNC] 🔴 Submission {submission.id} PUBLISH_FAILED: {submission.error}")
                 await db.commit()
 
     @classmethod
@@ -260,12 +267,8 @@ class DocumentSubmissionService:
         submission = await cls._load(db, user, submission_id)
         if not cls._can_manage(user, submission):
             raise ForbiddenError("Bạn không có quyền duyệt tài liệu này.", "SUBMISSION_REVIEW_DENIED")
-        await cls._sync(db, user, submission)
-        if submission.status == "PUBLISHED":
-            return cls._detail(submission)
         if submission.status not in REVIEWABLE_STATES:
             raise ConflictError("SUBMISSION_NOT_REVIEWABLE", "Tài liệu chưa sẵn sàng hoặc đã được xử lý.")
-
         reviewer_id = cls._actor_id(user)
         submission.status = "APPROVING"
         submission.stage = "APPROVING"
@@ -274,6 +277,7 @@ class DocumentSubmissionService:
         submission.review_note = note
         await db.commit()
 
+        print(f"[SUBMISSION-APPROVE] Approving submission {submission.id} ({submission.title}) by user {reviewer_id}")
         try:
             upload = UploadFile(filename=submission.source_file, file=io.BytesIO(submission.file_content))
             published = await DocumentService.upload_document(
@@ -292,10 +296,14 @@ class DocumentSubmissionService:
                 authorized_role=submission.authorized_role,
                 public_url=submission.public_url,
             )
-        except Exception:
+            print(f"[SUBMISSION-APPROVE] Published document_id={published['document_id']}, ingestion_job_id={published['ingestion_job_id']}")
+        except Exception as exc:
+            import traceback
+            tb = traceback.format_exc()
+            print(f"[SUBMISSION-APPROVE-ERROR] 🔴 Failed to publish document: {exc}\n{tb}")
             submission.status = "PUBLISH_FAILED"
             submission.stage = "FAILED"
-            submission.error = "Không thể xuất bản tài liệu vào kho chính thức."
+            submission.error = f"Lỗi xuất bản: {exc}"
             await db.commit()
             raise
 

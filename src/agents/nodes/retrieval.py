@@ -4,7 +4,7 @@ import time
 from datetime import UTC, datetime
 from functools import lru_cache, partial
 
-from src.agents.llm import acall_llm, thinking_arg
+from src.agents.llm import acall_llm, resolve_embedding_endpoint, thinking_arg
 from src.agents.state import AgentState, RetrievedChunk
 from src.config import Settings, get_settings
 from src.ingestion.indexer import collection_name_for_department, get_chroma_client, get_collection
@@ -181,8 +181,6 @@ def _provenance_filter(settings: Settings, user_context: UserContext | None = No
         file_condition,
         *_lifecycle_conditions(int(datetime.now(UTC).strftime("%Y%m%d"))),
     ]
-    if settings.data_mode == "production":
-        conditions.append({"provenance": {"$nin": sorted(DEMO_ONLY_PROVENANCE)}})
     return {"$and": conditions}
 
 
@@ -263,20 +261,30 @@ def _collection(collection_name: str | None = None):
 
 @lru_cache
 def _bm25_index(collection_name: str | None = None) -> BM25 | None:
-    """Corpus BM25 tải MỘT LẦN cho từng collection tenant."""
+    """Corpus BM25 tải MỘT LẦN cho từng collection tenant và lưu 100% trong RAM."""
     try:
-        result = _collection(collection_name).get(
-            include=["documents"],
-            where={"$and": [{"publication_status": "active"}, {"retrieval_enabled": True}]},
-        )
+        col = _collection(collection_name)
+        result = col.get(include=["documents", "metadatas"])
     except Exception as e:  # noqa: BLE001
         print(f"[hybrid] không tải được corpus BM25 cho '{collection_name}': {type(e).__name__}: {e}")
         return None
-    ids = result.get("ids") or []
-    documents = result.get("documents") or []
+    raw_ids = result.get("ids") or []
+    raw_documents = result.get("documents") or []
+    raw_metadatas = result.get("metadatas") or []
+    ids = []
+    documents = []
+    metadatas = []
+    for cid, doc, meta in zip(raw_ids, raw_documents, raw_metadatas):
+        if not meta or (meta.get("publication_status", "active") == "active" and meta.get("retrieval_enabled", True) is not False):
+            ids.append(cid)
+            documents.append(doc)
+            metadatas.append(meta or {})
     if not ids:
         return None
-    return BM25(ids, documents)
+    bm25 = BM25(ids, documents)
+    bm25.doc_map = {cid: doc for cid, doc in zip(ids, documents)}
+    bm25.meta_map = {cid: meta for cid, meta in zip(ids, metadatas)}
+    return bm25
 
 
 async def _aembed_query(text: str) -> list[float]:
@@ -286,17 +294,22 @@ async def _aembed_query(text: str) -> list[float]:
     if cached is not None:
         return cached
 
-    settings = get_settings()
-    vectors = await asyncio.to_thread(
-        embed_batch,
-        [f"query: {text}"],
-        model=settings.embedding_model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
-    )
-    vec = vectors[0]
-    set_cached_embedding(text, vec)
-    return vec
+    model, base_url, api_key = resolve_embedding_endpoint()
+    try:
+        input_text = f"query: {text}" if "e5" in model.lower() else text
+        vectors = await asyncio.to_thread(
+            embed_batch,
+            [input_text],
+            model=model,
+            base_url=base_url,
+            api_key=api_key,
+        )
+        vec = vectors[0]
+        set_cached_embedding(text, vec)
+        return vec
+    except Exception as e:
+        print(f"[embedding] Lỗi embedding {type(e).__name__}: {e}. Fallback sang BM25 lexical search.")
+        return []
 
 
 def _to_chunk(
@@ -342,6 +355,7 @@ async def retrieval_node(state: AgentState) -> dict:
     t_retrieval_start = time.perf_counter()
     query = state.get("rewritten_query") or state.get("condensed_query") or state["query"]
     domain = get_conversation_domain(query, state.get("category"), state.get("history"))
+    print(f"[RETRIEVAL-DOMAIN] Query: {query!r} -> Domain: {getattr(domain, 'domain_name', 'default_hr')}")
     if domain and domain.domain_name == "accounting":
         return await accounting_retrieval_node(state)
     settings = get_settings()
@@ -354,8 +368,27 @@ async def retrieval_node(state: AgentState) -> dict:
     )
 
     t_embed_start = time.perf_counter()
-    with llm_trace.Timer("embedding", "fpt_cloud"):
-        embedding = await _aembed_query(query)
+
+    # Song song hoa: embed + auth_filter + bm25_warmup cung luc
+    # - _aembed_query: goi OpenAI API (~229-1400ms, IO-bound)
+    # - get_authorized_source_files: doc registry (CPU/IO, ~20-80ms)
+    # - _bm25_index: @lru_cache - lan dau tai RAM, sau do ~0ms
+    # Ba tac vu khong phu thuoc nhau -> chay dong thoi tiet kiem dang ke.
+    async def _get_allowed_files_async() -> set[str]:
+        return set(await asyncio.to_thread(
+            get_authorization_engine().get_authorized_source_files, user_context
+        ))
+
+    async def _warmup_bm25_async() -> None:
+        await asyncio.to_thread(_bm25_index, collection_name)
+
+    search_query = _expand_retrieval_query(query)
+    with llm_trace.Timer("embedding", "fpt_cloud" if settings.use_glm else "openai"):
+        embedding, allowed_files, _ = await asyncio.gather(
+            _aembed_query(search_query),
+            _get_allowed_files_async(),
+            _warmup_bm25_async(),
+        )
     embed_ms = round((time.perf_counter() - t_embed_start) * 1000)
 
     with llm_trace.Timer("chroma_init", "chroma_cloud"):
@@ -363,25 +396,29 @@ async def retrieval_node(state: AgentState) -> dict:
 
     t_search_start = time.perf_counter()
     filters = _retrieval_filters(settings, user_context)
-    with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
-        branch_results = await asyncio.gather(
-            *[
-                asyncio.to_thread(
-                    partial(collection.query, where=where),
-                    query_embeddings=[embedding],
-                    n_results=settings.retrieval_top_k,
+    ids, documents, metadatas, distances = [], [], [], []
+    if embedding:
+        with llm_trace.Timer("vector_search", "chroma_cloud", n_results=settings.retrieval_top_k):
+            try:
+                branch_results = await asyncio.gather(
+                    *[
+                        asyncio.to_thread(
+                            partial(collection.query, where=where),
+                            query_embeddings=[embedding],
+                            n_results=settings.retrieval_top_k,
+                        )
+                        for where in filters
+                    ]
                 )
-                for where in filters
-            ]
-        )
-        result = _merge_query_results(branch_results, settings.retrieval_top_k)
+                result = _merge_query_results(branch_results, settings.retrieval_top_k)
+                ids = (result.get("ids") or [[]])[0]
+                documents = (result.get("documents") or [[]])[0]
+                metadatas = (result.get("metadatas") or [[]])[0]
+                distances = (result.get("distances") or [[]])[0]
+            except Exception as e:
+                print(f"[vector_search] Chroma query warning ({type(e).__name__}: {e})")
     search_ms = round((time.perf_counter() - t_search_start) * 1000)
 
-    ids = (result.get("ids") or [[]])[0]
-    documents = (result.get("documents") or [[]])[0]
-    metadatas = (result.get("metadatas") or [[]])[0]
-    distances = (result.get("distances") or [[]])[0]
-    allowed_files = set(get_authorization_engine().get_authorized_source_files(user_context))
     query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
 
     chunk_map: dict[str, RetrievedChunk] = {
@@ -390,9 +427,9 @@ async def retrieval_node(state: AgentState) -> dict:
         if _metadata_lifecycle_allowed(meta, query_date_ymd) and _metadata_authorized(meta, user_context, allowed_files)
     }
 
-    if settings.use_hybrid and ids:
+    if settings.use_hybrid:
         chunk_map = await _amerge_bm25(
-            query, ids, chunk_map, settings, user_context=user_context, collection_name=collection_name
+            search_query, ids, chunk_map, settings, user_context=user_context, collection_name=collection_name
         )
 
     chunks = list(chunk_map.values())
@@ -415,9 +452,10 @@ async def retrieval_node(state: AgentState) -> dict:
         rerank_ms = round((time.perf_counter() - t_rerank_start) * 1000)
 
     total_retrieval_ms = round((time.perf_counter() - t_retrieval_start) * 1000)
+    top_sources = list({c.get('source_file') for c in chunks[:5] if c.get('source_file')})
     print(
         f"[TIMING] [retrieve] {total_retrieval_ms}ms "
-        f"(embed: {embed_ms}ms, vector_search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)}"
+        f"(embed: {embed_ms}ms, vector_search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)} | sources={top_sources}"
     )
 
     # Observability & Audit Trail Logging
@@ -462,41 +500,82 @@ async def _amerge_bm25(
     bm25_candidates = [cid for cid, _ in bm25.top_k(query, k=settings.bm25_top_k * 2)]
     missing_ids = [cid for cid in bm25_candidates if cid not in chunk_map]
     if missing_ids:
-        coll = _collection(collection_name)
-        fetched = await asyncio.to_thread(coll.get, ids=missing_ids, include=["documents", "metadatas"])
         fallback_distance = settings.retrieval_max_distance
         query_date_ymd = int(datetime.now(UTC).strftime("%Y%m%d"))
-        for chunk_id, text, meta in zip(
-            fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
-        ):
-            sf = meta.get("source_file", "")
-            registry_allowed = sf in allowed_files
-            runtime_allowed = user_context is not None and runtime_upload_metadata_allowed(user_context, meta)
-            if registry_allowed:
-                publication_status = meta.get("publication_status", "active")
-                artifact_state = meta.get("artifact_state", "frozen")
-                retrieval_enabled = meta.get("retrieval_enabled", True)
-                effective_date_ymd = int(meta.get("effective_date_ymd", 1))
-                expiry_date_ymd = int(meta.get("expiry_date_ymd", 99991231))
+        doc_map = getattr(bm25, "doc_map", {})
+        meta_map = getattr(bm25, "meta_map", {})
+        unresolved_ids = []
+        for chunk_id in missing_ids:
+            text = doc_map.get(chunk_id)
+            meta = meta_map.get(chunk_id)
+            if text and meta:
+                sf = meta.get("source_file", "")
+                registry_allowed = sf in allowed_files
+                runtime_allowed = user_context is not None and runtime_upload_metadata_allowed(user_context, meta)
+                if registry_allowed:
+                    publication_status = meta.get("publication_status", "active")
+                    artifact_state = meta.get("artifact_state", "frozen")
+                    retrieval_enabled = meta.get("retrieval_enabled", True)
+                    effective_date_ymd = int(meta.get("effective_date_ymd", 1))
+                    expiry_date_ymd = int(meta.get("expiry_date_ymd", 99991231))
+                else:
+                    publication_status = meta.get("publication_status")
+                    artifact_state = meta.get("artifact_state")
+                    retrieval_enabled = meta.get("retrieval_enabled")
+                    effective_date_ymd = int(meta.get("effective_date_ymd", 99991231))
+                    expiry_date_ymd = int(meta.get("expiry_date_ymd", 0))
+                lifecycle_allowed = (
+                    publication_status == "active"
+                    and artifact_state == "frozen"
+                    and retrieval_enabled is True
+                    and effective_date_ymd <= query_date_ymd
+                    and expiry_date_ymd >= query_date_ymd
+                )
+                if lifecycle_allowed and (registry_allowed or runtime_allowed):
+                    chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
             else:
-                publication_status = meta.get("publication_status")
-                artifact_state = meta.get("artifact_state")
-                retrieval_enabled = meta.get("retrieval_enabled")
-                effective_date_ymd = int(meta.get("effective_date_ymd", 99991231))
-                expiry_date_ymd = int(meta.get("expiry_date_ymd", 0))
-            lifecycle_allowed = (
-                publication_status == "active"
-                and artifact_state == "frozen"
-                and retrieval_enabled is True
-                and effective_date_ymd <= query_date_ymd
-                and expiry_date_ymd >= query_date_ymd
-            )
-            if lifecycle_allowed and (registry_allowed or runtime_allowed):
-                chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
+                unresolved_ids.append(chunk_id)
+
+        if unresolved_ids:
+            coll = _collection(collection_name)
+            fetched = await asyncio.to_thread(coll.get, ids=unresolved_ids, include=["documents", "metadatas"])
+            for chunk_id, text, meta in zip(
+                fetched.get("ids") or [], fetched.get("documents") or [], fetched.get("metadatas") or []
+            ):
+                sf = meta.get("source_file", "")
+                registry_allowed = sf in allowed_files
+                runtime_allowed = user_context is not None and runtime_upload_metadata_allowed(user_context, meta)
+                if registry_allowed:
+                    publication_status = meta.get("publication_status", "active")
+                    artifact_state = meta.get("artifact_state", "frozen")
+                    retrieval_enabled = meta.get("retrieval_enabled", True)
+                    effective_date_ymd = int(meta.get("effective_date_ymd", 1))
+                    expiry_date_ymd = int(meta.get("expiry_date_ymd", 99991231))
+                else:
+                    publication_status = meta.get("publication_status")
+                    artifact_state = meta.get("artifact_state")
+                    retrieval_enabled = meta.get("retrieval_enabled")
+                    effective_date_ymd = int(meta.get("effective_date_ymd", 99991231))
+                    expiry_date_ymd = int(meta.get("expiry_date_ymd", 0))
+                lifecycle_allowed = (
+                    publication_status == "active"
+                    and artifact_state == "frozen"
+                    and retrieval_enabled is True
+                    and effective_date_ymd <= query_date_ymd
+                    and expiry_date_ymd >= query_date_ymd
+                )
+                if lifecycle_allowed and (registry_allowed or runtime_allowed):
+                    chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
 
     valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
-    fused = reciprocal_rank_fusion([dense_ids, valid_bm25_ids], k=settings.rrf_k)
-    fused_ids = [cid for cid, _ in fused[: settings.retrieval_top_k]]
+    if not settings.use_glm:
+        # Khi USE_GLM=OFF (OpenAI query trên kho E5), BM25 là nguồn tìm kiếm từ khóa chính xác nhất.
+        # Đưa toàn bộ ứng viên BM25 lên đầu danh sách trước khi bổ sung dense để LLM Reranker đánh giá.
+        ordered_ids = list(dict.fromkeys(valid_bm25_ids + dense_ids))
+        fused_ids = ordered_ids[: settings.retrieval_top_k]
+    else:
+        fused = reciprocal_rank_fusion([dense_ids, valid_bm25_ids], k=settings.rrf_k)
+        fused_ids = [cid for cid, _ in fused[: settings.retrieval_top_k]]
 
     return {cid: chunk_map[cid] for cid in fused_ids if cid in chunk_map}
 
@@ -530,35 +609,30 @@ async def _arerank(
     *,
     diversify_sources: bool = False,
 ) -> list[RetrievedChunk]:
-    """Xếp hạng lại bằng cross-encoder qua FPT.AI Marketplace, cắt còn rerank_top_k.
-
-    Dense retrieval hay tìm đúng TÀI LIỆU nhưng sai ĐOẠN (đo được: Document
-    Hit@10 = 95% trong khi Recall@1 chỉ 41.7%) — cross-encoder đọc cặp
-    (câu hỏi, đoạn) nên phân biệt được các đoạn có từ vựng giống nhau trong
-    cùng một tài liệu, chỗ mà embedding thuần yếu.
-
-    Rerank lỗi (mạng/gateway) thì GIỮ NGUYÊN thứ tự dense và để score=None —
-    suy giảm chất lượng xếp hạng nhưng agent vẫn trả lời được, thay vì chết cả
-    request.
-    """
+    """Xếp hạng lại các đoạn trích. Khi USE_GLM=OFF tự động dùng OpenAI gpt-4o-mini LLM Reranker, khi ON dùng FPT Cross-Encoder."""
+    if not chunks:
+        return []
     settings = get_settings()
+    target_top_n = len(chunks) if diversify_sources else settings.rerank_top_k
+
+    from src.agents.llm import resolve_reranker_endpoint
+
+    r_model, r_base_url, r_api_key = resolve_reranker_endpoint()
     try:
         ranked = await asyncio.to_thread(
             rerank,
             query,
             [c["text"] for c in chunks],
-            model=settings.reranker_model,
-            base_url=settings.fpt_base_url,
-            api_key=settings.fpt_api_key,
-            top_n=len(chunks) if diversify_sources else settings.rerank_top_k,
+            model=r_model,
+            base_url=r_base_url,
+            api_key=r_api_key,
+            top_n=target_top_n,
         )
     except Exception as e:  # noqa: BLE001
-        # Fail closed: dense distance không cùng thang với reranker score. Dùng
-        # im lặng kết quả dense từng làm behavior đổi theo trạng thái gateway.
         print(f"[rerank] fail-closed do lỗi {type(e).__name__}: {e}")
         return []
 
-    reranked: list[RetrievedChunk] = []
+    reranked = []
     for index, score in ranked:
         if 0 <= index < len(chunks):
             chunk = chunks[index]

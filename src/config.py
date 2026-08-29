@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     llm_provider: Literal["auto", "fpt", "openai"] = "auto"
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_vlm_model: str = "gpt-4o"
+    openai_rerank_model: str = "gpt-4o-mini"
 
     @field_validator("use_glm", mode="before")
     @classmethod
@@ -278,10 +281,14 @@ class Settings(BaseSettings):
     # revert khối "PHÂN ĐỊNH ... CHIỀU HỎI" trong _get_router_system() về
     # revision trước. KHÔNG bật `thinking_router=True` cho toàn bộ traffic ngay
     # — đó là đòn cuối (đắt 14x latency), không phải phản xạ đầu tiên.
+    # Whitelist guard — từ chối sớm câu hỏi không có tín hiệu nghiệp vụ (HR/Accounting/Product).
+    # True = Shadow mode (chỉ ghi log [whitelist_guard] và telemetry, không chặn thật).
+    # False = Live mode (từ chối ngay lập tức 0ms, không gọi LLM Router).
+    whitelist_guard_shadow: bool = False
     escalation_guard_enabled: bool = True
     thinking_router: bool = False
-    thinking_condense: bool = True
-    thinking_generation: bool = True
+    thinking_condense: bool = False
+    thinking_generation: bool = False
     thinking_hallucination: bool = True
 
     # P4A — hai nhánh "rẻ" (direct/clarify): tác vụ chỉ sinh MỘT câu ngắn nhưng
@@ -344,7 +351,7 @@ class Settings(BaseSettings):
     judge_base_url: str = ""
 
     # Agent RAG
-    retrieval_top_k: int = 25
+    retrieval_top_k: int = 12
     rerank_top_k: int = 10
     use_reranker: bool = True
     # Tên model trên FPT.AI Marketplace (endpoint /rerank) — KHÔNG phải repo id
@@ -363,10 +370,8 @@ class Settings(BaseSettings):
     distance_confidence_near: float = 0.10
     distance_confidence_far: float = 0.22
     # Hybrid retrieval — trộn dense (Chroma) với BM25 local qua RRF trước khi
-    # đưa vào reranker. Tắt mặc định để A/B: bật `use_hybrid=True` rồi so
-    # Multi-chunk Recall@10 với baseline dense-only (69.1%). Không thêm lệnh
-    # gọi mạng nào (BM25 chạy local) nên không đổi latency.
-    use_hybrid: bool = False
+    # đưa vào reranker.
+    use_hybrid: bool = True
     bm25_top_k: int = 25
     rrf_k: int = 60
 

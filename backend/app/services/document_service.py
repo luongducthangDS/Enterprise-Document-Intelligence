@@ -132,41 +132,69 @@ class DocumentService:
 
         tenant = get_settings().active_tenant
 
-        doc = DocumentDB(
-            title=doc_title,
-            source_file=filename,
-            content_type=file.content_type,
-            file_content=contents,
-            category=doc_category,
-            tenant=tenant,
-            department=doc_department.upper(),
-            access_scope=normalized_scope,
-            authorized_role=normalized_authorized_role,
-            owner_user_id=uploader_id,
-            authorization_source="RUNTIME_UPLOAD",
-            authority="tenant_official_policy",
-            provenance="customer_provided",
-            version=version,
-            effective_date=effective_date,
-            confidentiality=doc_confidentiality,
-            status=doc_status,
-            public_url=public_url.strip() if public_url and public_url.strip() else None,
-            uploaded_by=uploader_id,
-        )
-        db.add(doc)
-        try:
-            await db.flush()
-        except IntegrityError as exc:
-            # Uniqueness: (tenant, source_file) — migration 0008_document_runtime_acl.
-            # Trả 409 ngữ nghĩa thay vì để UniqueViolation nổi lên thành 500.
-            await db.rollback()
-            raise ConflictError(
-                code="DOCUMENT_ALREADY_EXISTS",
-                message=(
-                    f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
-                    "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
-                ),
-            ) from exc
+        stmt = select(DocumentDB).where(DocumentDB.tenant == tenant, DocumentDB.source_file == filename)
+        res = await db.execute(stmt)
+        existing_doc = res.scalars().first()
+
+        if existing_doc:
+            if staging_submission_id:
+                doc = existing_doc
+                doc.title = doc_title
+                doc.content_type = file.content_type
+                doc.file_content = contents
+                doc.category = doc_category
+                doc.department = doc_department.upper()
+                doc.access_scope = normalized_scope
+                doc.authorized_role = normalized_authorized_role
+                doc.version = version
+                doc.effective_date = effective_date
+                doc.confidentiality = doc_confidentiality
+                doc.status = doc_status
+                if public_url and public_url.strip():
+                    doc.public_url = public_url.strip()
+                doc.updated_at = datetime.now(UTC)
+            else:
+                raise ConflictError(
+                    code="DOCUMENT_ALREADY_EXISTS",
+                    message=(
+                        f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
+                        "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
+                    ),
+                )
+        else:
+            doc = DocumentDB(
+                title=doc_title,
+                source_file=filename,
+                content_type=file.content_type,
+                file_content=contents,
+                category=doc_category,
+                tenant=tenant,
+                department=doc_department.upper(),
+                access_scope=normalized_scope,
+                authorized_role=normalized_authorized_role,
+                owner_user_id=uploader_id,
+                authorization_source="RUNTIME_UPLOAD",
+                authority="tenant_official_policy",
+                provenance="customer_provided",
+                version=version,
+                effective_date=effective_date,
+                confidentiality=doc_confidentiality,
+                status=doc_status,
+                public_url=public_url.strip() if public_url and public_url.strip() else None,
+                uploaded_by=uploader_id,
+            )
+            db.add(doc)
+            try:
+                await db.flush()
+            except IntegrityError as exc:
+                await db.rollback()
+                raise ConflictError(
+                    code="DOCUMENT_ALREADY_EXISTS",
+                    message=(
+                        f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
+                        "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
+                    ),
+                ) from exc
 
         job = IngestionJobDB(
             document_id=doc.id,

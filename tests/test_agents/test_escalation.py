@@ -176,7 +176,7 @@ class TestEscalateNode:
 
         result = escalate_node(state)
 
-        assert result["response"].startswith("Xin lỗi, mình chưa đủ căn cứ")
+        assert result["response"].startswith("Thông tin này hiện chưa có trong tài liệu nội bộ")
 
     def test_employee_relations_gets_high_priority(self):
         state = {"query": "Tôi bị quấy rối ở công ty", "intent": "hr_question"}

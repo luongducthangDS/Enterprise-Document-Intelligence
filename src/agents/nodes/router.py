@@ -19,6 +19,137 @@ _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Fast-path câu chào hỏi thuần túy (≤ 5 từ): trả về greeting ngay mà không tốn LLM call.
+_SIMPLE_GREETING_RE = re.compile(
+    r"^\s*(?:ok\s+)?(?:xin\s+)?(?:chao|hello|h[ie]+y?|ok|cam\s*on|thanks?|bye|tam\s*biet)"
+    r"(?:\s+(?:ban|nhe|anh|chi|em|oi|cac\s*ban|minh|nha|ad|bot|nhieu|roi|a|nhen))*\s*[.!?]?\s*$",
+    re.IGNORECASE,
+)
+
+# Fast-path câu xã giao hỏi về bot: anchor ^...$ bắt buộc — câu phải TOÀN BỘ là xã giao.
+# Bỏ "the nao" đứng độc lập: trong multi-turn có thể là follow-up nghiệp vụ ("Thế nào rồi?").
+# Chỉ cho phép "the nao" khi có chủ ngữ rõ ràng về bot ("ban the nao", "bot the nao").
+_CHIT_CHAT_RE = re.compile(
+    r"^\s*(?:"
+    r"(?:(?:ban|anh|chi|em|may|bot)\s+)?"
+    r"(?:la ai|ten gi|tu dau|thong minh(?: qu[ae])?|hay day|gioi that|dep qua|co ten khong|(?:co\s+)?khoe(?:\s+khong)?|nghi sao|nghi gi|biet gi khong|co hieu khong|hieu khong)"
+    r"|"
+    r"(?:ban|anh|chi|em|may|bot)\s+(?:the nao|sao roi|dang lam gi|o dau)"
+    r"|"
+    r"(?:ban|bot)\s*oi|ok\s+ban"
+    r")\s*[?!.]?\s*$",
+    re.IGNORECASE,
+)
+
+# Fast-path câu hỏi về khả năng của bot.
+# Chỉ chứa cụm tường minh hỏi về BOT — KHÔNG có "mau don", "huong dan", "vi du",
+# "ho tro gi" vì các cụm này trùng với cách diễn đạt của câu hỏi nghiệp vụ thật.
+# Lớp bảo vệ thứ 2: điều kiện AND NOT _has_any_business_signal() được áp dụng
+# trực tiếp trong condense_and_route_node (Priority Gate trước Tier 3).
+_CAPABILITY_DISCOVERY_RE = re.compile(
+    r"(?:"
+    r"(?:ban\s+)?(?:co\s+the\s+)?(?:lam|giup|ho\s+tro|xu\s+ly|tra\s+loi)\s+(?:duoc\s+)?(?:nhung\s+)?(?:gi|cai\s+gi)"
+    r"|"
+    r"(?:ban\s+)?(?:co\s+the\s+)?(?:biet|co\s+kha\s+nang)\s+(?:duoc\s+)?(?:nhung\s+)?(?:gi|cai\s+gi)"
+    r"|"
+    r"(?:toi|minh|em|nguoi\s+dung)?\s*(?:co\s+the\s+)?(?:hoi|tra\s+cuu)\s+(?:duoc\s+)?(?:nhung\s+)?(?:gi|cai\s+gi)"
+    r"|"
+    r"cac\s+chu\s+de\s+(?:ban\s+)?(?:ho\s+tro|xu\s+ly|tra\s+loi)"
+    r"|"
+    r"co\s+the\s+hoi\s+gi"
+    r")",
+    re.IGNORECASE,
+)
+
+# Acronym ngắn (2-4 ký tự) case-sensitive trên query gốc.
+# Khôi phục các thuật ngữ viết tắt quan trọng (VAT, API, OT, UI, UX, PIT, KPI...)
+# tránh va chạm ngẫu nhiên với âm tiết tiếng Việt sau khi bỏ dấu (vd: VAT vs vất vả, OT vs tốt/một, UI vs vui, DAU vs đâu).
+_CASE_SENSITIVE_ACRONYMS_PATTERN = re.compile(
+    r"\b(?:VAT|PIT|OT|UI|UX|API|CI/CD|OKR|DAU|MAU|SLA|SDK|DB|SQL|QA|QC)\b"
+)
+
+# Whitelist tín hiệu nghiệp vụ (HR / Accounting / Product) đã chuẩn hoá không dấu.
+# Sử dụng word-boundary (\b) để khớp chính xác theo ranh giới từ.
+#
+# Nguyên tắc thêm từ:
+#   - Chỉ thêm từ/cụm ĐỦ ĐẶC HIỆU trong ngữ cảnh HR/Accounting/Product.
+#   - Tránh từ mang nghĩa kép phổ biến trong tiếng Việt thường ngày:
+#       "thue" (thuê/thuế), "chi phi" (chi phí chung), "release/sprint/feature" độc lập.
+#   - Ưu tiên CỤM TỪ (>= 2 từ) hoặc từ viết tắt kỹ thuật qua _CASE_SENSITIVE_ACRONYMS_PATTERN.
+_BUSINESS_SIGNAL_TERMS: frozenset[str] = frozenset({
+    # HR & Company Policies — chính sách, quy chế, thời gian, làm việc
+    "chinh sach", "quy dinh", "quy che", "quy trinh", "che do", "quyen loi",
+    "nghia vu", "trach nhiem", "huong dan", "bieu mau", "mau don", "noi quy",
+    "luong", "thuong", "phep", "nghi phep", "xin nghi", "muon nghi", "don xin nghi",
+    "nghi bu", "nghi le", "nghi khong luong", "nghi viec rieng", "nghi thai san", "nghi om",
+    "nghi duong suc", "tai nan lao dong", "che do nghi", "thoi gian lam viec", "gio lam viec",
+    "ca lam viec", "di muon", "ve som", "cham cong", "lam viec tu xa", "tu xa", "lam tu xa",
+    "lam them gio", "lam them", "them gio", "tang ca", "overtime", "wfh", "hybrid",
+    "hop dong", "hop dong lao dong", "hdld", "thu viec", "gia han hop dong",
+    "bao hiem", "bhxh", "bhyt", "bhtn", "bao hiem suc khoe", "nghi viec", "thoi viec",
+    "sa thai", "kpi", "okr", "phong ban", "nhan su", "nhan vien", "quy trinh nhan su",
+    "cong tac phi", "tam ung", "hoan ung", "dao tao nhan vien", "tuyen dung",
+    "onboarding", "offboarding", "phu cap", "chuc danh", "canh cao ky luat", "ky luat",
+    "boi thuong", "xac nhan cong tac", "xac nhan thu nhap", "dong phuc", "the nhan vien",
+    "kham suc khoe dinh ky", "kham suc khoe", "phuc loi", "tro cap", "danh gia hieu suat",
+    "xep loai nhan su", "nang luc",
+    # Accounting & Finance — chi tiêu, hạn mức, mua sắm, duyệt chi, hóa đơn, chứng từ
+    "hoa don", "chung tu", "quyet toan", "ke khai thue", "khau tru thue",
+    "thu nhap tinh thue", "thu nhap mien thue", "bao cao tai chinh", "cong no",
+    "ngan sach", "chi phi cong tac", "khau hao", "tai san co dinh",
+    "nhap kho", "xuat kho", "kiem ke", "ton kho", "chiet khau",
+    "thanh toan", "thue thu nhap", "thue gtgt", "gia tri gia tang",
+    "tai khoan ngan hang", "so quy", "bang ke chi phi", "phieu chi", "phieu thu",
+    "han muc", "han muc chi", "han muc chi tieu", "han muc duyet", "han muc duyet chi",
+    "chi tieu", "duyet chi", "phe duyet chi", "mua sam", "bao gia", "de nghi thanh toan",
+    "de nghi mua hang", "tam ung", "hoan ung", "quyet toan chi phi", "bien ban ban giao",
+    "bien ban giao nhan", "tai san", "so tien", "khoan chi", "chi phi", "dinh khoan",
+    "so quy", "bang luong", "chuyen khoan", "tien mat", "hop dong kinh te",
+    # Product & Engineering — roadmap, sprint, release, UI/UX, features
+    "product roadmap", "roadmap", "san pham", "tinh nang", "feature", "sprint planning",
+    "sprint review", "sprint", "release schedule", "release", "phat hanh", "ra mat",
+    "product backlog", "backlog", "checkout redesign", "checkout flow", "checkout",
+    "recommendation system", "notification center", "dark mode", "ui", "ux",
+    "subscription plan", "subscription upgrade", "experiment tracking", "technical",
+    "ab test", "design system", "deployment pipeline", "staging environment", "trien khai",
+    "weekly retention", "monthly retention", "conversion rate", "churn rate", "metric",
+    "kien truc", "he thong", "backend", "frontend", "api", "database",
+    # Statutory / Legal — các câu hỏi pháp luật quốc gia / điều khoản luật
+    "bo luat lao dong", "luat lao dong", "bo luat", "nghi dinh", "thong tu",
+    "phap luat", "van ban phap luat", "lao dong", "luat",
+})
+
+
+def _build_business_signal_re(terms: frozenset[str]) -> re.Pattern:
+    sorted_terms = sorted(terms, key=len, reverse=True)
+    escaped = [re.escape(t) for t in sorted_terms]
+    pattern = r"\b(?:" + "|".join(escaped) + r")\b"
+    return re.compile(pattern, re.IGNORECASE)
+
+
+_BUSINESS_SIGNAL_RE: re.Pattern = _build_business_signal_re(_BUSINESS_SIGNAL_TERMS)
+
+
+def _has_any_business_signal(query: str) -> bool:
+    """True nếu query chứa ít nhất 1 tín hiệu nghiệp vụ từ HR / Accounting / Product.
+
+    Kiểm tra 2 tầng:
+    1. Case-sensitive acronyms (VAT, PIT, OT, UI, UX, API, CI/CD, OKR, DAU, MAU, SLA...)
+       trên query gốc để bảo vệ acronyms ngắn không bị va chạm từ tiếng Việt sau khi bỏ dấu.
+    2. Word-boundary regex trên chuỗi đã chuẩn hoá không dấu cho các từ/cụm từ nghiệp vụ.
+    """
+    if _CASE_SENSITIVE_ACRONYMS_PATTERN.search(query):
+        return True
+    try:
+        from src.domains.accounting.retrieval_ext import _ACCOUNTING_KEYWORD_PATTERN
+        if _ACCOUNTING_KEYWORD_PATTERN.search(query):
+            return True
+    except Exception:
+        pass
+    normalized = _strip_diacritics(query).lower()
+    return bool(_BUSINESS_SIGNAL_RE.search(normalized))
+
+
 # Dấu hiệu người hỏi đang hỏi QUY ĐỊNH CHUNG chứ không hỏi số liệu của riêng
 # mình — dùng làm circuit breaker cho nhánh escalate, KHÔNG dùng để phân loại.
 # Không dấu vì so khớp qua _strip_diacritics().
@@ -78,7 +209,7 @@ def _get_router_system() -> str:
 
 - greeting: chào hỏi, xã giao, không phải câu hỏi HR thật (vd "chào bạn", "bạn là ai", "cảm ơn nhé").
 
-- hr_question: nhãn legacy cho mọi câu hỏi tri thức nội bộ HR HOẶC Product đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nghỉ phép năm theo quy định được mấy ngày?", "Checkout Redesign dự kiến release khi nào?", "Recommendation System đang ở trạng thái nào?", "Kết quả experiment Checkout Redesign là gì?").
+- hr_question: nhãn legacy cho mọi câu hỏi tri thức nội bộ HR, Kế toán HOẶC Product đã RÕ RÀNG, có thể trả lời ngay bằng tài liệu chung, không cần tra cứu dữ liệu riêng của người hỏi (vd "Nhân viên có bao nhiêu ngày phép năm?", "Nghỉ phép năm theo quy định được mấy ngày?", "Hạn mức duyệt chi trong quy chế nội bộ thế nào?", "Quy trình tạm ứng công tác phí ra sao?", "Checkout Redesign dự kiến release khi nào?", "Recommendation System đang ở trạng thái nào?").
 
 - ambiguous: câu hỏi THIẾU thông tin cần thiết hoặc đa nghĩa, khiến không biết tra cứu chính xác tài liệu/quy định nào nếu không hỏi lại làm rõ. Ví dụ:
   * "Tôi còn bao nhiêu ngày phép?" — mập mờ giữa ngày phép tiêu chuẩn năm nay và ngày phép cộng dồn từ năm trước.
@@ -219,13 +350,50 @@ async def condense_and_route_node(state: AgentState) -> dict:
     from src.config import get_settings
 
     node_start_t = time.perf_counter()
-    query = state.get("query", "")
+    query = state.get("query") or state.get("condensed_query") or ""
     history = state.get("history") or []
     settings = get_settings()
 
     injection_hits: list[str] = []
     if settings.guardrail_injection_enabled:
         injection_hits.extend(detect_injection(query))
+
+    # --- PRIORITY GATE: Kiểm tra business signal 1 lần duy nhất, tái dùng ở bước whitelist ---
+    # Nếu query có tín hiệu nghiệp vụ → bỏ qua toàn bộ Tier 1/2 (chit-chat/capability),
+    # tránh "Cho tôi mẫu đơn nghỉ phép" bị Capability tier nuốt mất.
+    _has_signal = _has_any_business_signal(query)
+
+    if not _has_signal:
+        # Tier 1 — Fast-path câu chào hỏi thuần túy (≤ 5 từ)
+        if _SIMPLE_GREETING_RE.match(_strip_diacritics(query).lower()):
+            total_router_ms = round((time.perf_counter() - node_start_t) * 1000)
+            print(f"[TIMING] [condense_and_route] {total_router_ms}ms (fast_greeting) | intent=greeting")
+            return {
+                "condensed_query": query,
+                "intent": "greeting",
+                "guardrail_injection_detected": bool(injection_hits),
+            }
+
+        # Tier 2 — Chit-chat xã giao hỏi về bot (anchor ^...$, câu phải TOÀN BỘ là xã giao)
+        if _CHIT_CHAT_RE.match(_strip_diacritics(query).lower()):
+            total_router_ms = round((time.perf_counter() - node_start_t) * 1000)
+            print(f"[TIMING] [condense_and_route] {total_router_ms}ms (fast_chit_chat) | intent=greeting")
+            return {
+                "condensed_query": query,
+                "intent": "greeting",
+                "guardrail_injection_detected": bool(injection_hits),
+            }
+
+        # Tier 3 — Capability Discovery (≤ 8 từ + không có business signal đã kiểm tra ở trên)
+        _normalized = _strip_diacritics(query).lower()
+        if len(query.split()) <= 8 and _CAPABILITY_DISCOVERY_RE.search(_normalized):
+            total_router_ms = round((time.perf_counter() - node_start_t) * 1000)
+            print(f"[TIMING] [condense_and_route] {total_router_ms}ms (capability_discovery) | intent=capability_discovery")
+            return {
+                "condensed_query": query,
+                "intent": "capability_discovery",
+                "guardrail_injection_detected": bool(injection_hits),
+            }
 
     # Guard công ty đối thủ
     if _mentions_competitor_company(query):
@@ -246,6 +414,28 @@ async def condense_and_route_node(state: AgentState) -> dict:
                 "escalate_reason": reason_code or "domain_personal_data_detected",
                 "verifier_called": False,
                 "guardrail_injection_detected": bool(injection_hits),
+            }
+
+    # Whitelist Guard: kiểm tra tín hiệu nghiệp vụ (HR / Accounting / Product)
+    # _has_signal đã được tính ở Priority Gate trên, tái dùng không tính lại.
+    if not _has_signal:
+        _shadow = settings.whitelist_guard_shadow
+        print(
+            "[whitelist_guard] "
+            + json.dumps(
+                {"shadow": _shadow, "would_block": True, "query_prefix": query[:80]},
+                ensure_ascii=False,
+            )
+        )
+        if not _shadow:
+            total_router_ms = round((time.perf_counter() - node_start_t) * 1000)
+            print(f"[TIMING] [condense_and_route] {total_router_ms}ms (whitelist_blocked) | intent=out_of_scope_or_personal")
+            return {
+                "condensed_query": query,
+                "intent": "out_of_scope_or_personal",
+                "verifier_called": False,
+                "guardrail_injection_detected": bool(injection_hits),
+                "whitelist_blocked": True,
             }
 
     # G10: Domain Early-Pass kế toán
@@ -318,7 +508,7 @@ async def condense_and_route_node(state: AgentState) -> dict:
         match = _INTENT_PATTERN.search(raw.strip().lower())
         intent_str = match.group(0) if match else "hr_question"
 
-    valid_intents = {"greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"}
+    valid_intents = {"greeting", "capability_discovery", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"}
     if intent_str not in valid_intents:
         match = _INTENT_PATTERN.search(intent_str)
         intent: Intent = match.group(0) if match else "hr_question"  # type: ignore[assignment]
@@ -330,6 +520,8 @@ async def condense_and_route_node(state: AgentState) -> dict:
         "intent": intent,
         "guardrail_injection_detected": bool(injection_hits) or state.get("guardrail_injection_detected", False),
     }
+    if not _has_signal:
+        result["whitelist_shadow_would_block"] = True
 
     if intent == "ambiguous" and clarifying_q:
         result["needs_clarification"] = True
@@ -369,6 +561,11 @@ async def _guard_escalation(query: str, model: str | None) -> dict:
 
     Ba tầng, xếp theo giá tăng dần — cố ý KHÔNG verify mọi request:
 
+    0. Tier-0 (Pre-filter): Không có bất kỳ tín hiệu nghiệp vụ nào (HR/Accounting/Product) -> escalate luôn.
+       NOTE lifecycle: Chỉ có tác dụng thực sự trong giai đoạn whitelist_guard_shadow=True.
+       Sau khi whitelist_guard_shadow=False, mọi câu đến đây chắc chắn đã có business signal
+       (nếu không đã bị chặn từ trước). Giữ lại làm safety-net phòng ngừa edge-case;
+       có thể dọn dẹp sau khi Phase 3 go-live ổn định >= 2 tuần (TODO: cleanup post-whitelist-live).
     1. Không có dấu hiệu hỏi quy định chung -> escalate luôn, không tốn LLM.
        Câu personal thật ("Đơn của tôi duyệt chưa?") dừng ở đây.
     2. Khớp heuristic personal rõ ràng (_requires_personal_data: "của tôi" +
@@ -377,7 +574,7 @@ async def _guard_escalation(query: str, model: str | None) -> dict:
     3. Còn lại là ca thật sự khó (vừa nhắc bản thân vừa hỏi quy định) -> mới
        trả tiền cho 1 lần gọi LLM CÓ thinking, với prompt hẹp chỉ 2 lớp.
 
-    Rule ở tầng 1-2 chỉ đóng vai circuit breaker (quyết định CÓ verify hay
+    Rule ở tầng 0-2 chỉ đóng vai circuit breaker (quyết định CÓ verify hay
     không), không tự đổi intent — quyết định đổi intent luôn do LLM verifier.
 
     Trả về dict để mang kèm telemetry (verifier_called/changed_route/latency):
@@ -385,6 +582,10 @@ async def _guard_escalation(query: str, model: str | None) -> dict:
     Biết `useful_rate` tụt là điều kiện để mở task thêm pre-filter — xem
     AgentState.verifier_* để biết cách tính từ log.
     """
+    # Tier-0 (Pre-filter): thiếu tín hiệu nghiệp vụ -> dừng ngay không gọi verifier
+    if not _has_any_business_signal(query):
+        return {"intent": "out_of_scope_or_personal", "verifier_called": False}
+
     if not _has_policy_signal(query) or _requires_personal_data(query):
         return {"intent": "out_of_scope_or_personal", "verifier_called": False}
 
@@ -434,17 +635,21 @@ async def direct_node(state: AgentState) -> dict:
         return {"response": _DIRECT_TEMPLATE}
 
     query = state.get("condensed_query") or state.get("query", "")
-    if settings.direct_mode == "fast_llm":
-        answer = await acall_llm(
-            _DIRECT_SYSTEM,
-            query,
-            temperature=0.0,
-            model=settings.router_model or None,
-            enable_thinking=False,
-        )
-    else:
-        answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.0)
-    return {"response": answer.strip()}
+    try:
+        if settings.direct_mode == "fast_llm":
+            answer = await acall_llm(
+                _DIRECT_SYSTEM,
+                query,
+                temperature=0.0,
+                model=settings.router_model or None,
+                enable_thinking=False,
+            )
+        else:
+            answer = await acall_llm(_DIRECT_SYSTEM, query, temperature=0.0)
+        return {"response": answer.strip()}
+    except Exception as e:
+        print(f"[direct_node] LLM call failed ({e}), falling back to default template")
+        return {"response": _DIRECT_TEMPLATE}
 
 
 async def clarify_node(state: AgentState) -> dict:
@@ -467,3 +672,32 @@ async def clarify_node(state: AgentState) -> dict:
     ).strip()
     return {"needs_clarification": True, "clarifying_question": question, "response": question}
 
+
+# Template cố định cho intent=capability_discovery — KHÔNG gọi LLM, không có rủi ro
+# bịa số liệu chính sách. Mô tả 3 nhóm tài liệu đã được nạp vào hệ thống.
+_CAPABILITY_TEMPLATE = (
+    "Mình là trợ lý tri thức nội bộ, có thể hỗ trợ bạn tra cứu:\n\n"
+    "🏢 **HR & Nhân sự** — Nghỉ phép, lương thưởng, bảo hiểm, tuyển dụng, onboarding/offboarding\n"
+    "📊 **Kế toán & Tài chính** — Hóa đơn, chứng từ, quyết toán, khai thuế, chi phí công tác\n"
+    "🚀 **Product & Tech** — Roadmap, sprint planning, deployment, release schedule\n\n"
+    "Bạn có thể hỏi thẳng hoặc chọn một gợi ý bên dưới nhé."
+)
+
+_QUICK_PROMPTS = [
+    "Nhân viên có bao nhiêu ngày phép năm?",
+    "Quy định làm việc hybrid như thế nào?",
+    "Quy định tạm ứng công tác phí?",
+]
+
+
+async def capability_node(state: AgentState) -> dict:
+    """Terminal node cho intent=capability_discovery.
+
+    Trả về template cố định mô tả phạm vi hỗ trợ + danh sách quick_prompts để
+    frontend render thành chip/button. Không gọi LLM, không truy vấn RAG —
+    latency ~0ms.
+    """
+    return {
+        "response": _CAPABILITY_TEMPLATE,
+        "quick_prompts": _QUICK_PROMPTS,
+    }

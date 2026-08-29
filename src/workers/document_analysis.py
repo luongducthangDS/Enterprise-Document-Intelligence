@@ -62,11 +62,15 @@ def _analyse_and_index(
     with open(raw_path, "wb") as handle:
         handle.write(content)
 
+    print(f"[DOC-ANALYSIS] File: {source_file}, Size: {len(content)} bytes, Dept: {request.department}, Tenant: {tenant}")
     try:
         text, method = extract_document(raw_path, processed_path)
+        print(f"[DOC-ANALYSIS] Extracted {len(text)} chars via {method}")
     except UnsupportedDocumentError as exc:
+        print(f"[DOC-ANALYSIS-ERROR] Unsupported format: {exc}")
         raise IngestionError(str(exc)) from exc
     if not text.strip():
+        print("[DOC-ANALYSIS-ERROR] Extracted text is empty")
         raise IngestionError("Không trích xuất được văn bản nào từ file.")
 
     progress("CHUNKING", 40)
@@ -93,18 +97,25 @@ def _analyse_and_index(
         settings=settings,
     )
     if not chunks:
+        print("[DOC-ANALYSIS-ERROR] No chunks generated")
         raise IngestionError("Tài liệu không tạo được đoạn nội dung nào sau khi làm sạch.")
+    print(f"[DOC-ANALYSIS] Created {len(chunks)} chunks")
 
     progress("EMBEDDING", 65)
+    from src.agents.llm import resolve_embedding_endpoint
+
+    emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
+    print(f"[DOC-ANALYSIS] Embedding {len(chunks)} chunks with model={emb_model}, base_url={emb_base_url}")
     embeddings = embed_texts(
         [chunk.embedding_text for chunk in chunks],
-        model=settings.embedding_model,
-        base_url=settings.fpt_base_url,
-        api_key=settings.fpt_api_key,
+        model=emb_model,
+        base_url=emb_base_url,
+        api_key=emb_api_key,
         batch_size=settings.embedding_batch_size,
     )
+    print(f"[DOC-ANALYSIS] Generated {len(embeddings)} embeddings successfully")
     for chunk in chunks:
-        chunk.metadata.embedding_model = settings.embedding_model
+        chunk.metadata.embedding_model = emb_model
         chunk.metadata.publication_status = "draft"
         chunk.metadata.artifact_state = "draft"
         chunk.metadata.retrieval_enabled = False
@@ -113,9 +124,11 @@ def _analyse_and_index(
     progress("INDEXING_STAGING", 90)
     production_name = collection_name_for_chunks(chunks, settings)
     staging_name = _staging_collection_name(production_name)
+    print(f"[DOC-ANALYSIS] Indexing staging into Chroma collection: {staging_name}")
     collection = get_collection(get_chroma_client(settings), staging_name)
     delete_by_source_stem(collection, staging_stem, tenant)
     upsert_chunks(collection, chunks, embeddings)
+    print(f"[DOC-ANALYSIS] Staging index completed successfully: {staging_name}")
 
     return {
         "submission_id": request.submission_id,

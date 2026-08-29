@@ -8,6 +8,7 @@ from dataclasses import dataclass
 # không, chỉ dùng '#' như tín hiệu phụ cho các mục đánh số kiểu chính sách công ty.
 HEADING_LINE_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 CHAPTER_RE = re.compile(r"^CH[ƯU]ƠNG\s+[IVXLCDM0-9]")
+APPENDIX_RE = re.compile(r"^PHỤ\s+LỤC\b", re.IGNORECASE)
 SECTION_RE = re.compile(r"^MỤC\s+\d")
 ARTICLE_RE = re.compile(r"^ĐIỀU\s+\d+[A-ZĐ]?\.")
 POLICY_SECTION_RE = re.compile(r"^\d+\.\s")
@@ -27,7 +28,7 @@ _VALID_ROMAN_NUMERALS = {
     "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
 }
 
-_LEVEL = {"chapter": 0, "section": 1, "article": 2, "policy_section": 2, "heading": 3}
+_LEVEL = {"chapter": 0, "appendix": 0, "section": 1, "article": 2, "policy_section": 2, "heading": 3}
 
 
 @dataclass
@@ -69,6 +70,8 @@ def classify_line(line: str) -> tuple[str, str] | None:
     upper = content.upper()
     if CHAPTER_RE.match(upper):
         return ("chapter", content)
+    if APPENDIX_RE.match(upper):
+        return ("appendix", content)
     if SECTION_RE.match(upper):
         return ("section", content)
     if ARTICLE_RE.match(upper):

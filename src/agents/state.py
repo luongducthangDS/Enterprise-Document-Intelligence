@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, TypedDict
 
-Intent = Literal["greeting", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
+Intent = Literal["greeting", "capability_discovery", "hr_question", "ambiguous", "out_of_scope_or_personal", "pure_statutory"]
 
 # Tri-state runtime contract (NexaTech Type-C contract v3.1.0, frozen):
 # ANSWER      — trả lời được (kể cả greeting/clarifying question).
@@ -179,6 +179,7 @@ class AgentState(TypedDict, total=False):
     response: str
     error: str
     metadata: dict
+    quick_prompts: list[str]
     # Guardrail kỹ thuật (src/agents/guardrails.py) — cờ audit, không phải
     # điều khiển luồng. True khi phát hiện câu nghi injection trong câu hỏi
     # hoặc trong chunk RAG (chunk đã bị cắt trước khi vào prompt bất kể cờ
@@ -200,3 +201,5 @@ class AgentState(TypedDict, total=False):
     verifier_called: bool
     verifier_changed_route: bool
     verifier_latency_ms: int
+    whitelist_shadow_would_block: bool
+    whitelist_blocked: bool

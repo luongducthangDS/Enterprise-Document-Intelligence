@@ -62,3 +62,5 @@ class ChatRequestStatusDTO(BaseModel):
     clarification: ClarificationDTO | None = None
     failure: FailureDTO | None = None
     latency_ms: int | None = None
+    boundary: dict[str, Any] | None = None
+    quick_prompts: list[str] | None = None

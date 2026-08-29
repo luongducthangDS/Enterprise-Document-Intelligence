@@ -362,6 +362,13 @@ class AgentAnswer(BaseModel):
             "None khi response không đi qua generate_node (vd greeting/clarify/escalate/out_of_scope)."
         ),
     )
+    quick_prompts: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Danh sách câu hỏi gợi ý (Quick Prompt chips) để frontend render thành button có thể bấm. "
+            "Non-empty CHỈ KHI intent=capability_discovery. Với tất cả intent khác luôn là []."
+        ),
+    )
 
 
 class ChatResponse(AgentAnswer):

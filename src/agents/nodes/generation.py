@@ -1,5 +1,6 @@
 import re
 import time
+import unicodedata
 
 import requests
 
@@ -74,7 +75,10 @@ _HALLUCINATION_SYSTEM = """Bạn kiểm tra xem câu trả lời có bám sát H
 # kiểm tra grounding TẤT ĐỊNH ở dưới. Không khớp số bên trong marker trích dẫn
 # kiểu "[Nguồn 1]" (bị strip trước khi extract, xem _extract_numeric_claims).
 _NUMERIC_CLAIM_PATTERN = re.compile(r"\d(?:[\d.,]*\d)?%?")
-_CITATION_MARKER_STRIP = re.compile(r"\[(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*\d+)*\]", re.IGNORECASE)
+_CITATION_MARKER_STRIP = re.compile(
+    r"\[\s*(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*(?:Nguồn\s*)?\d+)*\s*\]",
+    re.IGNORECASE,
+)
 _MULTI_SOURCE_REQUEST_PATTERN = re.compile(
     r"tổng hợp|đối chiếu|đa nguồn|nhiều (?:nguồn|tài liệu)|"
     r"(?:prd|báo cáo|scan|bảng|biểu đồ|chart).{0,64}(?:và|với).{0,64}"
@@ -109,13 +113,14 @@ async def _call_generation_llm(system_prompt: str, user_prompt: str) -> str:
             system_prompt,
             user_prompt,
             temperature=0.0,
+            model=settings.llm_model,
             enable_thinking=thinking_arg(settings.thinking_generation),
             timeout=30,
             retries=0,
         )
     except requests.exceptions.RequestException:
         fallback_model = settings.router_model
-        if not fallback_model or fallback_model == settings.llm_model:
+        if not fallback_model:
             raise
         return await acall_llm(
             system_prompt,
@@ -231,7 +236,7 @@ _AUTHORITY_LABEL = {
 }
 
 _CITATION_MARKER = re.compile(
-    r"\[(?:Nguồn\s*)?(\d+(?:\s*(?:,|;|và)\s*\d+)*)\]",
+    r"\[\s*(?:Nguồn\s*)?\d+(?:\s*(?:,|;|và)\s*(?:Nguồn\s*)?\d+)*\s*\]",
     re.IGNORECASE,
 )
 
@@ -242,7 +247,7 @@ def _keep_used_citations(answer: str, chunks: list[RetrievedChunk]) -> tuple[str
     source_number_by_document: dict[str, int] = {}
     number_map: dict[int, int] = {}
     for match in _CITATION_MARKER.finditer(answer):
-        for value in re.findall(r"\d+", match.group(1)):
+        for value in re.findall(r"\d+", match.group(0)):
             original_number = int(value)
             index = original_number - 1
             if not 0 <= index < len(chunks):
@@ -259,13 +264,110 @@ def _keep_used_citations(answer: str, chunks: list[RetrievedChunk]) -> tuple[str
 
     def renumber(match: re.Match[str]) -> str:
         replacements: list[int] = []
-        for value in re.findall(r"\d+", match.group(1)):
+        for value in re.findall(r"\d+", match.group(0)):
             replacement = number_map.get(int(value))
             if replacement is not None and replacement not in replacements:
                 replacements.append(replacement)
         return " ".join(f"[Nguồn {number}]" for number in replacements) if replacements else match.group(0)
 
     return _CITATION_MARKER.sub(renumber, answer), used_chunks
+
+
+def _normalize_tokens(text: str) -> list[str]:
+    norm = unicodedata.normalize("NFC", text.lower())
+    return [w for w in re.findall(r"\w{2,}", norm) if not w.isdigit()]
+
+
+def _extract_focused_excerpt(chunk_text: str, query: str, answer: str, max_chars: int = 450) -> str:
+    """Trích xuất đoạn chứng cứ cô đọng, đúng trọng tâm từ chunk cho tất cả loại tài liệu/bảng biểu."""
+    if not chunk_text:
+        return ""
+    cleaned_chunk = chunk_text.strip()
+    has_boilerplate = bool(
+        re.search(
+            r"\[địa danh\]|giám đốc\s*\(ký|nơi nhận:|cộng hòa xã hội chủ nghĩa việt nam",
+            cleaned_chunk,
+            re.IGNORECASE,
+        )
+    )
+    if len(cleaned_chunk) <= max_chars and not has_boilerplate:
+        return cleaned_chunk
+
+    # 1. Bóc tách các đơn vị câu hoặc hàng bảng, gom nhóm các bullet list với dòng mở đầu
+    units: list[str] = []
+    if "|" in cleaned_chunk:
+        for line in cleaned_chunk.splitlines():
+            line = line.strip()
+            if not line or re.match(r"^[|\s:-]+$", line):
+                continue
+            units.append(line)
+    else:
+        lines = [l.strip() for l in cleaned_chunk.splitlines() if l.strip()]
+        current_group: list[str] = []
+        for line in lines:
+            is_bullet = bool(re.match(r"^[-*+•\d+\.]\s+", line))
+            ends_with_colon = line.endswith(":")
+            if current_group and not ends_with_colon and (line.startswith("-") or line.startswith("*") or line.startswith("+") or line.startswith("•")):
+                current_group.append(line)
+            else:
+                if current_group:
+                    units.append(" \n ".join(current_group))
+                    current_group = []
+                if ends_with_colon or is_bullet:
+                    current_group.append(line)
+                else:
+                    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", line) if s.strip()]
+                    units.extend(sentences)
+        if current_group:
+            units.append(" \n ".join(current_group))
+
+    # 2. Loại bỏ các dòng boilerplate hành chính không mang thông tin nghiệp vụ
+    boilerplate_res = (
+        re.compile(r"\[địa danh\].*giám đốc", re.IGNORECASE),
+        re.compile(r"^\s*giám đốc\s*\([^)]*\)", re.IGNORECASE),
+        re.compile(r"nơi nhận:.*lưu vt", re.IGNORECASE),
+        re.compile(r"^\s*#+\s*phụ lục\b", re.IGNORECASE),
+        re.compile(r"cộng hòa xã hội chủ nghĩa việt nam", re.IGNORECASE),
+        re.compile(r"độc lập - tự do - hạnh phúc", re.IGNORECASE),
+    )
+
+    valid_units: list[str] = [
+        u for u in units if len(u) >= 8 and not any(b.search(u) for b in boilerplate_res)
+    ]
+
+    if not valid_units:
+        return cleaned_chunk[:max_chars].strip() + "..."
+
+    # 3. Trọng số từ khóa và số liệu từ câu hỏi & câu trả lời
+    q_tokens = set(_normalize_tokens(query))
+    a_tokens = set(_normalize_tokens(answer))
+    all_tokens = q_tokens | a_tokens
+    numbers = set(re.findall(r"\b\d+(?:[.,]\d+)*%?\b", answer))
+
+    scored: list[tuple[float, int, str]] = []
+    for idx, u in enumerate(valid_units):
+        u_tokens = set(_normalize_tokens(u))
+        u_numbers = set(re.findall(r"\b\d+(?:[.,]\d+)*%?\b", u))
+
+        token_overlap = len(u_tokens & all_tokens)
+        number_overlap = len(u_numbers & numbers) * 3.0
+
+        score = token_overlap + number_overlap
+        if score > 0:
+            scored.append((score, idx, u))
+
+    if not scored:
+        return " \n ".join(valid_units[:2])[:max_chars].strip() + "..."
+
+    # 4. Lấy top 1-2 đơn vị có điểm cao nhất và giữ nguyên thứ tự xuất hiện gốc
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top_indices = sorted([item[1] for item in scored[:2]])
+
+    selected_units = [valid_units[i] for i in top_indices]
+    result = " \n ".join(selected_units)
+    if len(result) > max_chars:
+        result = result[:max_chars].rstrip() + "..."
+    return result
 
 
 def _origin_label(chunk: RetrievedChunk) -> str:
@@ -511,7 +613,7 @@ Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng �
             document_code=c.get("document_code") or "",
             version=c.get("version") or "",
             effective_date=c.get("effective_date") or "",
-            excerpt=c.get("text") or "",
+            excerpt=_extract_focused_excerpt(c.get("text") or "", query, answer),
             public_url=c.get("public_url"),
             document_id=c.get("document_id"),
         )
@@ -519,10 +621,13 @@ Yêu cầu sửa câu trả lời: các đoạn trích đã có bằng chứng �
     ]
 
     total_gen_ms = round((time.perf_counter() - t_gen_start) * 1000)
+    cited_files = list({c.get("source_file") for c in cited_chunks if c.get("source_file")})
     print(
         f"[TIMING] [generate] {total_gen_ms}ms (LLM: {llm_ms}ms, model: {get_settings().llm_model}) "
-        f"| citations={len(citations)} | answerable={answerable}"
+        f"| citations={len(citations)} | answerable={answerable} | cited_sources={cited_files}"
     )
+    if not answerable:
+        print(f"[GENERATE-INFO] LLM outputted INSUFFICIENT_MARKER -> response marked UNANSWERABLE.")
 
     return {
         "generated_answer": answer,

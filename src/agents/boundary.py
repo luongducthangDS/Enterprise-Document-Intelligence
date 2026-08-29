@@ -263,7 +263,7 @@ def _fallback_decision(intent: str) -> BoundaryDecision:
     # out_of_scope_node (escalation.py) trả response cố định riêng và không đi
     # qua decision này để hiển thị cho user — boundary vẫn được gán để giữ state
     # nhất quán/audit được, không phải nguồn hiển thị chính cho nhánh này.
-    if intent in ("out_of_scope_or_personal", "ambiguous", "pure_statutory"):
+    if intent in ("out_of_scope_or_personal", "ambiguous", "pure_statutory", "capability_discovery"):
         department = _departments_by_code()["HR_OPS"]
         return BoundaryDecision(
             scenario_id=None,
