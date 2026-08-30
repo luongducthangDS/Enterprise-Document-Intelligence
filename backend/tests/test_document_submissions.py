@@ -76,6 +76,15 @@ class CompletedAnalysisWorker:
         }
 
 
+class CapturingAnalysisWorker:
+    def __init__(self):
+        self.payload: dict | None = None
+
+    async def submit_document_analysis(self, payload: dict) -> dict:
+        self.payload = payload
+        return {"job_id": payload["job_id"], "state": "QUEUED"}
+
+
 def test_upload_is_staged_then_approval_creates_official_document():
     headers = auth_header(ADMIN_ID, "review-admin@company.com")
     filename = "pending_review_policy.pdf"
@@ -118,6 +127,57 @@ def test_upload_is_staged_then_approval_creates_official_document():
 
         after = client.get("/api/v1/documents", headers=headers)
         assert any(item["title"] == "Chính sách đang chờ duyệt" for item in after.json()["data"])
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+def test_image_upload_uses_object_storage_url_instead_of_base64():
+    worker = CapturingAnalysisWorker()
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = worker
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        response = client.post(
+            "/api/v1/document-submissions",
+            headers=auth_header(ADMIN_ID, "review-admin@company.com"),
+            files={"file": ("receipt.png", io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "image/png")},
+            data={
+                "department": "HR",
+                "access_scope": "RESTRICTED",
+                "public_url": "https://res.cloudinary.com/demo/image/upload/receipt.png",
+            },
+        )
+        assert response.status_code == 201, response.text
+        assert worker.payload is not None
+        assert worker.payload["source_file"] == "receipt.png"
+        assert worker.payload["content_base64"] == ""
+        assert worker.payload["content_url"].startswith("https://res.cloudinary.com/")
+        assert len(worker.payload["content_sha256"]) == 64
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+def test_five_mib_upload_does_not_expand_worker_payload_to_base64():
+    worker = CapturingAnalysisWorker()
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = worker
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        response = client.post(
+            "/api/v1/document-submissions",
+            headers=auth_header(ADMIN_ID, "review-admin@company.com"),
+            files={"file": ("large-policy.md", io.BytesIO(b"a" * (5 * 1024 * 1024)), "text/markdown")},
+            data={
+                "department": "HR",
+                "access_scope": "RESTRICTED",
+                "public_url": "https://res.cloudinary.com/demo/raw/upload/large-policy.md",
+            },
+        )
+        assert response.status_code == 201, response.text
+        assert worker.payload is not None
+        assert worker.payload["content_base64"] == ""
+        assert len(worker.payload["content_url"]) < 2048
+        assert len(worker.payload["content_sha256"]) == 64
     finally:
         DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
 

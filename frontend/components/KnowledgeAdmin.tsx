@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Archive, CircleAlert, Database, FileUp, FlaskConical, LoaderCircle, RefreshCw, Search, X } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import type { AsyncJob, DocumentDetail, DocumentListItem, EvaluationRun } from "@/lib/types";
 import { DEPARTMENTS, documentStatusLabel, jobStageLabel, jobStateLabel } from "@/lib/labels";
 
@@ -66,13 +67,24 @@ export function DocumentsView() {
     const form = new FormData(formElement);
     const fileInput = form.get("file");
     if (!(fileInput instanceof File) || !fileInput.name) {
-      setUploadError("Vui lòng chọn tệp tài liệu (PDF, DOC, DOCX hoặc MD, tối đa 25MB).");
+      setUploadError("Vui lòng chọn PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP (tối đa 25MB).");
       return;
     }
     setUploadBusy(true);
     setUploadError("");
     setUploadJob(null);
     try {
+      if (fileInput.size > 25 * 1024 * 1024) {
+        setUploadError("Dung lượng file vượt quá giới hạn 25MB.");
+        return;
+      }
+      let publicUrl = "";
+      try {
+        publicUrl = await uploadToCloudinary(fileInput);
+      } catch (cloudinaryError) {
+        if (fileInput.size > 4 * 1024 * 1024) throw cloudinaryError;
+        console.warn("Cloudinary unavailable; using legacy upload for a small file.", cloudinaryError);
+      }
       const created = await api.uploadDocument(fileInput, {
         title: String(form.get("title") ?? ""),
         category: String(form.get("category") ?? ""),
@@ -82,6 +94,7 @@ export function DocumentsView() {
         access_scope: String(form.get("access_scope") ?? "RESTRICTED"),
         confidentiality: "INTERNAL",
         status: "ACTIVE",
+        public_url: publicUrl,
       });
       formElement.reset();
       setUploadBusy(false);
@@ -123,8 +136,8 @@ export function DocumentsView() {
       </section>
       <section className="work-panel">
         <form className="upload-panel" onSubmit={submitUpload}>
-          <div className="panel-title"><FileUp size={18} /><div><strong>Thêm tài liệu</strong><span>PDF, DOC, DOCX hoặc MD — tối đa 25MB. Tài liệu sẽ được trích xuất, chia đoạn và đánh chỉ mục để Trợ lý AI tra cứu được ngay.</span></div></div>
-          <label>Chọn tệp<input type="file" name="file" accept=".pdf,.doc,.docx,.md" required /></label>
+          <div className="panel-title"><FileUp size={18} /><div><strong>Thêm tài liệu</strong><span>PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP — tối đa 25MB.</span></div></div>
+          <label>Chọn tệp<input type="file" name="file" accept=".pdf,.doc,.docx,.md,.png,.jpg,.jpeg,.webp" required /></label>
           <label>Tên hiển thị<input name="title" placeholder="Bỏ trống để dùng tên tệp" /></label>
           <div className="two-fields">
             <label>Danh mục<input name="category" placeholder="VD: company_regulations" /></label>

@@ -16,10 +16,14 @@ from __future__ import annotations
 import asyncio
 import base64
 import binascii
+import hashlib
 import json
 import logging
 import os
 import tempfile
+from urllib.parse import urlparse
+
+import httpx
 
 from src.config import Settings, get_settings
 from src.ingestion.chunk_builder import build_chunks_from_text
@@ -46,6 +50,7 @@ logger = logging.getLogger(__name__)
 # Cùng hạn mức với Backend (backend/app/services/document_service.py) — agent tự
 # chặn lần nữa vì nó là tiến trình thật sự phải nuốt file.
 MAX_FILE_BYTES = 25 * 1024 * 1024
+ALLOWED_CONTENT_URL_HOSTS = {"res.cloudinary.com"}
 
 
 class IngestionError(RuntimeError):
@@ -106,6 +111,37 @@ def _decode_content(content_base64: str) -> bytes:
     return content
 
 
+async def _load_content(request: IngestionJobRequest) -> bytes:
+    """Load from object storage when available; retain base64 compatibility."""
+    if request.content_url:
+        parsed = urlparse(request.content_url)
+        if parsed.scheme != "https" or parsed.hostname not in ALLOWED_CONTENT_URL_HOSTS:
+            raise IngestionError("content_url chỉ chấp nhận HTTPS URL từ Cloudinary.")
+        try:
+            async with httpx.AsyncClient(timeout=60.0, follow_redirects=False) as client:
+                async with client.stream("GET", request.content_url) as response:
+                    response.raise_for_status()
+                    declared_size = int(response.headers.get("content-length", "0") or 0)
+                    if declared_size > MAX_FILE_BYTES:
+                        raise IngestionError(f"File vượt giới hạn {MAX_FILE_BYTES} byte.")
+                    buffer = bytearray()
+                    async for part in response.aiter_bytes():
+                        buffer.extend(part)
+                        if len(buffer) > MAX_FILE_BYTES:
+                            raise IngestionError(f"File vượt giới hạn {MAX_FILE_BYTES} byte.")
+        except IngestionError:
+            raise
+        except httpx.HTTPError as exc:
+            raise IngestionError(f"Không tải được file từ object storage: {exc}") from exc
+        content = bytes(buffer)
+        if not content.strip():
+            raise IngestionError("Nội dung file rỗng.")
+        if request.content_sha256 and hashlib.sha256(content).hexdigest() != request.content_sha256:
+            raise IngestionError("File từ object storage không khớp checksum của file đã upload.")
+        return content
+    return _decode_content(request.content_base64)
+
+
 def _safe_source_file(source_file: str) -> str:
     """Chỉ lấy tên file: source_file đi thẳng vào đường dẫn ghi đĩa và vào
     chunk_id, không được chứa thành phần thư mục."""
@@ -119,32 +155,35 @@ def _safe_source_file(source_file: str) -> str:
 
 
 def _index_chunks(chunks: list[Chunk], settings: Settings) -> int:
-    """Embed + upsert (blocking — gọi qua asyncio.to_thread)."""
+    """Embed and upsert incrementally so large documents do not retain every vector."""
     from src.agents.llm import resolve_embedding_endpoint
 
     emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
-    texts = [c.embedding_text for c in chunks]
     print(f"[DOC-INGESTION] Embedding {len(chunks)} chunks with model={emb_model}, base_url={emb_base_url}")
-    embeddings = embed_texts(
-        texts,
-        model=emb_model,
-        base_url=emb_base_url,
-        api_key=emb_api_key,
-        batch_size=settings.embedding_batch_size,
-    )
-    print(f"[DOC-INGESTION] Generated {len(embeddings)} embeddings successfully")
-    for c in chunks:
-        c.metadata.embedding_model = emb_model
-
     client = get_chroma_client(settings)
     collection_name = collection_name_for_chunks(chunks, settings)
     print(f"[DOC-INGESTION] Indexing official into Chroma collection: {collection_name}")
     collection = get_collection(client, collection_name)
     stem = chunks[0].metadata.source_stem
     delete_by_source_stem(collection, stem, chunks[0].metadata.tenant)
-    upsert_chunks(collection, chunks, embeddings)
-    print(f"[DOC-INGESTION] Official index completed: {len(chunks)} chunks in {collection_name}")
-    return len(chunks)
+    indexed = 0
+    batch_size = max(1, settings.embedding_batch_size)
+    for start in range(0, len(chunks), batch_size):
+        batch = chunks[start : start + batch_size]
+        embeddings = embed_texts(
+            [chunk.embedding_text for chunk in batch],
+            model=emb_model,
+            base_url=emb_base_url,
+            api_key=emb_api_key,
+            batch_size=batch_size,
+        )
+        for chunk in batch:
+            chunk.metadata.embedding_model = emb_model
+        upsert_chunks(collection, batch, embeddings)
+        indexed += len(batch)
+    print(f"[DOC-INGESTION] Generated {indexed} embeddings successfully")
+    print(f"[DOC-INGESTION] Official index completed: {indexed} chunks in {collection_name}")
+    return indexed
 
 
 async def run_ingestion(
@@ -159,7 +198,7 @@ async def run_ingestion(
 
     print(f"[DOC-INGESTION] Starting Ingestion for file: {source_file}, Tenant: {tenant}, Dept: {request.department}")
     progress("EXTRACTING", 10)
-    content = _decode_content(request.content_base64)
+    content = await _load_content(request)
     raw_path = os.path.join(upload_dir(settings), tenant, source_file)
     os.makedirs(os.path.dirname(raw_path), exist_ok=True)
     with open(raw_path, "wb") as f:

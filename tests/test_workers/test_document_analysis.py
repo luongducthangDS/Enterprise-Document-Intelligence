@@ -15,7 +15,7 @@ SAMPLE = (
 
 @pytest.mark.asyncio
 async def test_analysis_indexes_only_draft_chunks_in_staging(tmp_path):
-    settings = get_settings().model_copy(update={"data_dir": str(tmp_path / "data")})
+    settings = get_settings().model_copy(update={"data_dir": str(tmp_path / "data"), "embedding_batch_size": 2})
     request = DocumentAnalysisJobRequest(
         job_id="analysis-job-1",
         submission_id="submission-123",
@@ -58,4 +58,6 @@ async def test_analysis_indexes_only_draft_chunks_in_staging(tmp_path):
     assert all(chunk.metadata.artifact_state == "draft" for chunk in chunks)
     assert all(chunk.metadata.retrieval_enabled is False for chunk in chunks)
     assert all(chunk.metadata.source_file.startswith("submission-123__") for chunk in chunks)
+    assert upsert.call_count >= 2
+    assert all(len(call.args[1]) <= 2 for call in upsert.call_args_list)
     assert ("INDEXING_STAGING", 90) in stages

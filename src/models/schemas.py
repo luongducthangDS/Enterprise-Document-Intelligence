@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from src.agents.state import Intent, RuntimeReasonCode, RuntimeState
 
@@ -41,7 +41,13 @@ class IngestionJobRequest(BaseModel):
     source_file: str = Field(
         ..., min_length=1, max_length=255, description="Tên file gốc — quyết định chunk_id/source_stem"
     )
-    content_base64: str = Field(..., min_length=1, description="Nội dung file, base64")
+    content_base64: str = Field(default="", description="Nội dung file, base64 (fallback cho client cũ)")
+    content_url: str = Field(
+        default="",
+        max_length=2048,
+        description="HTTPS Cloudinary URL để worker tải trực tiếp, tránh phình RAM do base64",
+    )
+    content_sha256: str = Field(default="", pattern=r"^[0-9a-f]{64}$|^$", description="Checksum file gốc")
     category: str = Field(default="GENERAL", max_length=64)
     department: str = Field(default="HR", max_length=128)
     source_type: str = Field(default="official_policy", max_length=64)
@@ -62,6 +68,12 @@ class IngestionJobRequest(BaseModel):
     retrieval_enabled: bool = True
     expiry_date: str = Field(default="9999-12-31", max_length=10)
     staging_source_stem: str = Field(default="", max_length=384)
+
+    @model_validator(mode="after")
+    def require_content_source(self):
+        if not self.content_base64 and not self.content_url:
+            raise ValueError("Phải cung cấp content_base64 hoặc content_url")
+        return self
 
 
 class DocumentAnalysisJobRequest(IngestionJobRequest):

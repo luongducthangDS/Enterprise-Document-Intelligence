@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import io
 import os
 import uuid
@@ -136,12 +137,13 @@ class DocumentSubmissionService:
         confidentiality: str | None = None,
         access_scope: str = "RESTRICTED",
         authorized_role: str | None = None,
+        public_url: str | None = None,
     ) -> dict[str, Any]:
         actor_id = cls._actor_id(user)
         filename = os.path.basename((file.filename or "document.pdf").replace("\\", "/"))
         extension = os.path.splitext(filename)[1].lower()
         if extension not in ALLOWED_EXTENSIONS:
-            raise AppException(415, "UNSUPPORTED_FILE_TYPE", "Chỉ chấp nhận PDF, DOC, DOCX hoặc MD.")
+            raise AppException(415, "UNSUPPORTED_FILE_TYPE", "Chỉ chấp nhận PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP.")
 
         contents = await file.read()
         if len(contents) > MAX_FILE_SIZE:
@@ -182,6 +184,7 @@ class DocumentSubmissionService:
             confidentiality=confidentiality or "INTERNAL",
             access_scope=normalized_scope,
             authorized_role=role_value,
+            public_url=public_url.strip() if public_url and public_url.strip() else None,
             submitted_by=actor_id,
             status="ANALYZING",
             stage="UPLOADED",
@@ -198,7 +201,9 @@ class DocumentSubmissionService:
                         "submission_id": str(submission.id),
                         "document_id": None,
                         "source_file": filename,
-                        "content_base64": base64.b64encode(contents).decode("ascii"),
+                        "content_base64": "" if submission.public_url else base64.b64encode(contents).decode("ascii"),
+                        "content_url": submission.public_url or "",
+                        "content_sha256": hashlib.sha256(contents).hexdigest(),
                         "category": submission.category,
                         "department": submission.department,
                         "tenant": submission.tenant,

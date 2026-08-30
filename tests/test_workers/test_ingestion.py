@@ -3,11 +3,12 @@ import json
 import os
 from unittest.mock import patch
 
+import httpx
 import pytest
 
 from src.config import get_settings
 from src.models.schemas import IngestionJobRequest
-from src.workers.ingestion import IngestionError, _safe_source_file, run_ingestion
+from src.workers.ingestion import IngestionError, _load_content, _safe_source_file, run_ingestion
 
 SAMPLE_DOC = (
     "# Chính sách nghỉ phép V-NOVA\n\n"
@@ -95,6 +96,39 @@ async def test_run_ingestion_rejects_unsupported_extension(settings):
     request = _request(source_file="bang_luong.csv")
     with pytest.raises(IngestionError, match="không hỗ trợ"):
         await run_ingestion(request, _noop_progress, settings=settings)
+
+
+@pytest.mark.asyncio
+async def test_load_content_streams_from_allowed_cloudinary_url():
+    request = _request()
+    request.content_base64 = ""
+    request.content_url = "https://res.cloudinary.com/demo/raw/upload/policy.md"
+    transport = httpx.MockTransport(lambda _request: httpx.Response(200, content=b"# Policy from storage"))
+    client = httpx.AsyncClient(transport=transport)
+    with patch("src.workers.ingestion.httpx.AsyncClient", return_value=client):
+        assert await _load_content(request) == b"# Policy from storage"
+
+
+@pytest.mark.asyncio
+async def test_load_content_rejects_untrusted_url():
+    request = _request()
+    request.content_base64 = ""
+    request.content_url = "https://example.com/internal-file.md"
+    with pytest.raises(IngestionError, match="Cloudinary"):
+        await _load_content(request)
+
+
+@pytest.mark.asyncio
+async def test_load_content_rejects_checksum_mismatch():
+    request = _request()
+    request.content_base64 = ""
+    request.content_url = "https://res.cloudinary.com/demo/raw/upload/policy.md"
+    request.content_sha256 = "0" * 64
+    transport = httpx.MockTransport(lambda _request: httpx.Response(200, content=b"different content"))
+    client = httpx.AsyncClient(transport=transport)
+    with patch("src.workers.ingestion.httpx.AsyncClient", return_value=client):
+        with pytest.raises(IngestionError, match="checksum"):
+            await _load_content(request)
 
 
 @pytest.mark.asyncio

@@ -24,6 +24,7 @@ async def create_submission(
     confidentiality: str | None = Form(None),
     access_scope: str = Form("RESTRICTED"),
     authorized_role: str | None = Form(None),
+    public_url: str | None = Form(None),
     current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
@@ -39,6 +40,7 @@ async def create_submission(
         confidentiality=confidentiality,
         access_scope=access_scope,
         authorized_role=authorized_role,
+        public_url=public_url,
     )
     return wrap_response(data, request)
 

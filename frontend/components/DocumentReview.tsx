@@ -125,7 +125,7 @@ export function DocumentReview({ user }: { user: User }) {
     const form = new FormData(formElement);
     const fileInput = form.get("file");
     if (!(fileInput instanceof File) || !fileInput.name) {
-      setUploadError("Vui lòng chọn tệp PDF, DOC, DOCX hoặc MD.");
+      setUploadError("Vui lòng chọn PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP.");
       return;
     }
     if (fileInput.size > 25 * 1024 * 1024) {
@@ -138,8 +138,15 @@ export function DocumentReview({ user }: { user: User }) {
     setSuccessMessage("");
     setActiveSubmission(null);
     try {
-      // 1. Request 1: Gửi file lên Backend để phân tích và trích xuất chunk
-      const backendPromise = api.uploadDocumentSubmission(fileInput, {
+      // Upload object storage trước để Backend chỉ gửi URL sang worker, tránh base64 phình RAM.
+      let publicUrl = "";
+      try {
+        publicUrl = await uploadToCloudinary(fileInput);
+      } catch (cloudinaryError) {
+        if (fileInput.size > 4 * 1024 * 1024) throw cloudinaryError;
+        console.warn("Cloudinary unavailable; using legacy upload for a small file.", cloudinaryError);
+      }
+      const created = await api.uploadDocumentSubmission(fileInput, {
         title: String(form.get("title") ?? ""),
         category: String(form.get("category") ?? ""),
         department: String(form.get("department") ?? ""),
@@ -147,25 +154,8 @@ export function DocumentReview({ user }: { user: User }) {
         effective_date: String(form.get("effective_date") ?? ""),
         access_scope: String(form.get("access_scope") ?? "RESTRICTED"),
         confidentiality: "INTERNAL",
+        public_url: publicUrl,
       });
-
-      // 2. Request 2: Upload trực tiếp file lên Cloudinary từ Browser
-      const cloudinaryPromise = uploadToCloudinary(fileInput).catch((err) => {
-        console.warn("Cloudinary upload warning:", err);
-        return null;
-      });
-
-      // Chờ cả 2 request hoàn tất
-      const [created, publicUrl] = await Promise.all([backendPromise, cloudinaryPromise]);
-
-      // 3. Request 3: Nếu Cloudinary trả về public_url, gửi về Backend lưu vào Supabase
-      if (publicUrl && created?.submission_id) {
-        try {
-          await api.updateSubmissionPublicUrl(created.submission_id, publicUrl);
-        } catch (patchErr) {
-          console.error("Không thể lưu public_url vào Supabase:", patchErr);
-        }
-      }
 
       formElement.reset();
       const finalAnalysis = await pollSubmission(created.submission_id);
@@ -317,8 +307,8 @@ export function DocumentReview({ user }: { user: User }) {
 
       <section className="work-panel">
         <form className="upload-panel" onSubmit={submitUpload}>
-          <div className="panel-title"><FileUp size={18} /><div><strong>Thêm tài liệu để kiểm duyệt</strong><span>PDF, DOC, DOCX hoặc MD — tối đa 25MB. Chưa xuất bản vào kho AI ở bước này.</span></div></div>
-          <label>Chọn tệp<input type="file" name="file" accept=".pdf,.doc,.docx,.md" required /></label>
+          <div className="panel-title"><FileUp size={18} /><div><strong>Thêm tài liệu để kiểm duyệt</strong><span>PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP — tối đa 25MB.</span></div></div>
+          <label>Chọn tệp<input type="file" name="file" accept=".pdf,.doc,.docx,.md,.png,.jpg,.jpeg,.webp" required /></label>
           <label>Tên hiển thị<input name="title" placeholder="Bỏ trống để dùng tên tệp" /></label>
           <div className="two-fields">
             <label>Danh mục<input name="category" placeholder="VD: company_regulations" /></label>

@@ -23,8 +23,11 @@ from src.ingestion.indexer import (
 )
 from src.models.schemas import DocumentAnalysisJobRequest
 from src.security.tenant_resolver import validate_tenant_id
-from src.workers.ingestion import IngestionError, _decode_content, _safe_source_file
+from src.workers.ingestion import IngestionError, _load_content, _safe_source_file
 from src.workers.jobs import ProgressCallback
+
+MAX_REVIEW_TEXT_CHARS = 500_000
+MAX_REVIEW_CHUNKS = 500
 
 
 def _staging_collection_name(production_name: str) -> str:
@@ -106,14 +109,6 @@ def _analyse_and_index(
 
     emb_model, emb_base_url, emb_api_key = resolve_embedding_endpoint()
     print(f"[DOC-ANALYSIS] Embedding {len(chunks)} chunks with model={emb_model}, base_url={emb_base_url}")
-    embeddings = embed_texts(
-        [chunk.embedding_text for chunk in chunks],
-        model=emb_model,
-        base_url=emb_base_url,
-        api_key=emb_api_key,
-        batch_size=settings.embedding_batch_size,
-    )
-    print(f"[DOC-ANALYSIS] Generated {len(embeddings)} embeddings successfully")
     for chunk in chunks:
         chunk.metadata.embedding_model = emb_model
         chunk.metadata.publication_status = "draft"
@@ -127,8 +122,30 @@ def _analyse_and_index(
     print(f"[DOC-ANALYSIS] Indexing staging into Chroma collection: {staging_name}")
     collection = get_collection(get_chroma_client(settings), staging_name)
     delete_by_source_stem(collection, staging_stem, tenant)
-    upsert_chunks(collection, chunks, embeddings)
+    batch_size = max(1, settings.embedding_batch_size)
+    embedded = 0
+    for start in range(0, len(chunks), batch_size):
+        batch = chunks[start : start + batch_size]
+        embeddings = embed_texts(
+            [chunk.embedding_text for chunk in batch],
+            model=emb_model,
+            base_url=emb_base_url,
+            api_key=emb_api_key,
+            batch_size=batch_size,
+        )
+        upsert_chunks(collection, batch, embeddings)
+        embedded += len(batch)
+    print(f"[DOC-ANALYSIS] Generated and indexed {embedded} embeddings successfully")
     print(f"[DOC-ANALYSIS] Staging index completed successfully: {staging_name}")
+
+    warnings: list[str] = []
+    preview_text = text
+    if len(preview_text) > MAX_REVIEW_TEXT_CHARS:
+        preview_text = preview_text[:MAX_REVIEW_TEXT_CHARS]
+        warnings.append("Bản xem trước nội dung đã được rút gọn; toàn bộ tài liệu vẫn được đánh chỉ mục.")
+    preview_chunks = chunks[:MAX_REVIEW_CHUNKS]
+    if len(preview_chunks) < len(chunks):
+        warnings.append("Danh sách đoạn xem trước đã được rút gọn; tổng số đoạn vẫn được giữ chính xác.")
 
     return {
         "submission_id": request.submission_id,
@@ -136,7 +153,7 @@ def _analyse_and_index(
         "extract_method": method,
         "character_count": len(text),
         "chunk_count": len(chunks),
-        "extracted_text": text,
+        "extracted_text": preview_text,
         "staging_collection": staging_name,
         "staging_source_stem": staging_stem,
         "chunks": [
@@ -148,9 +165,9 @@ def _analyse_and_index(
                 "page_end": chunk.metadata.page_end,
                 "char_count": chunk.metadata.char_count,
             }
-            for chunk in chunks
+            for chunk in preview_chunks
         ],
-        "warnings": [],
+        "warnings": warnings,
     }
 
 
@@ -161,6 +178,6 @@ async def run_document_analysis(
 ) -> dict:
     settings = settings or get_settings()
     source_file = _safe_source_file(request.source_file)
-    content = _decode_content(request.content_base64)
+    content = await _load_content(request)
     progress("EXTRACTING", 10)
     return await asyncio.to_thread(_analyse_and_index, request, source_file, content, progress, settings)

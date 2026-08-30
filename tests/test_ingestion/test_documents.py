@@ -1,8 +1,14 @@
+import base64
 import zipfile
+from unittest.mock import patch
 
 from src.config import get_settings
 from src.ingestion.chunk_builder import build_chunks_from_text
 from src.ingestion.extractors.documents import extract_document
+
+ONE_PIXEL_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+)
 
 
 def _write_minimal_xlsx(path) -> None:
@@ -59,3 +65,20 @@ def test_extract_xlsx_and_preserve_sheet_metadata(tmp_path):
     assert chunks
     assert all(chunk.metadata.department == "PRODUCT" for chunk in chunks)
     assert all(chunk.metadata.sheet_start == "Roadmap" for chunk in chunks)
+
+
+def test_extract_standalone_image_with_vlm(tmp_path):
+    source = tmp_path / "receipt.png"
+    output = tmp_path / "receipt.md"
+    source.write_bytes(ONE_PIXEL_PNG)
+
+    with patch(
+        "src.ingestion.extractors.documents.extract_page_markdown",
+        return_value="## Hóa đơn\n\nTổng tiền: 120.000 đồng",
+    ) as vlm:
+        content, method = extract_document(str(source), str(output))
+
+    assert method == "vlm-image"
+    assert "Tổng tiền" in content
+    assert output.read_text(encoding="utf-8") == content
+    assert vlm.call_args.args[0].startswith(b"\x89PNG")

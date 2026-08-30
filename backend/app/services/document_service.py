@@ -26,7 +26,7 @@ from app.services.access_control import (
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
-ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".md"}
+ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".md", ".png", ".jpg", ".jpeg", ".webp"}
 
 _PRODUCT_CATEGORIES = {"PRD", "ROADMAP", "USER_RESEARCH", "PRODUCT_METRICS"}
 _ACCOUNTING_CATEGORIES = {
@@ -87,7 +87,7 @@ class DocumentService:
             raise AppException(
                 status_code=415,
                 code="UNSUPPORTED_FILE_TYPE",
-                message="Định dạng file không được hỗ trợ. Chỉ chấp nhận PDF, DOC, DOCX, MD.",
+                message="Định dạng file không được hỗ trợ. Chỉ chấp nhận PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP.",
             )
 
         contents = await file.read()
@@ -214,7 +214,9 @@ class DocumentService:
                         "job_id": str(job.id),
                         "document_id": str(doc.id),
                         "source_file": filename,
-                        "content_base64": base64.b64encode(contents).decode("ascii"),
+                        "content_base64": "" if doc.public_url else base64.b64encode(contents).decode("ascii"),
+                        "content_url": doc.public_url or "",
+                        "content_sha256": hashlib.sha256(contents).hexdigest(),
                         "category": doc.category,
                         "department": doc_department,
                         "tenant": doc.tenant,

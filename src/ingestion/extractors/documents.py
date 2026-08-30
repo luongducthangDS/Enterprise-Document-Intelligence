@@ -13,16 +13,19 @@ from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
 import docx
+import fitz
 import pdfplumber
 
 from .pdf_extractor import extract_pdf
+from .pdf_vlm import extract_page_markdown
 
 # Trang được coi là "có text layer thật" nếu pdfplumber đọc được > 200 ký tự.
 # PDF được coi là scan (cần VLM) nếu số trang có text layer < 50% tổng số trang.
 TEXT_LAYER_MIN_CHARS_PER_PAGE = 200
 TEXT_LAYER_MIN_RATIO = 0.5
 
-SUPPORTED_EXTENSIONS = (".pdf", ".docx", ".doc", ".xlsx", ".md")
+SUPPORTED_EXTENSIONS = (".pdf", ".docx", ".doc", ".xlsx", ".md", ".png", ".jpg", ".jpeg", ".webp")
+IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 
 _XLSX_NS = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 _REL_NS = {"r": "http://schemas.openxmlformats.org/package/2006/relationships"}
@@ -196,6 +199,22 @@ def copy_md(src_path: str, out_path: str) -> str:
     return content
 
 
+def extract_image(image_path: str, out_path: str) -> str:
+    """Normalize a standalone image to PNG, then extract it with the existing VLM."""
+    try:
+        with fitz.open(image_path) as document:
+            if document.page_count != 1:
+                raise UnsupportedDocumentError("File ảnh không hợp lệ hoặc có nhiều hơn một frame.")
+            image_bytes = document[0].get_pixmap().tobytes("png")
+    except UnsupportedDocumentError:
+        raise
+    except Exception as exc:
+        raise UnsupportedDocumentError("Không đọc được nội dung ảnh.") from exc
+    markdown = extract_page_markdown(image_bytes)
+    stem = os.path.splitext(os.path.basename(image_path))[0]
+    return _write_markdown(out_path, stem, markdown)
+
+
 def _write_markdown(out_path: str, stem: str, body: str) -> str:
     content = f"# {stem}\n\n{body}"
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
@@ -224,6 +243,8 @@ def extract_document(src_path: str, out_path: str) -> tuple[str, str]:
         return extract_xlsx(src_path, out_path), "xlsx"
     if ext == ".md":
         return copy_md(src_path, out_path), "copy"
+    if ext in IMAGE_EXTENSIONS:
+        return extract_image(src_path, out_path), "vlm-image"
 
     raise UnsupportedDocumentError(
         f"Định dạng không hỗ trợ: {ext or '(không có đuôi file)'}. "
