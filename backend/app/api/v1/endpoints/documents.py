@@ -7,10 +7,26 @@ from app.api.dependencies.auth_deps import get_current_user, require_role
 from app.api.dependencies.db_deps import get_db
 from app.schemas.common import wrap_response
 from app.schemas.document_submissions import DocumentPublicUrlUpdate
-from app.schemas.documents import DocumentArchiveRequest, DocumentMetadataUpdate
+from app.schemas.documents import DocumentArchiveRequest, DocumentFromUrlRequest, DocumentMetadataUpdate
 from app.services.document_service import DocumentService
 
 router = APIRouter()
+
+
+@router.post("/from-url", status_code=status.HTTP_201_CREATED)
+async def upload_document_from_url(
+    request: Request,
+    payload: DocumentFromUrlRequest,
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Admin upload tài liệu qua CDN URL (Cloudinary) mà không tải file binary qua Backend."""
+    data = await DocumentService.upload_document_from_url(
+        db=db,
+        user=current_user,
+        payload=payload,
+    )
+    return wrap_response(data, request)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

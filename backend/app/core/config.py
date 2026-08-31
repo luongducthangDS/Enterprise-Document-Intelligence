@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     ai_agent_service_token: str = ""
     ai_agent_max_history_turns: int = Field(default=8, ge=0, le=16)
 
+    # ---- Cloudinary CDN Storage ----
+    cloudinary_cloud_name: str = Field(default="", description="Cloudinary Cloud Name")
+    cloudinary_api_key: str = Field(default="", description="Cloudinary API Key")
+    cloudinary_api_secret: str = Field(default="", description="Cloudinary API Secret", repr=False)
+
     @model_validator(mode="after")
     def validate_production_secrets(self) -> "Settings":
         """Chặn khởi động với secret mặc định/yếu khi chạy production.

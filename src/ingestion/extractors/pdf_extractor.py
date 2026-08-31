@@ -2,13 +2,13 @@ import os
 import re
 import time
 
-import pdfplumber
+import pymupdf
 import requests
 
 from .pdf_vlm import (
+    DPI,
     atomic_write_text,
     extract_page_markdown,
-    pdf_to_page_images,
     render_table,
     repair_tables,
     valid_table_blocks,
@@ -22,26 +22,27 @@ def looks_like_real_table(rows) -> bool:
     return any(all(c is not None and str(c).strip() for c in row) for row in rows)
 
 
-def find_page_tables(pdf_path: str):
+def find_page_tables(doc: pymupdf.Document) -> dict[int, list]:
     tables_by_page = {}
-    with pdfplumber.open(pdf_path) as pdf:
-        for i, page in enumerate(pdf.pages):
-            if not page.extract_text():
+    for i, page in enumerate(doc):
+        text = page.get_text("text") or ""
+        if not text.strip():
+            continue
+        tables = []
+        tab_finder = page.find_tables()
+        for tbl in tab_finder.tables:
+            rows = tbl.extract()
+            if not rows or len(rows) < MIN_TABLE_ROWS or len(rows[0]) < MIN_TABLE_COLS:
                 continue
-            tables = []
-            for tbl in page.find_tables():
-                rows = tbl.extract()
-                if len(rows) < MIN_TABLE_ROWS or len(rows[0]) < MIN_TABLE_COLS:
-                    continue
-                if not looks_like_real_table(rows):
-                    continue
-                tables.append(rows)
-            if tables:
-                tables_by_page[i + 1] = tables
+            if not looks_like_real_table(rows):
+                continue
+            tables.append(rows)
+        if tables:
+            tables_by_page[i + 1] = tables
     return tables_by_page
 
 
-def _pdfplumber_table_to_lines(rows):
+def _table_to_lines(rows):
     clean = [
         ["" if c is None else str(c).replace("\n", "<br>").strip() for c in row]
         for row in rows
@@ -75,7 +76,7 @@ def _substitute_tables(lines, vlm_blocks, page_tables):
         out_lines.extend(lines[cursor:start])
         block_text = "\n".join(lines[start:end])
         if _table_matches_block(page_tables[i], block_text):
-            out_lines.extend(_pdfplumber_table_to_lines(page_tables[i]))
+            out_lines.extend(_table_to_lines(page_tables[i]))
         else:
             out_lines.extend(lines[start:end])
             skipped += 1
@@ -85,7 +86,7 @@ def _substitute_tables(lines, vlm_blocks, page_tables):
 
 
 def extract_pdf(pdf_path: str, out_path: str, force: bool = False, log=print) -> None:
-    """Trích xuất PDF -> Markdown, page-by-page qua VLM (pdfplumber cho bảng
+    """Trích xuất PDF -> Markdown, page-by-page qua VLM (PyMuPDF cho bảng
     chính xác hơn khi có ô merge phức tạp). KHÔNG bao giờ yêu cầu model "viết
     lại nội dung theo trí nhớ" cho cả file — mỗi trang phải được model nhìn
     thấy ảnh thật và trích xuất riêng."""
@@ -94,35 +95,48 @@ def extract_pdf(pdf_path: str, out_path: str, force: bool = False, log=print) ->
         return
 
     log(f"=== {os.path.basename(pdf_path)} ===")
-    tables_by_page = find_page_tables(pdf_path)
 
     pages_md = []
-    for page_no, img_bytes in pdf_to_page_images(pdf_path):
-        log(f"[page {page_no}] extracting...")
-        t0 = time.time()
-        try:
-            md = extract_page_markdown(img_bytes)
-        except requests.exceptions.RequestException as e:
-            detail = f" - {e.response.text[:300]}" if e.response is not None else ""
-            log(f"[page {page_no}] LỖI: {e}{detail}")
-            md = f"<!-- extraction failed: {e} -->"
+    zoom = DPI / 72
+    matrix = pymupdf.Matrix(zoom, zoom)
 
-        page_tables = tables_by_page.get(page_no, [])
-        if page_tables:
-            lines = md.splitlines()
-            vlm_blocks = valid_table_blocks(lines)
-            if len(vlm_blocks) != len(page_tables):
-                log(
-                    f"[page {page_no}] CẢNH BÁO: VLM thấy {len(vlm_blocks)} bảng, "
-                    f"pdfplumber thấy {len(page_tables)} bảng — chỉ xét "
-                    f"{min(len(vlm_blocks), len(page_tables))} cặp đầu."
-                )
-            md, skipped = _substitute_tables(lines, vlm_blocks, page_tables)
-            if skipped:
-                log(f"[page {page_no}] CẢNH BÁO: {skipped} cặp bảng không khớp nội dung — giữ nguyên bảng VLM.")
+    with pymupdf.open(pdf_path) as doc:
+        tables_by_page = find_page_tables(doc)
 
-        log(f"[page {page_no}] done in {time.time() - t0:.1f}s, {len(md)} chars")
-        pages_md.append(f"<!-- page {page_no} -->\n\n{md}")
+        for i, page in enumerate(doc):
+            page_no = i + 1
+            log(f"[page {page_no}] extracting...")
+            t0 = time.time()
+
+            pix = page.get_pixmap(matrix=matrix)
+            img_bytes = pix.tobytes("png")
+            del pix
+
+            try:
+                md = extract_page_markdown(img_bytes)
+            except requests.exceptions.RequestException as e:
+                detail = f" - {e.response.text[:300]}" if e.response is not None else ""
+                log(f"[page {page_no}] LỖI: {e}{detail}")
+                md = f"<!-- extraction failed: {e} -->"
+            finally:
+                del img_bytes
+
+            page_tables = tables_by_page.get(page_no, [])
+            if page_tables:
+                lines = md.splitlines()
+                vlm_blocks = valid_table_blocks(lines)
+                if len(vlm_blocks) != len(page_tables):
+                    log(
+                        f"[page {page_no}] CẢNH BÁO: VLM thấy {len(vlm_blocks)} bảng, "
+                        f"PyMuPDF thấy {len(page_tables)} bảng — chỉ xét "
+                        f"{min(len(vlm_blocks), len(page_tables))} cặp đầu."
+                    )
+                md, skipped = _substitute_tables(lines, vlm_blocks, page_tables)
+                if skipped:
+                    log(f"[page {page_no}] CẢNH BÁO: {skipped} cặp bảng không khớp nội dung — giữ nguyên bảng VLM.")
+
+            log(f"[page {page_no}] done in {time.time() - t0:.1f}s, {len(md)} chars")
+            pages_md.append(f"<!-- page {page_no} -->\n\n{md}")
 
     full_md = "\n\n---\n\n".join(pages_md)
     full_md = repair_tables(full_md)

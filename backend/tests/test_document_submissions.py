@@ -269,3 +269,141 @@ def test_update_public_url_on_submission_and_document():
     finally:
         DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
 
+
+def test_create_submission_from_url_and_approve_success():
+    headers = auth_header(ADMIN_ID, "review-admin@company.com")
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = CompletedAnalysisWorker()
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        cloud_url = "https://res.cloudinary.com/demo/raw/upload/v111/direct_submission.pdf"
+        payload = {
+            "source_file": "direct_submission.pdf",
+            "public_url": cloud_url,
+            "title": "Tài liệu nộp qua Cloudinary",
+            "department": "HR",
+            "access_scope": "RESTRICTED",
+        }
+        res = client.post("/api/v1/document-submissions/from-url", headers=headers, json=payload)
+        assert res.status_code == 201
+        created = res.json()["data"]
+        sub_id = created["submission_id"]
+
+        # Sync to PENDING_REVIEW
+        client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+
+        # Approve submission that only has public_url and NO raw file_content
+        approved = client.post(
+            f"/api/v1/document-submissions/{sub_id}/approve",
+            headers=headers,
+            json={"note": "Approved direct submission"},
+        )
+        assert approved.status_code == 200
+        doc_id = approved.json()["data"]["published_document_id"]
+        assert doc_id is not None
+
+        # Verify document detail
+        doc_detail = client.get(f"/api/v1/documents/{doc_id}", headers=headers)
+        assert doc_detail.status_code == 200
+        assert doc_detail.json()["data"]["public_url"] == cloud_url
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+class FailedAnalysisWorker:
+    async def submit_document_analysis(self, payload: dict) -> dict:
+        return {"job_id": payload["job_id"], "state": "QUEUED"}
+
+    async def get_status(self, job_id: str) -> dict:
+        return {
+            "job_id": job_id,
+            "kind": "DOCUMENT_ANALYSIS",
+            "state": "FAILED",
+            "stage": "FAILED",
+            "progress_percent": 0,
+            "error": "Corrupt document format",
+        }
+
+
+def test_delete_failed_submission_success():
+    headers = auth_header(ADMIN_ID, "review-admin@company.com")
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = FailedAnalysisWorker()
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        cloud_url = "https://res.cloudinary.com/demo/raw/upload/v111/failed_test.pdf"
+        payload = {
+            "source_file": "failed_test.pdf",
+            "public_url": cloud_url,
+            "title": "Tài liệu hỏng để test xóa",
+            "department": "HR",
+            "access_scope": "RESTRICTED",
+        }
+        res = client.post("/api/v1/document-submissions/from-url", headers=headers, json=payload)
+        assert res.status_code == 201
+        sub_id = res.json()["data"]["submission_id"]
+
+        # Sync to ANALYSIS_FAILED
+        sync_res = client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert sync_res.status_code == 200
+        assert sync_res.json()["data"]["status"] == "ANALYSIS_FAILED"
+
+        # Delete failed submission
+        del_res = client.delete(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert del_res.status_code == 200
+        assert del_res.json()["data"]["deleted"] is True
+
+        # Verify submission no longer exists
+        get_res = client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert get_res.status_code == 404
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+def test_delete_rejected_submission_success():
+    headers = auth_header(ADMIN_ID, "review-admin@company.com")
+    previous = (DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled)
+    DocumentSubmissionService.worker_client = CompletedAnalysisWorker()
+    DocumentSubmissionService.worker_dispatch_enabled = True
+    try:
+        cloud_url = "https://res.cloudinary.com/demo/raw/upload/v111/reject_test.pdf"
+        payload = {
+            "source_file": "reject_test.pdf",
+            "public_url": cloud_url,
+            "title": "Tài liệu bị từ chối để test xóa",
+            "department": "HR",
+            "access_scope": "RESTRICTED",
+        }
+        res = client.post("/api/v1/document-submissions/from-url", headers=headers, json=payload)
+        assert res.status_code == 201
+        sub_id = res.json()["data"]["submission_id"]
+
+        # Sync to PENDING_REVIEW
+        client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+
+        # Cannot delete while PENDING_REVIEW
+        cannot_del = client.delete(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert cannot_del.status_code == 409
+
+        # Reject submission
+        rej_res = client.post(
+            f"/api/v1/document-submissions/{sub_id}/reject",
+            headers=headers,
+            json={"note": "Rejected because of duplicate content"},
+        )
+        assert rej_res.status_code == 200
+        assert rej_res.json()["data"]["status"] == "REJECTED"
+
+        # Now deletion succeeds
+        del_res = client.delete(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert del_res.status_code == 200
+        assert del_res.json()["data"]["deleted"] is True
+
+        # Verify not found
+        get_res = client.get(f"/api/v1/document-submissions/{sub_id}", headers=headers)
+        assert get_res.status_code == 404
+    finally:
+        DocumentSubmissionService.worker_client, DocumentSubmissionService.worker_dispatch_enabled = previous
+
+
+

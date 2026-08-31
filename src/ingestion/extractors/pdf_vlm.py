@@ -1,13 +1,13 @@
 import os
 import re
 
-import fitz
+import pymupdf
 
 from src.config import get_settings
 from src.services.fpt_client import extract_page_markdown as _fpt_extract_page_markdown
 
 VLM_MODEL = "Qwen2.5-VL-7B-Instruct"
-DPI = 200
+DPI = 150
 
 PROMPT = (
     "Trích xuất toàn bộ nội dung trang này sang Markdown. "
@@ -29,12 +29,14 @@ def atomic_write_text(path: str, text: str) -> None:
 
 
 def pdf_to_page_images(pdf_path: str, dpi: int = DPI):
-    doc = fitz.open(pdf_path)
     zoom = dpi / 72
-    matrix = fitz.Matrix(zoom, zoom)
-    for i, page in enumerate(doc):
-        pix = page.get_pixmap(matrix=matrix)
-        yield i + 1, pix.tobytes("png")
+    matrix = pymupdf.Matrix(zoom, zoom)
+    with pymupdf.open(pdf_path) as doc:
+        for i, page in enumerate(doc):
+            pix = page.get_pixmap(matrix=matrix)
+            img_bytes = pix.tobytes("png")
+            del pix
+            yield i + 1, img_bytes
 
 
 def strip_markdown_fence(text: str) -> str:

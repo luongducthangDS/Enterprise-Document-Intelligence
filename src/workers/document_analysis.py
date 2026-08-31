@@ -97,6 +97,7 @@ def _analyse_and_index(
         artifact_state="draft",
         retrieval_enabled=False,
         expiry_date=request.expiry_date,
+        version=request.version or None,
         settings=settings,
     )
     if not chunks:

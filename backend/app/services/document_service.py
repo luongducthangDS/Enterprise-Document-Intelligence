@@ -4,17 +4,19 @@ import os
 import uuid
 from datetime import UTC, datetime
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi import UploadFile
 from sqlalchemy import desc, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import defer
 
 from app.core.config import get_settings
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.audit import AuditLogDB
 from app.domain.models.documents import DocumentDB, IngestionJobDB
-from app.schemas.documents import DocumentMetadataUpdate
+from app.schemas.documents import DocumentFromUrlRequest, DocumentMetadataUpdate
 from app.services.access_control import (
     DEPARTMENT_MANAGER,
     SUPER_ADMIN,
@@ -27,6 +29,21 @@ from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".md", ".png", ".jpg", ".jpeg", ".webp"}
+
+
+def _guess_content_type(filename: str) -> str:
+    ext = os.path.splitext(filename)[1].lower()
+    mapping = {
+        ".pdf": "application/pdf",
+        ".doc": "application/msword",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".md": "text/markdown",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+    }
+    return mapping.get(ext, "application/octet-stream")
 
 _PRODUCT_CATEGORIES = {"PRD", "ROADMAP", "USER_RESEARCH", "PRODUCT_METRICS"}
 _ACCOUNTING_CATEGORIES = {
@@ -71,6 +88,7 @@ class DocumentService:
         authorized_role: str | None = None,
         staging_submission_id: str | None = None,
         public_url: str | None = None,
+        previous_source_stem: str = "",
     ) -> dict[str, Any]:
         uploader_id_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
         try:
@@ -150,6 +168,7 @@ class DocumentService:
                 doc.effective_date = effective_date
                 doc.confidentiality = doc_confidentiality
                 doc.status = doc_status
+                doc.chroma_indexed_at = None
                 if public_url and public_url.strip():
                     doc.public_url = public_url.strip()
                 doc.updated_at = datetime.now(UTC)
@@ -234,6 +253,8 @@ class DocumentService:
                         "authority": "tenant_official_policy",
                         "provenance": "customer_provided",
                         "staging_source_stem": f"{staging_submission_id}__{os.path.splitext(filename)[0]}" if staging_submission_id else "",
+                        "previous_source_stem": previous_source_stem or "",
+                        "version": doc.version or "",
                     }
                 )
             except WorkerJobClientError as exc:
@@ -250,6 +271,193 @@ class DocumentService:
         }
 
     @classmethod
+    async def upload_document_from_url(
+        cls,
+        db: AsyncSession,
+        user: dict[str, Any],
+        payload: DocumentFromUrlRequest,
+        staging_submission_id: str | None = None,
+        previous_source_stem: str = "",
+    ) -> dict[str, Any]:
+        uploader_id_raw = user.get("user_id") or user.get("profile_id") or user.get("sub") or user.get("id")
+        try:
+            uploader_id = uuid.UUID(str(uploader_id_raw))
+        except (ValueError, TypeError) as exc:
+            raise AppException(
+                status_code=401, code="IDENTITY_REQUIRED", message="Không xác định được người tải tài liệu."
+            ) from exc
+
+        filename = os.path.basename((payload.source_file or "document.pdf").replace("\\", "/")).strip()
+        if not filename or filename in (".", ".."):
+            raise AppException(status_code=422, code="INVALID_FILENAME", message="Tên file không hợp lệ.")
+        ext = os.path.splitext(filename)[1].lower()
+
+        if ext not in ALLOWED_EXTENSIONS:
+            raise AppException(
+                status_code=415,
+                code="UNSUPPORTED_FILE_TYPE",
+                message="Định dạng file không được hỗ trợ. Chỉ chấp nhận PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP.",
+            )
+
+        public_url = payload.public_url.strip()
+        parsed = urlparse(public_url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise AppException(
+                status_code=422,
+                code="INVALID_STORAGE_URL",
+                message="public_url phải là URL HTTPS hợp lệ.",
+            )
+
+        doc_title = payload.title.strip() if payload.title and payload.title.strip() else filename
+        doc_category = payload.category.strip() if payload.category and payload.category.strip() else "GENERAL"
+        doc_department = _resolve_document_department(payload.department, doc_category)
+        doc_confidentiality = payload.confidentiality.strip() if payload.confidentiality and payload.confidentiality.strip() else "INTERNAL"
+        doc_status = payload.status.strip().upper() if payload.status and payload.status.strip() else "ACTIVE"
+        normalized_scope = (payload.access_scope or "RESTRICTED").strip().upper()
+        allowed_scopes = {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}
+        if normalized_scope not in allowed_scopes:
+            raise AppException(status_code=422, code="INVALID_ACCESS_SCOPE", message="access_scope không hợp lệ.")
+        normalized_authorized_role = payload.authorized_role.strip().upper() if payload.authorized_role and payload.authorized_role.strip() else None
+        if normalized_scope == "ROLE" and not normalized_authorized_role:
+            raise AppException(
+                status_code=422, code="AUTHORIZED_ROLE_REQUIRED", message="ROLE yêu cầu authorized_role."
+            )
+        if normalized_scope != "ROLE":
+            normalized_authorized_role = None
+        role = normalized_role(user)
+        if role == DEPARTMENT_MANAGER:
+            if not same_department(user, doc_department):
+                raise ForbiddenError(code="DEPARTMENT_SCOPE_DENIED", message="Bạn chỉ được quản lý tài liệu của phòng ban mình.")
+            if normalized_scope not in {"DEPARTMENT", "RESTRICTED"}:
+                raise ForbiddenError(code="SCOPE_MANAGEMENT_DENIED", message="Quản lý phòng ban chỉ được tạo tài liệu nội bộ của phòng mình.")
+        elif role != SUPER_ADMIN:
+            raise ForbiddenError(code="FORBIDDEN", message="Bạn không có quyền tải tài liệu.")
+
+        tenant = get_settings().active_tenant
+
+        stmt = select(DocumentDB).where(DocumentDB.tenant == tenant, DocumentDB.source_file == filename)
+        res = await db.execute(stmt)
+        existing_doc = res.scalars().first()
+
+        content_type = _guess_content_type(filename)
+
+        if existing_doc:
+            if staging_submission_id:
+                doc = existing_doc
+                doc.title = doc_title
+                doc.content_type = content_type
+                doc.file_content = None
+                doc.category = doc_category
+                doc.department = doc_department.upper()
+                doc.access_scope = normalized_scope
+                doc.authorized_role = normalized_authorized_role
+                doc.version = payload.version
+                doc.effective_date = payload.effective_date
+                doc.confidentiality = doc_confidentiality
+                doc.status = doc_status
+                doc.chroma_indexed_at = None
+                doc.public_url = public_url
+                doc.updated_at = datetime.now(UTC)
+            else:
+                raise ConflictError(
+                    code="DOCUMENT_ALREADY_EXISTS",
+                    message=(
+                        f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
+                        "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
+                    ),
+                )
+        else:
+            doc = DocumentDB(
+                title=doc_title,
+                source_file=filename,
+                content_type=content_type,
+                file_content=None,
+                category=doc_category,
+                tenant=tenant,
+                department=doc_department.upper(),
+                access_scope=normalized_scope,
+                authorized_role=normalized_authorized_role,
+                owner_user_id=uploader_id,
+                authorization_source="RUNTIME_UPLOAD",
+                authority="tenant_official_policy",
+                provenance="customer_provided",
+                version=payload.version,
+                effective_date=payload.effective_date,
+                confidentiality=doc_confidentiality,
+                status=doc_status,
+                public_url=public_url,
+                uploaded_by=uploader_id,
+            )
+            db.add(doc)
+            try:
+                await db.flush()
+            except IntegrityError as exc:
+                await db.rollback()
+                raise ConflictError(
+                    code="DOCUMENT_ALREADY_EXISTS",
+                    message=(
+                        f"Tài liệu '{filename}' đã tồn tại trong tenant '{tenant}'. "
+                        "Dùng tên file khác hoặc xử lý thay thế/version ở tầng lifecycle."
+                    ),
+                ) from exc
+
+        job = IngestionJobDB(
+            document_id=doc.id,
+            state="QUEUED",
+            stage="UPLOADED",
+            progress_percent=0,
+        )
+        db.add(job)
+        await db.commit()
+        await db.refresh(doc)
+        await db.refresh(job)
+
+        if cls.worker_dispatch_enabled:
+            try:
+                await cls.worker_client.submit_ingestion(
+                    {
+                        "job_id": str(job.id),
+                        "document_id": str(doc.id),
+                        "source_file": filename,
+                        "content_base64": "",
+                        "content_url": doc.public_url or "",
+                        "content_sha256": "",
+                        "category": doc.category,
+                        "department": doc_department,
+                        "tenant": doc.tenant,
+                        "access_scope": doc.access_scope,
+                        "authorized_role": doc.authorized_role or "",
+                        "owner_user_id": str(doc.owner_user_id),
+                        "authorization_source": doc.authorization_source,
+                        "publication_status": "active" if doc.status == "ACTIVE" else "draft",
+                        "artifact_state": "frozen" if doc.status == "ACTIVE" else "draft",
+                        "retrieval_enabled": doc.status == "ACTIVE",
+                        "expiry_date": "9999-12-31",
+                        "source_type": "official_policy",
+                        "is_official_policy": True,
+                        "caveat": doc.caveat or "",
+                        "authority": "tenant_official_policy",
+                        "provenance": "customer_provided",
+                        "staging_source_stem": f"{staging_submission_id}__{os.path.splitext(filename)[0]}" if staging_submission_id else "",
+                        "previous_source_stem": previous_source_stem or "",
+                        "version": doc.version or "",
+                    }
+                )
+            except WorkerJobClientError as exc:
+                job.state = "FAILED"
+                job.stage = "FAILED"
+                job.error = str(exc)
+                await db.commit()
+
+        return {
+            "document_id": str(doc.id),
+            "ingestion_job_id": str(job.id),
+            "status": doc.status,
+            "access_scope": doc.access_scope,
+        }
+
+
+    @classmethod
     async def list_documents(
         cls,
         db: AsyncSession,
@@ -261,7 +469,11 @@ class DocumentService:
         limit: int = 20,
         cursor: str | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        stmt = select(DocumentDB).order_by(desc(DocumentDB.created_at))
+        stmt = (
+            select(DocumentDB)
+            .options(defer(DocumentDB.file_content))
+            .order_by(desc(DocumentDB.created_at))
+        )
         if normalized_role(user) == DEPARTMENT_MANAGER:
             stmt = stmt.where(DocumentDB.department == str(user.get("department", "")).upper().strip())
 
@@ -272,17 +484,27 @@ class DocumentService:
 
         res = await db.execute(stmt)
         docs = res.scalars().all()
+        if not docs:
+            return [], {"limit": min(max(1, limit), 100), "next_cursor": None}
+
+        # Batch query all latest ingestion jobs in 1 roundtrip instead of N queries
+        doc_ids = [doc.id for doc in docs]
+        jobs_stmt = (
+            select(IngestionJobDB)
+            .where(IngestionJobDB.document_id.in_(doc_ids))
+            .order_by(desc(IngestionJobDB.created_at), desc(IngestionJobDB.id))
+        )
+        jobs_res = await db.execute(jobs_stmt)
+        all_jobs = jobs_res.scalars().all()
+
+        latest_jobs: dict[uuid.UUID, IngestionJobDB] = {}
+        for job in all_jobs:
+            if job.document_id not in latest_jobs:
+                latest_jobs[job.document_id] = job
 
         formatted_list = []
         for doc in docs:
-            job_stmt = (
-                select(IngestionJobDB)
-                .where(IngestionJobDB.document_id == doc.id)
-                .order_by(desc(IngestionJobDB.created_at))
-            )
-            job_res = await db.execute(job_stmt)
-            job = job_res.scalars().first()
-
+            job = latest_jobs.get(doc.id)
             current_ingestion_state = job.state if job else "QUEUED"
             is_indexed = doc.chroma_indexed_at is not None
 
@@ -343,7 +565,9 @@ class DocumentService:
             raise ForbiddenError(code="DOCUMENT_ACCESS_DENIED", message="Bạn không có quyền truy cập tài liệu này.")
 
         job_stmt = (
-            select(IngestionJobDB).where(IngestionJobDB.document_id == doc.id).order_by(desc(IngestionJobDB.created_at))
+            select(IngestionJobDB)
+            .where(IngestionJobDB.document_id == doc.id)
+            .order_by(desc(IngestionJobDB.created_at), desc(IngestionJobDB.id))
         )
         job_res = await db.execute(job_stmt)
         job = job_res.scalars().first()

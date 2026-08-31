@@ -6,6 +6,7 @@ cần đúng logic đó cho file do Backend upload lên, vì vậy phần thuầ
 chuyển vào đây; script giữ nguyên vai trò CLI đi quét data/raw/.
 """
 
+import gc
 import os
 import re
 import zipfile
@@ -13,13 +14,12 @@ from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
 import docx
-import fitz
-import pdfplumber
+import pymupdf
 
 from .pdf_extractor import extract_pdf
 from .pdf_vlm import extract_page_markdown
 
-# Trang được coi là "có text layer thật" nếu pdfplumber đọc được > 200 ký tự.
+# Trang được coi là "có text layer thật" nếu pymupdf đọc được > 200 ký tự.
 # PDF được coi là scan (cần VLM) nếu số trang có text layer < 50% tổng số trang.
 TEXT_LAYER_MIN_CHARS_PER_PAGE = 200
 TEXT_LAYER_MIN_RATIO = 0.5
@@ -39,21 +39,21 @@ class UnsupportedDocumentError(ValueError):
 
 
 def has_real_text_layer(pdf_path: str) -> bool:
-    with pdfplumber.open(pdf_path) as pdf:
-        n = len(pdf.pages)
+    with pymupdf.open(pdf_path) as doc:
+        n = len(doc)
         if n == 0:
             return False
         pages_with_text = sum(
-            1 for p in pdf.pages if len(p.extract_text() or "") >= TEXT_LAYER_MIN_CHARS_PER_PAGE
+            1 for page in doc if len((page.get_text("text") or "").strip()) >= TEXT_LAYER_MIN_CHARS_PER_PAGE
         )
         return (pages_with_text / n) >= TEXT_LAYER_MIN_RATIO
 
 
 def extract_pdf_text_layer(pdf_path: str, out_path: str) -> str:
-    with pdfplumber.open(pdf_path) as pdf:
-        pages_text = []
-        for i, page in enumerate(pdf.pages, start=1):
-            text = (page.extract_text() or "").strip()
+    pages_text = []
+    with pymupdf.open(pdf_path) as doc:
+        for i, page in enumerate(doc, start=1):
+            text = (page.get_text("text") or "").strip()
             pages_text.append(f"<!-- page {i} -->\n\n{text}")
     full_text = "\n\n---\n\n".join(pages_text)
     stem = os.path.splitext(os.path.basename(pdf_path))[0]
@@ -202,15 +202,18 @@ def copy_md(src_path: str, out_path: str) -> str:
 def extract_image(image_path: str, out_path: str) -> str:
     """Normalize a standalone image to PNG, then extract it with the existing VLM."""
     try:
-        with fitz.open(image_path) as document:
+        with pymupdf.open(image_path) as document:
             if document.page_count != 1:
                 raise UnsupportedDocumentError("File ảnh không hợp lệ hoặc có nhiều hơn một frame.")
-            image_bytes = document[0].get_pixmap().tobytes("png")
+            pix = document[0].get_pixmap()
+            image_bytes = pix.tobytes("png")
+            del pix
     except UnsupportedDocumentError:
         raise
     except Exception as exc:
         raise UnsupportedDocumentError("Không đọc được nội dung ảnh.") from exc
     markdown = extract_page_markdown(image_bytes)
+    del image_bytes
     stem = os.path.splitext(os.path.basename(image_path))[0]
     return _write_markdown(out_path, stem, markdown)
 
@@ -229,24 +232,27 @@ def extract_document(src_path: str, out_path: str) -> tuple[str, str]:
     Phương pháp: "text-layer" | "vlm" | "docx" | "copy" — dùng cho log/telemetry
     để biết file nào đi đường VLM (tốn API, chậm hàng phút).
     """
-    ext = os.path.splitext(src_path)[1].lower()
+    try:
+        ext = os.path.splitext(src_path)[1].lower()
 
-    if ext == ".pdf":
-        if has_real_text_layer(src_path):
-            return extract_pdf_text_layer(src_path, out_path), "text-layer"
-        extract_pdf(src_path, out_path, force=True)
-        with open(out_path, encoding="utf-8") as f:
-            return f.read(), "vlm"
-    if ext in (".docx", ".doc"):
-        return extract_docx(src_path, out_path), "docx"
-    if ext == ".xlsx":
-        return extract_xlsx(src_path, out_path), "xlsx"
-    if ext == ".md":
-        return copy_md(src_path, out_path), "copy"
-    if ext in IMAGE_EXTENSIONS:
-        return extract_image(src_path, out_path), "vlm-image"
+        if ext == ".pdf":
+            if has_real_text_layer(src_path):
+                return extract_pdf_text_layer(src_path, out_path), "text-layer"
+            extract_pdf(src_path, out_path, force=True)
+            with open(out_path, encoding="utf-8") as f:
+                return f.read(), "vlm"
+        if ext in (".docx", ".doc"):
+            return extract_docx(src_path, out_path), "docx"
+        if ext == ".xlsx":
+            return extract_xlsx(src_path, out_path), "xlsx"
+        if ext == ".md":
+            return copy_md(src_path, out_path), "copy"
+        if ext in IMAGE_EXTENSIONS:
+            return extract_image(src_path, out_path), "vlm-image"
 
-    raise UnsupportedDocumentError(
-        f"Định dạng không hỗ trợ: {ext or '(không có đuôi file)'}. "
-        f"Chỉ nhận {', '.join(SUPPORTED_EXTENSIONS)}."
-    )
+        raise UnsupportedDocumentError(
+            f"Định dạng không hỗ trợ: {ext or '(không có đuôi file)'}. "
+            f"Chỉ nhận {', '.join(SUPPORTED_EXTENSIONS)}."
+        )
+    finally:
+        gc.collect()

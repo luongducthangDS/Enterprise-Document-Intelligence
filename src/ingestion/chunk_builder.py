@@ -75,6 +75,7 @@ def build_chunks_from_text(
     artifact_state: str = "frozen",
     retrieval_enabled: bool = True,
     expiry_date: str = NO_EXPIRY_SENTINEL,
+    version: str | None = None,
     settings: Settings,
 ) -> list[Chunk]:
     cleaned = clean_document(raw_text)
@@ -183,7 +184,7 @@ def build_chunks_from_text(
             chunk_index=idx,
             char_count=len(tc.text),
             document_code=cleaned.frontmatter.get("document_code"),
-            version=str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None,
+            version=version or (str(cleaned.frontmatter["version"]) if cleaned.frontmatter.get("version") is not None else None),
             effective_date=resolved_effective_date,
             owner=owner or cleaned.frontmatter.get("owner"),
             legal_basis=cleaned.frontmatter.get("legal_basis"),

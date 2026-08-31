@@ -254,3 +254,39 @@ def test_get_ingestion_job_not_found():
     res = response.json()
     assert res["success"] is False
     assert res["error"]["code"] == "INGESTION_JOB_NOT_FOUND"
+
+
+def test_upload_document_from_url_success():
+    headers = get_auth_header()
+    payload = {
+        "source_file": "remote_policy_cloudinary.pdf",
+        "public_url": "https://res.cloudinary.com/demo/raw/upload/v12345/remote_policy_cloudinary.pdf",
+        "title": "Chính sách từ xa Cloudinary 2026",
+        "category": "HR_POLICY",
+        "version": "1.0",
+        "effective_date": "2026-01-01",
+        "confidentiality": "INTERNAL",
+        "access_scope": "COMPANY_WIDE",
+    }
+
+    response = client.post("/api/v1/documents/from-url", headers=headers, json=payload)
+    assert response.status_code == 201
+    res = response.json()
+    assert res["success"] is True
+    assert "document_id" in res["data"]
+    assert "ingestion_job_id" in res["data"]
+    assert res["data"]["status"] == "ACTIVE"
+
+
+def test_upload_document_from_url_invalid_url():
+    headers = get_auth_header()
+    payload = {
+        "source_file": "malicious.pdf",
+        "public_url": "http://insecure-http-url.com/file.pdf",
+    }
+
+    response = client.post("/api/v1/documents/from-url", headers=headers, json=payload)
+    assert response.status_code == 422
+    res = response.json()
+    assert res["success"] is False
+

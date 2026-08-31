@@ -599,10 +599,10 @@ h3 {
   position: relative;
   isolation: isolate;
   min-width: 0;
-  max-width: 720px;
+  max-width: min(980px, calc(100% - 20px));
   flex: 0 1 auto;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 2px;
   margin-inline: auto;
   overflow-x: auto;
@@ -665,11 +665,12 @@ h3 {
   overflow: hidden;
   border: 0;
   border-radius: 999px;
-  padding: 6px 11px;
+  padding: 6px 10px;
   color: rgba(255, 253, 247, .66);
   background: transparent;
   font-size: 10px;
   font-weight: 650;
+  white-space: nowrap;
   transform-style: preserve-3d;
   perspective: 800px;
   transition: color .18s ease, transform .18s ease;
@@ -1234,16 +1235,26 @@ h3 {
 }
 
 .prompt-row button strong,
-.prompt-row button span { display: block; }
+.prompt-row button span {
+  display: block;
+}
+
 .prompt-row button strong {
   margin-bottom: 6px;
-  color: rgba(6,78,59,.9);
+  color: rgba(6, 78, 59, .9);
   font-size: 12px;
   letter-spacing: .06em;
   text-transform: uppercase;
 }
-.prompt-row button span { color: var(--ink); line-height: 1.45; }
-.prompt-row button:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+.prompt-row button span {
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.prompt-row button:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 
 .message {
   max-width: 900px;
@@ -1728,8 +1739,8 @@ h3 {
 
 .document-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 310px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -1860,12 +1871,35 @@ h3 {
   gap: 8px;
 }
 
+.two-fields input,
+.two-fields select {
+  min-width: 0;
+  font-size: 13px;
+}
+
 .job-summary,
 .result-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   color: var(--muted);
+  font-size: 12px;
+}
+
+.job-summary .file-name,
+.job-summary > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.job-summary .status-pill {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .operation-panel {
@@ -1874,13 +1908,64 @@ h3 {
 }
 
 .result-panel {
-  margin-top: 15px;
-  padding: 18px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(6, 78, 59, .14);
+  box-shadow: 0 4px 14px rgba(6, 78, 59, .05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.result-header-row .status-pill {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+.result-percent {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--emerald-dark);
+}
+
+.result-file-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.result-stage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.result-panel .form-note {
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  word-break: break-word;
 }
 
 .progress-track {
-  height: 8px;
-  margin: 14px 0;
+  height: 7px;
+  margin: 4px 0;
   overflow: hidden;
   border-radius: 999px;
   background: var(--cream-dark);
@@ -1889,8 +1974,10 @@ h3 {
 
 .progress-track>div {
   height: 100%;
+  border-radius: 999px;
   background: var(--emerald-mid);
   box-shadow: 0 1px 5px rgba(6, 78, 59, .24);
+  transition: width 0.3s ease;
 }
 
 .metric-grid {
@@ -1969,23 +2056,26 @@ h3 {
 .modal-layer {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
   display: grid;
   place-items: center;
-  padding: 18px;
-  background: rgba(6, 78, 59, .42);
-  backdrop-filter: blur(5px);
-  z-index: 50;
+  padding: 24px;
+  background: rgba(4, 38, 29, .55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
 }
 
 .detail-modal {
-  width: min(620px, 100%);
-  max-height: 90vh;
+  width: min(620px, calc(100vw - 36px));
+  max-height: calc(100vh - 48px);
   overflow: auto;
-  border: .5px solid rgba(255, 255, 255, .55);
+  border: 1px solid rgba(255, 255, 255, .7);
   border-radius: 26px;
-  padding: 22px;
+  padding: 24px;
   background: #fffdf7;
-  box-shadow: 18px 18px 44px rgba(1, 45, 34, .2), -8px -8px 26px rgba(255, 255, 255, .3);
+  box-shadow: 0 24px 64px rgba(1, 45, 34, .35), 0 4px 16px rgba(0, 0, 0, .1);
 }
 
 .detail-modal>header {

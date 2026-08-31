@@ -661,6 +661,24 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
         is_official_policy: item.is_official_policy,
         source_type: item.source_type,
       });
+
+      // Nếu summary chưa có version -> Fetch chi tiết từ Backend để bổ sung version/ngày hiệu lực
+      if (!item.version) {
+        api.getCitation(item.citation_id).then((fullDetail) => {
+          if (fullDetail?.document?.version) {
+            setCitation((current) => current && current.citation_id === item.citation_id
+              ? {
+                  ...current,
+                  document: {
+                    ...current.document,
+                    version: fullDetail.document.version,
+                    effective_date: fullDetail.document.effective_date || current.document.effective_date,
+                  },
+                }
+              : current);
+          }
+        }).catch(() => {});
+      }
       return;
     }
 
@@ -759,7 +777,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             <div><dt>Trang / mục</dt><dd className="truncate" title={`${citation.location.page ?? "—"} · ${citation.location.section ?? "—"}`}>{citation.location.page ?? "—"} · {citation.location.section ?? "—"}</dd></div>
             <div><dt>Hiệu lực</dt><dd className="truncate" title={citation.document.effective_date ?? "—"}>{citation.document.effective_date ?? "—"}</dd></div>
             <div><dt>Trạng thái</dt><dd className="truncate" title={citation.document.status}>{citation.document.status}</dd></div>
-            <div><dt>Phiên bản</dt><dd className="truncate" title={citation.document.version ?? "1.0"}>{citation.document.version ?? "1.0"}</dd></div>
+            <div><dt>Phiên bản</dt><dd className="truncate" title={citation.document.version || "—"}>{citation.document.version || "—"}</dd></div>
           </dl>
           <DocumentViewer key={citation.document.document_id || citation.public_url || citation.document.title} citation={citation} />
           {(citation.caveat || citation.conflict_warning)

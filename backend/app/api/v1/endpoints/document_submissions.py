@@ -6,10 +6,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.auth_deps import get_current_user, require_role
 from app.api.dependencies.db_deps import get_db
 from app.schemas.common import wrap_response
-from app.schemas.document_submissions import DocumentPublicUrlUpdate, SubmissionReviewRequest
+from app.schemas.document_submissions import (
+    DocumentPublicUrlUpdate,
+    DocumentSubmissionFromUrlRequest,
+    SubmissionReviewRequest,
+)
 from app.services.document_submission_service import DocumentSubmissionService
 
 router = APIRouter()
+
+
+@router.post("/from-url", status_code=status.HTTP_201_CREATED)
+async def create_submission_from_url(
+    request: Request,
+    payload: DocumentSubmissionFromUrlRequest,
+    current_user: dict[str, Any] = Depends(require_role(["DEPARTMENT_MANAGER", "SUPER_ADMIN"])),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Tải lên tài liệu chờ duyệt thông qua CDN URL (Cloudinary) không qua RAM Backend."""
+    data = await DocumentSubmissionService.create_submission_from_url(
+        db=db,
+        user=current_user,
+        payload=payload,
+    )
+    return wrap_response(data, request)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -109,6 +129,22 @@ async def update_submission_public_url(
         user=current_user,
         submission_id=submission_id,
         public_url=payload.public_url,
+    )
+    return wrap_response(data, request)
+
+
+@router.delete("/{submission_id}")
+async def delete_submission(
+    submission_id: str,
+    request: Request,
+    current_user: dict[str, Any] = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Xóa tài liệu chờ duyệt (chỉ cho phép khi ở trạng thái Phân tích thất bại, Xuất bản thất bại hoặc Đã từ chối)."""
+    data = await DocumentSubmissionService.delete_submission(
+        db=db,
+        user=current_user,
+        submission_id=submission_id,
     )
     return wrap_response(data, request)
 

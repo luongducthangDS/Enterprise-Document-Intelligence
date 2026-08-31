@@ -212,7 +212,7 @@ class DocumentSubmissionDB(Base):
     tenant: Mapped[str] = mapped_column(String, nullable=False, index=True)
     source_file: Mapped[str] = mapped_column(String, nullable=False)
     content_type: Mapped[str | None] = mapped_column(String, nullable=True)
-    file_content: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    file_content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     category: Mapped[str] = mapped_column(String, nullable=False, default="GENERAL")
     department: Mapped[str] = mapped_column(String, nullable=False)

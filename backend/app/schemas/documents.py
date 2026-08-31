@@ -2,6 +2,21 @@
 from pydantic import BaseModel, Field
 
 
+
+class DocumentFromUrlRequest(BaseModel):
+    source_file: str = Field(..., min_length=1, max_length=255, description="Tên file gốc")
+    public_url: str = Field(..., min_length=1, description="Public CDN URL (Cloudinary)")
+    title: str | None = Field(default=None, max_length=255, description="Tiêu đề tài liệu")
+    category: str | None = Field(default=None, max_length=128, description="Danh mục tài liệu")
+    department: str | None = Field(default=None, max_length=128, description="Phòng ban")
+    version: str | None = Field(default=None, max_length=64, description="Phiên bản")
+    effective_date: str | None = Field(default=None, max_length=32, description="Ngày hiệu lực")
+    confidentiality: str | None = Field(default=None, max_length=64, description="Mức độ bảo mật")
+    status: str | None = Field(default=None, max_length=64, description="Trạng thái tài liệu")
+    access_scope: str = Field(default="RESTRICTED", max_length=32, description="Phạm vi truy cập")
+    authorized_role: str | None = Field(default=None, max_length=64, description="Vai trò được phân quyền")
+
+
 class DocumentUploadResponseData(BaseModel):
     document_id: str = Field(..., description="ID của tài liệu vừa tạo")
     ingestion_job_id: str = Field(..., description="ID của tác vụ xử lý ingestion bất đồng bộ")

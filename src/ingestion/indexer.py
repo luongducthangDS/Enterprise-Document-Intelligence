@@ -92,6 +92,43 @@ def delete_by_source_stem(collection: Collection, source_stem: str, tenant_id: s
     collection.delete(where={"$and": [{"source_stem": source_stem}, {"tenant": tenant}]})
 
 
+def disable_retrieval_by_source_stem(collection: Collection, source_stem: str, tenant_id: str) -> int:
+    """Lưu trữ chunk cũ bằng cách đánh dấu retrieval_enabled=False thay vì xóa.
+    Giúp AI không dùng chunk cũ khi trả lời nhưng vẫn giữ lại lịch sử vector.
+    Trả về số chunk đã được disable."""
+    tenant = validate_tenant_id(tenant_id)
+    existing = collection.get(
+        where={"$and": [{"source_stem": source_stem}, {"tenant": tenant}]},
+        include=["metadatas", "embeddings", "documents"],
+    )
+    if not existing or not existing.get("ids"):
+        return 0
+
+    ids = existing["ids"]
+    metadatas = existing["metadatas"]
+    embeddings = existing.get("embeddings") or []
+    documents = existing.get("documents") or []
+
+    updated_metadatas = []
+    for m in metadatas:
+        m_updated = dict(m)
+        m_updated["retrieval_enabled"] = False
+        m_updated["publication_status"] = "archived"
+        m_updated["artifact_state"] = "superseded"
+        updated_metadatas.append(m_updated)
+
+    upsert_kwargs: dict = {
+        "ids": ids,
+        "metadatas": updated_metadatas,
+        "documents": documents if documents else [""] * len(ids),
+    }
+    if embeddings:
+        upsert_kwargs["embeddings"] = embeddings
+
+    collection.upsert(**upsert_kwargs)
+    return len(ids)
+
+
 def upsert_chunks(collection: Collection, chunks: list[Chunk], embeddings: list[list[float]]) -> None:
     if len(chunks) != len(embeddings):
         raise ValueError(f"chunks ({len(chunks)}) và embeddings ({len(embeddings)}) không khớp số lượng")

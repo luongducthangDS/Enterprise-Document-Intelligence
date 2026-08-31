@@ -359,6 +359,25 @@ export const api = {
       body: JSON.stringify({ public_url: publicUrl }),
     }).then((response) => response.data!),
   uploadDocument: (file: File, metadata: Record<string, string>) => {
+    if (metadata.public_url && metadata.public_url.trim()) {
+      return request<{ document_id: string; ingestion_job_id: string; status: string }>("/documents/from-url", {
+        method: "POST",
+        headers: idempotencyHeaders(),
+        body: JSON.stringify({
+          source_file: file.name,
+          public_url: metadata.public_url.trim(),
+          title: metadata.title || file.name,
+          category: metadata.category || undefined,
+          department: metadata.department || undefined,
+          version: metadata.version || undefined,
+          effective_date: metadata.effective_date || undefined,
+          confidentiality: metadata.confidentiality || "INTERNAL",
+          status: metadata.status || "ACTIVE",
+          access_scope: metadata.access_scope || "RESTRICTED",
+          authorized_role: metadata.authorized_role || undefined,
+        }),
+      }).then((response) => response.data!);
+    }
     const form = new FormData();
     form.append("file", file);
     Object.entries(metadata).forEach(([key, value]) => value && key !== "language" && form.append(key, value));
@@ -369,6 +388,27 @@ export const api = {
     }).then((response) => response.data!);
   },
   uploadDocumentSubmission: (file: File, metadata: Record<string, string>) => {
+    if (metadata.public_url && metadata.public_url.trim()) {
+      return request<{ submission_id: string; analysis_job_id: string; status: string; stage: string; poll_after_ms: number }>(
+        "/document-submissions/from-url",
+        {
+          method: "POST",
+          headers: idempotencyHeaders(),
+          body: JSON.stringify({
+            source_file: file.name,
+            public_url: metadata.public_url.trim(),
+            title: metadata.title || file.name,
+            category: metadata.category || undefined,
+            department: metadata.department || undefined,
+            version: metadata.version || undefined,
+            effective_date: metadata.effective_date || undefined,
+            confidentiality: metadata.confidentiality || "INTERNAL",
+            access_scope: metadata.access_scope || "RESTRICTED",
+            authorized_role: metadata.authorized_role || undefined,
+          }),
+        },
+      ).then((response) => response.data!);
+    }
     const form = new FormData();
     form.append("file", file);
     Object.entries(metadata).forEach(([key, value]) => value && form.append(key, value));
@@ -401,6 +441,11 @@ export const api = {
       headers: idempotencyHeaders(),
       body: JSON.stringify({ note: note || null }),
     }).then((response) => response.data!),
+  deleteDocumentSubmission: (submissionId: string) =>
+    request<{ submission_id: string; title: string; deleted: boolean; message: string }>(
+      `/document-submissions/${submissionId}`,
+      { method: "DELETE" },
+    ).then((response) => response.data!),
   getIngestionJob: (jobId: string) => request<AsyncJob>(`/ingestion-jobs/${jobId}`).then((response) => response.data!),
   startIndexRebuild: (documentIds: string[], strategy: string) =>
     request<{ job_id: string; state: string; poll_after_ms: number }>("/indexes/rebuilds", {

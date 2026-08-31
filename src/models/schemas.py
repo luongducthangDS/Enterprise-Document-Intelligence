@@ -68,6 +68,10 @@ class IngestionJobRequest(BaseModel):
     retrieval_enabled: bool = True
     expiry_date: str = Field(default="9999-12-31", max_length=10)
     staging_source_stem: str = Field(default="", max_length=384)
+    version: str = Field(default="", max_length=64)
+    # Nếu tài liệu này thay thế một file có tên khác (ví dụ v1.0 là DNTT-08-015, v4.0 là DNTT-08-22),
+    # truyền source_stem của file CŨ để worker xoá chunk cũ trong Chroma.
+    previous_source_stem: str = Field(default="", max_length=384)
 
     @model_validator(mode="after")
     def require_content_source(self):

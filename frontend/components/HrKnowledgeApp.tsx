@@ -14,7 +14,7 @@ import { TicketsView } from "./TicketsView";
 type View = "chat" | "tickets" | "documents" | "access" | "index" | "evaluation" | "monitoring";
 
 const employeeItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Ticket của tôi", icon: Ticket }];
-const managerItems = [{ id: "documents" as const, label: "Kho tài liệu phòng ban", icon: FileText }, { id: "index" as const, label: "Chỉ mục tìm kiếm", icon: Database }];
+const managerItems = [{ id: "documents" as const, label: "Kho tài liệu", icon: FileText }, { id: "index" as const, label: "Chỉ mục tìm kiếm", icon: Database }];
 const systemItems = [{ id: "access" as const, label: "Phân quyền", icon: ShieldCheck }, { id: "evaluation" as const, label: "Đánh giá chất lượng", icon: FlaskConical }, { id: "monitoring" as const, label: "Giám sát truy vấn", icon: Activity }];
 
 export function HrKnowledgeApp() {
@@ -41,6 +41,7 @@ export function HrKnowledgeApp() {
       navigation.style.setProperty("--navbar-active-width", `${active.offsetWidth}px`);
       navigation.style.setProperty("--navbar-active-center", `${active.offsetLeft + active.offsetWidth / 2}px`);
       navigation.style.setProperty("--navbar-active-opacity", "1");
+      active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
     };
     syncSlider();
     const frame = window.requestAnimationFrame(syncSlider);
@@ -63,7 +64,7 @@ export function HrKnowledgeApp() {
   if (checkingSession) return <div className="app-loading">Đang khôi phục phiên...</div>;
   if (!user) return <LoginView onAuthenticated={setUser} />;
   const isManager = ["DEPARTMENT_MANAGER", "SUPER_ADMIN"].includes(user.role);
-  const managedItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Hàng đợi ticket phòng ban", icon: Ticket }, ...managerItems];
+  const managedItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Hàng đợi ticket", icon: Ticket }, ...managerItems];
   const items = user.role === "SUPER_ADMIN"
     ? [...managedItems, ...systemItems]
     : isManager

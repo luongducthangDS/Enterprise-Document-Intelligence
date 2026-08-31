@@ -1,9 +1,11 @@
+import os
 import uuid
 from typing import Any
 
-from sqlalchemy import or_, select
+from sqlalchemy import case, desc, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.exceptions import ForbiddenError, NotFoundError
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
@@ -58,14 +60,33 @@ class CitationService:
 
         title = found_item.get("title") or found_item.get("source_file") or "Tài liệu chính sách"
         source_file = found_item.get("source_file")
+        stem = os.path.splitext(source_file)[0] if source_file else os.path.splitext(title)[0]
+
+        conditions = []
+        if source_file:
+            conditions.append(DocumentDB.source_file == source_file)
+        if title:
+            conditions.append(DocumentDB.title == title)
+        if stem:
+            conditions.append(DocumentDB.source_file.like(f"{stem}%"))
+            conditions.append(DocumentDB.title.like(f"{stem}%"))
+
         doc_res = await db.execute(
-            select(DocumentDB).where(or_(DocumentDB.title == title, DocumentDB.source_file == source_file))
+            select(DocumentDB)
+            .where(
+                DocumentDB.tenant == get_settings().active_tenant,
+                or_(*conditions) if conditions else True,
+            )
+            .order_by(
+                case((DocumentDB.status == "ACTIVE", 0), else_=1),
+                desc(DocumentDB.updated_at),
+            )
         )
         doc = doc_res.scalars().first()
 
         document_id = f"doc_{clean_cit_id}"
-        version = found_item.get("version")
-        effective_date = found_item.get("effective_date")
+        version = (doc.version if doc and doc.version else None) or found_item.get("version")
+        effective_date = (doc.effective_date if doc and doc.effective_date else None) or found_item.get("effective_date")
         document_status = "ACTIVE"
         caveat = None
         if doc:

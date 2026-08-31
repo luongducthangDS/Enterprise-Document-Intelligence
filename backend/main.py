@@ -31,6 +31,18 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info(f"Starting {settings.app_name} in {settings.app_env} mode...")
 
+    # 0. Database Schema Compatibility Migration (Tự động đảm bảo schema DB tương thích phiên bản mới)
+    try:
+        from sqlalchemy import text
+        async with engine.begin() as conn:
+            await conn.execute(text("ALTER TABLE document_submissions ALTER COLUMN file_content DROP NOT NULL;"))
+            await conn.execute(text("ALTER TABLE document_submissions ADD COLUMN IF NOT EXISTS public_url VARCHAR;"))
+            await conn.execute(text("ALTER TABLE documents ALTER COLUMN file_content DROP NOT NULL;"))
+            await conn.execute(text("ALTER TABLE documents ADD COLUMN IF NOT EXISTS public_url VARCHAR;"))
+        logger.info("[DB Schema Migration] Database schema verified and updated successfully.")
+    except Exception as e:
+        logger.warning(f"[DB Schema Migration] Notice: {e}")
+
     # 1. Warmup / Health Check tới AI Agent Service (chạy 1 lần duy nhất khi Backend khởi động)
     try:
         from app.services.warmup_service import WarmupService

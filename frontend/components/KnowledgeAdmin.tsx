@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Archive, CircleAlert, Database, FileUp, FlaskConical, LoaderCircle, RefreshCw, Search, X } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import { uploadToCloudinary } from "@/lib/cloudinary";
@@ -25,19 +26,23 @@ export function DocumentsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadJob, setUploadJob] = useState<(AsyncJob & { file_name?: string; chunk_count?: number }) | null>(null);
   const [uploadError, setUploadError] = useState("");
+  const [mounted, setMounted] = useState(false);
   const uploadPollRef = useRef(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  useEffect(() => { setMounted(true); }, []);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError("");
     try {
       setDocuments(await api.listDocuments(filters));
     } catch (reason) {
       setError(friendlyError(reason, "Không thể tải tài liệu."));
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [filters]);
 
@@ -51,7 +56,7 @@ export function DocumentsView() {
         const job = await api.getIngestionJob(jobId);
         setUploadJob({ ...job, file_name: fileName });
         if (JOB_TERMINAL_STATES.has(job.state.toUpperCase())) {
-          if (job.state.toUpperCase() === "COMPLETED") await load();
+          if (job.state.toUpperCase() === "COMPLETED") await load(true);
           return;
         }
         await wait(Math.max(500, job.poll_after_ms ?? 1000));
@@ -73,6 +78,7 @@ export function DocumentsView() {
     setUploadBusy(true);
     setUploadError("");
     setUploadJob(null);
+    setUploadProgress(0);
     try {
       if (fileInput.size > 25 * 1024 * 1024) {
         setUploadError("Dung lượng file vượt quá giới hạn 25MB.");
@@ -80,10 +86,12 @@ export function DocumentsView() {
       }
       let publicUrl = "";
       try {
-        publicUrl = await uploadToCloudinary(fileInput);
+        publicUrl = await uploadToCloudinary(fileInput, (percent) => setUploadProgress(percent));
       } catch (cloudinaryError) {
         if (fileInput.size > 4 * 1024 * 1024) throw cloudinaryError;
         console.warn("Cloudinary unavailable; using legacy upload for a small file.", cloudinaryError);
+      } finally {
+        setUploadProgress(null);
       }
       const created = await api.uploadDocument(fileInput, {
         title: String(form.get("title") ?? ""),
@@ -103,15 +111,21 @@ export function DocumentsView() {
       setUploadError(friendlyError(reason, "Không tải được tài liệu. Vui lòng thử lại."));
     } finally {
       setUploadBusy(false);
+      setUploadProgress(null);
     }
   }
 
   async function archiveCurrent() {
     if (!detail) return;
+    const docId = detail.document_id;
     try {
-      await api.archiveDocument(detail.document_id);
+      await api.archiveDocument(docId);
       setDetail(null);
-      await load();
+      // Cập nhật trạng thái ARCHIVED tức thì trên bảng không giật màn hình
+      setDocuments((list) =>
+        list.map((d) => (d.document_id === docId ? { ...d, status: "ARCHIVED" } : d))
+      );
+      void load(true);
     } catch (reason) {
       setError(friendlyError(reason, "Không thể lưu trữ tài liệu."));
     }
@@ -153,23 +167,56 @@ export function DocumentsView() {
             <option value="DEPARTMENT">Phòng ban sở hữu</option>
           </select></label>
           <button className="primary-command" disabled={uploadBusy}>{uploadBusy ? <LoaderCircle className="spin" size={17} /> : <FileUp size={17} />} Tải lên kho</button>
+          {uploadProgress !== null && (
+            <div className="result-panel">
+              <div className="job-summary"><span>Đang tải lên máy chủ Cloud...</span><span>{uploadProgress}%</span></div>
+              <div className="progress-track"><div style={{ width: `${Math.min(100, Math.max(0, uploadProgress))}%` }} /></div>
+            </div>
+          )}
           {uploadError && <div className="inline-error" role="alert"><CircleAlert size={15} /> {uploadError}</div>}
-          {uploadJob && <div className="result-panel">
-            <div className="job-summary"><span>{uploadJob.file_name}</span><span className={`status-pill ${uploadJob.state === "COMPLETED" ? "success" : uploadJob.state === "FAILED" ? "danger" : "warning"}`}>{jobStateLabel(uploadJob.state)}</span></div>
-            <div className="progress-track"><div style={{ width: `${Math.min(100, Math.max(0, uploadJob.progress_percent))}%` }} /></div>
-            <div className="job-summary"><span>{jobStageLabel(uploadJob.stage)}</span><span>{uploadJob.progress_percent}%</span></div>
-            {uploadJob.state === "COMPLETED" && <p className="form-note">Đã ghi nhận {("chunk_count" in uploadJob ? uploadJob.chunk_count : 0) || 0} đoạn nội dung. Có thể hỏi ngay trên tài liệu này.</p>}
-            {uploadJob.state === "FAILED" && <div className="inline-error" role="alert"><CircleAlert size={15} /> Xử lý thất bại{uploadJob.error ? `: ${String(uploadJob.error)}` : "."} Hãy kiểm tra tệp và tải lại.</div>}
-          </div>}
+          {uploadJob && (
+            <div className="result-panel submission-progress-card">
+              <div className="result-header-row">
+                <span className={`status-pill ${uploadJob.state === "COMPLETED" ? "success" : uploadJob.state === "FAILED" ? "danger" : "warning"}`}>
+                  {jobStateLabel(uploadJob.state)}
+                </span>
+                <span className="result-percent">{uploadJob.progress_percent}%</span>
+              </div>
+              <div className="result-file-title" title={uploadJob.file_name}>
+                {uploadJob.file_name}
+              </div>
+              <div className="progress-track">
+                <div style={{ width: `${Math.min(100, Math.max(0, uploadJob.progress_percent))}%` }} />
+              </div>
+              <div className="result-stage-row">
+                <span>{jobStageLabel(uploadJob.stage)}</span>
+              </div>
+              {uploadJob.state === "COMPLETED" && (
+                <p className="form-note">
+                  Đã ghi nhận {("chunk_count" in uploadJob ? uploadJob.chunk_count : 0) || 0} đoạn nội dung. Có thể hỏi ngay trên tài liệu này.
+                </p>
+              )}
+              {uploadJob.state === "FAILED" && (
+                <div className="inline-error" role="alert">
+                  <CircleAlert size={15} /> Xử lý thất bại{uploadJob.error ? `: ${String(uploadJob.error)}` : "."} Hãy kiểm tra tệp và tải lại.
+                </div>
+              )}
+            </div>
+          )}
         </form>
       </section>
     </div>
     {error && <div className="stream-error">{error}</div>}
-    {detail && <div className="modal-layer" onMouseDown={() => setDetail(null)}><section className="detail-modal" onMouseDown={(event) => event.stopPropagation()}>
-      <header><div><p className="eyebrow">CHI TIẾT TÀI LIỆU</p><h3>{detail.title}</h3></div><button className="icon-command" onClick={() => setDetail(null)}><X size={18} /></button></header>
-      <dl><div><dt>Tệp nguồn</dt><dd>{detail.source_file}</dd></div><div><dt>Danh mục</dt><dd>{detail.category ?? "—"}</dd></div><div><dt>Xử lý</dt><dd>{jobStateLabel(detail.ingestion.state)} · {detail.ingestion.chunk_count} đoạn</dd></div><div><dt>Chỉ mục</dt><dd>{detail.index.indexed ? detail.index.index_version : "Chưa đánh chỉ mục"}</dd></div><div><dt>Checksum</dt><dd><code>{detail.checksum}</code></dd></div></dl>
-      <button className="danger-command" disabled={detail.status === "ARCHIVED"} onClick={() => void archiveCurrent()}><Archive size={16} /> Lưu trữ tài liệu</button>
-    </section></div>}
+    {mounted && detail && createPortal(
+      <div className="modal-layer" onMouseDown={() => setDetail(null)}>
+        <section className="detail-modal" onMouseDown={(event) => event.stopPropagation()}>
+          <header><div><p className="eyebrow">CHI TIẾT TÀI LIỆU</p><h3>{detail.title}</h3></div><button className="icon-command" onClick={() => setDetail(null)}><X size={18} /></button></header>
+          <dl><div><dt>Tệp nguồn</dt><dd>{detail.source_file}</dd></div><div><dt>Phiên bản</dt><dd>{detail.version ?? "—"}</dd></div><div><dt>Danh mục</dt><dd>{detail.category ?? "—"}</dd></div><div><dt>Xử lý</dt><dd>{jobStateLabel(detail.ingestion.state)} · {detail.ingestion.chunk_count} đoạn</dd></div><div><dt>Chỉ mục</dt><dd>{detail.index.indexed ? "Đã đánh chỉ mục" : "Chưa đánh chỉ mục"}</dd></div><div><dt>Checksum</dt><dd><code>{detail.checksum}</code></dd></div></dl>
+          <button className="danger-command" disabled={detail.status === "ARCHIVED"} onClick={() => void archiveCurrent()}><Archive size={16} /> Lưu trữ tài liệu</button>
+        </section>
+      </div>,
+      document.body
+    )}
   </div>;
 }
 

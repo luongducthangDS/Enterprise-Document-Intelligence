@@ -20,6 +20,7 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import tempfile
 from urllib.parse import urlparse
 
@@ -35,7 +36,9 @@ from src.ingestion.extractors.documents import (
 )
 from src.ingestion.indexer import (
     collection_name_for_chunks,
+    collection_name_for_department,
     delete_by_source_stem,
+    disable_retrieval_by_source_stem,
     get_chroma_client,
     get_collection,
     upsert_chunks,
@@ -50,7 +53,7 @@ logger = logging.getLogger(__name__)
 # Cùng hạn mức với Backend (backend/app/services/document_service.py) — agent tự
 # chặn lần nữa vì nó là tiến trình thật sự phải nuốt file.
 MAX_FILE_BYTES = 25 * 1024 * 1024
-ALLOWED_CONTENT_URL_HOSTS = {"res.cloudinary.com"}
+ALLOWED_CONTENT_URL_HOSTS = {"res.cloudinary.com", "cloudinary.com"}
 
 
 class IngestionError(RuntimeError):
@@ -115,7 +118,10 @@ async def _load_content(request: IngestionJobRequest) -> bytes:
     """Load from object storage when available; retain base64 compatibility."""
     if request.content_url:
         parsed = urlparse(request.content_url)
-        if parsed.scheme != "https" or parsed.hostname not in ALLOWED_CONTENT_URL_HOSTS:
+        is_allowed_host = parsed.hostname in ALLOWED_CONTENT_URL_HOSTS or (
+            parsed.hostname is not None and parsed.hostname.endswith(".cloudinary.com")
+        )
+        if parsed.scheme != "https" or not is_allowed_host:
             raise IngestionError("content_url chỉ chấp nhận HTTPS URL từ Cloudinary.")
         try:
             async with httpx.AsyncClient(timeout=60.0, follow_redirects=False) as client:
@@ -197,6 +203,123 @@ async def run_ingestion(
     tenant = validate_tenant_id(request.tenant)
 
     print(f"[DOC-INGESTION] Starting Ingestion for file: {source_file}, Tenant: {tenant}, Dept: {request.department}")
+
+    # ⚡ FAST PATH: Tái sử dụng vector và chunk đã phân tích ở Staging khi duyệt xuất bản
+    if request.staging_source_stem:
+        staging_stem = request.staging_source_stem
+        target_collection_name = collection_name_for_department(request.department, settings, tenant)
+        staging_collection_name = f"{target_collection_name}_staging"
+        print(f"[DOC-INGESTION] Checking fast staging promote from {staging_collection_name} for stem={staging_stem}")
+        try:
+            client = get_chroma_client(settings)
+            staging_collection = get_collection(client, staging_collection_name)
+            staging_data = staging_collection.get(
+                where={"$and": [{"source_stem": staging_stem}, {"tenant": tenant}]},
+                include=["embeddings", "metadatas", "documents"],
+            )
+
+            if staging_data and staging_data.get("ids") and len(staging_data["ids"]) > 0:
+                print(f"[DOC-INGESTION] ⚡ Fast promoting {len(staging_data['ids'])} pre-computed vectors from staging to production!")
+                progress("EXTRACTING", 25)
+
+                submission_id = staging_stem.split("__")[0] if "__" in staging_stem else ""
+                staging_dir = os.path.join(settings.data_dir, "staging", tenant, submission_id)
+                staging_md = os.path.join(staging_dir, f"{stem}.md")
+                staging_raw = os.path.join(staging_dir, source_file)
+
+                raw_path = os.path.join(upload_dir(settings), tenant, source_file)
+                os.makedirs(os.path.dirname(raw_path), exist_ok=True)
+                if os.path.exists(staging_raw):
+                    shutil.copy2(staging_raw, raw_path)
+                elif request.content_base64 or request.content_url:
+                    try:
+                        content = await _load_content(request)
+                        with open(raw_path, "wb") as f:
+                            f.write(content)
+                    except Exception:
+                        pass
+
+                processed_path = os.path.join(processed_dir(settings), tenant, f"{stem}.md")
+                os.makedirs(os.path.dirname(processed_path), exist_ok=True)
+                if os.path.exists(staging_md):
+                    shutil.copy2(staging_md, processed_path)
+
+                progress("CHUNKING", 50)
+                new_ids = []
+                new_metadatas = []
+                new_chunks_dump = []
+
+                for idx, meta in enumerate(staging_data["metadatas"]):
+                    m = dict(meta)
+                    m["publication_status"] = "active"
+                    m["artifact_state"] = "frozen"
+                    m["retrieval_enabled"] = True
+                    m["authorization_status"] = "APPROVED"
+                    m["source_file"] = source_file
+                    m["source_stem"] = stem
+                    m["category"] = request.category or m.get("category", "GENERAL")
+                    m["department"] = request.department or m.get("department", "GENERAL")
+                    m["access_scope"] = request.access_scope or m.get("access_scope", "RESTRICTED")
+                    m["authorized_role"] = request.authorized_role or m.get("authorized_role", "")
+                    if request.version:
+                        m["version"] = request.version
+
+                    chunk_id = f"{tenant}:{stem}::{idx:04d}"
+                    m["chunk_id"] = chunk_id
+                    new_ids.append(chunk_id)
+                    new_metadatas.append(m)
+
+                    doc_text = staging_data["documents"][idx] if staging_data.get("documents") else ""
+                    new_chunks_dump.append({
+                        "text": doc_text,
+                        "metadata": m,
+                        "embedding_text": doc_text,
+                    })
+
+                chunks_path = os.path.join(chunks_dir(settings), tenant, f"{stem}.json")
+                _atomic_write_json(chunks_path, new_chunks_dump)
+
+                progress("EMBEDDING", 75)
+                prod_collection = get_collection(client, target_collection_name)
+                delete_by_source_stem(prod_collection, stem, tenant)
+
+                # Vô hiệu hoá chunk cũ nếu tài liệu đổi tên file giữa các phiên bản
+                # (giữ lại lịch sử vector, AI sẽ không dùng vì retrieval_enabled=False)
+                prev_stem = (request.previous_source_stem or "").strip()
+                if prev_stem and prev_stem != stem:
+                    print(f"[DOC-INGESTION] 📦 Archiving old chunks from renamed source: {prev_stem} → retrieval_enabled=False")
+                    disabled_count = disable_retrieval_by_source_stem(prod_collection, prev_stem, tenant)
+                    print(f"[DOC-INGESTION] Archived {disabled_count} old chunks from {prev_stem}")
+
+                progress("INDEXING", 90)
+                prod_collection.upsert(
+                    ids=new_ids,
+                    embeddings=staging_data["embeddings"],
+                    metadatas=new_metadatas,
+                    documents=staging_data.get("documents"),
+                )
+
+                delete_by_source_stem(staging_collection, staging_stem, tenant)
+                print(f"[DOC-INGESTION] 🟢 Fast promote completed: {len(new_ids)} vectors moved to {target_collection_name}")
+
+                return {
+                    "document_id": request.document_id,
+                    "source_file": source_file,
+                    "source_stem": stem,
+                    "extract_method": "STAGING_PROMOTED",
+                    "char_count": sum(len(d or "") for d in (staging_data.get("documents") or [])),
+                    "chunk_count": len(new_ids),
+                    "vector_count": len(new_ids),
+                    "chunks_path": chunks_path.replace("\\", "/"),
+                    "processed_path": processed_path.replace("\\", "/"),
+                    "collection": target_collection_name,
+                    "embedding_model": settings.embedding_model,
+                    "index_version": settings.index_version,
+                }
+        except Exception as exc:
+            print(f"[DOC-INGESTION-WARN] Fast promote encountered exception, falling back: {exc}")
+            logger.warning("Fast promote failed for %s, falling back: %s", staging_stem, exc)
+
     progress("EXTRACTING", 10)
     content = await _load_content(request)
     raw_path = os.path.join(upload_dir(settings), tenant, source_file)
@@ -238,6 +361,7 @@ async def run_ingestion(
         artifact_state=request.artifact_state,
         retrieval_enabled=request.retrieval_enabled,
         expiry_date=request.expiry_date,
+        version=request.version or None,
         settings=settings,
     )
     if not chunks:

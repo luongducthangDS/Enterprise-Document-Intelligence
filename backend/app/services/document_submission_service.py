@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import io
@@ -5,20 +6,25 @@ import os
 import uuid
 from datetime import UTC, datetime
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi import UploadFile
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import defer
 
 from app.core.config import get_settings
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.domain.models.audit import AuditLogDB
 from app.domain.models.documents import DocumentDB, DocumentSubmissionDB
+from app.schemas.document_submissions import DocumentSubmissionFromUrlRequest
+from app.schemas.documents import DocumentFromUrlRequest
 from app.services.access_control import DEPARTMENT_MANAGER, SUPER_ADMIN, normalized_role, same_department
 from app.services.document_service import (
     ALLOWED_EXTENSIONS,
     MAX_FILE_SIZE,
     DocumentService,
+    _guess_content_type,
     _resolve_document_department,
 )
 from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
@@ -26,6 +32,7 @@ from app.services.worker_job_client import WorkerJobClient, WorkerJobClientError
 REVIEWABLE_STATES = {"PENDING_REVIEW"}
 ANALYSIS_ACTIVE_STATES = {"ANALYZING"}
 PUBLICATION_ACTIVE_STATES = {"APPROVING", "PUBLISHING"}
+DELETABLE_STATES = {"ANALYSIS_FAILED", "PUBLISH_FAILED", "REJECTED", "FAILED"}
 TERMINAL_STATES = {
     "PENDING_REVIEW",
     "PUBLISHED",
@@ -237,24 +244,145 @@ class DocumentSubmissionService:
         }
 
     @classmethod
+    async def create_submission_from_url(
+        cls,
+        db: AsyncSession,
+        user: dict[str, Any],
+        payload: DocumentSubmissionFromUrlRequest,
+    ) -> dict[str, Any]:
+        actor_id = cls._actor_id(user)
+        filename = os.path.basename((payload.source_file or "document.pdf").replace("\\", "/")).strip()
+        if not filename or filename in (".", ".."):
+            raise AppException(status_code=422, code="INVALID_FILENAME", message="Tên file không hợp lệ.")
+        extension = os.path.splitext(filename)[1].lower()
+        if extension not in ALLOWED_EXTENSIONS:
+            raise AppException(415, "UNSUPPORTED_FILE_TYPE", "Chỉ chấp nhận PDF, DOC, DOCX, MD, PNG, JPG hoặc WEBP.")
+
+        public_url = payload.public_url.strip()
+        parsed = urlparse(public_url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise AppException(
+                status_code=422,
+                code="INVALID_STORAGE_URL",
+                message="public_url phải là URL HTTPS hợp lệ.",
+            )
+
+        normalized_category = payload.category.strip() if payload.category and payload.category.strip() else "GENERAL"
+        normalized_department = _resolve_document_department(payload.department, normalized_category).upper()
+        normalized_scope = (payload.access_scope or "RESTRICTED").strip().upper()
+        if normalized_scope not in {"COMPANY_WIDE", "DEPARTMENT", "ROLE", "RESTRICTED"}:
+            raise AppException(422, "INVALID_ACCESS_SCOPE", "Phạm vi truy cập không hợp lệ.")
+        role_value = payload.authorized_role.strip().upper() if payload.authorized_role and payload.authorized_role.strip() else None
+        if normalized_scope == "ROLE" and not role_value:
+            raise AppException(422, "AUTHORIZED_ROLE_REQUIRED", "Phạm vi ROLE yêu cầu vai trò được phép.")
+        if normalized_scope != "ROLE":
+            role_value = None
+
+        role = normalized_role(user)
+        if role == DEPARTMENT_MANAGER:
+            if not same_department(user, normalized_department):
+                raise ForbiddenError("Bạn chỉ được tải tài liệu của phòng ban mình.", "DEPARTMENT_SCOPE_DENIED")
+            if normalized_scope not in {"DEPARTMENT", "RESTRICTED"}:
+                raise ForbiddenError("Quản lý phòng ban không được mở tài liệu ra toàn công ty.", "SCOPE_MANAGEMENT_DENIED")
+        elif role != SUPER_ADMIN:
+            raise ForbiddenError("Bạn không có quyền tải tài liệu.", "FORBIDDEN")
+
+        content_type = _guess_content_type(filename)
+
+        submission = DocumentSubmissionDB(
+            tenant=get_settings().active_tenant,
+            source_file=filename,
+            content_type=content_type,
+            file_content=None,
+            title=payload.title.strip() if payload.title and payload.title.strip() else filename,
+            category=normalized_category,
+            department=normalized_department,
+            version=payload.version.strip() if payload.version and payload.version.strip() else None,
+            effective_date=payload.effective_date or None,
+            confidentiality=payload.confidentiality or "INTERNAL",
+            access_scope=normalized_scope,
+            authorized_role=role_value,
+            public_url=public_url,
+            submitted_by=actor_id,
+            status="ANALYZING",
+            stage="UPLOADED",
+        )
+        db.add(submission)
+        await db.commit()
+        await db.refresh(submission)
+
+        if cls.worker_dispatch_enabled:
+            try:
+                await cls.worker_client.submit_document_analysis(
+                    {
+                        "job_id": str(submission.id),
+                        "submission_id": str(submission.id),
+                        "document_id": None,
+                        "source_file": filename,
+                        "content_base64": "",
+                        "content_url": submission.public_url or "",
+                        "content_sha256": "",
+                        "category": submission.category,
+                        "department": submission.department,
+                        "tenant": submission.tenant,
+                        "access_scope": submission.access_scope,
+                        "authorized_role": submission.authorized_role or "",
+                        "owner_user_id": str(actor_id),
+                        "authorization_source": "RUNTIME_UPLOAD",
+                        "publication_status": "draft",
+                        "artifact_state": "draft",
+                        "retrieval_enabled": False,
+                        "expiry_date": "9999-12-31",
+                        "source_type": "official_policy",
+                        "is_official_policy": True,
+                        "caveat": "",
+                        "authority": "tenant_official_policy",
+                        "provenance": "customer_provided",
+                    }
+                )
+            except WorkerJobClientError:
+                submission.status = "ANALYSIS_FAILED"
+                submission.stage = "FAILED"
+                submission.error = "Không thể khởi động quá trình phân tích tài liệu."
+                await db.commit()
+
+        return {
+            "submission_id": str(submission.id),
+            "analysis_job_id": str(submission.id),
+            "status": submission.status,
+            "stage": submission.stage,
+            "poll_after_ms": 1000,
+        }
+
+    @classmethod
     async def list_submissions(
         cls,
         db: AsyncSession,
         user: dict[str, Any],
         status: str | None = None,
     ) -> list[dict[str, Any]]:
-        stmt = select(DocumentSubmissionDB).where(
-            DocumentSubmissionDB.tenant == get_settings().active_tenant
-        ).order_by(desc(DocumentSubmissionDB.created_at))
+        stmt = (
+            select(DocumentSubmissionDB)
+            .options(
+                defer(DocumentSubmissionDB.file_content),
+                defer(DocumentSubmissionDB.extracted_text),
+                defer(DocumentSubmissionDB.chunks),
+            )
+            .where(DocumentSubmissionDB.tenant == get_settings().active_tenant)
+            .order_by(desc(DocumentSubmissionDB.created_at))
+        )
         if normalized_role(user) == DEPARTMENT_MANAGER:
             stmt = stmt.where(DocumentSubmissionDB.department == str(user.get("department", "")).upper().strip())
         if status:
             stmt = stmt.where(DocumentSubmissionDB.status == status.upper())
         result = await db.execute(stmt)
         submissions = list(result.scalars().all())
-        for submission in submissions:
-            if submission.status in ANALYSIS_ACTIVE_STATES | PUBLICATION_ACTIVE_STATES:
-                await cls._sync(db, user, submission)
+
+        # Parallel sync for all active submissions
+        active = [s for s in submissions if s.status in ANALYSIS_ACTIVE_STATES | PUBLICATION_ACTIVE_STATES]
+        if active:
+            await asyncio.gather(*[cls._sync(db, user, s) for s in active])
+
         return [cls._summary(item) for item in submissions]
 
     @classmethod
@@ -283,24 +411,74 @@ class DocumentSubmissionService:
         await db.commit()
 
         print(f"[SUBMISSION-APPROVE] Approving submission {submission.id} ({submission.title}) by user {reviewer_id}")
+
+        # Tìm tài liệu cũ cùng tiêu đề/phòng ban đang active để xoá chunk cũ trong Chroma nếu đổi tên file
+        # Ví dụ: v1.0 = DNTT-08-015, v4.0 đổi thành DNTT-08-22 → chunk cũ bị orphaned
+        prev_source_stem = ""
         try:
-            upload = UploadFile(filename=submission.source_file, file=io.BytesIO(submission.file_content))
-            published = await DocumentService.upload_document(
-                db,
-                user,
-                upload,
-                title=submission.title,
-                category=submission.category,
-                department=submission.department,
-                version=submission.version,
-                effective_date=submission.effective_date,
-                confidentiality=submission.confidentiality,
-                status="ACTIVE",
-                staging_submission_id=str(submission.id),
-                access_scope=submission.access_scope,
-                authorized_role=submission.authorized_role,
-                public_url=submission.public_url,
+            stmt_prev = (
+                select(DocumentDB)
+                .where(
+                    DocumentDB.tenant == submission.tenant,
+                    DocumentDB.department == (submission.department or "").upper(),
+                    DocumentDB.title == submission.title,
+                    DocumentDB.source_file != submission.source_file,
+                    DocumentDB.status == "ACTIVE",
+                )
+                .order_by(desc(DocumentDB.updated_at))
+                .limit(1)
             )
+            res_prev = await db.execute(stmt_prev)
+            prev_doc = res_prev.scalars().first()
+            if prev_doc:
+                prev_source_stem = os.path.splitext(prev_doc.source_file)[0]
+                print(f"[SUBMISSION-APPROVE] Found older active doc with different name: {prev_doc.source_file} → stem={prev_source_stem}")
+        except Exception as _e:
+            print(f"[SUBMISSION-APPROVE-WARN] Could not look up previous document stem: {_e}")
+
+        try:
+            if submission.file_content and len(submission.file_content) > 0:
+                upload = UploadFile(filename=submission.source_file, file=io.BytesIO(submission.file_content))
+                published = await DocumentService.upload_document(
+                    db,
+                    user,
+                    upload,
+                    title=submission.title,
+                    category=submission.category,
+                    department=submission.department,
+                    version=submission.version,
+                    effective_date=submission.effective_date,
+                    confidentiality=submission.confidentiality,
+                    status="ACTIVE",
+                    staging_submission_id=str(submission.id),
+                    access_scope=submission.access_scope,
+                    authorized_role=submission.authorized_role,
+                    public_url=submission.public_url,
+                    previous_source_stem=prev_source_stem,
+                )
+            elif submission.public_url:
+                url_req = DocumentFromUrlRequest(
+                    source_file=submission.source_file,
+                    public_url=submission.public_url,
+                    title=submission.title,
+                    category=submission.category,
+                    department=submission.department,
+                    version=submission.version,
+                    effective_date=submission.effective_date,
+                    confidentiality=submission.confidentiality,
+                    status="ACTIVE",
+                    access_scope=submission.access_scope,
+                    authorized_role=submission.authorized_role,
+                )
+                published = await DocumentService.upload_document_from_url(
+                    db,
+                    user,
+                    url_req,
+                    staging_submission_id=str(submission.id),
+                    previous_source_stem=prev_source_stem,
+                )
+            else:
+                raise AppException(422, "INVALID_SUBMISSION_DATA", "Tài liệu không có nội dung hoặc URL hợp lệ để xuất bản.")
             print(f"[SUBMISSION-APPROVE] Published document_id={published['document_id']}, ingestion_job_id={published['ingestion_job_id']}")
         except Exception as exc:
             import traceback
@@ -312,11 +490,22 @@ class DocumentSubmissionService:
             await db.commit()
             raise
 
+
         submission.published_document_id = uuid.UUID(published["document_id"])
         submission.publication_job_id = uuid.UUID(published["ingestion_job_id"])
         submission.status = "PUBLISHING"
         submission.stage = "PUBLISHING"
         submission.progress_percent = 0
+
+        # Nếu tài liệu mới thay thế file cũ (đổi tên), archive tài liệu cũ trong DB
+        if prev_doc:
+            try:
+                prev_doc.status = "ARCHIVED"
+                prev_doc.caveat = "SUPERSEDED_BY_NEW_VERSION"
+                print(f"[SUBMISSION-APPROVE] Archived old document record: {prev_doc.source_file} (id={prev_doc.id})")
+            except Exception as _e:
+                print(f"[SUBMISSION-APPROVE-WARN] Could not archive old document record: {_e}")
+
         db.add(
             AuditLogDB(
                 tenant=submission.tenant,
@@ -381,6 +570,63 @@ class DocumentSubmissionService:
         )
         await db.commit()
         return cls._detail(submission)
+
+    @classmethod
+    async def delete_submission(
+        cls, db: AsyncSession, user: dict[str, Any], submission_id: str
+    ) -> dict[str, Any]:
+        submission = await cls._load(db, user, submission_id)
+        actor_id = cls._actor_id(user)
+        role = normalized_role(user)
+
+        # Check delete permissions: SUPER_ADMIN, DEPARTMENT_MANAGER of same dept, or original submitter
+        can_delete = (
+            role == SUPER_ADMIN
+            or (role == DEPARTMENT_MANAGER and same_department(user, submission.department))
+            or submission.submitted_by == actor_id
+        )
+        if not can_delete:
+            raise ForbiddenError("Bạn không có quyền xóa tài liệu này.", "SUBMISSION_DELETE_DENIED")
+
+        # Check deletable status: only failed or rejected submissions can be deleted
+        if submission.status not in DELETABLE_STATES:
+            raise ConflictError(
+                "SUBMISSION_CANNOT_BE_DELETED",
+                f"Chỉ được xóa các tài liệu có trạng thái Phân tích thất bại, Xuất bản thất bại hoặc Đã từ chối (Trạng thái hiện tại: {submission.status}).",
+            )
+
+        # Clean up Cloudinary asset if public_url is present
+        if submission.public_url:
+            try:
+                from app.services.cloudinary_service import delete_cloudinary_asset
+                await delete_cloudinary_asset(submission.public_url)
+            except Exception as exc:
+                print(f"[SUBMISSION-DELETE-WARN] Không thể xóa file trên Cloudinary ({submission.public_url}): {exc}")
+
+        deleted_id = str(submission.id)
+        deleted_title = submission.title
+        deleted_status = submission.status
+        tenant = submission.tenant
+
+        await db.delete(submission)
+        db.add(
+            AuditLogDB(
+                tenant=tenant,
+                actor_id=actor_id,
+                action="DOCUMENT_SUBMISSION_DELETED",
+                resource_type="document_submission",
+                resource_id=deleted_id,
+                before_state={"status": deleted_status, "title": deleted_title},
+                after_state=None,
+            )
+        )
+        await db.commit()
+        return {
+            "submission_id": deleted_id,
+            "title": deleted_title,
+            "deleted": True,
+            "message": "Đã xóa tài liệu và tệp lưu trữ thành công.",
+        }
 
     @staticmethod
     def _summary(item: DocumentSubmissionDB) -> dict[str, Any]:

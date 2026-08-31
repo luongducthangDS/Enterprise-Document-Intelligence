@@ -6,7 +6,8 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import func, or_, select, update
+import os
+from sqlalchemy import case, desc, func, or_, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -319,30 +320,58 @@ class ChatService:
                         )
                 mapped = AgentAnswerAdapter.map(agent_answer, chat_request_id)
 
-                # Đính kèm public_url và document_id từ DocumentDB vào từng citation
+                # Đính kèm public_url, document_id, version và effective_date từ DocumentDB vào từng citation
                 if mapped.citations:
                     titles = [c["title"] for c in mapped.citations if c.get("title")]
                     source_files = [c["source_file"] for c in mapped.citations if c.get("source_file")]
-                    if titles or source_files:
+                    stems = [os.path.splitext(sf)[0] for sf in source_files if sf]
+
+                    conditions = []
+                    if titles:
+                        conditions.append(DocumentDB.title.in_(titles))
+                    if source_files:
+                        conditions.append(DocumentDB.source_file.in_(source_files))
+                    for st in stems:
+                        conditions.append(DocumentDB.source_file.like(f"{st}%"))
+                        conditions.append(DocumentDB.title.like(f"{st}%"))
+
+                    if conditions:
                         doc_res = await db.execute(
-                            select(DocumentDB).where(
-                                or_(DocumentDB.title.in_(titles), DocumentDB.source_file.in_(source_files))
+                            select(DocumentDB)
+                            .where(
+                                DocumentDB.tenant == get_settings().active_tenant,
+                                or_(*conditions),
+                            )
+                            .order_by(
+                                case((DocumentDB.status == "ACTIVE", 0), else_=1),
+                                desc(DocumentDB.updated_at),
                             )
                         )
                         docs = doc_res.scalars().all()
                         doc_map: dict[str, DocumentDB] = {}
                         for d in docs:
-                            if d.source_file:
+                            if d.source_file and d.source_file.casefold() not in doc_map:
                                 doc_map[d.source_file.casefold()] = d
-                            if d.title:
+                                doc_map[os.path.splitext(d.source_file)[0].casefold()] = d
+                            if d.title and d.title.casefold() not in doc_map:
                                 doc_map[d.title.casefold()] = d
+                                doc_map[os.path.splitext(d.title)[0].casefold()] = d
                         for c in mapped.citations:
                             sf = (c.get("source_file") or "").casefold()
+                            sf_stem = os.path.splitext(sf)[0] if sf else ""
                             tt = (c.get("title") or "").casefold()
-                            matched_doc = doc_map.get(sf) or doc_map.get(tt)
+                            tt_stem = os.path.splitext(tt)[0] if tt else ""
+                            matched_doc = (
+                                doc_map.get(sf)
+                                or doc_map.get(sf_stem)
+                                or doc_map.get(tt)
+                                or doc_map.get(tt_stem)
+                            )
                             if matched_doc:
                                 c["public_url"] = matched_doc.public_url
                                 c["document_id"] = str(matched_doc.id)
+                                c["version"] = matched_doc.version or c.get("version")
+                                c["effective_date"] = matched_doc.effective_date or c.get("effective_date")
 
                 assistant_msg_id = uuid.uuid4()
                 assistant_msg = MessageDB(
@@ -613,26 +642,54 @@ class ChatService:
                 if mapped.citations:
                     titles = [c["title"] for c in mapped.citations if c.get("title")]
                     source_files = [c["source_file"] for c in mapped.citations if c.get("source_file")]
-                    if titles or source_files:
+                    stems = [os.path.splitext(sf)[0] for sf in source_files if sf]
+
+                    conditions = []
+                    if titles:
+                        conditions.append(DocumentDB.title.in_(titles))
+                    if source_files:
+                        conditions.append(DocumentDB.source_file.in_(source_files))
+                    for st in stems:
+                        conditions.append(DocumentDB.source_file.like(f"{st}%"))
+                        conditions.append(DocumentDB.title.like(f"{st}%"))
+
+                    if conditions:
                         doc_res = await db.execute(
-                            select(DocumentDB).where(
-                                or_(DocumentDB.title.in_(titles), DocumentDB.source_file.in_(source_files))
+                            select(DocumentDB)
+                            .where(
+                                DocumentDB.tenant == get_settings().active_tenant,
+                                or_(*conditions),
+                            )
+                            .order_by(
+                                case((DocumentDB.status == "ACTIVE", 0), else_=1),
+                                desc(DocumentDB.updated_at),
                             )
                         )
                         docs = doc_res.scalars().all()
                         doc_map: dict[str, DocumentDB] = {}
                         for d in docs:
-                            if d.source_file:
+                            if d.source_file and d.source_file.casefold() not in doc_map:
                                 doc_map[d.source_file.casefold()] = d
-                            if d.title:
+                                doc_map[os.path.splitext(d.source_file)[0].casefold()] = d
+                            if d.title and d.title.casefold() not in doc_map:
                                 doc_map[d.title.casefold()] = d
+                                doc_map[os.path.splitext(d.title)[0].casefold()] = d
                         for c in mapped.citations:
                             sf = (c.get("source_file") or "").casefold()
+                            sf_stem = os.path.splitext(sf)[0] if sf else ""
                             tt = (c.get("title") or "").casefold()
-                            matched_doc = doc_map.get(sf) or doc_map.get(tt)
+                            tt_stem = os.path.splitext(tt)[0] if tt else ""
+                            matched_doc = (
+                                doc_map.get(sf)
+                                or doc_map.get(sf_stem)
+                                or doc_map.get(tt)
+                                or doc_map.get(tt_stem)
+                            )
                             if matched_doc:
                                 c["public_url"] = matched_doc.public_url
                                 c["document_id"] = str(matched_doc.id)
+                                c["version"] = matched_doc.version or c.get("version")
+                                c["effective_date"] = matched_doc.effective_date or c.get("effective_date")
 
                 assistant_msg_id = uuid.uuid4()
                 assistant_msg = MessageDB(
