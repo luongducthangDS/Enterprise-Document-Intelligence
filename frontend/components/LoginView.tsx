@@ -1,12 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
+import { BookOpen, LoaderCircle, LockKeyhole, ShieldCheck, User, Zap } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import { DEPARTMENTS } from "@/lib/labels";
-import type { User } from "@/lib/types";
+import type { User as UserType } from "@/lib/types";
 
-export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
+export function LoginView({ onAuthenticated }: { onAuthenticated: (user: UserType) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +34,24 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
       if (reason instanceof ApiClientError && reason.status === 401) setError("Email hoặc mật khẩu không đúng.");
       else if (reason instanceof ApiClientError && reason.status === 409) setError("Email này đã được đăng ký. Bạn có thể đăng nhập ngay.");
       else setError(reason instanceof ApiClientError ? reason.message : "Không thể xác thực tài khoản.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function quickLogin(testEmail: string, testPass: string) {
+    setEmail(testEmail);
+    setPassword(testPass);
+    if (mode !== "login") setMode("login");
+    setLoading(true);
+    setError("");
+    setNotice("");
+    try {
+      await api.login(testEmail, testPass);
+      onAuthenticated(await api.me());
+    } catch (reason) {
+      if (reason instanceof ApiClientError && reason.status === 401) setError("Email hoặc mật khẩu không đúng.");
+      else setError(reason instanceof ApiClientError ? reason.message : "Không thể xác thực tài khoản test.");
     } finally {
       setLoading(false);
     }
@@ -87,6 +105,77 @@ export function LoginView({ onAuthenticated }: { onAuthenticated: (user: User) =
               {loading ? "Đang xử lý" : mode === "login" ? "Đăng nhập" : "Đăng ký"}
             </button>
             <p className="form-note">{mode === "login" ? "Dùng email công ty đã đăng ký để truy cập kho tri thức nội bộ." : "Tài khoản mới mặc định là Nhân viên của phòng ban đã chọn. Quyền quản lý do Quản trị hệ thống cấp."}</p>
+
+            {/* Quick test login buttons */}
+            <div className="quick-test-section" style={{
+              marginTop: "12px",
+              padding: "12px 14px",
+              background: "rgba(13, 122, 95, 0.06)",
+              border: "1px dashed rgba(13, 122, 95, 0.3)",
+              borderRadius: "14px",
+              display: "grid",
+              gap: "8px",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: 700, color: "var(--emerald)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                <Zap size={14} />
+                <span>Đăng nhập nhanh </span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => quickLogin("phuAD@company.com", "phuadmin")}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(13, 122, 95, 0.2)",
+                    background: "rgba(255, 255, 255, 0.85)",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "2px",
+                    textAlign: "left",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "5px", fontWeight: 700, fontSize: "12px", color: "var(--ink)" }}>
+                    <ShieldCheck size={13} color="#0284c7" />
+                    <span>Admin</span>
+                  </div>
+                  <small style={{ fontSize: "10px", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%" }}>
+                    phuAD@company.com
+                  </small>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => quickLogin("phuNV@company.com", "abc123456")}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(13, 122, 95, 0.2)",
+                    background: "rgba(255, 255, 255, 0.85)",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "2px",
+                    textAlign: "left",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "5px", fontWeight: 700, fontSize: "12px", color: "var(--ink)" }}>
+                    <User size={13} color="var(--emerald)" />
+                    <span>Employee</span>
+                  </div>
+                  <small style={{ fontSize: "10px", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%" }}>
+                    phuNV@company.com
+                  </small>
+                </button>
+              </div>
+            </div>
           </form>
         </section>
       </section>
