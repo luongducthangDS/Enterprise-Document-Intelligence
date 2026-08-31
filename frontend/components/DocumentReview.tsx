@@ -264,7 +264,7 @@ export function DocumentReview({ user }: { user: User }) {
     setError("");
     setSuccessMessage("");
     try {
-      const current = await api.rejectDocumentSubmission(subId, reviewNote);
+      await api.rejectDocumentSubmission(subId, reviewNote);
       setSuccessMessage(`Đã từ chối tài liệu "${subTitle}".`);
       closeSubmissionDetail();
       setActiveSubmission(null);

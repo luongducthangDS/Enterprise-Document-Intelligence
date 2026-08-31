@@ -56,12 +56,15 @@ _RECRUITMENT_QUERY_PATTERN = re.compile(
 
 
 def _expand_retrieval_query(query: str) -> str:
-    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu.
+    """Bổ sung từ đồng nghĩa ổn định cho các cách nói lệch từ vựng tài liệu và biến thể thời gian.
 
     Expansion nhỏ này giúp dense và BM25 tìm đúng ngay lượt đầu mà không cần
     gọi LLM rewrite chỉ để thêm từ. Chỉ mở rộng các pattern có tín hiệu đủ rõ
     để không làm loãng embedding của câu hỏi HR khác.
     """
+    from src.retrieval.temporal import expand_temporal_query
+
+    query = expand_temporal_query(query)
     expansions: list[str] = []
     if _HYBRID_QUERY_PATTERN.search(query):
         expansions.append("WFH, làm việc từ xa, onsite, mô hình 3-2")

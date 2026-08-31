@@ -469,13 +469,6 @@ function DocxViewer({
 // -------------------------------------------------------------
 // PDF VIEWER COMPONENT (RETINA HD, RESIZE OBSERVER, SCROLLABLE VIEWPORT)
 // -------------------------------------------------------------
-interface PdfTextItem {
-  str?: string;
-  transform?: number[];
-  width?: number;
-  height?: number;
-}
-
 interface PdfRenderTask {
   promise: Promise<void>;
   cancel: () => void;
@@ -497,7 +490,15 @@ interface PdfPageProxy {
     viewport: PdfPageViewport;
     transform?: number[];
   }) => PdfRenderTask;
-  getTextContent: () => Promise<{ items: PdfTextItem[] }>;
+  getTextContent: () => Promise<unknown>;
+}
+
+interface PdfTextLayerConstructor {
+  new (options: {
+    textContentSource: unknown;
+    container: HTMLElement;
+    viewport: PdfPageViewport;
+  }): { render: () => Promise<void> };
 }
 
 interface PdfDocumentProxy {
@@ -541,12 +542,12 @@ function PdfViewer({
     let resizeTimer: NodeJS.Timeout | null = null;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = entry.contentRect.width;
+        const width = Math.round(entry.contentRect.width);
         if (width > 50) {
           if (resizeTimer) clearTimeout(resizeTimer);
           resizeTimer = setTimeout(() => {
-            setContainerWidth(width);
-          }, 100);
+            setContainerWidth((prev) => (Math.abs(prev - width) >= 4 ? width : prev));
+          }, 50);
         }
       }
     });
@@ -653,53 +654,79 @@ function PdfViewer({
         textLayer.innerHTML = "";
         textLayer.style.width = `${Math.floor(viewport.width)}px`;
         textLayer.style.height = `${Math.floor(viewport.height)}px`;
+        textLayer.style.setProperty("--scale-factor", `${viewport.scale}`);
 
+        const pdfjs = await import("pdfjs-dist");
         const textContent = await page.getTextContent();
+
+        // Sử dụng TextLayer chính thức của Mozilla PDF.js để đảm bảo độ chính xác sub-pixel 100%
+        const TextLayerClass = (pdfjs as unknown as { TextLayer: PdfTextLayerConstructor }).TextLayer;
+        const textLayerInstance = new TextLayerClass({
+          textContentSource: textContent,
+          container: textLayer,
+          viewport: viewport,
+        });
+        await textLayerInstance.render();
+
+        const normExcerpt = (excerpt || "")
+          .toLowerCase()
+          .replace(/[*_#>`~|]/g, " ")
+          .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'’“”]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+
         const searchPhrases = extractKeywords(excerpt);
+        const numbers = (excerpt || "").match(/\b\d+(?:[.,]\d+)*%?\b/g) || [];
+        const spans = textLayer.querySelectorAll<HTMLElement>("span");
 
-        textContent.items.forEach((item: PdfTextItem) => {
-          if (!item.str || !item.transform) return;
-          const itemText = item.str;
-          const normItem = itemText.toLowerCase().replace(/\s+/g, " ").trim();
+        let firstMatchedSpan: HTMLElement | null = null;
+
+        spans.forEach((span) => {
+          const spanText = (span.textContent || "")
+            .toLowerCase()
+            .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'’“”]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (!spanText || spanText.length < 2) return;
+
+          // Khớp cả câu/cụm từ dài, số liệu cụ thể (10.000.000, 50.000.000...) và thực thể nghiệp vụ
           const isMatch =
-            searchPhrases.length > 0 &&
-            normItem.length >= 6 &&
-            searchPhrases.some((p) => p.length >= 6 && (normItem.includes(p) || p.includes(normItem)));
+            (spanText.length >= 4 && normExcerpt.includes(spanText)) ||
+            numbers.some((num) => num.length >= 3 && spanText.includes(num.toLowerCase())) ||
+            searchPhrases.some((p) => {
+              const cleanP = p.toLowerCase().trim();
+              return cleanP.length >= 5 && (spanText.includes(cleanP) || (cleanP.length >= 7 && cleanP.includes(spanText)));
+            });
 
-          const [vx, vy] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
-          const fontHeight = Math.sqrt(item.transform[0] * item.transform[0] + item.transform[1] * item.transform[1]) * effectiveScale;
-
-          const span = document.createElement("span");
-          span.textContent = itemText;
-          span.className = isMatch ? "pdf-text-match" : "pdf-text-item";
-          span.style.left = `${Math.floor(vx)}px`;
-          span.style.top = `${Math.floor(vy - fontHeight)}px`;
-          span.style.fontSize = `${Math.max(fontHeight, 10)}px`;
-          span.style.position = "absolute";
-          span.style.lineHeight = "1";
-          span.style.whiteSpace = "pre";
           if (isMatch) {
-            span.style.backgroundColor = "#fef08a";
-            span.style.color = "#000000";
-            span.style.fontWeight = "bold";
-            span.style.borderRadius = "2px";
+            span.classList.add("pdf-text-match");
+            span.style.setProperty("background-color", "rgba(253, 224, 71, 0.45)", "important");
+            span.style.setProperty("border-bottom", "2px solid #eab308", "important");
+            span.style.setProperty("border-radius", "2px", "important");
+            span.style.setProperty("mix-blend-mode", "multiply", "important");
+            span.style.setProperty("color", "transparent", "important");
+
+            if (!firstMatchedSpan) {
+              firstMatchedSpan = span;
+            }
           }
-          textLayer.appendChild(span);
         });
 
-        // Tự động cuộn đến đoạn match trong viewport PDF
-        setTimeout(() => {
-          const matchSpan = textLayer.querySelector(".pdf-text-match") as HTMLElement | null;
-          const viewportContainer = viewportContainerRef.current;
-          if (matchSpan && viewportContainer) {
-            const vRect = viewportContainer.getBoundingClientRect();
-            const sRect = matchSpan.getBoundingClientRect();
-            viewportContainer.scrollTo({
-              top: Math.max(0, viewportContainer.scrollTop + (sRect.top - vRect.top) - 100),
-              behavior: "smooth",
-            });
-          }
-        }, 150);
+        // Tự động cuộn mượt mà đến đúng đoạn văn bản trích dẫn đầu tiên
+        if (firstMatchedSpan) {
+          setTimeout(() => {
+            const viewportContainer = viewportContainerRef.current;
+            if (firstMatchedSpan && viewportContainer) {
+              const vRect = viewportContainer.getBoundingClientRect();
+              const sRect = firstMatchedSpan.getBoundingClientRect();
+              viewportContainer.scrollTo({
+                top: Math.max(0, viewportContainer.scrollTop + (sRect.top - vRect.top) - 120),
+                behavior: "smooth",
+              });
+            }
+          }, 150);
+        }
       }
     } catch (err: unknown) {
       if (err && typeof err === "object" && "name" in err && err.name !== "RenderingCancelledException") {

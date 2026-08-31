@@ -2748,24 +2748,34 @@ button.citation-card {
   top: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden;
+  overflow: clip;
+  opacity: 1;
   line-height: 1;
+  transform-origin: 0 0;
   pointer-events: none;
+  z-index: 2;
 }
 
+.pdf-text-layer :is(span, br),
 .pdf-text-item {
-  color: transparent;
-  user-select: text;
+  color: transparent !important;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
   pointer-events: all;
+  user-select: text;
 }
 
 .pdf-text-match {
-  color: transparent;
-  background-color: rgba(254, 240, 138, 0.55);
+  color: transparent !important;
+  background-color: rgba(253, 224, 71, 0.45) !important;
   border-bottom: 2px solid #eab308;
   border-radius: 2px;
+  mix-blend-mode: multiply;
   user-select: text;
   pointer-events: all;
+  z-index: 3;
 }
 
 /* --- IMAGE VIEWER STYLES --- */

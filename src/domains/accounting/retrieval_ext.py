@@ -75,7 +75,10 @@ _ACCOUNTING_EXPANSION_RULES: list[tuple[re.Pattern, str]] = [
 
 
 def _expand_accounting_query(query: str) -> str:
-    """Mở rộng từ đồng nghĩa và cụm từ quy chế đặc thù kế toán."""
+    """Mở rộng từ đồng nghĩa và cụm từ quy chế đặc thù kế toán kèm mốc thời gian."""
+    from src.retrieval.temporal import expand_temporal_query
+
+    query = expand_temporal_query(query)
     matched: list[str] = []
     for pattern, extra_terms in _ACCOUNTING_EXPANSION_RULES:
         if pattern.search(query):
@@ -405,6 +408,16 @@ async def accounting_retrieval_node(state: dict) -> dict:
     total_retrieval_ms = round((time.perf_counter() - t_start) * 1000)
     top_sources = list({c.get('source_file') for c in chunks[:5] if c.get('source_file')})
     print(f"[TIMING] [retrieve:accounting] {total_retrieval_ms}ms (embed: {embed_ms}ms, search: {search_ms}ms, rerank: {rerank_ms}ms) | chunks={len(chunks)} | sources={top_sources}")
+    print(
+        f"[AUDIT-RETRIEVAL] req_id={state.get('request_id', '')} "
+        f"tenant={state.get('tenant_id', '')} "
+        f"user={state.get('user_id', '')} "
+        f"role={user_context.role} "
+        f"dept={user_context.department} "
+        f"collection={collection_name} "
+        f"count={len(chunks)} "
+        f"doc_ids={top_sources}"
+    )
 
     return {
         "retrieved_chunks": chunks,

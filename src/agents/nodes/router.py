@@ -101,9 +101,10 @@ _BUSINESS_SIGNAL_TERMS: frozenset[str] = frozenset({
     "thanh toan", "thue thu nhap", "thue gtgt", "gia tri gia tang",
     "tai khoan ngan hang", "so quy", "bang ke chi phi", "phieu chi", "phieu thu",
     "han muc", "han muc chi", "han muc chi tieu", "han muc duyet", "han muc duyet chi",
-    "chi tieu", "duyet chi", "phe duyet chi", "mua sam", "bao gia", "de nghi thanh toan",
-    "de nghi mua hang", "tam ung", "hoan ung", "quyet toan chi phi", "bien ban ban giao",
-    "bien ban giao nhan", "tai san", "so tien", "khoan chi", "chi phi", "dinh khoan",
+    "chi tieu", "duyet chi", "phe duyet chi", "duyet", "phe duyet", "mua sam", "bao gia", "de nghi thanh toan",
+    "de nghi mua hang", "de nghi", "tam ung", "hoan ung", "quyet toan chi phi", "bien ban ban giao",
+    "bien ban giao nhan", "bien ban", "tai san", "so tien", "khoan chi", "khoan", "chi phi", "dinh khoan",
+    "giay to", "tai lieu", "ho so",
     "so quy", "bang luong", "chuyen khoan", "tien mat", "hop dong kinh te",
     # Product & Engineering — roadmap, sprint, release, UI/UX, features
     "product roadmap", "roadmap", "san pham", "tinh nang", "feature", "sprint planning",
@@ -326,11 +327,17 @@ def _get_unified_condense_router_system() -> str:
     return f"""Bạn là bộ điều hướng ý định và tổng hợp ngữ cảnh hội thoại cho trợ lý tri thức nội bộ ({internal_names}).
 
 Nhiệm vụ:
-1. Xử lý ngữ cảnh (Condense): Đọc lịch sử hội thoại (nếu có trong <HISTORY>) và câu hỏi hiện tại trong <CURRENT_QUERY>, viết lại thành `condensed_query` độc lập mang đầy đủ ngữ cảnh (thay thế đại từ mơ hồ, giữ nguyên dữ kiện định lượng). Nếu không có lịch sử hoặc câu hỏi đã độc lập, giữ nguyên câu hỏi.
+1. Xử lý ngữ cảnh (Condense & Coreference Resolution):
+   - Đọc lịch sử hội thoại (nếu có trong <HISTORY>) và câu hỏi hiện tại trong <CURRENT_QUERY>, viết lại thành `condensed_query` độc lập mang đầy đủ ngữ cảnh (thay thế đại từ mơ hồ, giữ nguyên dữ kiện định lượng). Nếu không có lịch sử hoặc câu hỏi đã độc lập, giữ nguyên câu hỏi.
+   - QUY TẮC GIẢI MÃ ĐẠI TỪ (COREF - BẮT BUỘC): Nếu câu hỏi hiện tại chứa các đại từ hoặc cụm chỉ định như: "này", "đó", "kia", "vừa rồi", "trên", "dưới", "giấy tờ này", "hóa đơn đó", "khoản này", "chứng từ vừa rồi", "tài liệu này", "hợp đồng đó", "quy định này", "quy chế trên", "người này", "chi phí đó"...
+     → Tìm thực thể cụ thể gần nhất trong <HISTORY> (mã chứng từ, tên tài liệu, số hóa đơn, số biên bản, tên chính sách, khoản tiền, số ngày, tên người/chức danh...) và THAY THẾ đại từ bằng thực thể đó trong `condensed_query`.
+     → Khi đã xác định được thực thể từ <HISTORY>, câu hỏi này KHÔNG PHẢI là câu hỏi thiếu thông tin (vì đã có ngữ cảnh nối tiếp), intent PHẢI là "hr_question" (hoặc "pure_statutory" / "out_of_scope_or_personal" nếu bản thân câu hỏi yêu cầu điều đó), TUYỆT ĐỐI KHÔNG phân loại "ambiguous" hay hỏi lại làm rõ.
+     → CHỈ phân loại "ambiguous" khi câu hỏi mơ hồ, thiếu thông tin VÀ trong <HISTORY> hoàn toàn không có thực thể/ngữ cảnh nào để suy luận.
+
 2. Phân loại ý định (Intent): Phân loại câu hỏi vào ĐÚNG 1 trong 5 nhóm sau:
    - "greeting": Chào hỏi, cảm ơn, tạm biệt, xã giao (vd "chào bạn", "cảm ơn nhé").
-   - "hr_question": Câu hỏi chính sách, quy chế, quy trình nội bộ ({internal_names}) đã rõ ràng, có thể trả lời bằng tài liệu chung (vd "Thời gian thử việc tối đa là bao lâu?", "Checkout Redesign release khi nào?").
-   - "ambiguous": Câu hỏi thiếu thông tin cụ thể hoặc đa nghĩa, cần hỏi lại để làm rõ (vd "Tôi còn bao nhiêu ngày phép?", "Bao giờ thì thưởng về?"). Kèm theo `clarifying_question` là 1 câu hỏi làm rõ ngắn gọn, lịch sự.
+   - "hr_question": Câu hỏi chính sách, quy chế, quy trình nội bộ ({internal_names}), hoặc câu hỏi tra cứu tài liệu/chứng từ/hóa đơn/quyết định cụ thể của công ty đã rõ ràng hoặc đã được bổ sung ngữ cảnh từ lịch sử, có thể trả lời bằng tài liệu chung (vd "Thời gian thử việc tối đa là bao lâu?", "Checkout Redesign release khi nào?", "Giấy tờ BBGN-01/2026 có đúng quy trình không?").
+   - "ambiguous": Câu hỏi thiếu thông tin cụ thể hoặc đa nghĩa mà <HISTORY> không giải quyết được, cần hỏi lại để làm rõ (vd "Tôi còn bao nhiêu ngày phép?", "Bao giờ thì thưởng về?"). Kèm theo `clarifying_question` là 1 câu hỏi làm rõ ngắn gọn, lịch sự.
    - "pure_statutory": Câu hỏi hỏi thẳng văn bản pháp luật/nghị định quốc gia hoặc thủ tục với cơ quan nhà nước, không hỏi chính sách công ty áp dụng ra sao (vd "Điều 112 Bộ luật Lao động quy định nghỉ lễ thế nào?").
    - "out_of_scope_or_personal": Tra cứu dữ liệu cá nhân thực tế (đơn của tôi đã duyệt chưa, số dư lương tháng này...) hoặc hỏi về công ty khác không phải {internal_names}, hoặc ngoài phạm vi công việc.
 
@@ -359,9 +366,9 @@ async def condense_and_route_node(state: AgentState) -> dict:
         injection_hits.extend(detect_injection(query))
 
     # --- PRIORITY GATE: Kiểm tra business signal 1 lần duy nhất, tái dùng ở bước whitelist ---
-    # Nếu query có tín hiệu nghiệp vụ → bỏ qua toàn bộ Tier 1/2 (chit-chat/capability),
-    # tránh "Cho tôi mẫu đơn nghỉ phép" bị Capability tier nuốt mất.
-    _has_signal = _has_any_business_signal(query)
+    # Nếu query có tín hiệu nghiệp vụ hoặc đang trong hội thoại có lịch sử → bỏ qua toàn bộ Tier 1/2 (chit-chat/capability),
+    # tránh "Cho tôi mẫu đơn nghỉ phép" bị Capability tier nuốt mất hoặc câu follow-up bị chặn oan.
+    _has_signal = _has_any_business_signal(query) or bool(history)
 
     if not _has_signal:
         # Tier 1 — Fast-path câu chào hỏi thuần túy (≤ 5 từ)
@@ -444,7 +451,7 @@ async def condense_and_route_node(state: AgentState) -> dict:
         r"\b(?:bảo hiểm|sức khỏe|vợ|chồng|người phụ thuộc|con cái|thai sản|nghỉ phép|phép năm|thử việc|thôi việc|hợp đồng lao động|nghỉ ốm)\b",
         re.IGNORECASE,
     )
-    if domain and getattr(domain, "domain_name", None) == "accounting":
+    if domain and getattr(domain, "domain_name", None) == "accounting" and not history:
         query_words = query.split()
         if len(query_words) >= 6 and not _g10_ambiguous_refs.search(query) and not _g10_hr_exclusions.search(query):
             return {
@@ -454,7 +461,7 @@ async def condense_and_route_node(state: AgentState) -> dict:
             }
 
     # Heuristics: Hybrid policy / Product knowledge
-    if _EXPLICIT_HYBRID_PATTERN.search(query) or _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query):
+    if not history and (_EXPLICIT_HYBRID_PATTERN.search(query) or _EXPLICIT_PRODUCT_KNOWLEDGE_PATTERN.search(query)):
         return {
             "condensed_query": query,
             "intent": "hr_question",

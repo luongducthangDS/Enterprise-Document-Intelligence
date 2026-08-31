@@ -63,6 +63,14 @@ QUY TẮC QUAN TRỌNG — CÂU HỎI DẠNG PHỦ ĐỊNH / ĐIỀU KIỆN / NG
 - Câu hỏi về vế NGOẠI LỆ / ĐIỀU KIỆN LOẠI TRỪ (ví dụ: "trừ trường hợp nào", "ai không phải đóng", "khi nào miễn áp dụng"): nếu đoạn trích đã nêu điều kiện chính VÀ có đề cập ngoại lệ, BẮT BUỘC phủ sóng ĐẦY ĐỦ cả hai vế (quy tắc chung + vế ngoại lệ) trong câu trả lời — không được bỏ sót vế ngoại lệ dù vế chính đã đủ.
 - Câu hỏi về cam kết / ràng buộc ("cam kết làm bao lâu", "phải hoàn lại khi nào"): nếu đoạn trích có nêu điều khoản cam kết hoặc hoàn trả, hãy trả lời theo đúng điều khoản đó — đây LÀ câu trả lời đầy đủ, không phải thiếu thông tin.
 
+QUY TẮC QUAN TRỌNG — CÂU HỎI KIỂM TRA ĐẦY ĐỦ / CÒN LẠI / LIỆT KÊ TÀI LIỆU (Bug G7 — KHÔNG PHÁT {INSUFFICIENT_MARKER} OAN):
+- Khi câu hỏi có dạng "còn ... nào khác không", "có thêm ... nào không", "ngày đó có những giấy tờ/hóa đơn/chứng từ gì", "chỉ có duy nhất ... thôi phải không" → đây là yêu cầu kiểm tra tính đầy đủ của các tài liệu trong hệ thống.
+- Nếu ngữ cảnh (context) có các tài liệu khớp với ngày/điều kiện được hỏi:
+  * Trả lời trực tiếp danh sách các tài liệu tìm thấy (nêu rõ loại tài liệu, số hiệu/tên tài liệu, giá trị/nội dung chính kèm [Nguồn N]).
+  * Nếu người dùng hỏi "còn ... nào khác không" mà trong ngữ cảnh chỉ có 1 tài liệu đó hoặc không có thêm tài liệu cùng loại: BẮT BUỘC trả lời khẳng định: "Theo dữ liệu hiện có trong hệ thống, ngày [X] chỉ ghi nhận duy nhất [Tài liệu A], không có thêm hóa đơn/chứng từ nào khác."
+  * TUYỆT ĐỐI KHÔNG dùng {INSUFFICIENT_MARKER} khi đã tìm thấy tài liệu phù hợp với thời gian/chủ đề được hỏi.
+- CHỈ dùng {INSUFFICIENT_MARKER} khi trong toàn bộ các đoạn trích KHÔNG CÓ BẤT KỲ thông tin nào về chủ đề hay mốc thời gian đó.
+
 KHI CÁC NGUỒN NÓI KHÁC NHAU VỀ CÙNG MỘT SỰ KIỆN CỤ THỂ (vd cùng nói mức phụ cấp X nhưng cho 2 con số khác nhau): ưu tiên (1) chính sách nội bộ của chính doanh nghiệp đang được phục vụ, (2) văn bản pháp luật, (3) tài liệu tham khảo công khai của tổ chức khác, (4) biểu mẫu/template công khai, VÀ nói rõ là có nguồn khác quy định khác — không im lặng chọn một bên. Quy tắc này CHỈ áp dụng khi các nguồn thực sự MÂU THUẪN về cùng một điều khoản cụ thể. QUAN TRỌNG: đoạn trích ĐÚNG TRỌNG TÂM câu hỏi nhất (dù là template/synthetic) luôn phải được dùng làm câu trả lời chính — thứ tự ưu tiên trên KHÔNG có nghĩa là bỏ qua đoạn trích sát câu hỏi để dùng một đoạn trích "chính thức" nhưng chỉ liên quan chung chung. Nếu chỉ có biểu mẫu/tài liệu tham khảo công khai của tổ chức khác, phải nói rõ đây là tài liệu tham khảo, không phải quy định của doanh nghiệp mình.
 
 KHI MỘT NGUỒN ĐƯỢC GHI CHÚ "mục: FAQ" VÀ MỘT NGUỒN KHÁC (CÙNG TÀI LIỆU HOẶC KHÁC) LÀ ĐIỀU KHOẢN CHÍNH SÁCH bình thường (không ghi chú FAQ) CÙNG NÓI VỀ MỘT CHỦ ĐỀ: dùng điều khoản chính sách làm CĂN CỨ CHÍNH và trích dẫn chính nó; đoạn FAQ chỉ dùng để bổ sung cách diễn đạt hoặc khi không có điều khoản chính sách nào nói tới đúng chủ đề đó. Không trích riêng đoạn FAQ nếu điều khoản chính sách trong cùng ngữ cảnh đã trả lời đủ.
@@ -332,7 +340,7 @@ def _extract_focused_excerpt(chunk_text: str, query: str, answer: str, max_chars
     )
 
     valid_units: list[str] = [
-        u for u in units if len(u) >= 8 and not any(b.search(u) for b in boilerplate_res)
+        u for u in units if len(u) >= 4 and not any(b.search(u) for b in boilerplate_res)
     ]
 
     if not valid_units:
@@ -343,6 +351,7 @@ def _extract_focused_excerpt(chunk_text: str, query: str, answer: str, max_chars
     a_tokens = set(_normalize_tokens(answer))
     all_tokens = q_tokens | a_tokens
     numbers = set(re.findall(r"\b\d+(?:[.,]\d+)*%?\b", answer))
+    intro_penalty_re = re.compile(r"^(dưới đây là|thời gian xử lý|cấp phê duyệt|bảng tóm tắt|quy trình này|bước \d|điều \d)", re.I)
 
     scored: list[tuple[float, int, str]] = []
     for idx, u in enumerate(valid_units):
@@ -350,20 +359,33 @@ def _extract_focused_excerpt(chunk_text: str, query: str, answer: str, max_chars
         u_numbers = set(re.findall(r"\b\d+(?:[.,]\d+)*%?\b", u))
 
         token_overlap = len(u_tokens & all_tokens)
-        number_overlap = len(u_numbers & numbers) * 3.0
+        number_overlap = len(u_numbers & numbers) * 4.0
 
         score = token_overlap + number_overlap
-        if score > 0:
+        # Giảm điểm các câu mở đầu/dẫn dắt để nhường chỗ cho các dòng dữ liệu/bảng biểu thực tế
+        if intro_penalty_re.search(u.lower()):
+            score *= 0.35
+
+        if score > 0.5:
             scored.append((score, idx, u))
 
     if not scored:
-        return " \n ".join(valid_units[:2])[:max_chars].strip() + "..."
+        return " \n ".join(valid_units[:3])[:max_chars].strip() + "..."
 
-    # 4. Lấy top 1-2 đơn vị có điểm cao nhất và giữ nguyên thứ tự xuất hiện gốc
+    # 4. Gom tất cả các đơn vị có điểm cao nhất theo thứ tự xuất hiện cho đến khi đầy max_chars
     scored.sort(key=lambda x: x[0], reverse=True)
-    top_indices = sorted([item[1] for item in scored[:2]])
+    selected_indices: list[int] = []
+    current_len = 0
+    for _, idx, u in scored:
+        if current_len + len(u) + 3 <= max_chars:
+            selected_indices.append(idx)
+            current_len += len(u) + 3
 
-    selected_units = [valid_units[i] for i in top_indices]
+    if not selected_indices:
+        selected_indices = [scored[0][1]]
+
+    selected_indices.sort()
+    selected_units = [valid_units[i] for i in selected_indices]
     result = " \n ".join(selected_units)
     if len(result) > max_chars:
         result = result[:max_chars].rstrip() + "..."

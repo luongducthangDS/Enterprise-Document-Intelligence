@@ -3176,25 +3176,34 @@ h3 {
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden;
-  opacity: 0.9;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  transform-origin: 0 0;
   pointer-events: none;
+  z-index: 2;
 }
 
+.pdf-text-layer :is(span, br),
 .pdf-text-item {
-  color: transparent;
-  user-select: text;
+  color: transparent !important;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
   pointer-events: auto;
+  user-select: text;
 }
 
 .pdf-text-match {
-  background: rgba(254, 240, 138, 0.85) !important;
-  color: #854d0e !important;
-  font-weight: 700;
+  background-color: rgba(253, 224, 71, 0.45) !important;
+  color: transparent !important;
+  border-bottom: 2px solid #eab308;
   border-radius: 2px;
-  box-shadow: 0 0 0 2px #eab308;
+  mix-blend-mode: multiply;
   pointer-events: auto;
-  z-index: 2;
+  user-select: text;
+  z-index: 3;
 }
 
 /* Image Viewer Clean HD Style */
