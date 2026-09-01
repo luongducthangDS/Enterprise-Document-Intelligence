@@ -1,0 +1,53 @@
+%% Baseline: develop@87a85aa (2026-09-01)
+flowchart LR
+    E[Employee]
+    M[Department Manager]
+    A[Super Admin]
+
+    subgraph FE[Next.js Frontend]
+        AUTHUI[Auth/session]
+        CHATUI[Chat + citations + tickets]
+        DOCUI[Documents + HITL review]
+        ADMINUI[Access + index + evaluation]
+    end
+
+    subgraph BE[FastAPI Backend - system of record]
+        AUTH[JWT + RBAC]
+        CHAT[Conversation + SSE + ticket]
+        DOC[Document + version + review]
+        OPS[Index + evaluation + audit]
+        CLIENT[Signed Agent client]
+    end
+
+    subgraph AGENT[FastAPI Agent]
+        GRAPH[LangGraph routing + RAG]
+        GUARD[ACL + grounding + PII guardrails]
+        WORKER[Analysis + ingestion + index + evaluation workers]
+    end
+
+    E --> AUTHUI
+    M --> AUTHUI
+    A --> AUTHUI
+    AUTHUI --> CHATUI
+    AUTHUI --> DOCUI
+    AUTHUI --> ADMINUI
+    CHATUI -->|JWT REST/SSE| CHAT
+    DOCUI -->|JWT REST| DOC
+    DOCUI -->|direct upload| STORE[(Cloudinary)]
+    ADMINUI -->|JWT REST| OPS
+    AUTHUI --> AUTH
+    AUTH --> PG[(PostgreSQL/Supabase)]
+    CHAT --> PG
+    DOC --> PG
+    OPS --> PG
+    CHAT --> CLIENT
+    DOC --> CLIENT
+    OPS --> CLIENT
+    CLIENT -->|service token + signed identity| GRAPH
+    GRAPH --> GUARD
+    CLIENT --> WORKER
+    GRAPH --> CH[(Chroma)]
+    WORKER --> CH
+    GRAPH --> MODEL[OpenAI or FPT-compatible gateway]
+    WORKER --> MODEL
+    DOC -->|store URL / clean asset| STORE

@@ -1,4 +1,6 @@
-**API CONTRACT BE-FE**
+# API contract BE–FE — tài liệu lịch sử
+
+> **Không dùng làm contract hiện hành.** Một số endpoint bên dưới là đề xuất (ví dụ Monitoring/Feedback) và chưa có implementation tương ứng. Xem router trong `backend/app/api/v1/` cùng [`../../SYSTEM_SPECIFICATION_AND_DESIGN.md`](../../SYSTEM_SPECIFICATION_AND_DESIGN.md).
 
 # 1. Quy ước chung
 

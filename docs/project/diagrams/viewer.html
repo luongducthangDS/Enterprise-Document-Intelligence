@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mermaid Diagram Viewer</title>
+  <title>P-153 Architecture Diagram Viewer</title>
   <style>
     :root {
       color-scheme: dark;
@@ -72,9 +72,9 @@
 </head>
 <body>
   <header>
-    <h1>HR Document Intelligence Agent - Mermaid Viewer</h1>
+    <h1>P-153 Enterprise Document Intelligence - Mermaid Viewer</h1>
     <div class="tabs" id="tabs"></div>
-    <div class="hint">MVP nodes are teal. Target/future nodes are amber dashed.</div>
+    <div class="hint">Diagrams are synchronized with develop@87a85aa (reviewed 2026-09-01).</div>
   </header>
   <main>
     <div id="status">Loading...</div>
@@ -86,6 +86,8 @@
 
     const diagrams = [
       ["System Overview", "system_overview_diagram.mermaid"],
+      ["Components", "component-diagram.mmd"],
+      ["Data Flow", "data-flow-diagram.mmd"],
       ["Agent Flow", "agent_flow_diagram.mermaid"],
       ["Deployment", "deployment_diagram.mermaid"],
       ["Workflow", "workflow.mmd"],

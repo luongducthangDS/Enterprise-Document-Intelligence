@@ -1,0 +1,44 @@
+%% Baseline: develop@87a85aa (2026-09-01)
+flowchart TB
+    subgraph Frontend
+        UI[HrKnowledgeApp]
+        API[Typed API client]
+        VIEWER[DocumentViewer]
+        REVIEW[DocumentReview]
+    end
+    subgraph Backend
+        ROUTER[/api/v1 routers]
+        SECURITY[Auth + access_control]
+        SERVICES[Chat + ticket + document + knowledge services]
+        JOBS[Index + ingestion + evaluation services]
+        AGENTCLIENT[AIAgentClient]
+    end
+    subgraph Agent
+        INTERNAL[/api/v1/agent]
+        LANG[LangGraph]
+        RET[Hybrid retrieval + rerank]
+        SAFE[Boundary + grounding + confidence + PII]
+        WORKERS[Document/index/evaluation workers]
+    end
+    UI --> API
+    UI --> VIEWER
+    UI --> REVIEW
+    REVIEW -->|direct upload| OBJECT[(Cloudinary)]
+    API --> ROUTER
+    ROUTER --> SECURITY
+    ROUTER --> SERVICES
+    ROUTER --> JOBS
+    SERVICES --> DB[(PostgreSQL)]
+    SERVICES -->|store URL / clean asset| OBJECT
+    JOBS --> DB
+    SERVICES --> AGENTCLIENT
+    JOBS --> AGENTCLIENT
+    AGENTCLIENT --> INTERNAL
+    INTERNAL --> LANG
+    INTERNAL --> WORKERS
+    LANG --> RET
+    LANG --> SAFE
+    RET --> VECTOR[(Chroma)]
+    LANG --> MODEL[Model gateway]
+    WORKERS --> VECTOR
+    WORKERS --> MODEL

@@ -1,3 +1,7 @@
+# API Backend — tài liệu lịch sử
+
+> **Không dùng làm contract hiện hành.** Tệp này ghi lại quá trình thiết kế/triển khai trước baseline `develop@87a85aa`, gồm cả số liệu test và mục TBD đã cũ. Contract thực tế được xác định bởi `backend/app/api/v1/router.py`, các endpoint tương ứng và [`../../SYSTEM_SPECIFICATION_AND_DESIGN.md`](../../SYSTEM_SPECIFICATION_AND_DESIGN.md).
+
 ### 0. Quy ước chung
 - Header: `Content-Type: application/json`, `Authorization: Bearer {token}` (cơ chế auth TBD).
 - POST tạo tác vụ → gửi `Idempotency-Key`; retry mạng dùng lại key cũ, thao tác mới dùng key mới.

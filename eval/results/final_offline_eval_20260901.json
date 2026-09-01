@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-01T05:39:46.753418+00:00",
+  "baseline_commit": "87a85aa34cc23e41cd2c6d8a1eb4331e31a79300",
+  "mode": "offline_reproducible",
+  "network_calls": 0,
+  "current_metrics": [
+    {
+      "id": "boundary_scenario_accuracy",
+      "label": "Boundary scenario regression accuracy",
+      "correct": 68,
+      "total": 68,
+      "value": 1.0,
+      "ci95_wilson": [
+        0.9465,
+        1.0
+      ],
+      "interpretation": "Deterministic regression benchmark; not a production-accuracy estimate."
+    },
+    {
+      "id": "acl_fail_closed_rate",
+      "label": "Cross-department ACL fail-closed rate",
+      "correct": 15,
+      "total": 15,
+      "value": 1.0,
+      "ci95_wilson": [
+        0.7961,
+        1.0
+      ],
+      "interpretation": "Deterministic authorization cases, not a penetration test."
+    },
+    {
+      "id": "hitl_fixture_schema_completeness",
+      "label": "HITL fixture schema completeness",
+      "correct": 5,
+      "total": 5,
+      "value": 1.0,
+      "ci95_wilson": [
+        0.5655,
+        1.0
+      ],
+      "interpretation": "Checks expected-data completeness only; it does not measure model extraction accuracy."
+    },
+    {
+      "id": "operations_fixture_completeness",
+      "label": "Operations QA fixture completeness",
+      "correct": 18,
+      "total": 18,
+      "value": 1.0,
+      "ci95_wilson": [
+        0.8241,
+        1.0
+      ],
+      "interpretation": "Checks question/answer/context/source fields only; it is not agent answer accuracy."
+    }
+  ],
+  "invariant_violations": [],
+  "product_retrieval_alignment": {
+    "gate": "product_retrieval_qrel_alignment",
+    "status": "FAIL",
+    "qrel_chunk_ids": 26,
+    "available_qrel_chunk_ids": 0,
+    "coverage": 0.0,
+    "missing_qrel_chunk_ids": [
+      "Checkout_Experiment_Report::0000",
+      "Checkout_Experiment_Report::0001",
+      "Dark_Mode_Kickoff_Scan::0001",
+      "Design_Review_Notification::0000",
+      "Feature_Launch_Process::0000",
+      "Funnel_Metrics_August::0000",
+      "Funnel_Metrics_August::0002",
+      "Notification_Metrics::0001",
+      "PRD_Checkout_Redesign::0000",
+      "PRD_Checkout_Redesign::0004",
+      "PRD_Recommendation_System::0002",
+      "PRD_Search_Improvements::0000",
+      "Product_Approval_Policy::0000",
+      "Product_Weekly_Recommendation::0000",
+      "Product_Weekly_Recommendation::0001",
+      "Recommendation_Latency_Report_Scan::0001",
+      "Recommendation_Latency_Report_Scan::0002",
+      "Release_Plan_October::0001",
+      "Search_Experiment_Results::0001",
+      "Search_Interview_Notes::0000",
+      "Search_Interview_Notes::0001",
+      "Sprint_Planning_12::0000",
+      "Sprint_Planning_12::0001",
+      "Subscription_Research_Scan::0011",
+      "Subscription_Research_Scan::0013",
+      "Subscription_Research_Scan::0015"
+    ],
+    "note": "A retrieval quality score is invalid while this alignment gate fails."
+  },
+  "not_run": [
+    {
+      "evaluation": "router_dev",
+      "reason": "Requires sending 68 evaluation questions to an external model API; not authorized in this run."
+    },
+    {
+      "evaluation": "live_retrieval_and_agent_e2e",
+      "reason": "Requires aligned live Chroma collections and model-provider access."
+    }
+  ]
+}

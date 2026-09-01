@@ -1,84 +1,32 @@
-%% End-to-end product workflow after Agent-BE-FE mapping.
+%% Baseline: develop@87a85aa (2026-09-01)
 flowchart TD
-    subgraph LEGEND["Legend"]
-        CURRENT["Implemented"]
-        FUTURE["Future"]
-    end
+    START[Open application] --> LOGIN[Register/login]
+    LOGIN --> AUTH{JWT valid?}
+    AUTH -->|No| LOGIN
+    AUTH -->|Yes| ROLE[Load profile + role + department]
+    ROLE --> ACTION{Function}
 
-    START["User opens Next.js application"]
-    LOGIN["Login with email and password"]
-    AUTH{"JWT valid?"}
-    ROLE["BE returns profile, role and department"]
-    HOME{"Selected function"}
+    ACTION -->|Chat| CONV[Create/select conversation]
+    CONV --> ASK[Send question via SSE]
+    ASK --> AGENT[Backend calls Agent with signed identity]
+    AGENT --> STATE{Result}
+    STATE -->|Completed| ANSWER[Answer + citations]
+    STATE -->|Clarify| FOLLOW[Reply in same conversation]
+    FOLLOW --> ASK
+    STATE -->|Escalate| TICKET[Safe response + ticket draft]
+    STATE -->|Refuse / out of scope| SAFE[Safe refusal; no ticket]
+    STATE -->|Failed| RETRY[Retry linked request]
+    RETRY --> AGENT
 
-    subgraph CHAT["Current chat workflow"]
-        CONV["Create active conversation"]
-        QUESTION["Submit question"]
-        REQUEST["BE persists user Message and ChatRequest=QUEUED"]
-        HISTORY["BE loads recent conversation history"]
-        TASK["Background task calls Agent service\nwith query and optional history"]
-        AGENT["Agent condenses follow-up, routes, retrieves,\nreranks, generates and evaluates confidence"]
-        MAP["BE maps AgentAnswer and persists result"]
-        POLL["FE polls ChatRequest"]
-        CHAT_STATE{"Terminal state"}
-        ANSWER["COMPLETED\nRender answer, warnings and citations"]
-        SOURCE["Open citation detail\nOwnership and confidentiality checked"]
-        CLARIFY["CLARIFICATION_REQUIRED\nRender clarifying question"]
-        FOLLOWUP["Submit clarification in same conversation"]
-        CONTEXT["Agent condenses clarification answer\nusing persisted conversation history"]
-        REFUSED["REFUSED\nRender insufficient-evidence/escalation note"]
-        TICKET["Create TicketDB when escalate=true"]
-        FAILED["FAILED\nRender safe error and retry action"]
-        RETRY["Create child ChatRequest\nKeep parent_chat_request_id"]
-    end
+    ACTION -->|Documents| PERM{Manager/Admin?}
+    PERM -->|No| DENY[Access denied]
+    PERM -->|Yes| UPLOAD[Upload trực tiếp Cloudinary hoặc small-file fallback]
+    UPLOAD --> SUBMIT[Submit HTTPS URL/file tới Backend]
+    SUBMIT --> ANALYSIS[Analyze submission]
+    ANALYSIS --> REVIEW[Review extracted content]
+    REVIEW -->|Reject| REJECT[Keep rejected submission]
+    REVIEW -->|Approve| PUBLISH[Version + index + publish]
 
-    subgraph ADMIN["Current HR Admin workflow"]
-        ADMIN_RBAC{"HR_ADMIN or SUPER_ADMIN?"}
-        DOCS["Upload/list/detail/archive documents"]
-        DOC_JOB["Create IngestionJob=QUEUED"]
-        INDEX["Create and poll index rebuild job"]
-        EVAL["Create and poll evaluation run"]
-    end
-
-    subgraph FUTURE_FLOW["Future workflow"]
-        TWO_FA["2FA / SSO"]
-        INGEST["Persist source file, extract, clean,\nchunk, embed and upsert ChromaDB"]
-        DURABLE["Durable queue, timeout recovery and idempotency"]
-        TICKET_UI["Ticket list, assignment, resolution,\nnotification and ticket status in FE"]
-        MONITOR["Monitoring and user feedback"]
-        RETRIEVAL_RBAC["Filter Agent retrieval by access scope"]
-    end
-
-    START --> LOGIN --> AUTH
-    AUTH -->|"No"| LOGIN
-    AUTH -->|"Yes"| ROLE --> HOME
-    HOME -->|"Chat"| CONV --> QUESTION --> REQUEST
-    REQUEST --> HISTORY --> TASK --> AGENT --> MAP
-    REQUEST --> POLL
-    MAP --> POLL --> CHAT_STATE
-    CHAT_STATE -->|"COMPLETED"| ANSWER --> SOURCE
-    CHAT_STATE -->|"CLARIFICATION_REQUIRED"| CLARIFY --> FOLLOWUP --> CONTEXT --> REQUEST
-    CHAT_STATE -->|"REFUSED"| REFUSED
-    MAP -->|"escalate=true"| TICKET --> REFUSED
-    CHAT_STATE -->|"FAILED"| FAILED --> RETRY --> TASK
-
-    HOME -->|"Admin"| ADMIN_RBAC
-    ADMIN_RBAC -->|"Denied"| HOME
-    ADMIN_RBAC -->|"Allowed"| DOCS --> DOC_JOB
-    ADMIN_RBAC -->|"Allowed"| INDEX
-    ADMIN_RBAC -->|"Allowed"| EVAL
-
-    LOGIN -.-> TWO_FA
-    DOC_JOB -.-> INGEST
-    INDEX -.-> INGEST
-    REQUEST -.-> DURABLE
-    TICKET -.-> TICKET_UI
-    HOME -.-> MONITOR
-    AGENT -.-> RETRIEVAL_RBAC
-
-    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
-    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
-    classDef decision fill:#172554,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
-    class START,LOGIN,ROLE,CONV,QUESTION,REQUEST,HISTORY,TASK,AGENT,MAP,POLL,ANSWER,SOURCE,CLARIFY,FOLLOWUP,CONTEXT,REFUSED,TICKET,FAILED,RETRY,DOCS,DOC_JOB,INDEX,EVAL,CURRENT current;
-    class AUTH,HOME,CHAT_STATE,ADMIN_RBAC decision;
-    class TWO_FA,INGEST,DURABLE,TICKET_UI,MONITOR,RETRIEVAL_RBAC,FUTURE future;
+    ACTION -->|Administration| ADMIN{Super Admin?}
+    ADMIN -->|No| DENY
+    ADMIN -->|Yes| OPS[Access + audit + evaluation]

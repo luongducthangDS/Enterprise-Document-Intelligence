@@ -1,0 +1,31 @@
+%% Baseline: develop@87a85aa (2026-09-01)
+stateDiagram-v2
+    [*] --> CondenseAndRoute
+    CondenseAndRoute --> Boundary
+    Boundary --> Direct: greeting
+    Boundary --> Capability: capability discovery
+    Boundary --> Clarify: ambiguous
+    Boundary --> OutOfScope: pure statutory
+    Boundary --> Escalate: personal / unsupported / needs human
+    Boundary --> KnowledgeLookup: knowledge query
+    KnowledgeLookup --> Finalize: structured fact hit
+    KnowledgeLookup --> Retrieve: evidence required
+    Retrieve --> Grade
+    Grade --> AccessDenied: ACL denied
+    Grade --> Rewrite: no evidence + retry remains
+    Rewrite --> Retrieve
+    Grade --> Generate: evidence / retry exhausted
+    Generate --> Confidence
+    Confidence --> Finalize: answerable + threshold met
+    Confidence --> HallucinationCheck: low confidence
+    Confidence --> Escalate: unanswerable
+    HallucinationCheck --> Generate: failed + retry remains
+    HallucinationCheck --> Escalate: failed + exhausted
+    HallucinationCheck --> Finalize: passed
+    Direct --> [*]
+    Capability --> [*]
+    Clarify --> [*]
+    OutOfScope --> [*]
+    Escalate --> [*]
+    AccessDenied --> [*]
+    Finalize --> [*]

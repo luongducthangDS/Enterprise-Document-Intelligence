@@ -1,0 +1,15 @@
+%% Logical deployment; verify live URLs/secrets from the target environment.
+flowchart TB
+    USERS[Browser users] -->|HTTPS| FE[Next.js frontend]
+    FE -->|JWT REST/SSE| BE[FastAPI backend]
+    BE -->|SQL/TLS| PG[(Supabase PostgreSQL)]
+    FE -->|direct upload| STORE[(Cloudinary)]
+    FE -->|submit public URL| BE
+    BE -->|store URL / delete asset| STORE
+    BE -->|service token + signed identity| AGENT[FastAPI Agent]
+    AGENT --> GRAPH[LangGraph + workers]
+    GRAPH -->|vector operations| CH[(Local/Cloud Chroma)]
+    GRAPH -->|LLM/embedding/VLM/rerank| MODEL[OpenAI or FPT-compatible gateway]
+    DEV[Docker Compose local] -. packages .-> FE
+    DEV -. packages .-> BE
+    DEV -. packages .-> AGENT

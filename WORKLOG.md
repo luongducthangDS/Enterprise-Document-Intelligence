@@ -1,165 +1,121 @@
-# Worklog — Team AI20K-Build-Phase-Cohort-3 (Project P-153)
+# Worklog từ lịch sử commit `develop` — P-153
 
-> Ghi lại tất cả công việc đã làm theo ngày. Ai làm gì, kết quả gì.
+**Nguồn chuẩn:** `git log develop --no-merges`
+**Khoảng thời gian:** 2026-07-24 → 2026-08-31
+**Baseline:** `87a85aa`
 
----
+## Quy ước
 
-## [2026-08-04]
+- Chỉ ghi công việc có bằng chứng trong lịch sử commit của `develop`.
+- Tên người được ánh xạ từ Git author: `minhphu711` → Giang Minh Phú; `hthanhson` → Hoàng Thanh Sơn; `duong` → Hoàng Thái Dương; `luongducthangws` → Lương Đức Thắng.
+- Không suy luận số giờ làm việc từ commit.
+- Merge commit không được tính như một công việc riêng để tránh ghi trùng nội dung.
+- Commit SHA là khóa truy vết; mô tả bên dưới là nhóm hóa nội dung commit, không thay thế diff gốc.
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Audit 3 file zip ở root, dọn trùng lặp, thêm `*.zip` vào `.gitignore` | ✅ Done | CLAUDE.md log | 0.5h |
-| Lương Đức Thắng | Thiết kế cấu trúc thư mục data pipeline mới (`src/ingestion/`, `data/raw|processed|chunks|metadata|rejected`) + scaffold | ✅ Done | docs/folder_structure.md | 1h |
-| Lương Đức Thắng | Đưa dữ liệu sẵn có (VinFast, Vingroup, bộ luật lao động...) vào cấu trúc mới, extract 5 PDF luật từ zip Google Drive | ✅ Done | data/raw/, document_registry.csv | 1h |
-| Lương Đức Thắng | Tìm + verify + tải bổ sung văn bản pháp luật (Luật BHYT sửa đổi 51/2024, Luật TNCN hợp nhất, NĐ 161/2026 lương cơ sở, TT 60/2025/TT-BYT) — phát hiện và loại 1 file sai (NĐ 73/2024 đã hết hiệu lực) | ✅ Done | data/raw/government_legal/, data/rejected/ | 1.5h |
-| Lương Đức Thắng | Xác định lại phạm vi dữ liệu (không gắn 1 công ty cụ thể — giải quyết pain point HR nói chung), tìm + verify + tải template công khai (nội quy lao động, quy chế lương thưởng, quy định nghỉ phép, quy trình chấm dứt HĐLĐ) | ✅ Done | data/raw/* — đủ 6/6 category | 1h |
-| Lương Đức Thắng | Tìm config GLM-5.2 (qua FPT.AI Marketplace gateway) để chuẩn bị script tạo synthetic data (WFH policy, đào tạo & phát triển, FAQ eval set) | 🔄 WIP | Đã xác định base_url + model, đang chờ API key để lưu `.env` | - |
+## Tuần khởi tạo — 24/07 đến 26/07
 
-**Tổng kết ngày:** Hoàn thành khảo sát + tổ chức lại toàn bộ dữ liệu nguồn cho HR Document Intelligence Agent — pháp luật lao động/BHXH/BHYT/thuế TNCN, quy định nội bộ mẫu, và template công khai đều đã có trong `data/raw/` theo đúng 6 category. Còn thiếu: chạy extractor pipeline (`src/ingestion/`), sinh synthetic data cho 3 mảng chưa tìm được nguồn công khai đạt chất lượng, và xây eval set.
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 24/07 | Phoenix mentor bot | Khởi tạo repository | `0ebac15` |
+| 25/07 | Giang Minh Phú | Khởi tạo dự án từ template và kiểm tra repository | `b92c575`, `0da5ca9`, `3fd9f93` |
+| 26/07 | Hoàng Thanh Sơn | Các commit kiểm tra ban đầu cho quy trình Git | `2b8890f` → `f41c9c4` |
 
----
+**Kết quả tuần:** Repository và baseline làm việc được hình thành.
 
-## [2026-08-05]
+## Tuần 1 — 03/08 đến 09/08
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Dương | Dựng demo UI workflow đầu tiên cho luồng chat | ✅ Done | commit `1e8b3af` | - |
-| Lương Đức Thắng | Data ingestion pipeline (extract/clean/chunk/embed/index) + schema Supabase + bộ eval dataset đầu tiên | ✅ Done | commit `a198c01` — `src/ingestion/`, `supabase/migrations/`, `eval/datasets/` | - |
-| Lương Đức Thắng | Fix `setup_hooks.ps1` ghi BOM làm hỏng shebang của pre-push hook (AI usage logging) | ✅ Done | commit `8c6855b` | - |
-| hthanhson | Thêm chức năng Sign in / Sign up | ✅ Done | commit `f4a4feb` | - |
-| minhphu711 / minhphu | Dọn brief/PRD — bỏ bản markdown sinh tự động, giữ đúng 1 nguồn `.docx` | ✅ Done | commit `53861ab`, `cf05771`, PR #9 | - |
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 04/08 | Hoàng Thái Dương | Khởi tạo giao diện từ template | `726c5c7` |
+| 04/08 | Hoàng Thanh Sơn | Tạo cấu trúc Backend service; sửa AI logging | `5db3a8b`, `dcfc66e`, `9a90ca3` |
+| 04/08 | Giang Minh Phú | Đồng bộ diagram, PRD và project brief | `4910c88` |
+| 05/08 | Hoàng Thanh Sơn | Thêm đăng ký/đăng nhập | `f4a4feb` |
+| 05/08 | Lương Đức Thắng | Xây dựng ingestion HR, Supabase schema và evaluation dataset; sửa setup hook | `a40668b`, `548c4a2` |
+| 05/08 | Hoàng Thái Dương | Dựng demo UI workflow | `1e8b3af` |
+| 05/08 | Giang Minh Phú | Đồng bộ và dọn tài liệu sinh tự động | `6eec74a`, `9d5d958` |
+| 06/08 | Hoàng Thanh Sơn | Conversation API, Chat RAG API và Citation API | `7b82468` |
+| 06/08 | Lương Đức Thắng | Hạ latency, thêm BM25/rerank/qrel evaluation và quality fixes | `6dc4628`, `55d9473`, `738a0a0` |
+| 07/08 | Hoàng Thanh Sơn | Document/Ingestion, Index và Evaluation APIs | `f0b35d1` |
+| 07/08 | Lương Đức Thắng | Tổ chức scripts/docs ingestion và eval; loại tài liệu cá nhân khỏi Git | `e362f51`, `7709b63` |
+| 08/08 | Hoàng Thái Dương | Cải tiến frontend API workflows | `a6df0ad` |
+| 08/08 | Giang Minh Phú | Đồng bộ docs và cấu hình Codex/Git ignore | `fc85c1a` → `b5359a0` |
 
-**Tổng kết ngày:** Ngày bận rộn nhất tuần — song song 4 mảng: UI demo, data ingestion pipeline hoàn chỉnh (data → chunk → embed → Chroma Cloud), auth (sign in/up), và dọn tài liệu PRD/brief. Đây là nền để dựng agent RAG ngày hôm sau.
+**Kết quả tuần:** Có skeleton full-stack, auth/chat/document APIs, ingestion/RAG baseline và giao diện ban đầu.
 
----
+## Tuần 2 — 10/08 đến 16/08
 
-## [2026-08-06]
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 10/08 | Giang Minh Phú | Tích hợp Backend với Agent service, chuẩn hóa Compose và tài liệu contract | `369016d`, `782a4f9`, `ea2dd15` |
+| 11/08 | Hoàng Thái Dương | Cập nhật giao diện Frontend | `b01b9e2` |
+| 11/08 | Giang Minh Phú | Migrate Frontend sang Next.js, thêm service vào Compose, harden Backend–Agent và Docker | `2ef6114`, `3e849e9`, `e01f2e6`, `0538b5e`, `df1fdb7`, `9d26b14`, `6d5bbd1`, `757a84c` |
+| 11/08 | Lương Đức Thắng | Multi-turn, safety guardrails, streaming và citation `source_type` | `a4b00b3`, `5b70e75` |
+| 11/08 | Hoàng Thanh Sơn | Sửa ticket authorization và thứ tự history chat | `df1fa96` |
+| 12/08 | Hoàng Thanh Sơn | Mở rộng citation DTO với authority/source metadata | `98d4d02` |
+| 13/08 | Giang Minh Phú | Khôi phục conversation/citation và cập nhật UI/ticket | `8435157`, `11fde9e` |
+| 13/08 | Lương Đức Thắng | Thêm ingestion/index/evaluation workers | `857cee6` |
+| 14/08 | Hoàng Thái Dương | Nâng cấp workflow và UI | `37db317` |
+| 14/08 | Giang Minh Phú | Chuẩn hóa department, history/citation, ticket closure audit, dialog/UI và API docs | `006b328`, `0b5844b`, `1dac4e5`, `eca430c`, `91025a7`, `3028a8a` |
+| 15/08 | Giang Minh Phú | Hoàn thiện README setup và sample queries | `0419757` |
+| 16/08 | Lương Đức Thắng | Agent workers, boundary, taxonomy authority/provenance và Phase F eval | `8e0245e` |
+| 16/08 | Hoàng Thanh Sơn | Cập nhật CI | `11017c9` |
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Audit toàn bộ RAG pipeline + eval trước khi tối ưu (Phase 0) | ✅ Done | commit `cce1da2`, `docs/reports/project_review.md` | - |
-| Lương Đức Thắng | Phát hiện + sửa 4 lỗi chết agent: reranker crash do `HF_HOME` trỏ ổ đĩa không tồn tại, `TypeError` khi thiếu `sentence-transformers`, escalate-theo-confidence bị vô hiệu hoá âm thầm, unit test gọi mạng | ✅ Done | reranker chuyển sang gọi qua FPT.AI gateway (`fpt_client.rerank()`) | - |
-| Lương Đức Thắng | Sửa bộ eval: `ground_truth_context` dài hơn cả chunk (78/128 câu không thể khớp), qrel bị nới lỏng sai quy tắc, thiếu coverage 18/29 tài liệu | ✅ Done | commit `20b0250` — reranker/BM25/qrel eval infra + Phase 2 fixes | - |
-| Lương Đức Thắng | Đo lại toàn bộ sau fix: in_scope pass 54/100 → 71/100, router accuracy 88.6% → 95.7%, cắt latency 22-23% (kết nối tái sử dụng, cache embedding, router model nhẹ hơn) | ✅ Done | commit `28d6231` | - |
-| Lương Đức Thắng | Merge `origin/main` vào nhánh cá nhân (lịch sử không liên quan), sau đó bị revert bởi team | 🔄 WIP | commit `c65deac`, `db6975f`, revert `4490707` — cần thống nhất lại cách merge nhánh | - |
-| hthanhson | Thêm Conversation API, Chat RAG API, Citation API cho backend | ✅ Done | commit `7b82468` | - |
+**Kết quả tuần:** Ba service được tích hợp; Next.js, Backend–Agent contract, workers, multi-turn và guardrail trở thành luồng hệ thống thống nhất.
 
-**Tổng kết ngày:** Ngày nặng nhất về kỹ thuật — agent từ "không trả lời được câu nào" (reranker crash) đến pass rate 75.7%/140 câu cuối ngày. Phát hiện thêm rủi ro bảo mật đang sống (migration `0003`, RLS tự leo quyền `hr_admin`) và 2 backend song song (`src/api/` vs `backend/`) chưa chốt — ghi ở `docs/reports/ISSUES.md` (local, không lên GitHub). Sự cố merge/revert PR #10 cho thấy cần thống nhất lại quy tắc merge nhánh cá nhân với `main`.
+## Tuần 3 — 17/08 đến 23/08
 
----
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 17/08 | Giang Minh Phú | Khôi phục ingestion/retrieval/eval assets, hòa giải migration/RLS, sửa retrieval và tổ chức test docs | `daf7ce3`, `b3e168a`, `66a4ffb`, `8e979b5`, `822834f` → `ea363be` |
+| 18/08 | Hoàng Thanh Sơn | Sửa clarification loop | `deb03c2` |
+| 19/08 | Hoàng Thanh Sơn | Harden chat recovery và ticket persistence | `01a6a67` |
+| 19/08 | Giang Minh Phú | Worker lifecycle, security migration, held-out runs, benchmark/eval workflow và báo cáo post-MVP | `79b2fe0` → `c0bbc3a` |
+| 21/08 | Hoàng Thanh Sơn | Bổ sung dữ liệu và accounting evaluation | `64572e7`, `4301120`, `3298463` |
+| 21/08 | Giang Minh Phú | Product data/eval, post-MVP evaluation, bỏ secret/config local khỏi Git | `1a7872e`, `38f8273`, `42b67b7`, `a3c5738` |
+| 21/08 | Lương Đức Thắng | Department ACL, taxonomy, legal authorization, system-data isolation, P1 vertical slice và docs | `37f7077`, `2389a84`, `e4123b0`, `52f8c13`, `de6e97b`, `0c41cbf`, `1a54615`, `5989376`, `c4da303`, `de923e3` |
+| 22/08 | Hoàng Thanh Sơn | Accounting retrieval/guardrail/evaluation và giải quyết conflict retrieval | `d7c9934`, `79e2a7e`, `0e1e7cc`, `49e3e64` |
+| 22/08 | Giang Minh Phú | Multi-domain RAG/ACL, routing và completion report | `02a72ca`, `72e75de`, `16ad92b` |
+| 22/08 | Lương Đức Thắng | Live E2E, sửa agent contract/index/upload trace, remediation/audit reports và UX fix | `f4d8459`, `46f4dc6`, `87a8bb2`, `ff6b11a`, `c3a9bc0`, `170ccf6` |
+| 23/08 | Hoàng Thanh Sơn | Knowledge architecture, Supabase knowledge layer/HITL, QC fixes và Render/warmup/static UI | `d46d950`, `9a276a2`, `db7887b`, `32b7b7a`, `a0fa71b`, `0b5eefd`, `22b4b01`, `4868eb4` |
+| 23/08 | Giang Minh Phú | Harden department retrieval và bổ sung runtime database dependencies | `a084843`, `ab06bc7`, `b0670d6` |
+| 23/08 | Lương Đức Thắng | Product/security audit, fail-closed ACL, UI upload, identity repositioning, CI security-ops | `650d29d`, `741109e`, `2a6b979`, `e162cb9`, `acd2409`, `766f0c3`, `b927da4` |
 
-## [2026-08-07]
+**Kết quả tuần:** Hệ thống mở rộng từ HR sang multi-domain, có ACL hai lớp, Supabase knowledge layer, live E2E/remediation và chuẩn bị deploy.
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Tách riêng tài liệu/report cá nhân (audit, review) khỏi repo GitHub — chỉ giữ local | ✅ Done | commit `86f9950` | - |
-| Lương Đức Thắng | Gom lại script/docs ingestion + eval vào `scripts/rag_pipeline/`, `docs/rag-pipeline/` cho gọn cấu trúc | ✅ Done | commit `5653475` | - |
-| Lương Đức Thắng | Merge `develop` mới nhất vào `feature/rag-agent-pipeline`, mở PR #11 | ✅ Done | commit `d61ca8a`, `72d4716` | - |
-| Lương Đức Thắng | Rà soát dự án theo góc PM/BA, bổ sung các deliverable đang thiếu (README/ARCHITECTURE/JOURNAL/WORKLOG/architecture_diagram) | ✅ Done | file này + các file liên quan | - |
+## Tuần 4 — 24/08 đến 30/08
 
-**Tổng kết ngày:** Dọn cấu trúc thư mục sau đợt sửa lỗi lớn hôm 08-06, merge nhánh RAG vào `develop`, và bù các deliverable bị bỏ trống từ đầu dự án (README vẫn là template, ARCHITECTURE/JOURNAL trống, architecture_diagram sai stack) — các mục này đang chấm 0 điểm dù công sức kỹ thuật đã đủ.
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 24/08 | Giang Minh Phú | Enforce department knowledge access; sửa department khi signup | `5766c9c`, `22a2ca8`, `4cf53a3` |
+| 26/08 | Giang Minh Phú | Thêm document upload/review workflow | `c94a275` |
+| 26/08 | Hoàng Thanh Sơn | Sửa ticket routing và Frontend gọi sai service | `5606e70`, `2857a88` |
+| 26/08 | Lương Đức Thắng | Hoàn thiện docs/eval datasets và benchmark đa miền tại baseline thời điểm đó | `0f7c984` |
+| 27/08 | Hoàng Thanh Sơn | Cập nhật source-answer UI/Backend, Chroma update scripts/dependencies, giảm latency, warmup và logging | `fdeff5d`, `a5cb1fe`, `e64297a`, `3345e57`, `7c3404a`, `4006b92`, `1d093f6`, `8fbd725` |
+| 27/08 | Giang Minh Phú | Thêm multi-source product demo coverage; fail-fast/fallback khi LLM timeout | `b2c60c4`, `a350834` |
+| 28/08 | Hoàng Thanh Sơn | Tối ưu response, tạo conversation và tắt ping Agent từ Backend health | `6291b00`, `2e315cc`, `49f1834` |
+| 30/08 | Hoàng Thanh Sơn | Chuyển provider FPT/OpenAI và sửa upload/UI/Agent integration | `ce5abfa` |
+| 30/08 | Giang Minh Phú | Hỗ trợ image upload và large documents | `a9cd61e` |
 
----
+**Kết quả tuần:** Document review hoàn thiện hơn, chat nhanh hơn, provider linh hoạt hơn và upload hỗ trợ thêm ảnh/tệp lớn.
 
-## [2026-08-19]
+## Tuần 5 — 31/08
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| minhphu | Sửa G5 retrieval miss cho `qa_013` và `qa_122` | ✅ Done | `0644efb`, `6ab84c5`; regression test pass | - |
-| minhphu | Đồng bộ migration đủ schema backend, bỏ migration trùng số | ✅ Done | `32eb13f`, `b256cdb`; migration `0001`–`0007` | - |
-| minhphu | Reconcile RLS trên Supabase thật và privilege guard | ✅ Done | `9fc83cb`; verify 10/10 bảng, RLS đầy đủ, trigger present | - |
-| minhphu | Nối Backend ↔ Agent cho ingestion/index/evaluation lifecycle, bỏ metric evaluation mẫu | ✅ Done | `36419b9`; lifecycle test tới `COMPLETED` | - |
-| minhphu | Làm sạch bộ test G6 và chạy regression toàn repo | ✅ Done | `4115e54`; core 421 pass, backend 106 pass | - |
-| minhphu | Release agent held-out qua FPT.AI/Chroma Cloud | ✅ Done | Run hợp lệ 0/30; 0 lỗi hạ tầng; p50 10,0s, p95 59,7s | - |
-| minhphu | Release retrieval held-out qua Chroma Cloud/FPT reranker | ✅ Done | 20 query; Hit@5 45%; Recall@5 29,6%; Doc Hit@5 15% | - |
+| Ngày | Thành viên | Công việc có bằng chứng | Commit |
+|---|---|---|---|
+| 31/08 | Hoàng Thanh Sơn | Versioning/soft archive tài liệu và overhaul review UI | `0a1aee0` |
+| 31/08 | Hoàng Thanh Sơn | Cập nhật dependency Agent service | `2c52973` |
+| 31/08 | Hoàng Thanh Sơn | Universal temporal query expansion, multi-turn coreference và PDF highlighting | `87a85aa` |
 
-**Tổng kết ngày:** Phần G5, migration/RLS và worker lifecycle đã hoàn tất bằng code + test + kiểm tra database thật. Hai release held-out đã chạy đúng một lần và ghi trung thực; quality gate không đạt, chủ yếu do retrieval/gold không khớp và contract legacy lệch phạm vi hiện tại.
+**Kết quả tuần:** Bổ sung lifecycle phiên bản tài liệu và các cải tiến truy xuất/đối soát cuối trên baseline bàn giao.
 
----
+## Thống kê commit không tính merge
 
-## [2026-08-20]
+| Git author | Số commit trên `develop` trong giai đoạn |
+|---|---:|
+| `minhphu711` | 82 |
+| `hthanhson` | 47 (43 với email hiện tại, 4 commit kiểm tra với email cũ) |
+| `luongducthangws` | 35 |
+| `duong` | 5 |
+| `phoenix-mentor[bot]` | 1 |
 
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Thiết kế mở rộng module retrieval cho domain Kế toán (`src/domains/accounting/retrieval_ext.py`) | ✅ Done | `src/domains/accounting/`, test suite | 2h |
-| minhphu | Thu thập tài liệu quy định Kế toán và phân loại document registry cho Accounting | ✅ Done | `data/raw/accounting/`, `data/metadata/` | 2h |
-| Dương | Khảo sát cập nhật giao diện Next.js hỗ trợ chọn phòng ban (`HR`, `Accounting`, `Product`) | ✅ Done | `frontend/components/` | 1.5h |
-| hthanhson | Thiết kế mô hình phân quyền phòng ban tại backend API (`src/security/departments.py`) | ✅ Done | `src/security/` | 2h |
-
-**Tổng kết ngày:** Bắt đầu mở rộng hệ thống từ chỉ chuyên biệt HR sang đa phòng ban (Multi-domain), tạo nền tảng cho domain Kế toán và Sản phẩm.
-
----
-
-## [2026-08-21]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Xây dựng migration `0010_department_roles_and_company_scope.sql` và `0011_classify_existing_knowledge_documents.sql` | ✅ Done | `supabase/migrations/0010_*.sql`, `0011_*.sql` | 2.5h |
-| hthanhson | Cập nhật `access_control.py` với logic fail-closed cho `COMPANY_WIDE` vs `DEPARTMENT_SPECIFIC` | ✅ Done | `backend/app/services/access_control.py` | 2h |
-| Dương | Chuẩn hóa toàn bộ nhãn giao diện tiếng Việt và tối ưu font typography trên Next.js | ✅ Done | `frontend/lib/labels.ts`, `frontend/app/layout.tsx` | 1.5h |
-| minhphu | Xây dựng kịch bản kiểm thử E2E Live 46 test cases không mock dependency | ✅ Done | `tests/e2e/live_harness.py`, `test_live_e2e.py` | 3h |
-
-**Tổng kết ngày:** Hoàn thiện cơ chế phân quyền truy cập theo phòng ban (Department ACL) và chuẩn bị hạ tầng kiểm thử E2E Live trên môi trường thật.
-
----
-
-## [2026-08-22]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Chạy 46 ca kiểm thử Live E2E, lập báo cáo `docs/E2E_TEST_REPORT.md` (36 PASS, 8 FAIL, 2 Critical) | ✅ Done | `docs/E2E_TEST_REPORT.md` | 3h |
-| Lương Đức Thắng | Khắc phục triệt để BUG-01 (DTO mapping `pure_statutory`), BUG-02 (indexer collection SSOT resolver), BUG-03 (409 conflict) | ✅ Done | `docs/E2E_REMEDIATION_REPORT.md`, `src/ingestion/indexer.py` | 3.5h |
-| minhphu / Dương | Kiểm thử UX Persona QC Report (`docs/UX_PERSONA_QC_REPORT_20260822.md`), bỏ animation quay vô hạn ở UI chat | ✅ Done | commit `08487c4`, `docs/UX_PERSONA_QC_REPORT_20260822.md` | 2h |
-| hthanhson | Sửa phân quyền profile roles và cập nhật test fixtures post-merge | ✅ Done | commit `a82809a`, `backend/tests/` | 1.5h |
-
-**Tổng kết ngày:** Ngày đột phá về chất lượng — chạy kiểm thử E2E thật và remediation dứt điểm các lỗi nghiêm trọng về collection naming và contract mapping giữa Backend và Agent.
-
----
-
-## [2026-08-23]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| minhphu / Lương Đức Thắng | Thực hiện Product Content Audit 2026-08-23 (findings C-01 → C-29, addendum A-J) | ✅ Done | `docs/PRODUCT_CONTENT_AUDIT_20260823.md`, `PILOT_READINESS_IMPLEMENTATION_PLAN_20260823.md` | 3h |
-| Lương Đức Thắng | Cập nhật định vị Agent thành 'Trợ lý Tri thức Nội bộ' (bỏ ràng buộc HR trong prompt greeting/clarify/refusal) | ✅ Done | commit `164affe`, `src/agents/nodes/` | 1.5h |
-| hthanhson | Thắt chặt bảo mật phân quyền phòng ban fail-closed, scope corpus đúng phòng | ✅ Done | commit `6ac054e`, `backend/app/services/` | 2h |
-| Dương | Cập nhật form đăng ký cho phép chọn phòng ban (`DepartmentSelect`) và kết nối API | ✅ Done | commit `4c960f4`, `frontend/components/LoginView.tsx` | 2h |
-
-**Tổng kết ngày:** Hoàn thành định vị Trợ lý Tri thức Doanh nghiệp toàn diện, củng cố toàn bộ các tầng bảo mật ACL và kế hoạch sẵn sàng thử nghiệm (Pilot Readiness).
-
----
-
-## [2026-08-24]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng | Thiết kế Schema & Migration `0012_document_review_workflow.sql` cho luồng HITL Document Review | ✅ Done | `supabase/migrations/0012_*.sql` | 2h |
-| Lương Đức Thắng | Xây dựng Worker phân tích bóc tách cấu trúc tài liệu bằng LLM (`src/workers/document_analysis.py`) | ✅ Done | `src/workers/document_analysis.py`, Pydantic schemas | 3h |
-| hthanhson | Xây dựng Endpoints API nạp và duyệt tài liệu (`/api/v1/document-submissions`) | ✅ Done | `backend/app/api/v1/endpoints/document_submissions.py`, service | 2.5h |
-
-**Tổng kết ngày:** Đặt nền móng kỹ thuật cho tính năng Human-in-the-Loop (HITL) — bóc tách tự động Quyết định, Trách nhiệm, Deadline và hỗ trợ phê duyệt trước khi lưu vector database.
-
----
-
-## [2026-08-25]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Dương | Xây dựng Component giao diện duyệt tài liệu HITL `DocumentReview.tsx` | ✅ Done | `frontend/components/DocumentReview.tsx` | 3.5h |
-| hthanhson | Bổ sung Rate Limiting cho login và chính sách mật khẩu tối thiểu 8 ký tự | ✅ Done | commit `8b58cfd`, `backend/app/services/auth_service.py` | 2h |
-| Lương Đức Thắng | Viết test suite kiểm thử quy trình phân tích tài liệu và API submissions | ✅ Done | `tests/test_workers/test_document_analysis.py`, `backend/tests/test_document_submissions.py` | 2h |
-
-**Tổng kết ngày:** Hoàn tất trọn vẹn giao diện và backend cho tính năng Document Review HITL, đồng thời gia cố an ninh vận hành hệ thống.
-
----
-
-## [2026-08-26]
-
-| Member | Task | Status | Output | Time |
-|--------|------|--------|--------|------|
-| Lương Đức Thắng / hthanhson | Viết file cấu hình Blueprint Render Cloud (`render.yaml`) và dịch vụ `warmup_service.py` | ✅ Done | `render.yaml`, `backend/app/services/warmup_service.py` | 2h |
-| Dương | Tích hợp Component `WarmupPing.tsx` tự động giữ ấm container Backend & Agent trên cloud | ✅ Done | `frontend/components/WarmupPing.tsx` | 1h |
-| Dương / hthanhson | Fix bug FE gọi sai service URL (`fbd0704`) và fix bug định tuyến ticket sai phòng ban (`09a9967`) | ✅ Done | `frontend/lib/api.ts`, `backend/app/services/ticket_service.py` | 1.5h |
-| Lương Đức Thắng | Rà soát toàn bộ dự án, cập nhật và hoàn thiện 100% các file Markdown (`README.md`, `ARCHITECTURE.md`, `JOURNAL.md`, `WORKLOG.md`, `eval/`, `presentation/`) | ✅ Done | Trọn bộ 10 Deliverables | 2.5h |
-
-**Tổng kết ngày:** Hệ thống hoàn toàn sẵn sàng cho Demo Day với đầy đủ tính năng Multi-domain, Document Review HITL, Phân quyền ACL, Blueprint Render Cloud, và toàn bộ 10 Deliverables hoàn chỉnh.
+Số commit chỉ dùng để truy vết hoạt động, không dùng làm thước đo năng suất hoặc mức đóng góp tương đối.

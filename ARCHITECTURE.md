@@ -1,200 +1,236 @@
-# Tài Liệu Kiến Trúc Hệ Thống (Architecture Document) — P-153
+# Kiến trúc hệ thống P-153
 
-> **AI Agent Tóm tắt và Trích xuất Tri thức Tài liệu Nội bộ Đa Phòng ban (Enterprise Doc Intelligence Agent)**
-> **VinUni AI20K Build Phase — Cohort 3 (Project P-153)**
+**Phiên bản tài liệu:** 2026-09-01
+**Đối chiếu source:** `develop@87a85aa`
 
----
+## 1. Mục tiêu kiến trúc
 
-## 1. Tổng Quan Hệ Thống (System Overview)
+P-153 là hệ thống Enterprise Document Intelligence tách thành ba service. Kiến trúc ưu tiên bốn thuộc tính: câu trả lời có bằng chứng, phân quyền fail-closed, quy trình xuất bản có người duyệt và khả năng thay thế model/vector backend bằng cấu hình.
 
-Hệ thống **Enterprise Doc Intelligence Agent (P-153)** giải quyết toàn diện bài toán quản trị, khai thác và tra cứu tri thức nội bộ đa phòng ban (Quy chế, Quy trình, Biên bản họp, Quyết định, Tài liệu Kế toán - Tài chính, Tài liệu Sản phẩm, v.v.). Hệ thống được xây dựng trên nền tảng **LangGraph**, phục vụ thông qua **FastAPI Backend**, giao diện web **Next.js 15**, cơ sở dữ liệu quan hệ **Supabase PostgreSQL**, và cơ sở dữ liệu vector đa miền **Chroma Cloud**.
-
-### Năng lực cốt lõi:
-1. **Document Ingestion & OCR:** Tiếp nhận tài liệu số (PDF, DOCX, scan) với pipeline chuẩn hóa văn bản, bóc tách và trích xuất OCR.
-2. **Trích xuất thông tin có cấu trúc (Structured Extraction):** Bóc tách chính xác các trường dữ liệu hành động (*Quyết định*, *Trách nhiệm*, *Thời hạn*) theo schema Pydantic được xác thực bởi LLM.
-3. **Quy trình Phê duyệt có con người (Human-in-the-Loop - HITL):** Giao diện và API cho phép Quản trị viên/Chuyên viên review, chỉnh sửa và phê duyệt bài nộp tài liệu trước khi chính thức nạp vào vector database.
-4. **Hỏi đáp & Tổng hợp xuyên tài liệu (Cross-document QA):** Tìm kiếm lai (Hybrid Search: Dense Vector + BM25) kết hợp Reranker `bge-reranker-v2-m3` và suy luận đa chặng, đảm bảo 100% câu trả lời có trích dẫn nguồn (Citations).
-5. **Phân quyền & Cô lập tri thức (Department-based Access Control - ACL):** Phân quyền truy cập theo phòng ban (`HR`, `Accounting`, `Product`, `Operations`, `General` + `Company-wide Scope`) với nguyên tắc fail-closed.
-6. **Điều hướng Ticket & Escalation:** Tự động phát hiện các yêu cầu cần can thiệp cá nhân hoặc ngoài phạm vi để điều hướng mở Ticket đến đúng phòng ban xử lý.
-7. **Kiểm soát chi phí & Quản lý Token:** Cảnh báo giới hạn token và áp dụng chiến lược tóm tắt phân tầng cho tài liệu dài.
-
----
-
-## 2. Sơ Đồ Kiến Trúc Tổng Thể (Architecture Diagram)
+## 2. Sơ đồ tổng thể
 
 ```mermaid
-graph TB
-    subgraph ClientLayer["Tầng Trình Diễn (Next.js 15 / Vercel / Port 3000)"]
-        UI_Emp["Portal Nhân viên<br/>Hỏi đáp, Tra cứu, Xem trích dẫn"]
-        UI_Review["Portal Phê duyệt HITL<br/>Duyệt Quyết định, Trách nhiệm, Deadline"]
-        UI_Admin["Portal Quản trị Tri thức<br/>Upload tài liệu, Quản lý Index & Tickets"]
-        UI_Warmup["Warmup Ping Service<br/>Giữ ấm container backend & agent"]
+flowchart TB
+    subgraph Client[Client layer]
+        User[Employee / Department Manager / Super Admin]
+        FE[Next.js 15 + React 19]
+        Viewer[PDF.js / docx-preview]
+        User --> FE
+        FE --> Viewer
     end
 
-    subgraph BackendLayer["Tầng Nghiệp Vụ & API (FastAPI Backend / Render / Port 8000)"]
-        API_Auth["Auth & Security Service<br/>(JWT, Rate Limiting, Password Policy)"]
-        API_Chat["Chat Service<br/>(Async Polling, History Persistence)"]
-        API_DocSub["Document Submission Service<br/>(Upload, Review & HITL Verification)"]
-        API_Ticket["Ticket Service<br/>(Auto Routing theo phòng ban)"]
-        API_ACL["Department Access Control (ACL)<br/>(Fail-closed filter: Company / Department)"]
-        API_Warmup["Warmup Service"]
+    subgraph Backend[Application layer — FastAPI Backend]
+        Auth[Auth + JWT + RBAC]
+        Chat[Conversation + Chat/SSE]
+        Docs[Documents + HITL Review]
+        Ops[Tickets + Index + Evaluation]
+        Admin[Access Admin + Audit]
     end
 
-    subgraph WorkerLayer["Tầng Xử Lý Bất Đồng Bộ (Background Workers)"]
-        Worker_Analysis["Document Analysis Worker<br/>(LLM Structured Extraction)"]
-        Worker_Ingest["Ingestion & Indexing Worker<br/>(Chunking, Embedding, Index Sync)"]
+    subgraph Agent[AI layer — FastAPI + LangGraph]
+        Contract[Signed internal API]
+        Graph[LangGraph workflow]
+        Retrieval[Hybrid Retrieval]
+        Workers[Analysis / Ingestion / Index / Eval workers]
     end
 
-    subgraph AgentLayer["Tầng AI Agent Orchestration (LangGraph / Port 8001)"]
-        Router["Intent Router<br/>(Greeting, In-scope, Ambiguous, Out-of-scope, Pure Statutory)"]
-        Retrieve_Node["Hybrid Retrieval & Reranker<br/>(Dense + BM25 + bge-reranker-v2-m3)"]
-        Grade_Node["Grade & Query Rewriter"]
-        Generate_Node["Grounded Answer Generator & Citation Mapping"]
-        Guardrail_Node["Safety Guardrails<br/>(Hallucination Check, Confidence, Escalation)"]
+    subgraph Data[Data layer]
+        PG[(PostgreSQL / Supabase)]
+        Vector[(Chroma local/cloud)]
+        Object[Cloudinary or document URL]
+        JobStore[(Agent job workspace)]
     end
 
-    subgraph ExternalGateway["Cổng Mô Hình & Dịch Vụ AI (FPT.AI Gateway)"]
-        LLM["LLM Generation — GLM-5.2 / DeepSeek-V4-Flash"]
-        Emb["Embedding — multilingual-e5-large"]
-        Rerank["Reranker — bge-reranker-v2-m3"]
-        DocAI["OCR / Document AI Service"]
+    subgraph Models[Model services]
+        OpenAI[OpenAI API]
+        FPT[FPT.AI-compatible gateway]
     end
 
-    subgraph DataLayer["Tầng Lưu Trữ & Tri Thức"]
-        DB[("PostgreSQL / Supabase (0001–0012)<br/>Users · Profiles · Submissions · Facts · Tickets · Audits")]
-        Vector[("Chroma Cloud Vector DB<br/>Collections: HR, Accounting, Product, Tenant-scoped")]
-    end
-
-    UI_Emp -->|REST / JWT| API_Chat
-    UI_Review -->|REST / JWT| API_DocSub
-    UI_Admin -->|REST / JWT| API_DocSub
-    UI_Admin -->|REST / JWT| API_Ticket
-    UI_Warmup -.->|Ping| API_Warmup
-
-    API_Auth --> API_ACL
-    API_Chat --> API_ACL
-    API_DocSub --> Worker_Analysis
-    API_DocSub --> Worker_Ingest
-
-    API_Auth --> DB
-    API_Chat --> DB
-    API_DocSub --> DB
-    API_Ticket --> DB
-    API_Chat -->|"Internal REST + Service Token"| Router
-
-    Worker_Analysis --> LLM
-    Worker_Analysis --> DB
-    Worker_Ingest --> Emb
-    Worker_Ingest --> Vector
-
-    Router --> Retrieve_Node
-    Retrieve_Node --> Grade_Node --> Generate_Node --> Guardrail_Node
-    Guardrail_Node -->|"AgentAnswer DTO"| API_Chat
-
-    Retrieve_Node --> Vector
-    Retrieve_Node --> Emb
-    Retrieve_Node --> Rerank
-    Generate_Node --> LLM
-    Guardrail_Node --> LLM
+    FE -->|REST/SSE + JWT| Auth
+    FE --> Chat
+    FE --> Docs
+    FE --> Ops
+    FE --> Admin
+    Auth --> PG
+    Chat --> PG
+    Docs --> PG
+    Ops --> PG
+    Admin --> PG
+    FE -->|upload trực tiếp| Object
+    Docs -->|lưu URL / dọn asset| Object
+    Chat -->|service token + identity signature| Contract
+    Docs -->|worker job| Contract
+    Ops -->|worker job| Contract
+    Contract --> Graph
+    Contract --> Workers
+    Graph --> Retrieval
+    Retrieval --> Vector
+    Graph --> OpenAI
+    Graph --> FPT
+    Workers --> Vector
+    Workers --> JobStore
 ```
 
----
+## 3. Trách nhiệm từng service
 
-## 3. Chi Tiết Các Thành Phần Hệ Thống (Components)
+### 3.1 Frontend
 
-### 3.1. Frontend Web App (Next.js 15)
-- **Công nghệ:** Next.js 15, React 19, TypeScript, CSS Modules.
-- **Trạng thái:** Đã hoàn thiện và tích hợp đầy đủ trên nhánh `develop`.
-- **Tính năng chính:**
-  - **Authentication & Role Selection:** Đăng nhập, đăng ký với lựa chọn phòng ban công tác (`hr`, `accounting`, `product`, `operations`, `general`).
-  - **Employee Knowledge Portal:** Giao diện chat trực quan, hỗ trợ hội thoại nhiều lượt, hiển thị rõ ràng trích dẫn nguồn (Citations) và các cảnh báo nguồn tài liệu.
-  - **Document Review HITL Portal ([`DocumentReview.tsx`](file:///d:/AI%20Engineer/VIN%20AI/P-153/frontend/components/DocumentReview.tsx)):** Giao diện chuyên biệt cho Quản trị viên/Chuyên viên duyệt các tài liệu mới nạp, xem và sửa đổi các trường thông tin bóc tách cấu trúc (*Quyết định*, *Trách nhiệm*, *Thời hạn*).
-  - **Ticket Management Portal ([`TicketsView.tsx`](file:///d:/AI%20Engineer/VIN%20AI/P-153/frontend/components/TicketsView.tsx)):** Quản lý các yêu cầu hỗ trợ được tự động điều hướng từ các câu hỏi cần xử lý cá nhân.
-  - **Warmup Ping Service ([`WarmupPing.tsx`](file:///d:/AI%20Engineer/VIN%20AI/P-153/frontend/components/WarmupPing.tsx)):** Tự động phát tín hiệu kiểm tra định kỳ giữ ấm cho container backend và agent service trên cloud free tier.
+Source chính: `frontend/app`, `frontend/components`, `frontend/lib`.
 
-### 3.2. Backend API Service (FastAPI)
-- **Công nghệ:** FastAPI, Python 3.11+, SQLAlchemy 2.0 (asyncpg), Pydantic v2.
-- **Port:** `8000`.
-- **Module nghiệp vụ chính:**
-  - **Auth & RBAC:** Xác thực bảo mật (`public.users`, `public.profiles`), băm mật khẩu chuẩn PBKDF2/bcrypt, phát JWT token, và kiểm soát chính sách mật khẩu (tối thiểu 8 ký tự, rate limit đăng nhập).
-  - **Chat API:** Nhận truy vấn chat, quản lý session hội thoại, gọi sang Agent Service qua kết nối nội bộ có ký định danh (`X-Service-Token` + HMAC Signature), lưu trữ lịch sử tin nhắn và trích dẫn.
-  - **Document Submissions API ([`document_submissions.py`](file:///d:/AI%20Engineer/VIN%20AI/P-153/backend/app/api/v1/endpoints/document_submissions.py)):** Tiếp nhận tài liệu upload, kích hoạt phân tích cấu trúc, cung cấp API lấy danh sách chờ duyệt, duyệt bài (`/approve`) hoặc từ chối (`/reject`).
-  - **Department Access Control ([`access_control.py`](file:///d:/AI%20Engineer/VIN%20AI/P-153/backend/app/services/access_control.py)):** Áp dụng bộ lọc phân quyền tri thức theo phạm vi phòng ban và cấp độ bảo mật (`COMPANY_WIDE`, `DEPARTMENT_SPECIFIC`).
-  - **Ticket Service ([`ticket_service.py`](file:///d:/AI%20Engineer/VIN%20AI/P-153/backend/app/services/ticket_service.py)):** Tự động tạo và điều phối ticket tới đúng phòng ban chuyên trách khi nhận tín hiệu escalation từ Agent.
+- Quản lý phiên đăng nhập và điều hướng theo vai trò.
+- Chat nhiều lượt, SSE streaming và fallback polling.
+- Hiển thị citation card; mở DOCX/PDF và highlight đoạn liên quan.
+- Quản lý ticket của nhân viên hoặc hàng đợi theo phòng ban.
+- Upload, theo dõi phân tích, duyệt/từ chối, archive và quản lý phiên bản tài liệu.
+- Giao diện quản trị quyền, index và evaluation.
+- `monitoring` hiện chỉ là placeholder, không được tính là chức năng hoàn thành.
 
-### 3.3. AI Agent Service (LangGraph Orchestration)
-- **Công nghệ:** LangGraph, LangChain, FPT.AI LLM Gateway.
-- **Port:** `8001`.
-- **Trạng thái:** Stateless (không tự lưu session, nhận context qua request body).
-- **Luồng xử lý 12 node:**
-  1. `condense`: Viết lại câu hỏi độc lập dựa trên lịch sử hội thoại nhiều lượt.
-  2. `router`: Phân loại ý định người dùng (`greeting`, `in_scope`, `ambiguous`, `out_of_scope_or_personal`, `pure_statutory`).
-  3. `direct`: Trả lời chào hỏi hoặc câu hỏi thông thường.
-  4. `clarify`: Đặt câu hỏi làm rõ khi truy vấn mơ hồ.
-  5. `retrieve`: Tìm kiếm lai (Hybrid Search: Dense Vector + BM25) có áp dụng bộ lọc phân quyền phòng ban (ACL).
-  6. `rerank`: Đánh giá và sắp xếp lại độ phù hợp của chunk bằng mô hình `bge-reranker-v2-m3`.
-  7. `grade`: Kiểm tra mức độ đáp ứng thông tin của tài liệu retrieved.
-  8. `rewrite`: Tự động viết lại truy vấn tìm kiếm nếu tài liệu chưa đủ thông tin (hỗ trợ tối đa retry loop).
-  9. `generate`: Sinh câu trả lời ngôn ngữ tự nhiên, gắn trích dẫn nguồn có kiểm chứng.
-  10. `hallucination_check`: Kiểm tra chéo mức độ trung thực của câu trả lời so với ngữ cảnh trích xuất.
-  11. `confidence`: Tính toán điểm tin cậy tổng hợp dựa trên điểm reranker và kiểm tra ảo giác.
-  12. `finalize` / `escalate_ticket`: Đóng gói kết quả `AgentAnswer` hoàn chỉnh hoặc kích hoạt tạo Ticket hỗ trợ.
+### 3.2 Backend API
 
-### 3.4. Database & Vector Storage
-- **PostgreSQL (Supabase):**
-  - Quản lý toàn bộ cấu trúc dữ liệu với 12 migrations liên tục: `0001` (initial schema), `0002` (RLS recursion fix), `0003` (self-escalation guard), `0004` (agent state & evaluation runs), `0005` (vector metadata registry), `0006` (ticket audit), `0007` (idempotent RLS repair), `0008` (tenant source unique constraints), `0009` (performance indexes), `0010` (department roles & company scope), `0011` (classify existing documents), `0012` (document review workflow).
-- **Chroma Cloud Vector Database:**
-  - Lưu trữ các vector nhúng (1024 chiều) từ mô hình `multilingual-e5-large`.
-  - Phân tách bộ sưu tập (Collections) theo miền tri thức và tenant: `hr_documents`, `accounting`, `product`, `tenant_nexatech_knowledge`.
+Source chính: `backend/app/api/v1`, `backend/app/services`, `backend/app/domain/models`.
 
----
+- Là public boundary duy nhất cho Frontend.
+- Xác thực JWT, nạp lại profile/role từ database và áp dụng RBAC.
+- Sở hữu conversation, message, chat request, ticket, document, submission, audit và job metadata.
+- Ký identity khi gọi Agent; Agent không tin trực tiếp các field role/department từ client.
+- Quản lý lifecycle bất đồng bộ và phục hồi chat request chưa kết thúc sau restart.
+- Điều phối document-analysis, ingestion, index-rebuild và evaluation jobs.
 
-## 4. Luồng Dữ Liệu & Quy Trình Nghiệp Vụ (Data Flow)
+### 3.3 Agent service
 
-### 4.1. Quy trình Truy Vấn Tri Thức (Online QA Flow)
-1. Người dùng gửi câu hỏi qua giao diện Web Next.js.
-2. Backend xác thực JWT, lấy phòng ban của người dùng và chuyển tiếp yêu cầu đến Agent Service.
-3. Agent thực hiện `condense` (nếu có lịch sử) → `router` phân loại.
-4. Nếu là câu hỏi nghiệp vụ: `retrieve` tìm kiếm trong Chroma Cloud và BM25 với bộ lọc phòng ban (User chỉ thấy tài liệu `COMPANY_WIDE` hoặc tài liệu thuộc phòng ban của mình).
-5. Reranker đánh giá điểm phù hợp → `grade` → `generate` sinh câu trả lời kèm `citations`.
-6. `hallucination_check` đối chiếu câu trả lời với nguồn → `confidence` chấm điểm tin cậy.
-7. Trả về `AgentAnswer` an toàn (đã redact PII và lọc Prompt Injection) cho Backend lưu trữ và hiển thị lên Frontend.
+Source chính: `src/agents`, `src/retrieval`, `src/ingestion`, `src/workers`.
 
-### 4.2. Quy trình Nạp & Phê Duyệt Tri Thức (Document Review Flow - HITL)
-1. Quản trị viên tải file (PDF/DOCX) lên qua giao diện Web.
-2. Backend lưu trữ tài liệu với trạng thái `PENDING_ANALYSIS` và kích hoạt Document Analysis Worker.
-3. Worker sử dụng LLM trích xuất các trường thông tin có cấu trúc (*Quyết định*, *Trách nhiệm*, *Thời hạn*), cập nhật trạng thái `NEEDS_REVIEW`.
-4. Chuyên viên nghiệp vụ truy cập giao diện Document Review, kiểm tra tính chính xác của các trường thông tin, chỉnh sửa nếu cần và bấm **Phê duyệt (Approve)**.
-5. Sau khi được duyệt, tài liệu chuyển sang trạng thái `APPROVED` và kích hoạt Ingestion Worker để chunk, embed và nạp vào Chroma Cloud.
+- Cung cấp API nội bộ `/api/v1/agent/query`, `/query/stream` và worker job endpoints.
+- Kiểm tra service token và identity signature.
+- Chạy LangGraph, truy xuất tài liệu, tạo câu trả lời và citation.
+- Không tự ghi ticket nghiệp vụ; Agent trả `ticket_draft`, Backend quyết định persistence.
+- Quản lý execution state của worker jobs và đánh dấu job stale thành failed khi restart.
 
----
-
-## 5. Kiến Trúc Triển Khai (Deployment Architecture)
+## 4. Luồng LangGraph
 
 ```mermaid
-graph LR
-    subgraph RenderCloud["Render Cloud Environment (render.yaml)"]
-        AgentContainer["Agent Service<br/>(FastAPI :8001)"]
-        BackendContainer["Backend API<br/>(FastAPI :8000)"]
-        FrontendContainer["Frontend App<br/>(Next.js :3000)"]
-    end
-
-    FrontendContainer -->|HTTP/REST| BackendContainer
-    BackendContainer -->|HTTP/REST| AgentContainer
-    BackendContainer -->|Postgres Wire| SupabaseDB[("Supabase PostgreSQL")]
-    AgentContainer -->|HTTPS| ChromaDB[("Chroma Cloud")]
-    AgentContainer -->|HTTPS| FPTGateway["FPT.AI Gateway"]
+flowchart TD
+    Q[Query + history + identity] --> CR[Condense and Route]
+    CR --> B[Boundary]
+    B -->|greeting| Direct[Direct answer]
+    B -->|capability| Capability[Capability answer]
+    B -->|ambiguous| Clarify[Clarification]
+    B -->|pure statutory| OOS[Out of scope]
+    B -->|personal / unsupported| Esc[Escalation draft]
+    B -->|knowledge question| KL[Knowledge lookup]
+    KL -->|structured fact found| Final[Finalize + redact]
+    KL -->|need evidence| R[Hybrid retrieval]
+    R --> G[Grade]
+    G -->|department denied| Deny[Access denied]
+    G -->|no evidence, retry available| RW[Rewrite query]
+    RW --> R
+    G -->|evidence or retry exhausted| Gen[Generate grounded answer]
+    Gen --> Conf[Confidence]
+    Conf -->|answerable + above threshold| Final
+    Conf -->|low confidence| Hall[Hallucination check]
+    Conf -->|unanswerable| Esc
+    Hall -->|pass| Final
+    Hall -->|fail + retry| Gen
+    Hall -->|fail/exhausted| Esc
 ```
 
-Hệ thống đã có sẵn blueprint triển khai hoàn chỉnh tại [`render.yaml`](file:///d:/AI%20Engineer/VIN%20AI/P-153/render.yaml), hỗ trợ khởi tạo tự động toàn bộ 3 services (Frontend, Backend, Agent) kết nối đến cơ sở dữ liệu cloud.
+### Retrieval pipeline
 
----
+1. Condense lịch sử và giải coreference.
+2. Mở rộng mốc thời gian trong câu hỏi thành các biến thể chuẩn hóa.
+3. Xác định domain/collection và dựng ACL predicate từ tenant, role, department, scope và lifecycle.
+4. Chạy dense retrieval; khi bật hybrid, kết hợp BM25 bằng reciprocal-rank fusion.
+5. Đa dạng hóa theo nguồn cho câu hỏi multi-source và rerank ứng viên.
+6. Chỉ chuyển chunks đã qua authorization sang generation.
+7. Kiểm tra numeric grounding, citation markers, confidence và PII trước khi trả.
 
-## 6. Bảo Mật & Kiểm Soát Rủi Ro (Security & Governance)
+## 5. Luồng tài liệu và HITL
 
-- **Department-based ACL (Fail-closed):** Ngăn chặn hoàn toàn việc rò rỉ dữ liệu giữa các phòng ban. Mọi truy vấn mặc định chỉ được tiếp cận tài liệu chung toàn công ty (`COMPANY_WIDE`) và tài liệu thuộc đúng phòng ban của tài khoản đăng nhập.
-- **Chống leo quyền (Privilege Escalation Defense):** Trigger cơ sở dữ liệu chặn người dùng tự thay đổi vai trò hoặc phòng ban khi đăng ký.
-- **An toàn AI & Chống ảo giác (AI Safety & Guardrails):**
-  - Loại bỏ các chuỗi nghi vấn Prompt Injection khỏi chunk dữ liệu trước khi nạp vào context LLM (`strip_injection`).
-  - Tự động che dấu dữ liệu nhạy cảm PII (Email, Số điện thoại, CCCD) trước khi trả về người dùng (`redact_pii`).
-  - Kiểm tra ảo giác 2 tầng (LLM Hallucination Judge + Reranker Confidence Gate).
+```mermaid
+sequenceDiagram
+    actor Manager as Department Manager / Super Admin
+    participant FE as Frontend
+    participant BE as Backend
+    participant AG as Agent Worker
+    participant OBJ as Object Storage
+    participant PG as PostgreSQL
+    participant CH as Chroma
+
+    Manager->>FE: Upload file + metadata
+    FE->>OBJ: Upload hoặc lấy public URL
+    FE->>BE: Create document submission
+    BE->>PG: Save submission (PENDING/PROCESSING)
+    BE->>AG: Submit DOCUMENT_ANALYSIS job
+    AG->>AG: Extract → clean → chunk → structured extraction
+    AG-->>BE: Job result/progress
+    BE->>PG: Save review payload
+    Manager->>FE: Review / edit / approve
+    FE->>BE: Approve submission
+    BE->>PG: Create/update document version
+    BE->>AG: Submit INGESTION job
+    AG->>CH: Disable previous version chunks
+    AG->>CH: Upsert approved version chunks
+    BE->>PG: Mark publication/index status
+```
+
+Các định dạng được extractor hỗ trợ trong source: PDF, DOCX, XLSX, Markdown và ảnh. Tài liệu scan/ảnh có thể dùng VLM; bảng PDF được giữ cấu trúc khi có thể.
+
+## 6. Dữ liệu và quyền truy cập
+
+### PostgreSQL/Supabase
+
+Chuỗi migration `0001`–`0012` tạo và gia cố các bảng cho user/profile, conversation/message, chat request, documents, ingestion/index/evaluation jobs, tickets, audit và document review.
+
+### Chroma
+
+- Collection được phân giải theo tenant/domain.
+- Metadata chứa department, access scope, authority, provenance, lifecycle, version, effective date và vị trí nguồn.
+- Phiên bản cũ bị soft-disable khỏi retrieval thay vì xóa lịch sử ngay lập tức.
+
+### Mô hình quyền
+
+| Vai trò | Phạm vi chính |
+|---|---|
+| `EMPLOYEE` | Chat, ticket cá nhân, tài liệu `COMPANY_WIDE` và tài liệu phòng ban được cấp |
+| `DEPARTMENT_MANAGER` | Quyền Employee + quản lý ticket/tài liệu đúng phòng ban |
+| `SUPER_ADMIN` | Quản trị toàn hệ thống, access model, audit, evaluation |
+
+Quyền được kiểm tra ở Backend và lặp lại tại retrieval. Role hoặc department không hợp lệ phải dẫn tới deny, không fallback sang quyền rộng hơn.
+
+## 7. Giao tiếp và contract
+
+- Frontend ↔ Backend: JSON REST, SSE cho chat streaming, JWT bearer token.
+- Backend ↔ Agent: service token; identity trace được ký để chống sửa role/department.
+- Backend ↔ PostgreSQL: SQLAlchemy async.
+- Agent ↔ Chroma/model provider: network API hoặc local vector client tùy cấu hình.
+- Worker job: submit `202 Accepted`, Backend poll trạng thái và mirror kết quả vào database.
+
+## 8. Triển khai
+
+```mermaid
+flowchart LR
+    Browser --> FrontendContainer[Frontend container]
+    FrontendContainer --> BackendContainer[Backend container]
+    BackendContainer --> AgentContainer[Agent container]
+    BackendContainer --> Supabase[(Supabase PostgreSQL)]
+    BackendContainer --> Cloudinary[Cloudinary]
+    AgentContainer --> Chroma[Chroma Cloud]
+    AgentContainer --> Gateway[OpenAI/FPT gateway]
+```
+
+- Local: `docker-compose.yml` build ba container, Agent chỉ expose trong network Compose.
+- Cloud blueprint: `render.yaml` khai báo ba web service và secret qua environment variables.
+- Health endpoints tồn tại ở Backend và Agent; warmup được thực hiện tại startup, không ping Agent trên mỗi health request.
+
+## 9. Quyết định kiến trúc và giới hạn
+
+| Quyết định | Lý do |
+|---|---|
+| Tách Backend và Agent | Cô lập auth/database nghiệp vụ khỏi workload AI và worker |
+| HITL trước khi xuất bản | Không để extraction tự động trở thành tri thức chính thức nếu chưa duyệt |
+| ACL ở hai lớp | Giảm rủi ro bỏ lọt quyền do chỉ kiểm tra UI/API |
+| Hybrid retrieval | Bù điểm yếu của vector search với mã văn bản, ngày tháng và thuật ngữ chính xác |
+| Provider abstraction | Có thể chuyển OpenAI/FPT qua cấu hình mà không thay graph |
+| Soft archive | Giữ audit/version history nhưng loại phiên bản cũ khỏi retrieval |
+
+Giới hạn hiện tại: monitoring dashboard chưa triển khai; test live cần hạ tầng ngoài; một số tài liệu lịch sử mô tả kiến trúc cũ và không thay thế tài liệu chuẩn này.

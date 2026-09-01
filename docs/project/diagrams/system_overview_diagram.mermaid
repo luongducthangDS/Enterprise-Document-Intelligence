@@ -1,84 +1,53 @@
-%% Logical system boundaries after Agent-BE-FE mapping.
+%% Baseline: develop@87a85aa (2026-09-01)
 flowchart LR
-    subgraph LEGEND["Legend"]
-        CURRENT["Implemented"]
-        FUTURE["Future"]
+    E[Employee]
+    M[Department Manager]
+    A[Super Admin]
+
+    subgraph FE[Next.js Frontend]
+        AUTHUI[Auth/session]
+        CHATUI[Chat + citations + tickets]
+        DOCUI[Documents + HITL review]
+        ADMINUI[Access + index + evaluation]
     end
 
-    USER["Employee / HR Admin"]
-
-    subgraph FE["Frontend - Next.js"]
-        FE_AUTH["Login and session UI"]
-        FE_CHAT["Chat, polling, clarification and retry"]
-        FE_SOURCE["Citation source panel"]
-        FE_ADMIN["Documents, index and evaluation"]
-        FE_FUTURE["Ticket dashboard, monitoring and feedback"]
+    subgraph BE[FastAPI Backend - system of record]
+        AUTH[JWT + RBAC]
+        CHAT[Conversation + SSE + ticket]
+        DOC[Document + version + review]
+        OPS[Index + evaluation + audit]
+        CLIENT[Signed Agent client]
     end
 
-    subgraph BE["Backend - FastAPI adapter and system of record"]
-        BE_AUTH["JWT authentication and role RBAC"]
-        BE_CHAT["Conversation, history and ChatService"]
-        BE_CLIENT["AIAgentClient"]
-        BE_ADAPTER["AgentAnswerAdapter"]
-        BE_DOC["Document, index and evaluation services"]
-        BE_CIT["Citation ownership and access control"]
-        BE_TICKET["TicketDB creation from TicketDraft"]
-        BE_FUTURE["Idempotency, durable workers, rate limit,\nticket API, monitoring and feedback"]
+    subgraph AGENT[FastAPI Agent]
+        GRAPH[LangGraph routing + RAG]
+        GUARD[ACL + grounding + PII guardrails]
+        WORKER[Analysis + ingestion + index + evaluation workers]
     end
 
-    subgraph AI["Agent service - stateless LangGraph workflow"]
-        AI_API["Internal Agent query API"]
-        AI_CONTEXT["Multi-turn condense and input guardrail"]
-        AI_ROUTER["Intent routing"]
-        AI_DIRECT["Direct response, clarification or refusal"]
-        AI_RAG["Dense retrieval, optional BM25/RRF and rerank"]
-        AI_GEN["Generation, hallucination check and confidence"]
-        AI_ESC["Escalation decision and TicketDraft"]
-        AI_RESULT["AgentAnswer"]
-        AI_STREAM["SSE/streaming transport"]
-        AI_ACL["Role and department filtering during retrieval"]
-        AI_INGEST["Online document ingestion endpoint"]
-    end
-
-    PG[("PostgreSQL\nBusiness and conversation data")]
-    CHROMA[("ChromaDB\nRAG chunks and embeddings")]
-    FPT["FPT.AI\nLLM, embeddings and reranker"]
-    INGEST["Storage and ingestion worker"]
-
-    USER --> FE_AUTH
-    FE_AUTH --> FE_CHAT
-    FE_AUTH --> FE_ADMIN
-    FE_CHAT --> FE_SOURCE
-
-    FE_AUTH -->|"REST"| BE_AUTH
-    FE_CHAT -->|"REST polling"| BE_CHAT
-    FE_SOURCE -->|"REST"| BE_CIT
-    FE_ADMIN -->|"REST"| BE_DOC
-
-    BE_AUTH --> PG
-    BE_CHAT --> PG
-    BE_DOC --> PG
-    BE_CIT --> PG
-    BE_TICKET --> PG
-    BE_CHAT --> BE_CLIENT -->|"Internal REST"| AI_API
-    AI_API --> AI_CONTEXT --> AI_ROUTER
-    AI_ROUTER -->|"HR question"| AI_RAG --> AI_GEN --> AI_ESC --> AI_RESULT
-    AI_ROUTER -->|"Greeting, ambiguous or out of scope"| AI_DIRECT --> AI_RESULT
-    AI_RAG --> CHROMA
-    AI_RAG --> FPT
-    AI_GEN --> FPT
-    AI_RESULT --> BE_ADAPTER
-    BE_ADAPTER --> BE_CHAT
-    BE_ADAPTER --> BE_TICKET
-
-    FE_FUTURE -.-> BE_FUTURE
-    BE_DOC -.-> INGEST
-    INGEST -.-> AI_INGEST
-    AI_INGEST -.-> CHROMA
-    AI_ACL -.-> AI_RAG
-    AI_STREAM -.-> AI_API
-
-    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
-    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
-    class USER,FE_AUTH,FE_CHAT,FE_SOURCE,FE_ADMIN,BE_AUTH,BE_CHAT,BE_CLIENT,BE_ADAPTER,BE_DOC,BE_CIT,BE_TICKET,AI_API,AI_CONTEXT,AI_ROUTER,AI_DIRECT,AI_RAG,AI_GEN,AI_ESC,AI_RESULT,PG,CHROMA,FPT,CURRENT current;
-    class FE_FUTURE,BE_FUTURE,AI_STREAM,AI_ACL,AI_INGEST,INGEST,FUTURE future;
+    E --> AUTHUI
+    M --> AUTHUI
+    A --> AUTHUI
+    AUTHUI --> CHATUI
+    AUTHUI --> DOCUI
+    AUTHUI --> ADMINUI
+    CHATUI -->|JWT REST/SSE| CHAT
+    DOCUI -->|JWT REST| DOC
+    DOCUI -->|direct upload| STORE[(Cloudinary)]
+    ADMINUI -->|JWT REST| OPS
+    AUTHUI --> AUTH
+    AUTH --> PG[(PostgreSQL/Supabase)]
+    CHAT --> PG
+    DOC --> PG
+    OPS --> PG
+    CHAT --> CLIENT
+    DOC --> CLIENT
+    OPS --> CLIENT
+    CLIENT -->|service token + signed identity| GRAPH
+    GRAPH --> GUARD
+    CLIENT --> WORKER
+    GRAPH --> CH[(Chroma)]
+    WORKER --> CH
+    GRAPH --> MODEL[OpenAI or FPT-compatible gateway]
+    WORKER --> MODEL
+    DOC -->|store URL / clean asset| STORE

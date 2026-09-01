@@ -1,0 +1,32 @@
+%% Baseline: develop@87a85aa (2026-09-01)
+flowchart TD
+    START[Open application] --> LOGIN[Register/login]
+    LOGIN --> AUTH{JWT valid?}
+    AUTH -->|No| LOGIN
+    AUTH -->|Yes| ROLE[Load profile + role + department]
+    ROLE --> ACTION{Function}
+
+    ACTION -->|Chat| CONV[Create/select conversation]
+    CONV --> ASK[Send question via SSE]
+    ASK --> AGENT[Backend calls Agent with signed identity]
+    AGENT --> STATE{Result}
+    STATE -->|Completed| ANSWER[Answer + citations]
+    STATE -->|Clarify| FOLLOW[Reply in same conversation]
+    FOLLOW --> ASK
+    STATE -->|Escalate| TICKET[Safe response + ticket draft]
+    STATE -->|Refuse / out of scope| SAFE[Safe refusal; no ticket]
+    STATE -->|Failed| RETRY[Retry linked request]
+    RETRY --> AGENT
+
+    ACTION -->|Documents| PERM{Manager/Admin?}
+    PERM -->|No| DENY[Access denied]
+    PERM -->|Yes| UPLOAD[Upload trực tiếp Cloudinary hoặc small-file fallback]
+    UPLOAD --> SUBMIT[Submit HTTPS URL/file tới Backend]
+    SUBMIT --> ANALYSIS[Analyze submission]
+    ANALYSIS --> REVIEW[Review extracted content]
+    REVIEW -->|Reject| REJECT[Keep rejected submission]
+    REVIEW -->|Approve| PUBLISH[Version + index + publish]
+
+    ACTION -->|Administration| ADMIN{Super Admin?}
+    ADMIN -->|No| DENY
+    ADMIN -->|Yes| OPS[Access + audit + evaluation]

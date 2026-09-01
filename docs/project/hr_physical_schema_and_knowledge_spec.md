@@ -1,5 +1,7 @@
 # HR Physical Schema And Knowledge Specification
 
+> **Tài liệu lịch sử.** Schema trong tài liệu này là thiết kế nghiên cứu, không thay thế migration. Xem [`database/relationDB.md`](database/relationDB.md), `supabase/migrations/` và [`README.md`](README.md) cho baseline hiện hành.
+
 ## Trạng thái
 
 Tài liệu này là proposal sau khi business/data architecture đã freeze. Chưa viết migration, chưa mutate Supabase/Chroma, chưa code, chưa sinh content.

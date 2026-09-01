@@ -1,0 +1,1730 @@
+{
+  "generated_at": "2026-09-01T05:36:14.489262+00:00",
+  "registry_version": "1.0",
+  "dataset_size": 68,
+  "metrics": {
+    "scenario": 1.0,
+    "assistant_role": 1.0,
+    "runtime_action": 1.0,
+    "max_runtime_action": 1.0,
+    "sensitivity": 1.0,
+    "handoff_owner": 1.0
+  },
+  "counts": {
+    "scenario": {
+      "correct": 68,
+      "total": 68
+    },
+    "assistant_role": {
+      "correct": 64,
+      "total": 64
+    },
+    "runtime_action": {
+      "correct": 64,
+      "total": 64
+    },
+    "max_runtime_action": {
+      "correct": 64,
+      "total": 64
+    },
+    "sensitivity": {
+      "correct": 64,
+      "total": 64
+    },
+    "handoff_owner": {
+      "correct": 64,
+      "total": 64
+    }
+  },
+  "invariant_violations": [],
+  "rows": [
+    {
+      "id": "bd_001",
+      "expected_scenario_id": 1,
+      "predicted_scenario_id": 1,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_002",
+      "expected_scenario_id": 2,
+      "predicted_scenario_id": 2,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_003",
+      "expected_scenario_id": 3,
+      "predicted_scenario_id": 3,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_004",
+      "expected_scenario_id": 4,
+      "predicted_scenario_id": 4,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_005",
+      "expected_scenario_id": 5,
+      "predicted_scenario_id": 5,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_006",
+      "expected_scenario_id": 6,
+      "predicted_scenario_id": 6,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_007",
+      "expected_scenario_id": 7,
+      "predicted_scenario_id": 7,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_008",
+      "expected_scenario_id": 8,
+      "predicted_scenario_id": 8,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_009",
+      "expected_scenario_id": 9,
+      "predicted_scenario_id": 9,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_010",
+      "expected_scenario_id": 10,
+      "predicted_scenario_id": 10,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_011",
+      "expected_scenario_id": 11,
+      "predicted_scenario_id": 11,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_012",
+      "expected_scenario_id": 12,
+      "predicted_scenario_id": 12,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_013",
+      "expected_scenario_id": 13,
+      "predicted_scenario_id": 13,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_014",
+      "expected_scenario_id": 14,
+      "predicted_scenario_id": 14,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_015",
+      "expected_scenario_id": 15,
+      "predicted_scenario_id": 15,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_016",
+      "expected_scenario_id": 16,
+      "predicted_scenario_id": 16,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_017",
+      "expected_scenario_id": 17,
+      "predicted_scenario_id": 17,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_018",
+      "expected_scenario_id": 18,
+      "predicted_scenario_id": 18,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_019",
+      "expected_scenario_id": 19,
+      "predicted_scenario_id": 19,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_020",
+      "expected_scenario_id": 20,
+      "predicted_scenario_id": 20,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_021",
+      "expected_scenario_id": 21,
+      "predicted_scenario_id": 21,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_022",
+      "expected_scenario_id": 22,
+      "predicted_scenario_id": 22,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_023",
+      "expected_scenario_id": 23,
+      "predicted_scenario_id": 23,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_024",
+      "expected_scenario_id": 24,
+      "predicted_scenario_id": 24,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_025",
+      "expected_scenario_id": 25,
+      "predicted_scenario_id": 25,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_026",
+      "expected_scenario_id": 26,
+      "predicted_scenario_id": 26,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_027",
+      "expected_scenario_id": 27,
+      "predicted_scenario_id": 27,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_028",
+      "expected_scenario_id": 28,
+      "predicted_scenario_id": 28,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_029",
+      "expected_scenario_id": 29,
+      "predicted_scenario_id": 29,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_030",
+      "expected_scenario_id": 30,
+      "predicted_scenario_id": 30,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_031",
+      "expected_scenario_id": 31,
+      "predicted_scenario_id": 31,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_032",
+      "expected_scenario_id": 32,
+      "predicted_scenario_id": 32,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_033",
+      "expected_scenario_id": 33,
+      "predicted_scenario_id": 33,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "BUSINESS_LEADER",
+        "predicted": "BUSINESS_LEADER"
+      }
+    },
+    {
+      "id": "bd_034",
+      "expected_scenario_id": 34,
+      "predicted_scenario_id": 34,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_035",
+      "expected_scenario_id": 35,
+      "predicted_scenario_id": 35,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_036",
+      "expected_scenario_id": 36,
+      "predicted_scenario_id": 36,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_037",
+      "expected_scenario_id": 37,
+      "predicted_scenario_id": 37,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_038",
+      "expected_scenario_id": 38,
+      "predicted_scenario_id": 38,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "CB",
+        "predicted": "CB"
+      }
+    },
+    {
+      "id": "bd_039",
+      "expected_scenario_id": 39,
+      "predicted_scenario_id": 39,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_040",
+      "expected_scenario_id": 40,
+      "predicted_scenario_id": 40,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_041",
+      "expected_scenario_id": 41,
+      "predicted_scenario_id": 41,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_042",
+      "expected_scenario_id": 42,
+      "predicted_scenario_id": 42,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "BUSINESS_LEADER",
+        "predicted": "BUSINESS_LEADER"
+      }
+    },
+    {
+      "id": "bd_043",
+      "expected_scenario_id": 43,
+      "predicted_scenario_id": 43,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_044",
+      "expected_scenario_id": 44,
+      "predicted_scenario_id": 44,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LD",
+        "predicted": "LD"
+      }
+    },
+    {
+      "id": "bd_045",
+      "expected_scenario_id": 45,
+      "predicted_scenario_id": 45,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "CREATE_CASE",
+        "predicted": "CREATE_CASE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "LD",
+        "predicted": "LD"
+      }
+    },
+    {
+      "id": "bd_046",
+      "expected_scenario_id": 46,
+      "predicted_scenario_id": 46,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HIRING_MANAGER",
+        "predicted": "HIRING_MANAGER"
+      }
+    },
+    {
+      "id": "bd_047",
+      "expected_scenario_id": 47,
+      "predicted_scenario_id": 47,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "LINE_MANAGER",
+        "predicted": "LINE_MANAGER"
+      }
+    },
+    {
+      "id": "bd_048",
+      "expected_scenario_id": 48,
+      "predicted_scenario_id": 48,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_049",
+      "expected_scenario_id": 49,
+      "predicted_scenario_id": 49,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Low",
+        "predicted": "Low"
+      },
+      "handoff_owner": {
+        "expected": "IT",
+        "predicted": "IT"
+      }
+    },
+    {
+      "id": "bd_050",
+      "expected_scenario_id": 50,
+      "predicted_scenario_id": 50,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "ADMIN",
+        "predicted": "ADMIN"
+      }
+    },
+    {
+      "id": "bd_051",
+      "expected_scenario_id": 51,
+      "predicted_scenario_id": 51,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "ER",
+        "predicted": "ER"
+      }
+    },
+    {
+      "id": "bd_052",
+      "expected_scenario_id": 52,
+      "predicted_scenario_id": 52,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Critical",
+        "predicted": "Critical"
+      },
+      "handoff_owner": {
+        "expected": "ER",
+        "predicted": "ER"
+      }
+    },
+    {
+      "id": "bd_053",
+      "expected_scenario_id": 53,
+      "predicted_scenario_id": 53,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "ANSWER",
+        "predicted": "ANSWER"
+      },
+      "runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "max_runtime_action": {
+        "expected": "NONE",
+        "predicted": "NONE"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "ER",
+        "predicted": "ER"
+      }
+    },
+    {
+      "id": "bd_054",
+      "expected_scenario_id": 54,
+      "predicted_scenario_id": 54,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Critical",
+        "predicted": "Critical"
+      },
+      "handoff_owner": {
+        "expected": "ER",
+        "predicted": "ER"
+      }
+    },
+    {
+      "id": "bd_055",
+      "expected_scenario_id": 55,
+      "predicted_scenario_id": 55,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Critical",
+        "predicted": "Critical"
+      },
+      "handoff_owner": {
+        "expected": "ER",
+        "predicted": "ER"
+      }
+    },
+    {
+      "id": "bd_056",
+      "expected_scenario_id": 56,
+      "predicted_scenario_id": 56,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "LEGAL",
+        "predicted": "LEGAL"
+      }
+    },
+    {
+      "id": "bd_057",
+      "expected_scenario_id": 57,
+      "predicted_scenario_id": 57,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Critical",
+        "predicted": "Critical"
+      },
+      "handoff_owner": {
+        "expected": "HRBP",
+        "predicted": "HRBP"
+      }
+    },
+    {
+      "id": "bd_058",
+      "expected_scenario_id": 58,
+      "predicted_scenario_id": 58,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Critical",
+        "predicted": "Critical"
+      },
+      "handoff_owner": {
+        "expected": "SAFETY",
+        "predicted": "SAFETY"
+      }
+    },
+    {
+      "id": "bd_059",
+      "expected_scenario_id": 59,
+      "predicted_scenario_id": 59,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "FINANCE",
+        "predicted": "FINANCE"
+      }
+    },
+    {
+      "id": "bd_060",
+      "expected_scenario_id": 60,
+      "predicted_scenario_id": 60,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "FINANCE",
+        "predicted": "FINANCE"
+      }
+    },
+    {
+      "id": "bd_061",
+      "expected_scenario_id": 61,
+      "predicted_scenario_id": 61,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "GUIDE",
+        "predicted": "GUIDE"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "Medium",
+        "predicted": "Medium"
+      },
+      "handoff_owner": {
+        "expected": "HR_OPS",
+        "predicted": "HR_OPS"
+      }
+    },
+    {
+      "id": "bd_062",
+      "expected_scenario_id": 62,
+      "predicted_scenario_id": 62,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "LEGAL",
+        "predicted": "LEGAL"
+      }
+    },
+    {
+      "id": "bd_063",
+      "expected_scenario_id": 63,
+      "predicted_scenario_id": 63,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "HUMAN_FIRST",
+        "predicted": "HUMAN_FIRST"
+      },
+      "runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "max_runtime_action": {
+        "expected": "PREFILL_DRAFT",
+        "predicted": "PREFILL_DRAFT"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "BUSINESS_LEADER",
+        "predicted": "BUSINESS_LEADER"
+      }
+    },
+    {
+      "id": "bd_064",
+      "expected_scenario_id": 64,
+      "predicted_scenario_id": 64,
+      "scenario_ok": true,
+      "assistant_role": {
+        "expected": "PREPARE_AND_HANDOFF",
+        "predicted": "PREPARE_AND_HANDOFF"
+      },
+      "runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "max_runtime_action": {
+        "expected": "LINK_ONLY",
+        "predicted": "LINK_ONLY"
+      },
+      "sensitivity": {
+        "expected": "High",
+        "predicted": "High"
+      },
+      "handoff_owner": {
+        "expected": "LEGAL",
+        "predicted": "LEGAL"
+      }
+    },
+    {
+      "id": "bd_neg_001",
+      "expected_scenario_id": null,
+      "predicted_scenario_id": null,
+      "scenario_ok": true
+    },
+    {
+      "id": "bd_neg_002",
+      "expected_scenario_id": null,
+      "predicted_scenario_id": null,
+      "scenario_ok": true
+    },
+    {
+      "id": "bd_neg_003",
+      "expected_scenario_id": null,
+      "predicted_scenario_id": null,
+      "scenario_ok": true
+    },
+    {
+      "id": "bd_neg_004",
+      "expected_scenario_id": null,
+      "predicted_scenario_id": null,
+      "scenario_ok": true
+    }
+  ]
+}

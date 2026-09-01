@@ -1,5 +1,7 @@
 # PM/BA Onboarding Overview — HR Document Intelligence Agent (P-153)
 
+> **Tài liệu lịch sử.** Metric, role và trạng thái tính năng bên dưới có thể đã cũ. Bắt đầu từ [`README.md`](README.md) và bộ tài liệu bàn giao chuẩn được liên kết tại đó.
+
 > Tài liệu tổng hợp dành cho PM/BA mới join dự án, gộp từ toàn bộ tài liệu sẵn có trong repo (Brief, PRD, Architecture, RAG pipeline docs, reports, worklog...). Đây là bản **tổng hợp — không thay thế** các tài liệu gốc; mọi chi tiết sâu hơn nên tra lại nguồn được ghi kèm.
 >
 > Cập nhật lần cuối tổng hợp: 2026-08-15. Trạng thái dự án bên dưới phản ánh baseline gần nhất được ghi nhận trong log (06–13/8/2026); một số mục có thể đã thay đổi từ đó — xem mục 8 để biết chỗ cần hỏi lại team.

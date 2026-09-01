@@ -1,0 +1,33 @@
+%% Baseline: develop@87a85aa (2026-09-01)
+flowchart TD
+    subgraph CHAT[Online chat]
+        Q[Question + JWT] --> B[Backend validates owner and role]
+        B --> P[(Persist request + user message)]
+        P --> H[Load recent history]
+        H --> S[Signed call to Agent]
+        S --> R[Condense + route + authorized retrieval]
+        R --> G[Grounded generation + citation]
+        G --> V[Confidence/hallucination/PII checks]
+        V --> M[Backend maps and persists result]
+        M --> O[Frontend receives SSE result or polls]
+    end
+    subgraph DOC[Document lifecycle]
+        U[Select file] -->|preferred: direct upload| OBJ[(Cloudinary)]
+        OBJ -->|HTTPS public URL| SUB[(Submission)]
+        U -->|small-file legacy fallback| SUB
+        SUB --> ANALYZE[Document analysis worker]
+        ANALYZE --> HITL[Human review]
+        HITL -->|reject| REJECTED[Rejected]
+        HITL -->|approve| VER[(Official document + version metadata)]
+        VER --> OLD[Disable previous-version chunks]
+        OLD --> INDEX[Chunk + embed + upsert]
+        INDEX --> ACTIVE[Active corpus]
+    end
+    R --> CH[(Chroma)]
+    INDEX --> CH
+    G --> MODEL[Model gateway]
+    ANALYZE -->|optional VLM / structured extraction| MODEL
+    B --> DB[(PostgreSQL)]
+    M --> DB
+    SUB --> DB
+    VER --> DB

@@ -1,5 +1,7 @@
 # HR Interaction Boundary Plan
 
+> **Tài liệu lịch sử.** Nội dung phản ánh giai đoạn phân tích trước baseline `develop@87a85aa`; không dùng để khẳng định tính năng hiện tại. Xem [`README.md`](README.md) và [`../SYSTEM_SPECIFICATION_AND_DESIGN.md`](../SYSTEM_SPECIFICATION_AND_DESIGN.md) để lấy tài liệu bàn giao chuẩn.
+
 ## Phạm vi
 
 Tài liệu này sửa cách tiếp cận trước khi thiết kế database cho HR Assistant của V-Nova. Mục tiêu không phải là số hóa mọi HR service, mà là xác định ranh giới tương tác giữa nhân viên, quản lý trực tiếp và các bộ phận HR trong môi trường doanh nghiệp thực tế.

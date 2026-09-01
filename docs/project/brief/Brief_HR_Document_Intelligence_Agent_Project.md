@@ -1,5 +1,7 @@
 # PROJECT BRIEF
 
+> **Bản brief lịch sử.** Phạm vi, role và trạng thái tính năng bên dưới phản ánh giai đoạn lập kế hoạch. Tài liệu chuẩn hiện tại là [`../../SYSTEM_SPECIFICATION_AND_DESIGN.md`](../../SYSTEM_SPECIFICATION_AND_DESIGN.md) và [`../README.md`](../README.md).
+
 **Tên đề tài:** AI agent Tóm tắt và trích xuất tri thức tài liệu nội bộ (Doc Intelligence Agent)  
 **Mã dự án:** P-153  
 **Đơn vị/Bối cảnh ứng dụng:** Kho tài liệu nội bộ VinBigData  

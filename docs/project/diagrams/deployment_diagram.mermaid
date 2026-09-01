@@ -1,61 +1,15 @@
-%% Current Docker Compose topology. Dashed nodes and edges are future scope.
+%% Logical deployment; verify live URLs/secrets from the target environment.
 flowchart TB
-    subgraph LEGEND["Legend"]
-        CURRENT["Implemented"]
-        FUTURE["Future"]
-    end
-
-    USERS["Employees and HR Admins"]
-
-    subgraph HOST["Docker Compose / cloud deployment"]
-        subgraph FE_SERVICE["Frontend service"]
-            NEXT["Next.js 15 + TypeScript\nPort 3000"]
-        end
-
-        subgraph BE_SERVICE["Backend service"]
-            BE["FastAPI Backend\nPublic REST API - Port 8000"]
-            BE_TASK["In-process background chat task"]
-        end
-
-        subgraph AGENT_SERVICE["Agent service - independently deployable"]
-            AGENT_API["Internal FastAPI API\nContainer port 8000"]
-            LANGGRAPH["LangGraph HR RAG Agent"]
-            LOCAL_DATA["Mounted data/ and storage/\nLocal development"]
-        end
-
-        POSTGRES[("PostgreSQL 16\nUsers, conversations, messages,\nchat requests, tickets, document metadata")]
-    end
-
-    CHROMA[("Chroma Cloud\nVector collection")]
-    FPT["FPT.AI Marketplace\nChat, embeddings and rerank"]
-
-    OBJECT_STORE[("Object storage\nUploaded source documents")]
-    QUEUE["Durable queue and workers\nChat + ingestion + indexing"]
-    REDIS[("Redis\nRate limit and distributed cache")]
-    OBS["Monitoring and feedback services"]
-    STREAM["SSE transport and BE stream proxy"]
-
-    USERS -->|"HTTPS"| NEXT
-    NEXT -->|"REST + JWT + polling"| BE
-    BE -->|"SQL"| POSTGRES
-    BE --> BE_TASK
-    BE_TASK -->|"Internal REST + service token"| AGENT_API
-    AGENT_API --> LANGGRAPH
-    LANGGRAPH --> CHROMA
-    LANGGRAPH --> FPT
-    LANGGRAPH --> LOCAL_DATA
-
-    BE -.-> OBJECT_STORE
-    OBJECT_STORE -.-> QUEUE
-    BE -.-> QUEUE
-    QUEUE -.-> AGENT_API
-    BE -.-> REDIS
-    BE -.-> OBS
-    AGENT_API -.-> OBS
-    NEXT -.-> STREAM
-    STREAM -.-> AGENT_API
-
-    classDef current fill:#12352f,stroke:#2dd4bf,stroke-width:2px,color:#e6fffb;
-    classDef future fill:#33270f,stroke:#f59e0b,stroke-width:2px,color:#fff7df,stroke-dasharray:6 4;
-    class USERS,NEXT,BE,BE_TASK,AGENT_API,LANGGRAPH,LOCAL_DATA,POSTGRES,CHROMA,FPT,CURRENT current;
-    class OBJECT_STORE,QUEUE,REDIS,OBS,STREAM,FUTURE future;
+    USERS[Browser users] -->|HTTPS| FE[Next.js frontend]
+    FE -->|JWT REST/SSE| BE[FastAPI backend]
+    BE -->|SQL/TLS| PG[(Supabase PostgreSQL)]
+    FE -->|direct upload| STORE[(Cloudinary)]
+    FE -->|submit public URL| BE
+    BE -->|store URL / delete asset| STORE
+    BE -->|service token + signed identity| AGENT[FastAPI Agent]
+    AGENT --> GRAPH[LangGraph + workers]
+    GRAPH -->|vector operations| CH[(Local/Cloud Chroma)]
+    GRAPH -->|LLM/embedding/VLM/rerank| MODEL[OpenAI or FPT-compatible gateway]
+    DEV[Docker Compose local] -. packages .-> FE
+    DEV -. packages .-> BE
+    DEV -. packages .-> AGENT

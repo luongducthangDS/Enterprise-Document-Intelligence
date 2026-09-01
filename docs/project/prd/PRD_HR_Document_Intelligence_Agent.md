@@ -1,5 +1,7 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 
+> **PRD lịch sử.** Tài liệu này mô tả mục tiêu kỳ vọng, không phải danh sách tính năng đã hoàn tất; trong đó mô hình 2 role và một số flow nâng cao đã lệch code hiện tại. Baseline triển khai dùng [`../../SYSTEM_SPECIFICATION_AND_DESIGN.md`](../../SYSTEM_SPECIFICATION_AND_DESIGN.md) và [`../README.md`](../README.md).
+
 **Tên sản phẩm:** AI agent Tóm tắt và trích xuất tri thức tài liệu nội bộ (Doc Intelligence Agent)  
 **Mã dự án:** P-153  
 **Bối cảnh triển khai:** Hệ thống quản trị tri thức và tài liệu nội bộ VinBigData  

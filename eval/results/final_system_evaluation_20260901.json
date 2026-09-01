@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "scope": "entire_p153_system",
+  "evaluation_date": "2026-09-01",
+  "baseline_commit": "87a85aa34cc23e41cd2c6d8a1eb4331e31a79300",
+  "overall_status": "CONDITIONALLY_READY",
+  "current_results": {
+    "frontend": {
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "production_build": "PASS",
+      "build": {"framework": "Next.js 15.5.23", "compile_seconds": 21.0, "root_route_size_kb": 33.9, "root_first_load_js_kb": 136.0, "shared_first_load_js_kb": 103.0},
+      "dependency_audit": {"status": "FAIL", "total": 5, "high": 3, "moderate": 2, "affected_transitive_packages": ["sharp", "postcss"]}
+    },
+    "backend": {
+      "pytest": {"status": "PASS", "passed": 152, "failed": 0, "errors": 0, "skipped": 0, "warnings": 10, "duration_seconds": 16.326, "artifact": "final_backend_pytest_20260901.xml"},
+      "ruff": {"status": "FAIL", "findings": 78}
+    },
+    "agent_core": {
+      "pytest": {
+        "status": "FAIL", "passed": 589, "failed": 6, "errors": 8, "skipped": 44, "subtests_passed": 6, "non_skipped_pass_rate": 0.9768,
+        "failure_categories": {"external_chroma_or_model_dependency": 12, "llm_configuration_isolation": 2},
+        "raw_artifact_saved": false,
+        "raw_artifact_note": "Intentionally omitted because failed assertion output contained a credential value. Only aggregate counts are retained."
+      },
+      "ruff": {"status": "FAIL", "findings": 150}
+    },
+    "security_and_authorization": {
+      "targeted_security_safety_metric_tests": {"status": "PASS", "passed": 39, "subtests_passed": 6},
+      "cross_department_acl": {"status": "PASS", "blocked": 15, "total": 15, "rate": 1.0, "wilson_ci95": [0.7961, 1.0]},
+      "boundary_scenarios": {"status": "PASS", "correct": 68, "total": 68, "accuracy": 1.0, "wilson_ci95": [0.9465, 1.0], "invariant_violations": 0, "artifact": "final_boundary_20260901.json"}
+    },
+    "data_and_rag": {
+      "general_dataset_integrity": {"status": "PASS_SELF_CONTAINED_ONLY", "retrieval_queries": 29, "retrieval_qrels": 29, "qa_eval_items": 68, "qa_heldout_items": 0, "local_general_chunks_present": false},
+      "product_qrel_alignment": {"status": "FAIL", "available_unique_qrel_chunk_ids": 0, "unique_qrel_chunk_ids": 26, "coverage": 0.0},
+      "hitl_fixture_schema_completeness": {"status": "PASS_DATA_ONLY", "complete": 5, "total": 5},
+      "operations_fixture_completeness": {"status": "PASS_DATA_ONLY", "complete": 18, "total": 18},
+      "current_live_retrieval_quality": "NOT_MEASURED",
+      "current_agent_answer_quality": "NOT_MEASURED",
+      "current_router_model_eval": "NOT_RUN_EXTERNAL_EVALUATION_NOT_AUTHORIZED"
+    },
+    "manual_acceptance": {"status": "INCOMPLETE_EVIDENCE", "passed": 6, "failed": 1, "total": 7, "failed_case": "TC04", "invalid_evidence_cells": 32},
+    "deployment_and_database": {
+      "supabase_migration_files": 12,
+      "docker_compose_config": "ENVIRONMENT_BLOCKED_MISSING_DATABASE_URL",
+      "live_migration_parity": "ENVIRONMENT_BLOCKED_CHROMA_NETWORK",
+      "live_end_to_end": "NOT_RUN_ON_CURRENT_BASELINE"
+    }
+  },
+  "historical_reference_only": {
+    "retrieval_2026_08_19_dev_n27": {"hit_rate_at_5": 0.963, "recall_at_5": 0.895, "ndcg_at_5": 0.819, "hit_rate_at_10": 1.0, "recall_at_10": 0.981, "multi_chunk_recall_at_10": 0.963, "ndcg_at_10": 0.853, "mrr": 0.849},
+    "router_holdout_consumed": {"correct": 66, "total": 70, "accuracy": 0.943, "valid_as_current_heldout_gate": false},
+    "e2e_performance_2026_08_13_n35": {"p50_seconds": 11.571, "p95_seconds": 33.909, "mean_seconds": 17.861, "over_30_seconds_rate": 0.086, "retry_rate": 0.029}
+  },
+  "release_blockers": [
+    "Resolve or accept 3 high and 2 moderate frontend dependency vulnerabilities.",
+    "Make agent/core tests hermetic and separate live cloud tests from the default offline suite.",
+    "Resolve Python Ruff findings (150 root, 78 backend).",
+    "Restore an aligned retrieval corpus/index and run current retrieval and answer-quality evaluation.",
+    "Run current live end-to-end and migration-parity checks in the target environment.",
+    "Repair manual-test evidence and resolve or accept TC04."
+  ]
+}

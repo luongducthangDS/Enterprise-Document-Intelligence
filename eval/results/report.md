@@ -1,95 +1,168 @@
-# Báo Cáo Đánh Giá Chất Lượng Toàn Diện (Evaluation Report) — P-153
+# Báo cáo Metrics & Evaluation cuối — Toàn bộ hệ thống P-153
 
-> **Dự án:** AI Agent Tóm tắt và Trích xuất Tri thức Tài liệu Nội bộ Đa Phòng ban (Enterprise Doc Intelligence Agent)  
-> **Thời điểm cập nhật:** 2026-08-26 (Hoàn thiện sau đợt kiểm thử E2E Live, Remediation và Mở rộng Đa phòng ban).
+**Baseline:** `develop@87a85aa34cc23e41cd2c6d8a1eb4331e31a79300`
 
----
+**Ngày đánh giá:** 2026-09-01
 
-## 1. Bảng Tổng Hợp Chỉ Số Đánh Giá (Key Metrics Summary)
+**Phạm vi:** Frontend, Backend/API, Agent/RAG, dữ liệu, bảo mật/RBAC, tích hợp, kiểm thử thủ công, chất lượng mã và triển khai
 
-| Chỉ số / Metric | Tiêu chuẩn (Target) | Kết quả thực tế (Actual) | Trạng thái |
-|---|:---:|:---:|:---:|
-| **Router Accuracy** (Phân loại intent đa phòng ban) | >90% | **95.7% – 96.4%** | ✅ Đạt xuất sắc |
-| **Retrieval Recall@10** (Hybrid + Reranker trên tập Dev) | >85% | **92.8%** | ✅ Đạt |
-| **Retrieval MRR** (Mean Reciprocal Rank) | >0.8 | **0.916** | ✅ Đạt |
-| **Multi-chunk Synthesis Recall@10** | >75% | **83.6%** | ✅ Đạt |
-| **Response Accuracy** (In-scope QA có trích dẫn) | >80% | **79.3% – 80.0%** | ✅ Đạt |
-| **Hallucination Detection F1** (Judge đối chiếu) | >90% | **95.2%** | ✅ Đạt |
-| **Live E2E Acceptance Test Pass Rate** (46 ca kiểm thử thật) | >80% | **100% sau Remediation** (36/46 đợt đầu) | ✅ Đạt |
-| **Test Coverage** (Core Agent & Backend APIs) | >70% | **87%** (114 backend tests, 421+ core tests) | ✅ Đạt |
-| **Cold Start Mitigation** (Thời gian phản hồi khi có Warmup) | <5s | **~1.8s – 3.2s** (sau khi kích hoạt `WarmupPing`) | ✅ Đạt |
+**Kết luận:** **CONDITIONALLY READY — chưa đủ điều kiện tuyên bố Full Release Verified**
 
----
+**Artifact tổng hợp:** [`final_system_evaluation_20260901.json`](final_system_evaluation_20260901.json)
 
-## 2. Kết Quả Kiểm Thử Đa Tầng (Multi-Tier Evaluation Results)
+## 1. Scorecard toàn hệ thống
 
-### 2.1. Tầng 1: Đánh Giá Ý Định (Intent Router Evaluation)
-- **Script thực thi:** `eval/scripts/eval_router.py`
-- **Mô hình triển khai:** `DeepSeek-V4-Flash` (sau khi A/B test đạt độ chính xác tương đương `GLM-5.2` nhưng tốc độ nhanh hơn 3.3 lần).
-- **Kết quả:**
-  - `greeting`: 100% (10/10)
-  - `in_scope` (HR / Accounting / Product): 96.0% (96/100)
-  - `ambiguous`: 93.3% (14/15)
-  - `out_of_scope_or_personal`: 100% (15/15)
-  - `pure_statutory`: 90.0% (9/10)
+| Khu vực | Kết quả hiện tại | Trạng thái |
+|---|---|:---:|
+| Frontend quality | Lint PASS; typecheck PASS; production build PASS | PASS |
+| Frontend dependency security | 5 vulnerabilities: 3 High, 2 Moderate | FAIL |
+| Backend/API regression | 152 passed; 0 failed/error; 10 warnings; 16.326 giây | PASS |
+| Agent/core full suite | 589 passed; 44 skipped; 6 failed; 8 errors; 6 subtests pass | FAIL |
+| Security/safety targeted suite | 39 passed + 6 subtests | PASS |
+| Boundary/role/action regression | 68/68 đúng; 0 invariant violation | PASS |
+| Cross-department ACL | 15/15 truy cập trái quyền bị chặn | PASS |
+| Dataset self-contained checks | 29 query/29 qrel; 68 QA items; không có general local chunks | PARTIAL |
+| Product retrieval alignment | 0/26 unique gold chunk IDs tồn tại | FAIL |
+| Current live retrieval/answer quality | Chưa đo được trên baseline hiện tại | NOT RUN |
+| Manual acceptance | 6/7 PASS; TC04 FAIL; 32 evidence cells lỗi | INCOMPLETE |
+| Python static quality | Root 150 Ruff findings; Backend 78 | FAIL |
+| Docker/deployment config | Thiếu `DATABASE_URL` trong môi trường kiểm chứng | ENV BLOCKED |
+| Live E2E/migration parity | Cần Chroma/model/database target hoạt động | ENV BLOCKED |
 
-### 2.2. Tầng 2: Đánh Giá Truy Vấn Tri Thức (Retrieval & Rerank Benchmark)
-- **Script thực thi:** `eval/scripts/eval_retrieval.py --rerank`
-- **Phương pháp:** Hybrid Search (Dense Vector `multilingual-e5-large` + BM25) kết hợp Reranker `bge-reranker-v2-m3` và bộ lọc phòng ban (Department ACL).
+Không tính trung bình các hàng trên thành một “system accuracy” duy nhất vì chúng đo các thuộc tính khác nhau. Trạng thái tổng thể dựa trên gate: chỉ cần security dependency, regression, data alignment hoặc live acceptance chưa đạt thì chưa được gắn `FULLY VERIFIED`.
 
-| Bộ chỉ số Retrieval | Dev Set (n=73) | Held-Out Set (n=20) | Accounting Domain (n=35) | Product Domain (n=30) |
-|---|:---:|:---:|:---:|:---:|
-| **Hit Rate@10** | 98.6% | 100.0% | 97.1% | 96.7% |
-| **Recall@10** | 92.8% | 81.9% | 91.4% | 90.0% |
-| **MRR** | 0.916 | 0.881 | 0.895 | 0.887 |
-| **Document Hit Rate** | 79.5% | 85.0% | 88.6% | 83.3% |
+## 2. Frontend
 
-### 2.3. Tầng 3: Đánh Giá Agent End-to-End & An Toàn (Safety & Guardrails)
-- **Tránh ảo giác (Zero-Hallucination):** 100% câu trả lời nghiệp vụ in-scope được đính kèm trích dẫn văn bản nguồn có thẩm quyền (`is_official_policy=True` hoặc cảnh báo nguồn mẫu).
-- **Phân quyền phòng ban (Department ACL):** 100% truy vấn từ nhân viên phòng ban này không thể trích xuất tài liệu riêng của phòng ban khác (xác minh qua `scripts/test_semantic_acl.py` và `test_security_department_acl.py`).
-- **Phòng thủ Prompt Injection & Bảo vệ PII:** Bộ lọc regex kỹ thuật `strip_injection()` loại bỏ triệt để câu lệnh độc hại trong chunk; hàm `redact_pii()` che giấu tự động Email/SĐT/CCCD trước khi trả ra ngoài.
+Chạy từ `frontend/` với lockfile hiện tại:
 
-### 2.4. Tầng 4: Bộ Đánh Giá Tổng Hợp Đa Miền & Ranh Giới Bảo Mật (Enterprise Multi-domain Suite)
-- **Script thực thi:** `eval/scripts/eval_enterprise_suite.py --suite all`
-- **Tập dữ liệu kiểm thử (Sinh bởi mô hình GLM-5.2):**
-  - `eval/datasets/eval_operations.json` (18 cases)
-  - `eval/datasets/eval_department_acl_boundary.json` (15 cases)
-  - `eval/datasets/eval_hitl_extraction.json` (5 documents)
-- **Kết quả đo đạc thực tế:**
-  1. **Router Intent Classification:** **100.0% (20/20 PASS)** — Độ trễ trung bình: **623.3ms**.
-  2. **Department ACL Security Boundary:** **100.0% (15/15 PASS)** — Cách ly dữ liệu chéo phòng ban fail-closed an toàn tuyệt đối.
-  3. **HITL Fact Extraction Schema:** **100.0% (5/5 Documents)** — Bóc tách đầy đủ Decisions, Responsibilities, Deadlines.
-  4. **Operations Domain Grounding:** **100.0% (18/18 Questions)** — 100% câu hỏi có trích dẫn verbatim context từ SOP.
+| Gate | Kết quả |
+|---|---:|
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `npm run build` | PASS |
+| Next.js | 15.5.23 |
+| Compile time | 21.0 giây |
+| Route `/` size | 33.9 kB |
+| First Load JS `/` | 136 kB |
+| Shared First Load JS | 103 kB |
 
+`pnpm audit --audit-level high` trả exit code 1: **5 vulnerabilities**, gồm **3 High** và **2 Moderate**. High advisories đi qua các dependency bắc cầu `next > sharp` và `next > postcss`. Do đó frontend compile được nhưng dependency-security gate chưa đạt.
 
----
+## 3. Backend, API và database
 
-## 3. Báo Cáo Kiểm Thử Chấp Nhận E2E Live & Khắc Phục (E2E Remediation)
+Backend pytest hiện tại:
 
-Trong phiên kiểm thử E2E Live trên hạ tầng thật (Real Backend + Real Agent + Real Supabase + Real Chroma Cloud + FPT.AI Gateway), hệ thống đã thực thi 46 ca kiểm thử và thực hiện khắc phục dứt điểm các lỗi phát hiện:
+| Passed | Failed | Errors | Skipped | Warnings | Thời gian |
+|---:|---:|---:|---:|---:|---:|
+| 152 | 0 | 0 | 0 | 10 | 16.326s |
 
-| Mã lỗi | Mô tả vấn đề | Nguyên nhân gốc | Biện pháp khắc phục | Trạng thái |
-|---|---|---|---|:---:|
-| **BUG-01** | Câu hỏi pháp lý thuần túy trả về lỗi `AGENT_INVALID_RESPONSE` | DTO `AgentAnswerDTO.intent` ở Backend thiếu giá trị `pure_statutory` | Bổ sung `pure_statutory` vào Schema Backend và map thành refusal message không retry | ✅ Đã sửa & Có regression test |
-| **BUG-02** | Tài liệu upload mới không bao giờ tìm kiếm được | Hàm ghi vector trỏ sai collection mặc định (`hr_documents` thay vì tenant collection) | Chuẩn hóa Single Source of Truth (SSOT) cho hàm `collection_name_for_department` | ✅ Đã sửa & Đạt 100% retrieval |
-| **BUG-03** | Upload lại cùng một file trả về HTTP 500 | Database ném `UniqueViolation` khi trùng tenant/source | Bắt `IntegrityError` tại service và trả về HTTP 409 Conflict rõ ràng | ✅ Đã sửa |
-| **BUG-07** | Phản hồi trạng thái job upload thiếu số lượng chunk | Response builder chưa đưa trường `chunk_count` vào JSON | Bổ sung `chunk_count` vào DTO trả về cho Quản trị viên theo dõi | ✅ Đã sửa |
+Raw JUnit: [`final_backend_pytest_20260901.xml`](final_backend_pytest_20260901.xml).
 
----
+Các test bao phủ auth, chat/conversation, citation, document, ticket, review, worker và service/API contracts. Có 12 file migration Supabase trong repository. Tuy nhiên chưa xác nhận việc apply migration trên database đích; migration parity live bị chặn bởi dependency Chroma/network. `docker compose config -q` cũng chưa validate được vì môi trường hiện tại thiếu `DATABASE_URL`.
 
-## 4. Bằng Chứng Đánh Giá Quy Trình HITL (Document Review & Structured Extraction)
+## 4. Agent/core và tích hợp
 
-Quy trình Human-in-the-Loop Document Review được kiểm chứng thông qua test suite `backend/tests/test_document_submissions.py` và `tests/test_workers/test_document_analysis.py`:
-- **Độ chính xác bóc tách cấu trúc (Structured Extraction Accuracy):**
-  - Trích xuất *Quyết định ban hành (Decisions)*: 94.2% khớp schema.
-  - Trích xuất *Phòng ban/Người chịu trách nhiệm (Responsibilities)*: 91.8% khớp schema.
-  - Trích xuất *Thời hạn thực hiện (Deadlines)*: 96.5% định dạng chuẩn ISO-8601 / ngày tháng văn bản.
-- **Tính toàn vẹn quy trình phê duyệt:** Khi Quản trị viên duyệt và chỉnh sửa thông tin, hệ thống ghi nhận chính xác dữ liệu đã hiệu chỉnh và đồng bộ tức thì vào kho tri thức vector.
+| Passed | Skipped | Failed | Errors | Subtests passed | Pass rate trên test không skip |
+|---:|---:|---:|---:|---:|---:|
+| 589 | 44 | 6 | 8 | 6 | 97.68% |
 
----
+Suite vẫn là **FAIL**; pass rate không thay thế điều kiện zero-failure.
 
-## 5. Kết Luận & Mức Độ Sẵn Sàng (Readiness Conclusion)
+- 8 errors ở migration parity do không kết nối được Chroma Cloud.
+- 4 failures ở production cutover smoke do FPT/Chroma live không khả dụng.
+- 2 failures ở LLM config do credential/provider từ environment làm unit test không còn hermetic.
 
-1. **Chất lượng AI & RAG:** Vượt ngưỡng yêu cầu của BTC ở tất cả các tiêu chí cốt lõi (Router, Retrieval, Citation grounding, Multi-turn QA).
-2. **Bảo mật Doanh nghiệp:** Đạt chuẩn an toàn fail-closed cho mô hình phân quyền phòng ban đa miền.
-3. **Mức độ sẵn sàng Demo Day:** **100% SẴN SÀNG (PRODUCTION & DEMO READY)** với đầy đủ mã nguồn, tài liệu kiến trúc, nhật ký, báo cáo đánh giá và blueprint triển khai cloud.
+Raw log của full root suite **không được lưu** vì output assertion có chứa giá trị credential. Báo cáo chỉ giữ aggregate và nguyên nhân đã được làm sạch. Đây đồng thời là một finding về bảo mật log và isolation cấu hình.
+
+## 5. Bảo mật, RBAC và boundary
+
+| Metric | Kết quả | Wilson 95% CI | Diễn giải |
+|---|---:|---:|---|
+| Security/safety/evaluation tests | 39 passed + 6 subtests | — | Regression subset cho ACL, guardrail và metric calculation |
+| Cross-department ACL fail-closed | 15/15 = 100% | 79.61%–100% | Toàn bộ ca truy cập chéo phòng ban trong bộ test bị chặn |
+| Boundary scenario accuracy | 68/68 = 100% | 94.65%–100% | Mapping deterministic của scenario registry |
+| Boundary invariant violations | 0 | — | Không vượt human-first/critical invariant trong fixture |
+
+Đây là regression accuracy trên bộ deterministic, không phải penetration-test coverage hoặc production accuracy. Raw boundary artifact: [`final_boundary_20260901.json`](final_boundary_20260901.json).
+
+## 6. Dữ liệu, ingestion, HITL và RAG
+
+- General dataset integrity tự thân hợp lệ: 29 retrieval queries, 29 qrel records và 68 QA eval items; không có held-out QA item và không có `data/chunks` cục bộ để đối chiếu retrieval live.
+- HITL fixture schema completeness: 5/5. Đây là độ đầy đủ dữ liệu expected, **không phải model extraction accuracy**.
+- Operations fixture completeness: 18/18. Đây là độ đầy đủ question/answer/context/source, **không phải agent answer accuracy**.
+- Product qrel/corpus alignment: 0/26 unique gold chunk IDs có mặt. Vì alignment bằng 0%, Recall/nDCG Product hiện tại là không hợp lệ và không được báo thay bằng số cũ.
+- Router dev 68 câu chưa chạy vì cần gửi dataset tới model API ngoài; phiên này không có quyền truyền dataset ra ngoài.
+- Live retrieval, citation grounding và agent answer accuracy chưa chạy vì cần index Chroma/corpus/model provider đồng bộ với commit.
+
+## 7. Kiểm thử thủ công và E2E
+
+Workbook hiện có 7 test cases: **6 PASS, 1 FAIL (TC04)**. Có 32 ô evidence hiển thị `#VALUE!`, nên đây là record chưa hoàn chỉnh, không phải bằng chứng nghiệm thu cuối. TC04 liên quan yêu cầu mơ hồ “nghỉ 3 ngày tuần sau”.
+
+Live E2E toàn stack chưa được chạy lại trên commit hiện tại. Báo cáo live ngày 22/08 và remediation sau đó chỉ là lịch sử, không được suy rộng sang baseline 01/09.
+
+## 8. Hiệu năng và chất lượng AI — chỉ tham khảo lịch sử
+
+Các số sau thuộc artifact cũ và **không phải current gate**:
+
+| Baseline lịch sử | Metric | Giá trị |
+|---|---|---:|
+| Retrieval 19/08, dev n=27 | Hit@5 / Recall@5 / nDCG@5 | 96.3% / 89.5% / 0.819 |
+| Retrieval 19/08, dev n=27 | Hit@10 / Recall@10 / nDCG@10 | 100% / 98.1% / 0.853 |
+| Retrieval 19/08, dev n=27 | Multi-chunk Recall@10 / MRR | 96.3% / 0.849 |
+| Router holdout đã consumed | Accuracy | 66/70 = 94.3% |
+| E2E performance 13/08, n=35 | p50 / p95 / mean | 11.571s / 33.909s / 17.861s |
+| E2E performance 13/08, n=35 | >30s / retry rate | 8.6% / 2.9% |
+
+Router set đã bị đánh dấu `CONSUMED`, vì vậy không còn là held-out gate độc lập.
+
+## 9. Static quality và deployment readiness
+
+| Check | Kết quả |
+|---|---:|
+| `ruff check src tests --statistics` | 150 findings |
+| Backend `ruff check app tests --statistics` | 78 findings |
+| `docker compose config -q` | Environment blocked: thiếu `DATABASE_URL` |
+
+Ruff findings phần lớn là import/format/modernization, nhưng có finding `F821 undefined-name`; vì vậy static gate được đánh FAIL, không chỉ warning. Deployment chưa được xác nhận cho tới khi compose config và target services được kiểm tra bằng biến môi trường hợp lệ.
+
+## 10. Điều kiện để đạt `FULLY VERIFIED`
+
+1. Nâng/cập nhật dependency để audit không còn High vulnerability, hoặc có risk acceptance được ghi nhận.
+2. Cô lập environment trong LLM config tests; tách/marker hóa cloud tests để offline suite chạy zero-failure.
+3. Xử lý Ruff findings, ưu tiên `F821` và lỗi có ảnh hưởng runtime.
+4. Khôi phục corpus/index đúng version, đạt qrel alignment 100%, rồi chạy retrieval, grounding và agent-answer eval hiện tại.
+5. Chạy live Backend + Agent + PostgreSQL + Chroma + model provider và lưu artifact E2E/migration parity.
+6. Sửa hoặc chấp nhận TC04; thay 32 evidence cells lỗi bằng screenshot/log có thể truy vết.
+
+## 11. Lệnh tái lập chính
+
+```powershell
+# Backend
+cd backend
+python -m pytest tests -q --junitxml=../eval/results/final_backend_pytest_20260901.xml
+ruff check app tests --statistics
+
+# Agent/core
+cd ..
+python -m pytest tests -q
+ruff check src tests --statistics
+
+# Frontend
+cd frontend
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm typecheck
+npm run build
+pnpm audit --audit-level high
+
+# Offline AI/security/data artifacts
+cd ..
+python eval/scripts/eval_final_offline.py --out eval/results/final_offline_eval_20260901.json
+python eval/scripts/eval_boundary.py --out eval/results/final_boundary_20260901.json
+python eval/scripts/check_dataset_integrity.py
+python eval/scripts/check_product_dataset_integrity.py
+```
+
+## 12. Câu trình bày ngắn với mentor
+
+> Nhóm đã đánh giá lại toàn bộ P-153 trên `develop@87a85aa`: frontend lint/typecheck/build đều pass; backend đạt 152/152 test; security/boundary/ACL đạt toàn bộ bộ regression hiện có. Hệ thống hiện ở mức Conditionally Ready, chưa phải Fully Verified vì root Agent suite còn 14 failure/error chủ yếu từ live cloud và config isolation, frontend audit còn 3 High + 2 Moderate vulnerabilities, Ruff còn findings, Product qrel không khớp corpus và E2E/manual evidence chưa được chốt lại. Các metric AI lịch sử được tách riêng, không dùng thay cho kết quả baseline hiện tại.

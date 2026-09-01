@@ -1,84 +1,88 @@
-# Tích hợp Agent - Backend - Frontend
+# Tích hợp Frontend – Backend – Agent
 
-## Kiến trúc hiện tại
+**Baseline:** `develop@87a85aa`
+**Ngày đối chiếu:** 2026-09-01
+
+## Ranh giới service
 
 ```text
-Next.js FE -> FastAPI BE -> FastAPI Agent/LangGraph -> ChromaDB + FPT.AI
-                         -> PostgreSQL
+Next.js Frontend
+  └─ JWT REST/SSE ─> FastAPI Backend
+                       ├─ PostgreSQL/Supabase
+                       ├─ Cloudinary hoặc public document URL
+                       └─ service token + signed identity ─> FastAPI Agent
+                                                            ├─ LangGraph
+                                                            ├─ Chroma
+                                                            └─ OpenAI hoặc FPT-compatible gateway
 ```
 
-- FE chỉ gọi BE; chat ưu tiên SSE và tự quay về polling khi stream bị ngắt.
-- PostgreSQL của Supabase lưu `public.users`/`public.profiles`; BE xác minh mật khẩu đã hash, phát JWT và quản lý RBAC, conversation, persistence, citation, ticket.
-- Agent stateless, phụ trách intent, RAG, generation, confidence, clarification và escalation draft.
-- BE và Agent là hai service riêng; giao tiếp qua internal REST API.
+- Frontend không gọi trực tiếp Agent và không tự quyết định quyền.
+- Backend sở hữu authentication, RBAC, conversation, message, ticket, document, review, job và audit persistence.
+- Agent stateless đối với nghiệp vụ; nhận identity đã ký, truy xuất nguồn được phép và trả kết quả/job state.
+
+## Role và phạm vi
+
+| Role | Quyền chính |
+|---|---|
+| `EMPLOYEE` | Chat, citation, conversation và ticket thuộc phạm vi được phép |
+| `DEPARTMENT_MANAGER` | Quyền Employee và quản lý ticket/tài liệu trong phòng ban |
+| `SUPER_ADMIN` | Quản trị liên phòng ban, access, audit, index và evaluation |
+
+Mọi role/department/scope không hợp lệ phải fail closed. Tên cũ `HR_ADMIN` chỉ có thể xuất hiện trong tài liệu lịch sử, không phải contract hiện hành.
 
 ## Luồng chat
 
 ```text
-FE POST /chat/requests/stream
--> BE lưu user Message + ChatRequest=QUEUED
--> BE lấy tối đa 8 message gần nhất trong conversation
--> BE stream POST /agent/query/stream với query + optional history
--> Agent condense follow-up thành câu hỏi độc lập
--> Agent phát status/tool event, rồi answer_delta đã qua guardrail
--> BE adapter map state và lưu Message/Citation/Ticket
--> BE phát result sau khi commit; FE hiển thị câu trả lời cuối
--> nếu SSE đứt: FE poll GET /chat/requests/{id}
+FE POST /api/v1/chat/requests/stream
+  → BE xác thực JWT và lấy identity từ database
+  → BE lưu message/request, lấy history gần nhất
+  → BE ký identity và stream POST /api/v1/agent/query/stream
+  → Agent condense + route + ACL retrieval + grounded generation
+  → Agent phát progress/answer_delta/result
+  → BE lọc/mapping, persist answer/citation/ticket
+  → FE hiển thị kết quả; polling status nếu SSE bị ngắt
 ```
 
-Agent trả các field chính:
+Trạng thái chính: `QUEUED`/`GENERATING` → `COMPLETED`, `REFUSED` hoặc `FAILED`. Retry tạo request có liên kết với request cha và không được tạo trùng message/ticket.
+
+## Luồng tài liệu
 
 ```text
-response, intent, confidence_score, citations,
-needs_clarification, clarifying_question,
-escalate, escalate_reason, ticket_draft
+Manager/Admin upload file hoặc URL
+  → Backend tạo submission
+  → Agent document-analysis worker extract/chunk/structure
+  → Backend hiển thị kết quả để HITL review
+  → approve tạo document/version
+  → ingestion/index worker vô hiệu chunks phiên bản cũ và upsert bản mới
+  → citation viewer mở đúng version/location
 ```
 
-| Agent result | BE state | Kết quả |
-|---|---|---|
-| Answer | `COMPLETED` | Answer + citations |
-| Cần làm rõ | `CLARIFICATION_REQUIRED` | FE gửi bổ sung trong cùng conversation |
-| Thiếu bằng chứng / escalation | `REFUSED` | Tạo ticket khi `escalate=true` |
-| Timeout / lỗi | `FAILED` | Safe error, có thể retry |
+Backend hỗ trợ upload PDF, DOCX, XLSX, Markdown và image theo validation hiện hành. Tài liệu chỉ được đưa vào corpus chính sau khi qua review/approve.
 
-## Đã hoàn thành
+## Internal Agent API
 
-- Tách Agent và BE thành hai service; thêm `AIAgentClient` và `AgentAnswerAdapter`.
-- Mapping `AgentAnswer` sang `ChatRequestDB`, `MessageDB`, citations và `TicketDB`.
-- Giữ nguyên FE contract; không expose LangGraph state/rewrite/hallucination nội bộ.
-- Chuyển FE sang Next.js + TypeScript và nối API auth, chat, polling, retry, citation, document, index và evaluation.
-- Multi-turn và clarification dùng history đã persist; Agent vẫn stateless và tự condense follow-up.
-- Guardrail loại prompt injection khỏi RAG context và history trước node condense.
-- PII được che ở response, citation metadata và citation excerpt trước khi FE nhìn thấy.
-- Audit log chỉ ghi metadata/count, không ghi query hoặc đoạn injection thô.
-- Ticket routing config nằm trong source, độc lập working directory; hỗ trợ personal-data reason và ưu tiên rule nghiêm trọng nhất.
-- Chuẩn hóa role `EMPLOYEE`, `HR_ADMIN`, `SUPER_ADMIN`; vẫn nhận token role lowercase cũ.
-- Thêm RBAC server-side cho document, index và evaluation.
-- Citation chỉ được mở bởi chủ conversation và vẫn kiểm tra confidentiality.
-- Retry giữ `parent_chat_request_id`; duplicate worker không tạo message/ticket lần hai.
-- Streaming SSE đã nối Agent → Backend → Frontend; có heartbeat, tiến trình thân thiện và polling fallback.
-- Cập nhật bốn diagram theo code hiện tại; node nét đứt là Future.
+| Endpoint | Mục đích |
+|---|---|
+| `POST /api/v1/agent/query` | Query đồng bộ |
+| `POST /api/v1/agent/query/stream` | Query streaming SSE |
+| `POST /api/v1/agent/jobs/ingestion` | Ingestion/index tài liệu |
+| `POST /api/v1/agent/jobs/document-analysis` | Phân tích submission |
+| `POST /api/v1/agent/jobs/index-rebuild` | Rebuild index |
+| `POST /api/v1/agent/jobs/evaluation` | Chạy evaluation |
+| `GET /api/v1/agent/jobs/{job_id}` | Poll job state |
 
-## Chưa hoàn thành - Future
+## Bảo mật tích hợp
 
-- Upload -> extract -> chunk -> embed -> ChromaDB; job hiện mới dừng ở `QUEUED`.
-- Retrieval filter theo role/department ngay trong Agent.
-- Durable queue/worker, idempotency, timeout recovery và rate limit.
-- Public Ticket API, ticket dashboard, assignment, resolution và notification.
-- Khôi phục active conversation ổn định trên FE.
-- Monitoring, feedback, 2FA/SSO và citation metadata đầy đủ.
+1. Không tin role/department do browser tự gửi.
+2. Backend gọi Agent bằng service token và signed identity có thời hạn.
+3. Retrieval lọc tenant, role, department, scope và lifecycle trước generation, sau đó kiểm tra lại metadata.
+4. Response/citation được lọc PII và kiểm tra quyền trước khi trả về Frontend.
+5. Log/audit không chứa secret hoặc nguyên văn prompt injection nhạy cảm.
 
-## Kiểm thử
+## Trạng thái xác minh
 
-- Backend: **70 passed**.
-- Agent/RAG pipeline: **215 passed**.
-- FE Next.js: lint, typecheck và build đã pass.
+- Backend test tại baseline: **152 passed**.
+- Agent/core: **589 passed, 44 skipped, 6 failed, 8 errors**; 12 lỗi phụ thuộc network/cloud và 2 lỗi cô lập cấu hình LLM.
+- Frontend chưa được chạy lại tại phiên rà soát do không cài được dependency trong môi trường mạng hiện tại.
 
-## Tài liệu liên quan
-
-- `docs/project/API/APIdoc.md`: contract BE - FE.
-- `docs/rag-pipeline/AGENT_API.md`: contract Agent.
-- `docs/project/diagrams/agent_flow_diagram.mermaid`: Agent flow.
-- `docs/project/diagrams/deployment_diagram.mermaid`: deployment.
-- `docs/project/diagrams/system_overview_diagram.mermaid`: system overview.
-- `docs/project/diagrams/workflow.mmd`: workflow end-to-end.
+Chi tiết và lệnh tái lập: [`../../TESTING.md`](../../TESTING.md).
