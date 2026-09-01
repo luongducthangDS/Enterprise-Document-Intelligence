@@ -80,6 +80,7 @@ out/
 # Backup / scratch files (vd eval set backup trước khi regenerate, file debug lỡ tạo ở root)
 *.bak
 *.bak.*
+scratch/
 scratch_*
 .aider*
 
@@ -127,8 +128,15 @@ scripts/build_eval_evidence_docx_*.py
 # QA artifacts chứa token/tài khoản test tạm — không track
 qa/
 
+# Local project notes / context (never push to git)
+task/
+task/*
+
 # One-off local migration / seed scripts
+scripts/account/
+scripts/account/*
 scripts/account/insert_accounting_docs_to_supabase.py
 scripts/account/map_supabase_with_chroma.py
 scripts/account/upload_accounting_docs_to_cloudinary.py
+scripts/account/clean_cloudinary_duplicates.py
 

@@ -19,15 +19,24 @@ is_real_python() {
 }
 
 PY=""
-for cand in python3 python; do
-  if command -v "$cand" >/dev/null 2>&1; then
-    resolved=$(command -v "$cand")
-    if is_real_python "$resolved"; then
-      PY="$cand"
-      break
-    fi
+for venv_py in .venv/Scripts/python.exe .venv/bin/python venv/Scripts/python.exe venv/bin/python; do
+  if [ -x "$venv_py" ] && is_real_python "$venv_py"; then
+    PY="$venv_py"
+    break
   fi
 done
+
+if [ -z "$PY" ]; then
+  for cand in python3 python; do
+    if command -v "$cand" >/dev/null 2>&1; then
+      resolved=$(command -v "$cand")
+      if is_real_python "$resolved"; then
+        PY="$cand"
+        break
+      fi
+    fi
+  done
+fi
 
 if [ -z "$PY" ] && command -v py >/dev/null 2>&1; then
   if is_real_python "$(command -v py)"; then

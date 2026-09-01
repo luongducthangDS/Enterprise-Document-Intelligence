@@ -55,6 +55,28 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+def _load_env_fallback():
+    script_dir = Path(__file__).resolve().parent
+    env_paths = [script_dir.parent / ".env", Path.cwd() / ".env"]
+    for env_path in env_paths:
+        if env_path.is_file():
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith("#"):
+                            continue
+                        if "=" in line:
+                            k, _, v = line.partition("=")
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k and k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+_load_env_fallback()
+
 VN_TZ = timezone(timedelta(hours=7))
 GEMINI_HOME = Path.home() / ".gemini"
 

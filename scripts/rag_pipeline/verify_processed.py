@@ -23,7 +23,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.stdout.reconfigure(encoding="utf-8")
 
-import pdfplumber
+import pymupdf
 
 from src.ingestion.metadata import load_registry
 
@@ -34,8 +34,8 @@ MIN_CHARS_NO_PAGE = 300
 
 def pdf_page_count(path: str) -> int | None:
     try:
-        with pdfplumber.open(path) as pdf:
-            return len(pdf.pages)
+        with pymupdf.open(path) as doc:
+            return len(doc)
     except Exception:
         return None
 
