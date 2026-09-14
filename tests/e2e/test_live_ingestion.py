@@ -213,25 +213,10 @@ def test_p2_duplicate_upload(admin):
     check("P2", "Ingestion/Conflict", "Re-upload cùng file -> 409 DOCUMENT_ALREADY_EXISTS (không 500)",
           duplicate_rejected and err_code == "DOCUMENT_ALREADY_EXISTS",
           f"409={duplicate_rejected} code={err_code}", severity="HIGH")
-    pytest.skip("Đã verify conflict; bỏ phần đếm vector cũ")
-    # kiểm số vector không nhân đôi: query trực tiếp Chroma theo source_stem
-    import chromadb
-
-    env = dict(
-        l.split("=", 1)
-        for l in (pathlib.Path(__file__).parents[2] / ".env").read_text(encoding="utf-8").splitlines()
-        if "=" in l and not l.startswith("#")
-    )
-    client = chromadb.CloudClient(
-        tenant=env["CHROMA_CLOUD_TENANT"].strip(),
-        database=env["CHROMA_CLOUD_DATABASE"].strip(),
-        api_key=env["CHROMA_CLOUD_API_KEY"].strip().strip('"'),
-    )
-    col = client.get_collection("tenant_nexatech_knowledge")
-    got = col.get(where={"source_stem": f"e2e_{RUN}_thang-may"}, include=["metadatas"], limit=200)
-    n = len(got["ids"])
-    check("P2", "Ingestion/Integrity", "Re-upload không nhân đôi vector (số chunk ổn định)",
-          0 < n <= 10, f"vectors_for_stem={n} job_state={job.get('state')}", severity="HIGH")
+    # Phần đếm vector chống nhân đôi đã bị gỡ: nó nằm sau skip nên không bao giờ
+    # chạy, lại tham chiếu biến `job` không tồn tại trong test này (NameError nếu
+    # bỏ skip) và đọc thẳng `.env` ở repo root. Cần viết lại bằng fixture Chroma.
+    pytest.skip("Đã verify conflict; phần đếm vector cần viết lại bằng fixture")
 
 
 def test_p3_malformed_upload(admin):

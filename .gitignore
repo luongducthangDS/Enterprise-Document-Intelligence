@@ -40,7 +40,12 @@ data/metadata/*
 *.db-wal
 *.sqlite3
 *.zip
-supabase/
+# Chỉ bỏ qua artifact local của Supabase CLI (config.toml, .branches, .temp).
+# `supabase/` trần từng ignore luôn cả migrations/seeds: 0001-0012 vẫn được track
+# vì add trước khi có rule, nhưng mọi migration mới sẽ bị bỏ qua im lặng.
+supabase/*
+!supabase/migrations/
+!supabase/seeds/
 # Local vector store
 storage/
 

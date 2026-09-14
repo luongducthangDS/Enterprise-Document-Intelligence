@@ -195,4 +195,4 @@ Khi xuất bản phiên bản mới, Backend truyền `previous_source_stem` và
 - Tài liệu lịch sử có thể chứa metric tại thời điểm cũ; chỉ dùng đúng timestamp/run ID của báo cáo.
 - Live URL, credential và trạng thái deployment phải được xác nhận từ môi trường, không suy ra từ file cấu hình.
 - Không tuyên bố “production ready” chỉ dựa trên việc có Docker/Render configuration.
-- Luồng submission bằng URL đặt `file_content=None` trong ORM, trong khi migration `0012_document_review_workflow.sql` hiện khai báo cột này `NOT NULL`. Test SQLite theo ORM vẫn pass nhưng database tạo từ migration có thể từ chối request; cần đồng bộ migration/model trước khi nghiệm thu luồng này trên Supabase.
+- Luồng submission bằng URL cố ý đặt `file_content=None` (tệp nằm trên storage, chỉ giữ `public_url`). Migration `0012_document_review_workflow.sql` từng khai báo cột này `NOT NULL` khiến database tạo từ migration từ chối request dù test SQLite theo ORM vẫn pass; `0013_document_submission_content_nullable.sql` đã nới ràng buộc để schema khớp ORM và hành vi service.

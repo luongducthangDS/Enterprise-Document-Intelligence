@@ -181,14 +181,14 @@ Không suy rộng kết quả 22–26/08 cho code 31/08 nếu chưa chạy regre
 
 | ID | Vấn đề | Mức ảnh hưởng |
 |---|---|---|
-| QA-01 | Unit test LLM config bị ảnh hưởng bởi environment credential/provider | Làm test không hermetic |
+| QA-01 | ~~Unit test LLM config không hermetic~~ — đã sửa: test truyền kwargs viết hoa (`USE_GLM=`) nên bị `extra="ignore"` bỏ qua và rơi về `.env`/env OS; nay dùng đúng tên field và `_env_file=None` | Đã đóng |
 | QA-02 | Live Chroma/FPT tests nằm trong root suite mặc định | CI/local sạch có thể fail vì network |
 | QA-03 | Ruff còn findings | Chất lượng tĩnh chưa đạt gate |
 | QA-04 | Backend test có `aiosqlite` closed-loop warnings | Có thể che lỗi cleanup resource |
 | QA-05 | Frontend audit còn 3 High và 2 Moderate vulnerabilities | Dependency-security gate chưa đạt |
 | QA-06 | Monitoring UI là placeholder | Không tính là acceptance-complete |
 | QA-07 | Workbook manual test có 32 ô evidence `#VALUE!` và TC04 FAIL | Chưa đủ bằng chứng nghiệm thu thủ công |
-| QA-08 | `document_submissions.file_content` nullable trong ORM nhưng `NOT NULL` ở migration `0012` | Luồng `/document-submissions/from-url` có thể pass SQLite test nhưng fail trên Supabase tạo từ migration |
+| QA-08 | ~~`document_submissions.file_content` NOT NULL ở migration `0012` trong khi ORM nullable~~ — đã sửa bằng `0013_document_submission_content_nullable.sql` | Đã đóng |
 
 ## 10. Quy tắc báo cáo
 
