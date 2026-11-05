@@ -88,7 +88,7 @@ class Settings(BaseSettings):
 
     # FPT.AI Marketplace (embedding/VLM/rerank/chat gateway)
     fpt_api_key: str = ""
-    fpt_base_url: str = "https://mkp-api.fptcloud.com"
+    fpt_base_url: str = "https://token-api.fpt.ai/v1"
     embedding_model: str = "multilingual-e5-large"
     embedding_batch_size: int = 32
     llm_model: str = "GLM-5.2"

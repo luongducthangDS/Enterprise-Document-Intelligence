@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import get_current_user
 from app.api.dependencies.db_deps import get_db
-from app.core.rate_limit import login_rate_limit_check, login_rate_limit_record
-from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterRequest
+from app.core.config import get_settings
+from app.core.exceptions import AppException
+from app.core.rate_limit import demo_session_limit, login_rate_limit_check, login_rate_limit_record
+from app.schemas.auth import DemoSessionRequest, LoginRequest, RefreshTokenRequest, RegisterRequest
 from app.schemas.common import wrap_response
 from app.services.auth_service import AuthService
 
@@ -37,6 +39,20 @@ async def login(
     except Exception:
         login_rate_limit_record(login_req.email, request)
         raise
+    return wrap_response(token_resp.model_dump(), request)
+
+
+@router.post("/demo", status_code=status.HTTP_201_CREATED)
+async def demo_session(
+    demo_req: DemoSessionRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Cấp phiên EMPLOYEE tạm cho khách của bản demo public (chỉ khi DEMO_MODE bật)."""
+    if not get_settings().demo_mode:
+        raise AppException(status_code=404, code="NOT_FOUND", message="Not found")
+    demo_session_limit(request)
+    token_resp = await AuthService.create_demo_session(db, demo_req.department)
     return wrap_response(token_resp.model_dump(), request)
 
 

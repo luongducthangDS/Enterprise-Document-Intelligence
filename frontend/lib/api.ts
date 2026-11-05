@@ -245,19 +245,10 @@ async function streamRequest(
 }
 
 export const api = {
-  register: (email: string, password: string, fullName: string, department: string) =>
-    request<User>(
-      "/auth/register",
-      {
-        method: "POST",
-        body: JSON.stringify({ email, password, full_name: fullName, department }),
-      },
-      false,
-    ).then((response) => response.data!),
-  async login(email: string, password: string) {
+  async demoSession(department: string) {
     const response = await request<{ access_token: string; refresh_token: string; expires_in: number }>(
-      "/auth/login",
-      { method: "POST", body: JSON.stringify({ email, password }) },
+      "/auth/demo",
+      { method: "POST", body: JSON.stringify({ department }) },
       false,
     );
     storeTokens(response.data!.access_token, response.data!.refresh_token);

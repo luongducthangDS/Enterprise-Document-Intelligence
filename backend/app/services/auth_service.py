@@ -1,3 +1,6 @@
+import secrets
+import uuid
+
 import jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -91,6 +94,17 @@ class AuthService:
             token_type="bearer",
             expires_in=settings.access_token_expire_minutes * 60,
         )
+
+    @classmethod
+    async def create_demo_session(cls, db: AsyncSession, department: str) -> TokenResponse:
+        """Mỗi khách một user EMPLOYEE riêng: không lộ hội thoại giữa các khách, không có mật khẩu dùng chung."""
+        email = f"demo-{uuid.uuid4().hex}@demo.example.com"
+        password = secrets.token_urlsafe(32)
+        await cls.register_user(
+            db,
+            RegisterRequest(email=email, password=password, full_name="Khách demo", department=department),
+        )
+        return await cls.login(db, LoginRequest(email=email, password=password))
 
     @classmethod
     async def refresh_access_token(cls, db: AsyncSession, refresh_token_str: str) -> TokenResponse:

@@ -25,6 +25,11 @@ const DEFAULT_STARTER_PROMPTS: StarterPrompt[] = [
   { label: "Phép năm", question: "Nhân viên có bao nhiêu ngày phép năm?" },
 ];
 
+const ACCOUNTING_DEMO_PROMPTS: StarterPrompt[] = [
+  { label: "Hạn mức duyệt chi", question: "Hạn mức duyệt chi của Giám đốc tài chính là bao nhiêu?" },
+  { label: "Phép năm", question: "Nhân viên có bao nhiêu ngày phép năm?" },
+];
+
 const PRODUCT_DEMO_PROMPTS: StarterPrompt[] = [
   {
     label: "Đa nguồn + ảnh scan",
@@ -115,9 +120,12 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   const citationPanelResize = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
   const pollController = useRef<AbortController | null>(null);
   const storageKey = `hr_knowledge_active_conversation:${user.id}`;
-  const starterPrompts = user.department.trim().toUpperCase() === "PRODUCT"
+  const userDepartment = user.department.trim().toUpperCase();
+  const starterPrompts = userDepartment === "PRODUCT"
     ? PRODUCT_DEMO_PROMPTS
-    : DEFAULT_STARTER_PROMPTS;
+    : userDepartment === "ACCOUNTING"
+      ? ACCOUNTING_DEMO_PROMPTS
+      : DEFAULT_STARTER_PROMPTS;
 
   useEffect(() => {
     const savedWidth = Number(window.localStorage.getItem("hr_knowledge_conversation_panel_width"));
@@ -715,7 +723,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             </div>;
           })}
         </div>
-        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
+        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đổi vai trò" title="Đổi vai trò" onClick={onLogout}><LogOut size={17} /></button></div>
         <div className="bar-resizer conversation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng lịch sử hội thoại" aria-orientation="vertical" aria-valuemin={240} aria-valuemax={420} aria-valuenow={conversationPanelWidth} tabIndex={0} onPointerDown={beginConversationPanelResize} onPointerMove={moveConversationPanelResize} onPointerUp={endConversationPanelResize} onPointerCancel={endConversationPanelResize} onKeyDown={resizeConversationPanelWithKeyboard} />
       </aside>
       <section className="chat-main" data-ui="dashboard">

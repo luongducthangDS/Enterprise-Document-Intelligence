@@ -3333,3 +3333,10 @@ h3 {
   border-radius: 3px !important;
   text-decoration: none !important;
 }
+.demo-role-list { display: grid; gap: 10px; }
+.demo-role { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; border: 1px solid rgba(13, 122, 95, .22); border-radius: 14px; background: rgba(255, 255, 255, .85); color: var(--ink); text-align: left; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+.demo-role:hover:not(:disabled), .demo-role:focus-visible { border-color: var(--emerald); background: rgba(13, 122, 95, .06); }
+.demo-role:disabled { cursor: not-allowed; opacity: .65; }
+.demo-role svg { flex: none; color: var(--emerald); }
+.demo-role span { display: grid; gap: 2px; }
+.demo-role small { color: var(--muted); }

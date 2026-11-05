@@ -6,9 +6,9 @@ import { api, clearSession, hasSession } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { AccessAdmin } from "./AccessAdmin";
 import { ChatView } from "./ChatView";
+import { DemoEntry } from "./DemoEntry";
 import { OperationsView } from "./KnowledgeAdmin";
 import { DocumentReview } from "./DocumentReview";
-import { LoginView } from "./LoginView";
 import { TicketsView } from "./TicketsView";
 
 type View = "chat" | "tickets" | "documents" | "access" | "index" | "evaluation" | "monitoring";
@@ -62,7 +62,7 @@ export function HrKnowledgeApp() {
   }
 
   if (checkingSession) return <div className="app-loading">Đang khôi phục phiên...</div>;
-  if (!user) return <LoginView onAuthenticated={setUser} />;
+  if (!user) return <DemoEntry onAuthenticated={setUser} />;
   const isManager = ["DEPARTMENT_MANAGER", "SUPER_ADMIN"].includes(user.role);
   const managedItems = [{ id: "chat" as const, label: "Trợ lý AI", icon: MessageSquare }, { id: "tickets" as const, label: "Hàng đợi ticket", icon: Ticket }, ...managerItems];
   const items = user.role === "SUPER_ADMIN"

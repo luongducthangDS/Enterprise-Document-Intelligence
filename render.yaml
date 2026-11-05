@@ -1,6 +1,6 @@
 services:
   # ============================================================================
-  # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + FPT.AI LLM)
+  # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + OpenAI/FPT LLM)
   # ============================================================================
   - type: web
     name: p-153-agent
@@ -8,14 +8,20 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
+    region: singapore
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
       - key: AGENT_SERVICE_TOKEN
         generateValue: true
+      # Chroma Cloud đang index bằng multilingual-e5-large (1024 chiều) qua FPT.
+      # USE_GLM=OFF sẽ embed query bằng OpenAI (1536 chiều) -> lệch index, retrieval
+      # rơi về BM25 trong im lặng. Chỉ đổi OFF sau khi re-index bằng OpenAI.
+      - key: USE_GLM
+        value: "ON"
       - key: FPT_BASE_URL
-        value: https://mkp-api.fptcloud.com
+        value: https://token-api.fpt.ai/v1
       - key: FPT_API_KEY
         sync: false
       - key: DATABASE_URL
@@ -48,12 +54,17 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: free
+    region: singapore
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
+      # Bản demo public: bật POST /auth/demo + giới hạn lượt chat.
+      - key: DEMO_MODE
+        value: "true"
       - key: DATABASE_URL
         sync: false
+      # https://p-153-agent-xxxx.onrender.com/api/v1/agent (free plan không có private network)
       - key: AI_AGENT_SERVICE_URL
         sync: false
       - key: AI_AGENT_SERVICE_TOKEN
@@ -63,22 +74,17 @@ services:
           envVarKey: AGENT_SERVICE_TOKEN
       - key: JWT_SECRET_KEY
         generateValue: true
+      # Domain frontend trên Vercel, VD: https://p-153.vercel.app
       - key: CORS_ORIGINS
-        value: "*"
+        sync: false
       - key: ACTIVE_TENANT
         value: nexatech
-
-  # ============================================================================
-  # 3. Frontend Client (Next.js 15 + React 19 + TypeScript)
-  # ============================================================================
-  - type: web
-    name: p-153-frontend
-    runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    plan: free
-    envVars:
-      - key: NEXT_PUBLIC_API_BASE_URL
+      - key: CLOUDINARY_CLOUD_NAME
         sync: false
-      - key: NEXT_TELEMETRY_DISABLED
-        value: "1"
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+# Frontend (Next.js static export) deploy trên Vercel, Root Directory = frontend.
+# Env: NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_AGENT_BASE_URL, NEXT_PUBLIC_CLOUDINARY_*.
