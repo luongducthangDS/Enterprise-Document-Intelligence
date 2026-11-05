@@ -79,10 +79,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+DEMO_FRONTEND_ORIGIN = "https://enterprise-document-intelligence-unh1.onrender.com"
+
 # Middleware 1: CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins.split(","),
+    # ponytail: Render CLI không sửa được env của service có sẵn; chuyển origin này vào CORS_ORIGINS khi tiện.
+    allow_origins=settings.cors_origins.split(",") + ([DEMO_FRONTEND_ORIGIN] if settings.demo_mode else []),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

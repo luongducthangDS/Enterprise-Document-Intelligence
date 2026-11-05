@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import get_current_user
 from app.api.dependencies.db_deps import get_db
+from app.core.rate_limit import demo_chat_limit
 from app.schemas.chat import CreateChatRequestSchema, RetryChatRequestSchema
 from app.schemas.common import wrap_response
 from app.services.chat_service import ChatService
@@ -21,7 +22,7 @@ def _encode_sse(event: dict[str, Any]) -> str:
     return f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n"
 
 
-@router.post("/requests", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/requests", status_code=status.HTTP_202_ACCEPTED, dependencies=[Depends(demo_chat_limit)])
 async def submit_chat_request(
     request_data: CreateChatRequestSchema,
     request: Request,
@@ -43,7 +44,7 @@ async def submit_chat_request(
     return wrap_response(data, request)
 
 
-@router.post("/requests/stream")
+@router.post("/requests/stream", dependencies=[Depends(demo_chat_limit)])
 async def stream_chat_request(
     request_data: CreateChatRequestSchema,
     current_user: dict = Depends(get_current_user),
@@ -102,7 +103,11 @@ async def get_chat_request_status(
     return wrap_response(data, request)
 
 
-@router.post("/requests/{chat_request_id}/retry", status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/requests/{chat_request_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(demo_chat_limit)],
+)
 async def retry_chat_request(
     chat_request_id: uuid.UUID,
     request: Request,

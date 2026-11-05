@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from typing import Literal
 
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 REGISTRATION_DEPARTMENTS = {
     "HR",
@@ -23,6 +24,10 @@ class RegisterRequest(BaseModel):
         if normalized not in REGISTRATION_DEPARTMENTS:
             raise ValueError("Phòng ban không hợp lệ")
         return normalized
+
+
+class DemoSessionRequest(BaseModel):
+    department: Literal["HR", "PRODUCT", "ACCOUNTING"]
 
 
 class LoginRequest(BaseModel):
