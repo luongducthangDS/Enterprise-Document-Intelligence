@@ -8,6 +8,8 @@ from sqlalchemy.engine import make_url
 
 # Giá trị fallback trong code — không bao giờ được dùng ở production.
 WEAK_JWT_SECRET_DEFAULT = "12345678900aaa"
+# ponytail: Render CLI không sửa được env của service có sẵn; chuyển sang AI_AGENT_SERVICE_URL khi tiện.
+DEMO_AGENT_SERVICE_URL = "https://p-153-agent-demo.onrender.com/api/v1/agent"
 
 
 class Settings(BaseSettings):
@@ -65,6 +67,12 @@ class Settings(BaseSettings):
     cloudinary_cloud_name: str = Field(default="", description="Cloudinary Cloud Name")
     cloudinary_api_key: str = Field(default="", description="Cloudinary API Key")
     cloudinary_api_secret: str = Field(default="", description="Cloudinary API Secret", repr=False)
+
+    @model_validator(mode="after")
+    def use_demo_agent(self) -> "Settings":
+        if self.demo_mode and self.app_env == "production":
+            self.ai_agent_service_url = DEMO_AGENT_SERVICE_URL
+        return self
 
     @model_validator(mode="after")
     def validate_production_secrets(self) -> "Settings":

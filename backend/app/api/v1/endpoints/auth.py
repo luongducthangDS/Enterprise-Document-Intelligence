@@ -11,6 +11,7 @@ from app.core.rate_limit import demo_session_limit, login_rate_limit_check, logi
 from app.schemas.auth import DemoSessionRequest, LoginRequest, RefreshTokenRequest, RegisterRequest
 from app.schemas.common import wrap_response
 from app.services.auth_service import AuthService
+from app.services.warmup_service import WarmupService
 
 router = APIRouter()
 
@@ -52,6 +53,7 @@ async def demo_session(
     if not get_settings().demo_mode:
         raise AppException(status_code=404, code="NOT_FOUND", message="Not found")
     demo_session_limit(request)
+    WarmupService.trigger_background_warmup()  # agent thức dậy trong lúc khách đọc giao diện
     token_resp = await AuthService.create_demo_session(db, demo_req.department)
     return wrap_response(token_resp.model_dump(), request)
 
