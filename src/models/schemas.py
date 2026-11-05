@@ -140,6 +140,7 @@ EscalateReason = Literal[
     "user_requested_human",
     "competitor_question",
     "human_first_required",
+    "department_scope_denied",
 ]
 TargetDepartment = Literal["CB", "ER", "TA", "LD", "HRBP"]
 TicketPriority = Literal["Low", "Medium", "High"]
