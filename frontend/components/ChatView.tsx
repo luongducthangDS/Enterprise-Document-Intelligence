@@ -833,7 +833,7 @@ function AssistantMessage({ result, onCitation, onRetry, onQuickPrompt }: {
         : <AnswerMarkdown content={result.answer ?? result.failure?.message ?? ""} />}
       {isGenerating && <span className="typing-cursor" style={{ opacity: 0.8, animation: "pulse 1s infinite" }}> ▌</span>}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
-      {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
+      {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"}{item.sheet ? ` · Sheet ${item.sheet}` : item.page ? ` · Trang ${item.page}` : ""}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
       {!!result.quick_prompts?.length && (
         <div className="quick-prompt-row">
           <small className="quick-prompt-label">Gợi ý câu hỏi:</small>

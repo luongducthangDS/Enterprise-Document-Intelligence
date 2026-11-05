@@ -5,9 +5,8 @@ import { useEffect } from "react";
 /**
  * WarmupPing: Component vô hình, mount một lần duy nhất ở RootLayout.
  *
- * Đánh thức SONG SONG cả Backend và Agent ngay khi người dùng mở trang web —
- * cả hai service trên Render nhận tín hiệu cùng một lúc nên thức dậy đồng thời,
- * giảm thời gian chờ xuống còn 25–30s thay vì 60s nếu làm tuần tự.
+ * Đánh thức Backend ngay khi người dùng mở trang web. Agent do Backend đánh thức
+ * khi khách vào phiên demo (agent không mở CORS cho trình duyệt).
  *
  * Sử dụng keepalive: true để đảm bảo request được gửi đi ngay cả khi
  * người dùng chuyển trang trước khi fetch hoàn tất.
@@ -24,9 +23,6 @@ export default function WarmupPing() {
 
     const backendHealth = getHealthUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
     if (backendHealth) targets.push(backendHealth);
-
-    const agentHealth = getHealthUrl(process.env.NEXT_PUBLIC_AGENT_BASE_URL);
-    if (agentHealth) targets.push(agentHealth);
 
     if (targets.length === 0) {
       console.warn("[WarmupPing] Không tìm thấy URL của Backend hoặc Agent để đánh thức.");
