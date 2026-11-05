@@ -6,6 +6,26 @@ Hệ thống trợ lý tri thức nội bộ đa phòng ban, hỗ trợ nạp v�
 
 Mục lục bàn giao nhanh: [`docs/FINAL_SUBMISSION.md`](docs/FINAL_SUBMISSION.md).
 
+## Dùng thử
+
+**Bản demo: <https://enterprise-document-intelligence-unh1.onrender.com>**
+
+Không cần đăng nhập: mở link, chọn một vai trò rồi đặt câu hỏi. Dữ liệu trong bản demo là dữ liệu mô phỏng.
+
+| Vai trò | Câu hỏi nên thử | Điều sẽ thấy |
+|---|---|---|
+| Nhân viên Nhân sự | Nhân viên có bao nhiêu ngày phép năm? | Câu trả lời kèm trích dẫn; bấm vào nguồn để xem đoạn đối soát |
+| Nhân viên Kế toán | Hạn mức duyệt chi của Giám đốc tài chính là bao nhiêu? | Đối chiếu nhiều tài liệu và nói rõ phần tài liệu không đề cập |
+| Nhân viên Sản phẩm | Checkout Redesign có nên rollout 100% chưa? | Tổng hợp từ báo cáo thử nghiệm, kế hoạch release và roadmap |
+| Nhân viên Nhân sự | Checkout Redesign có nên rollout 100% chưa? | Bị từ chối vì tài liệu thuộc phòng ban khác (phân quyền theo phòng ban) |
+
+Giới hạn của bản demo:
+
+- Hạ tầng dùng gói miễn phí nên lần mở đầu có thể mất khoảng 1 phút để máy chủ khởi động.
+- Khách dùng quyền nhân viên, chỉ có Trợ lý AI và Ticket; các màn hình quản trị không mở công khai.
+- Trích dẫn hiển thị đoạn đối soát, chưa mở được file PDF/DOCX gốc.
+- Số lượt hỏi được giới hạn để bảo vệ quota model.
+
 ## 1. Bộ hồ sơ nộp cuối
 
 | # | Hạng mục | Tài liệu / mã nguồn |
@@ -66,7 +86,7 @@ Luồng và ranh giới trách nhiệm chi tiết nằm trong [`ARCHITECTURE.md`
 | Agent | LangGraph, hybrid RAG, BM25, Chroma, model gateway OpenAI-compatible |
 | Ingestion | PDF/DOCX/XLSX/Markdown/image extraction, VLM/OCR, structure-aware chunking |
 | Quality | Pytest, Ruff, ESLint, TypeScript, evaluation datasets và GitHub Actions |
-| Deploy | Docker Compose, Render Blueprint; Frontend hỗ trợ static/cloud deployment |
+| Deploy | Docker Compose, Render (static site cho Frontend, web service cho Backend và Agent), Supabase, Chroma Cloud |
 
 ## 5. Cấu trúc repository
 
@@ -99,8 +119,8 @@ P-153/
 ### Docker Compose
 
 ```bash
-git clone https://github.com/AI20K-Build-Phase-Cohort-3/P-153.git
-cd P-153
+git clone https://github.com/luongducthangDS/Enterprise-Document-Intelligence.git
+cd Enterprise-Document-Intelligence
 cp .env.example .env
 docker compose up --build
 ```
