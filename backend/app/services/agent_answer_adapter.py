@@ -46,6 +46,26 @@ class AgentAnswerAdapter:
         return answer.boundary is not None
 
     @staticmethod
+    def case_proposal(answer: AgentAnswerDTO, enabled: bool) -> dict[str, Any] | None:
+        """Đề xuất ticket chờ người hỏi xác nhận, hoặc None.
+
+        Agent không bao giờ tự tạo ticket: nó chỉ soạn `ticket_draft`. Đề xuất
+        chỉ được đưa ra khi registry đặt trần `CREATE_CASE` cho scenario này
+        (6/64 scenario), scenario không phải HUMAN_FIRST/Critical (những ca đó
+        phải tới kênh an toàn, không thành bản ghi), và cờ `enable_create_case` bật.
+        """
+        b = answer.boundary
+        if not (enabled and answer.escalate and answer.ticket_draft and b):
+            return None
+        if b.max_runtime_action != "CREATE_CASE" or b.assistant_role == "HUMAN_FIRST" or b.sensitivity == "Critical":
+            return None
+        return {
+            "status": "PENDING",
+            "scenario_id": b.scenario_id,
+            "draft": answer.ticket_draft.model_dump(mode="json"),
+        }
+
+    @staticmethod
     def _citation_id(chat_request_id: uuid.UUID, chunk_id: str) -> str:
         value = uuid.uuid5(uuid.NAMESPACE_URL, f"{chat_request_id}:{chunk_id}")
         return f"cit_{value.hex}"

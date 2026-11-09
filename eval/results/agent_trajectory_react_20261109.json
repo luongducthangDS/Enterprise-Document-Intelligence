@@ -1,0 +1,868 @@
+{
+ "mode": "react",
+ "tool_choice": {
+  "passed": 10,
+  "total": 10,
+  "results": [
+   {
+    "id": "traj_calc_01",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "calculate_annual_leave",
+      {
+       "job_type": "heavy_or_hazardous",
+       "years_of_service": 7
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 9193,
+    "latency_s": 9.26
+   },
+   {
+    "id": "traj_calc_02",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "calculate_annual_leave",
+      {
+       "job_type": "normal",
+       "years_of_service": 12
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "chính sách nghỉ phép năm ngày phép"
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 10417,
+    "latency_s": 11.61
+   },
+   {
+    "id": "traj_calc_03",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "calculate_annual_leave",
+      {
+       "job_type": "very_heavy_or_hazardous",
+       "years_of_service": 21
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "số ngày phép năm công việc đặc biệt nặng nhọc"
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 10743,
+    "latency_s": 11.58
+   },
+   {
+    "id": "traj_hotel_01",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "lookup_structured_policy",
+      {
+       "query": "định mức khách sạn Hà Nội nhân viên"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "định mức tiền khách sạn công tác Hà Nội nhân viên"
+      }
+     ]
+    ],
+    "llm_calls": 5,
+    "tokens": 12155,
+    "latency_s": 6.9
+   },
+   {
+    "id": "traj_hotel_02",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "lookup_structured_policy",
+      {
+       "query": "định mức khách sạn Trưởng phòng TP.HCM"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "khách sạn công tác TP.HCM trưởng phòng"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "phân loại cấp quản lý trưởng phòng định mức khách sạn"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "quy chế công tác phí định mức khách sạn theo chức danh"
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 16232,
+    "latency_s": 7.79
+   },
+   {
+    "id": "traj_multi_01",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "search_policies",
+      {
+       "query": "số ngày nghỉ phép năm của nhân viên"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "chế độ nghỉ ốm hưởng lương"
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 12618,
+    "latency_s": 7.91
+   },
+   {
+    "id": "traj_multi_02",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "search_policies",
+      {
+       "query": "Quy trình onboarding nhân viên mới các bước"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "nghỉ việc bàn giao công việc"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "03_quy-trinh-onboarding các bước đào tạo hội nhập"
+      }
+     ]
+    ],
+    "llm_calls": 5,
+    "tokens": 15680,
+    "latency_s": 6.0
+   },
+   {
+    "id": "traj_multi_03",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "search_policies",
+      {
+       "query": "chính sách làm việc từ xa"
+      }
+     ],
+     [
+      "search_policies",
+      {
+       "query": "trả lương làm thêm giờ phần trăm"
+      }
+     ]
+    ],
+    "llm_calls": 3,
+    "tokens": 10072,
+    "latency_s": 6.47
+   },
+   {
+    "id": "traj_single_01",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "search_policies",
+      {
+       "query": "thời gian thử việc tối đa"
+      }
+     ]
+    ],
+    "llm_calls": 4,
+    "tokens": 9289,
+    "latency_s": 2.25
+   },
+   {
+    "id": "traj_single_02",
+    "passed": true,
+    "fails": [],
+    "steps": [
+     [
+      "search_policies",
+      {
+       "query": "hỗ trợ chi phí đào tạo cho nhân viên"
+      }
+     ]
+    ],
+    "llm_calls": 3,
+    "tokens": 8101,
+    "latency_s": 6.78
+   }
+  ]
+ },
+ "cost_trajectory": {
+  "summary": {
+   "n": 67,
+   "errors": 0,
+   "llm_calls": {
+    "mean": 3.27,
+    "p50": 4,
+    "max": 6
+   },
+   "tokens": {
+    "mean": 9911.42,
+    "p50": 9967,
+    "max": 29476
+   },
+   "latency_s": {
+    "mean": 4.55,
+    "p50": 4.1,
+    "max": 13.76
+   },
+   "searches": {
+    "mean": 1.9,
+    "p50": 1,
+    "max": 8
+   },
+   "gold_found": "47/67",
+   "gold_at_first_search": 41,
+   "gold_only_after_retry": 6,
+   "redundant_searches_total": 20,
+   "questions_with_redundant_search": 10
+  },
+  "results": [
+   {
+    "id": "qa_001",
+    "llm_calls": 1,
+    "tokens": 1398,
+    "latency_s": 0.57,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_002",
+    "llm_calls": 1,
+    "tokens": 1403,
+    "latency_s": 0.61,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_003",
+    "llm_calls": 4,
+    "tokens": 11123,
+    "latency_s": 4.75,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_004",
+    "llm_calls": 4,
+    "tokens": 9122,
+    "latency_s": 2.53,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_005",
+    "llm_calls": 4,
+    "tokens": 9650,
+    "latency_s": 3.28,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_006",
+    "llm_calls": 4,
+    "tokens": 14482,
+    "latency_s": 7.66,
+    "n_search": 2,
+    "first_gold_search": 2,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_007",
+    "llm_calls": 4,
+    "tokens": 11883,
+    "latency_s": 4.29,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_008",
+    "llm_calls": 5,
+    "tokens": 20237,
+    "latency_s": 11.3,
+    "n_search": 5,
+    "first_gold_search": 5,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_009",
+    "llm_calls": 3,
+    "tokens": 8443,
+    "latency_s": 2.92,
+    "n_search": 1,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_010",
+    "llm_calls": 5,
+    "tokens": 28115,
+    "latency_s": 13.13,
+    "n_search": 8,
+    "first_gold_search": 2,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_011",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.02,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_012",
+    "llm_calls": 4,
+    "tokens": 9967,
+    "latency_s": 4.8,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_013",
+    "llm_calls": 4,
+    "tokens": 8514,
+    "latency_s": 4.15,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_014",
+    "llm_calls": 5,
+    "tokens": 17299,
+    "latency_s": 9.15,
+    "n_search": 5,
+    "first_gold_search": 1,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_015",
+    "llm_calls": 5,
+    "tokens": 9283,
+    "latency_s": 7.26,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_021",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.02,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_022",
+    "llm_calls": 4,
+    "tokens": 8939,
+    "latency_s": 4.77,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_023",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.02,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_024",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.06,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_026",
+    "llm_calls": 4,
+    "tokens": 9999,
+    "latency_s": 3.43,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_027",
+    "llm_calls": 4,
+    "tokens": 9337,
+    "latency_s": 3.39,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_028",
+    "llm_calls": 5,
+    "tokens": 22334,
+    "latency_s": 13.1,
+    "n_search": 8,
+    "first_gold_search": null,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_029",
+    "llm_calls": 4,
+    "tokens": 10172,
+    "latency_s": 3.77,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_030",
+    "llm_calls": 4,
+    "tokens": 6922,
+    "latency_s": 2.57,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_031",
+    "llm_calls": 4,
+    "tokens": 10805,
+    "latency_s": 3.15,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_032",
+    "llm_calls": 4,
+    "tokens": 10659,
+    "latency_s": 4.7,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_033",
+    "llm_calls": 4,
+    "tokens": 12194,
+    "latency_s": 5.85,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_034",
+    "llm_calls": 4,
+    "tokens": 9817,
+    "latency_s": 3.68,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_035",
+    "llm_calls": 4,
+    "tokens": 9905,
+    "latency_s": 3.31,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_036",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.05,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_037",
+    "llm_calls": 1,
+    "tokens": 1426,
+    "latency_s": 0.56,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_038",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.11,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_039",
+    "llm_calls": 4,
+    "tokens": 12339,
+    "latency_s": 4.57,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_040",
+    "llm_calls": 4,
+    "tokens": 11351,
+    "latency_s": 4.1,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_046",
+    "llm_calls": 4,
+    "tokens": 10618,
+    "latency_s": 3.76,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_047",
+    "llm_calls": 1,
+    "tokens": 1395,
+    "latency_s": 0.44,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_048",
+    "llm_calls": 4,
+    "tokens": 9940,
+    "latency_s": 6.07,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_049",
+    "llm_calls": 1,
+    "tokens": 1399,
+    "latency_s": 0.89,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_050",
+    "llm_calls": 1,
+    "tokens": 1393,
+    "latency_s": 0.35,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_056",
+    "llm_calls": 4,
+    "tokens": 10030,
+    "latency_s": 4.54,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_057",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.03,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_058",
+    "llm_calls": 4,
+    "tokens": 10202,
+    "latency_s": 3.85,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_059",
+    "llm_calls": 4,
+    "tokens": 9268,
+    "latency_s": 4.04,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_060",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.03,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_101",
+    "llm_calls": 3,
+    "tokens": 9943,
+    "latency_s": 4.89,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_102",
+    "llm_calls": 3,
+    "tokens": 10863,
+    "latency_s": 4.6,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_103",
+    "llm_calls": 3,
+    "tokens": 11770,
+    "latency_s": 6.35,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_104",
+    "llm_calls": 3,
+    "tokens": 11301,
+    "latency_s": 5.61,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_105",
+    "llm_calls": 0,
+    "tokens": 0,
+    "latency_s": 0.02,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_106",
+    "llm_calls": 4,
+    "tokens": 12728,
+    "latency_s": 6.34,
+    "n_search": 3,
+    "first_gold_search": 2,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_107",
+    "llm_calls": 3,
+    "tokens": 10164,
+    "latency_s": 6.58,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_108",
+    "llm_calls": 5,
+    "tokens": 14064,
+    "latency_s": 11.62,
+    "n_search": 4,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_109",
+    "llm_calls": 4,
+    "tokens": 13014,
+    "latency_s": 6.54,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_110",
+    "llm_calls": 4,
+    "tokens": 12089,
+    "latency_s": 4.11,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_111",
+    "llm_calls": 6,
+    "tokens": 23641,
+    "latency_s": 13.76,
+    "n_search": 8,
+    "first_gold_search": null,
+    "redundant_search": 3
+   },
+   {
+    "id": "qa_112",
+    "llm_calls": 4,
+    "tokens": 12547,
+    "latency_s": 4.25,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_120",
+    "llm_calls": 6,
+    "tokens": 28553,
+    "latency_s": 11.14,
+    "n_search": 5,
+    "first_gold_search": 1,
+    "redundant_search": 2
+   },
+   {
+    "id": "qa_122",
+    "llm_calls": 6,
+    "tokens": 29476,
+    "latency_s": 11.63,
+    "n_search": 8,
+    "first_gold_search": 1,
+    "redundant_search": 5
+   },
+   {
+    "id": "qa_123",
+    "llm_calls": 4,
+    "tokens": 11568,
+    "latency_s": 4.67,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_124",
+    "llm_calls": 4,
+    "tokens": 9884,
+    "latency_s": 3.6,
+    "n_search": 1,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_126",
+    "llm_calls": 3,
+    "tokens": 9476,
+    "latency_s": 4.86,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_127",
+    "llm_calls": 5,
+    "tokens": 20191,
+    "latency_s": 11.79,
+    "n_search": 8,
+    "first_gold_search": 4,
+    "redundant_search": 4
+   },
+   {
+    "id": "qa_129",
+    "llm_calls": 4,
+    "tokens": 8885,
+    "latency_s": 3.94,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_130",
+    "llm_calls": 4,
+    "tokens": 8760,
+    "latency_s": 3.76,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 1
+   },
+   {
+    "id": "qa_131",
+    "llm_calls": 4,
+    "tokens": 10078,
+    "latency_s": 3.91,
+    "n_search": 2,
+    "first_gold_search": 1,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_138",
+    "llm_calls": 1,
+    "tokens": 1443,
+    "latency_s": 0.58,
+    "n_search": 0,
+    "first_gold_search": null,
+    "redundant_search": 0
+   },
+   {
+    "id": "qa_140",
+    "llm_calls": 6,
+    "tokens": 22264,
+    "latency_s": 8.66,
+    "n_search": 4,
+    "first_gold_search": 2,
+    "redundant_search": 0
+   }
+  ]
+ }
+}

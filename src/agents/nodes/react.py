@@ -27,6 +27,31 @@ from src.services.fpt_client import _post_chat_completion
 
 logger = logging.getLogger(__name__)
 
+# ponytail: hằng số chép từ 07_chinh-sach-nghi-phep.md mục 4.1 (mức nền) và 4.2
+# (+1 ngày mỗi 5 năm). Đổi chính sách thì đổi ở đây; tool chỉ chạy khi search
+# lấy được đúng file này, nên kết quả luôn kèm nguồn thật.
+_LEAVE_POLICY_FILE = "07_chinh-sach-nghi-phep.md"
+_LEAVE_BASE = {
+    "normal": (12, "công việc bình thường"),
+    "heavy_or_hazardous": (14, "công việc nặng nhọc, độc hại, nguy hiểm"),
+    "minor_or_disabled": (14, "người dưới 18 tuổi hoặc người khuyết tật"),
+    "very_heavy_or_hazardous": (16, "công việc đặc biệt nặng nhọc, độc hại, nguy hiểm"),
+}
+
+
+def annual_leave_days(job_type: str, years_of_service: float) -> tuple[int, str]:
+    """Trả (tổng ngày, diễn giải). Dưới 1 năm: Điều 113.2 tính theo tỷ lệ tháng, không tính tự động."""
+    base, label = _LEAVE_BASE[job_type]
+    if years_of_service < 1:
+        raise ValueError("Chưa đủ 12 tháng: số ngày phép tính theo tỷ lệ số tháng làm việc, cần HR xác nhận.")
+    extra = int(years_of_service // 5)
+    total = base + extra
+    return total, (
+        f"Mức nền {base} ngày ({label}, mục 4.1) + {extra} ngày thâm niên "
+        f"({years_of_service:g} năm, cứ 5 năm thêm 1 ngày, mục 4.2) = {total} ngày phép năm."
+    )
+
+
 TOOLS = [
     {
         "type": "function",
@@ -61,6 +86,24 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "calculate_annual_leave",
+            "description": (
+                "Tính số ngày phép năm cho một trường hợp cụ thể (loại công việc + số năm thâm niên). "
+                "Dùng khi người hỏi nêu thâm niên/loại công việc của họ; không tự cộng nhẩm."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "job_type": {"type": "string", "enum": list(_LEAVE_BASE)},
+                    "years_of_service": {"type": "number", "description": "Số năm làm việc"},
+                },
+                "required": ["job_type", "years_of_service"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "escalate_to_human",
             "description": (
                 "Chuyển cho người phụ trách khi câu hỏi cần dữ liệu cá nhân, quyết định của con người, "
@@ -89,6 +132,7 @@ _SYSTEM = (
 _STATUS = {
     "search_policies": "Đang tìm trong tài liệu: {q}",
     "lookup_structured_policy": "Đang tra bảng định mức: {q}",
+    "calculate_annual_leave": "Đang tính số ngày phép năm...",
     "escalate_to_human": "Đang chuẩn bị chuyển yêu cầu cho người phụ trách...",
 }
 
@@ -118,6 +162,29 @@ async def _search(state: AgentState, query: str) -> dict:
     if retrieved.get("access_denied_reason"):
         return retrieved
     return grade_node({**state, **retrieved})
+
+
+async def _calculate_leave(state: AgentState, args: dict) -> tuple[str, dict | None]:
+    try:
+        total, explanation = annual_leave_days(str(args.get("job_type")), float(args.get("years_of_service")))
+    except (KeyError, TypeError, ValueError) as e:
+        return f"Không tính được: {e}", None
+    res = await _search(state, "số ngày nghỉ phép năm tiêu chuẩn và ngày tăng thêm theo thâm niên")
+    evidence = [c for c in res.get("retrieved_chunks", []) if c.get("source_file") == _LEAVE_POLICY_FILE]
+    if not evidence:
+        # Không lấy được chính sách (không có quyền / đã gỡ) thì không đưa ra con số.
+        return "Không tìm thấy chính sách nghỉ phép để làm căn cứ; không tính.", None
+    computed = {
+        **evidence[0],
+        "chunk_id": f"computed:annual_leave:{args.get('job_type')}:{args.get('years_of_service')}",
+        "text": f"Phép tính tất định theo Chính sách Nghỉ phép: {explanation}",
+        "heading_path": "4.1–4.2 · phép tính",
+        "category": "computed",
+        "score": 1.0,
+        "distance": 0.0,
+        "_evidence": evidence,
+    }
+    return explanation, computed
 
 
 async def react_node(state: AgentState) -> dict:
@@ -163,6 +230,7 @@ async def react_node(state: AgentState) -> dict:
                 args = {}
             query = str(args.get("query") or question)
             _emit_status(name, query)
+            chunk_ids: list[str] = []
 
             if name == "escalate_to_human":
                 if args.get("kind") != "personal_data" and found:
@@ -184,6 +252,12 @@ async def react_node(state: AgentState) -> dict:
                     print(f"[REACT] steps={steps}")
                     return {**res, "agent_steps": steps}
                 result = "Không tra được trong bảng định mức; hãy dùng search_policies."
+            elif name == "calculate_annual_leave":
+                result, computed = await _calculate_leave(state, args)
+                if computed:
+                    found.setdefault(computed["chunk_id"], computed)
+                    for c in computed.pop("_evidence"):
+                        found.setdefault(c["chunk_id"], c)
             elif name == "search_policies":
                 res = await _search(state, query)
                 if res.get("access_denied_reason"):
@@ -194,10 +268,11 @@ async def react_node(state: AgentState) -> dict:
                     for c in new:
                         found.setdefault(c["chunk_id"], c)
                     result = _summarize(new)
+                    chunk_ids = [c["chunk_id"] for c in new]
             else:
                 result = f"Tool không tồn tại: {name}"
 
-            steps.append({"tool": name, "args": args, "result": result[:200]})
+            steps.append({"tool": name, "args": args, "result": result[:200], "chunk_ids": chunk_ids})
             messages.append({"role": "tool", "tool_call_id": call.get("id", ""), "content": result})
 
     if not steps:

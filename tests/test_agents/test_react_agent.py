@@ -106,3 +106,34 @@ def test_missing_evidence_escalate_without_chunks(monkeypatch):
     )
     assert out["escalate_reason"] == "low_confidence"
     assert react.route_after_react(out) == "escalate"
+
+
+def test_annual_leave_days_matches_policy_table():
+    # 07_chinh-sach-nghi-phep.md mục 4.2: bình thường 5-<10 năm = 13, 20+ năm = 16
+    assert react.annual_leave_days("normal", 4.9)[0] == 12
+    assert react.annual_leave_days("normal", 7)[0] == 13
+    assert react.annual_leave_days("normal", 20)[0] == 16
+    assert react.annual_leave_days("heavy_or_hazardous", 7)[0] == 15
+    assert react.annual_leave_days("very_heavy_or_hazardous", 10)[0] == 18
+    import pytest
+    with pytest.raises(ValueError):
+        react.annual_leave_days("normal", 0.5)
+
+
+def test_calculator_needs_policy_evidence(monkeypatch):
+    policy = {**_chunk("p", 0.8), "source_file": react._LEAVE_POLICY_FILE}
+    out, _, _ = _run(
+        monkeypatch,
+        [{"tool_calls": [_call("calculate_annual_leave", job_type="heavy_or_hazardous", years_of_service=7)]}, {"content": "DONE"}],
+        {"số ngày nghỉ phép năm tiêu chuẩn và ngày tăng thêm theo thâm niên": {"retrieved_chunks": [policy]}},
+    )
+    computed = [c for c in out["retrieved_chunks"] if c["chunk_id"].startswith("computed:")]
+    assert len(computed) == 1 and "= 15 ngày" in computed[0]["text"]
+    assert any(c["chunk_id"] == "p" for c in out["retrieved_chunks"])  # nguồn thật đi kèm
+
+    # Không lấy được chính sách (vd không có quyền) -> không có con số nào.
+    out, _, _ = _run(
+        monkeypatch,
+        [{"tool_calls": [_call("calculate_annual_leave", job_type="normal", years_of_service=7)]}, {"content": "DONE"}],
+    )
+    assert not any(c["chunk_id"].startswith("computed:") for c in out.get("retrieved_chunks", []))

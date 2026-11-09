@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     active_tenant: str = Field(default="nexatech", min_length=1, max_length=64)
     # Bản demo public: bật POST /auth/demo và giới hạn lượt chat để bảo vệ quota model.
     demo_mode: bool = False
+    # Mở cổng CREATE_CASE (MVP-2): chỉ scenario registry cho phép CREATE_CASE, không
+    # HUMAN_FIRST/Critical, và người hỏi phải bấm xác nhận. Tắt = hành vi MVP-1.
+    enable_create_case: bool = False
     cors_origins: str = (
         "http://localhost:3000,http://127.0.0.1:3000,"
         "http://localhost:3001,http://127.0.0.1:3001,"

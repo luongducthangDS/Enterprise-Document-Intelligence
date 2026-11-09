@@ -484,3 +484,105 @@ async def test_worker_creates_no_ticket_for_routine_boundary_escalation(monkeypa
         # phải "đã tạo ticket". Cặp (escalated=True, ticket_id=None) là trạng
         # thái hợp lệ của boundary flow và không được coi là bug.
         assert message.escalated is True
+
+
+def _create_case_answer(question: str, **boundary_overrides) -> AgentAnswerDTO:
+    return AgentAnswerDTO(
+        response="Mình đã chuẩn bị nội dung yêu cầu để bạn gửi tới bộ phận phụ trách.",
+        intent="out_of_scope_or_personal",
+        escalate=True,
+        escalate_reason="personal_data_required",
+        ticket_draft={
+            "employee_question": question,
+            "escalate_reason": "personal_data_required",
+            "confidence_score": None,
+            "category": "PAYROLL",
+            "target_department": "CB",
+            "priority": "High",
+        },
+        boundary={
+            **HUMAN_FIRST_BOUNDARY,
+            "scenario_id": 21,
+            "scenario_name": "Payroll discrepancy",
+            "assistant_role": "PREPARE_AND_HANDOFF",
+            "sensitivity": "High",
+            "max_runtime_action": "CREATE_CASE",
+            "runtime_action": "PREFILL_DRAFT",
+            "mvp_phase": "MVP_2",
+            **boundary_overrides,
+        },
+    )
+
+
+async def _run_with_answer(monkeypatch, question: str, answer: AgentAnswerDTO) -> uuid.UUID:
+    request_id = await create_queued_request(question)
+    monkeypatch.setattr(
+        ChatService, "agent_client", type("Client", (), {"query_agent": AsyncMock(return_value=answer)})()
+    )
+    await ChatService._process_chat_rag_request(request_id, USER_ID, "Engineering", question, CONVERSATION_ID)
+    return request_id
+
+
+@pytest.mark.asyncio
+async def test_create_case_needs_user_confirmation_and_is_idempotent(monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+
+    async with TestingSessionLocal() as session:
+        before = await session.scalar(select(func.count(TicketDB.id)))
+        chat_request = await session.get(ChatRequestDB, request_id)
+        # Agent chỉ đề xuất: chưa có ticket nào cho tới khi người hỏi xác nhận.
+        assert chat_request.ticket_proposal["status"] == "PENDING"
+        assert ChatService._status_payload(chat_request)["ticket_proposal"]["status"] == "PENDING"
+
+    async with TestingSessionLocal() as session:
+        first = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+    async with TestingSessionLocal() as session:
+        second = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+        after = await session.scalar(select(func.count(TicketDB.id)))
+        chat_request = await session.get(ChatRequestDB, request_id)
+        message = await session.get(MessageDB, chat_request.assistant_message_id)
+
+    assert first["status"] == "CONFIRMED" and first["ticket_id"] == second["ticket_id"]
+    assert after == before + 1
+    assert str(message.ticket_id) == first["ticket_id"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "enabled,overrides",
+    [
+        (False, {}),  # cờ tắt = MVP-1
+        (True, {"max_runtime_action": "PREFILL_DRAFT"}),  # registry không cho CREATE_CASE
+        (True, {"sensitivity": "Critical"}),
+        (True, {"assistant_role": "HUMAN_FIRST"}),
+    ],
+)
+async def test_no_case_proposal_outside_create_case_gate(monkeypatch, enabled, overrides):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError, ForbiddenError
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", enabled)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q, **overrides))
+    async with TestingSessionLocal() as session:
+        chat_request = await session.get(ChatRequestDB, request_id)
+        assert chat_request.ticket_proposal is None
+        with pytest.raises((ConflictError, ForbiddenError)):
+            await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+
+
+@pytest.mark.asyncio
+async def test_only_requester_can_confirm(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ForbiddenError
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ForbiddenError):
+            await ChatService.confirm_ticket_proposal(session, request_id, uuid.uuid4())

@@ -15,6 +15,7 @@ import type {
   DocumentSubmissionSummary,
   EvaluationRun,
   TicketItem,
+  TicketProposal,
   User,
 } from "./types";
 
@@ -314,6 +315,8 @@ export const api = {
   },
   getTicket: (ticketId: string) =>
     request<TicketItem>(`/tickets/${ticketId}`).then((response) => response.data!),
+  confirmTicketProposal: (chatRequestId: string) =>
+    request<TicketProposal>(`/chat/requests/${chatRequestId}/ticket`, { method: "POST" }).then((response) => response.data!),
   createTicket: (payload: { user_query: string; target_department: string; priority: string; category?: string }) =>
     request<TicketItem>("/tickets", { method: "POST", body: JSON.stringify(payload) }).then((response) => response.data!),
   updateTicket: (

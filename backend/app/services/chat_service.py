@@ -20,7 +20,7 @@ from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
 from app.domain.models.profile import ProfileDB
-from app.schemas.agent import AgentAnswerDTO
+from app.schemas.agent import AgentAnswerDTO, AgentTicketDraftDTO
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
 from app.services.content_safety import sanitize_citations_for_client
@@ -413,6 +413,9 @@ class ChatService:
                 chat_req.citations = mapped.citations
                 chat_req.warnings = mapped.warnings
                 chat_req.clarification = mapped.clarification
+                chat_req.ticket_proposal = AgentAnswerAdapter.case_proposal(
+                    agent_answer, get_settings().enable_create_case
+                )
                 chat_req.failure = None
                 chat_req.retryable = mapped.retryable
                 chat_req.assistant_message_id = assistant_msg_id
@@ -466,6 +469,57 @@ class ChatService:
 
         return cls._status_payload(chat_req)
 
+    @classmethod
+    async def confirm_ticket_proposal(
+        cls,
+        db: AsyncSession,
+        chat_request_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> dict[str, Any]:
+        """Người hỏi xác nhận đề xuất CREATE_CASE -> tạo ticket, idempotent.
+
+        Khoá hàng chat_request (FOR UPDATE) để hai lần bấm đồng thời không tạo
+        hai ticket; lần bấm sau trả lại ticket đã tạo.
+        """
+        res = await db.execute(
+            select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id).with_for_update()
+        )
+        chat_req = res.scalar_one_or_none()
+        if not chat_req:
+            raise NotFoundError(code="CHAT_REQUEST_NOT_FOUND", message="Không tìm thấy yêu cầu chat.")
+        if chat_req.user_id != user_id:
+            raise ForbiddenError("Bạn không có quyền xác nhận yêu cầu này.")
+        proposal = chat_req.ticket_proposal
+        if not proposal:
+            raise ConflictError(code="NO_TICKET_PROPOSAL", message="Yêu cầu này không có đề xuất tạo ticket.")
+        if proposal.get("ticket_id"):
+            return proposal
+        if not get_settings().enable_create_case:
+            raise ForbiddenError("Tạo ticket từ hội thoại đang tắt.")
+
+        ticket = await TicketService.create_from_agent_draft(
+            db=db,
+            draft=AgentTicketDraftDTO.model_validate(proposal["draft"]),
+            conversation_id=chat_req.conversation_id,
+            message_id=chat_req.assistant_message_id,
+            requester_id=user_id,
+        )
+        if chat_req.assistant_message_id:
+            msg = await db.get(MessageDB, chat_req.assistant_message_id)
+            if msg:
+                msg.ticket_id = ticket.id
+        confirmed = {
+            **proposal,
+            "status": "CONFIRMED",
+            "ticket_id": str(ticket.id),
+            "ticket_code": ticket.ticket_code,
+            "confirmed_at": datetime.now(UTC).isoformat(),
+        }
+        chat_req.ticket_proposal = confirmed  # gán dict mới để SQLAlchemy thấy thay đổi JSON
+        await db.commit()
+        logger.info(f"Ticket {ticket.ticket_code} created by user confirmation for chat_request {chat_request_id}")
+        return confirmed
+
     @staticmethod
     def _status_payload(
         chat_req: ChatRequestDB,
@@ -488,6 +542,7 @@ class ChatService:
             "clarification": chat_req.clarification,
             "failure": chat_req.failure,
             "latency_ms": chat_req.latency_ms,
+            "ticket_proposal": chat_req.ticket_proposal,
         }
 
     @classmethod
@@ -731,6 +786,9 @@ class ChatService:
                     chat_req.citations = mapped.citations
                     chat_req.warnings = mapped.warnings
                     chat_req.clarification = mapped.clarification
+                    chat_req.ticket_proposal = AgentAnswerAdapter.case_proposal(
+                        agent_answer, get_settings().enable_create_case
+                    )
                     chat_req.failure = None
                     chat_req.retryable = mapped.retryable
                     chat_req.assistant_message_id = assistant_msg_id

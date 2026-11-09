@@ -155,6 +155,13 @@ flowchart TD
 - Model lỗi hoặc không gọi tool: tìm 1 lần bằng câu gốc, giống pipeline.
 - Số đo 09/11 (`qa_eval_set`, 67 câu in_scope): pipeline 33/67, react 43/67, thắng 10 câu, thua 0; p50 2,0 s → 4,9 s. ACL end-to-end 15/15 ở cả hai chế độ (`eval/scripts/eval_acl_e2e.py`).
 
+- Tool `calculate_annual_leave`: LLM chỉ trích tham số, code tính theo mục 4.1–4.2 của chính sách nghỉ phép; chỉ trả số khi search lấy được chính sách đó, và phép tính thành chunk dẫn nguồn để numeric grounding kiểm được.
+- Trajectory eval (`eval/scripts/eval_agent_trajectory.py`): chọn tool đúng 10/10 trên bộ có nhãn; trên 67 câu in_scope trung bình 3,3 lời gọi LLM, ~9.900 token, 1,9 lần search; 6 câu chỉ tìm được gold nhờ tìm lại; ~16% lần search không đem về chunk mới.
+
+### Hành động có người duyệt (`CREATE_CASE`)
+
+Agent không ghi nghiệp vụ; nó trả `ticket_draft`. Backend lưu `chat_requests.ticket_proposal` (migration 0014) chỉ khi: cờ `ENABLE_CREATE_CASE` bật, registry đặt `max_runtime_action = CREATE_CASE` cho scenario (6/64), scenario không `HUMAN_FIRST`/`Critical`. Ticket chỉ được tạo qua `POST /api/v1/chat/requests/{id}/ticket` do chính người hỏi gọi; endpoint khoá hàng và trả lại ticket cũ nếu đã tạo (idempotent). Cờ tắt = hành vi MVP-1 (0 ticket từ luồng chat).
+
 MCP server `src/mcp_server.py` (stdio) bọc `answer()` thành tool `ask_documents`; danh tính lấy từ env `MCP_*`.
 
 ### Retrieval pipeline

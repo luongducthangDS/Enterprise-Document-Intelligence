@@ -86,6 +86,22 @@ async def stream_chat_request(
     )
 
 
+@router.post("/requests/{chat_request_id}/ticket")
+async def confirm_ticket_proposal(
+    chat_request_id: uuid.UUID,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Người hỏi xác nhận đề xuất tạo ticket của agent (CREATE_CASE có người duyệt)."""
+    data = await ChatService.confirm_ticket_proposal(
+        db=db,
+        chat_request_id=chat_request_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+    )
+    return wrap_response(data, request)
+
+
 @router.get("/requests/{chat_request_id}")
 async def get_chat_request_status(
     chat_request_id: uuid.UUID,

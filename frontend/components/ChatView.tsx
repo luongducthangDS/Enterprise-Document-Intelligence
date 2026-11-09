@@ -5,7 +5,7 @@ import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent a
 import { BookOpenCheck, CircleAlert, FileSearch, LoaderCircle, LogOut, MessageCircleQuestion, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import { chatStateLabel, conversationStateLabel, roleLabel, sourceTypeLabel } from "@/lib/labels";
-import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, User } from "@/lib/types";
+import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, TicketProposal, User } from "@/lib/types";
 import { useSystemDialog } from "@/components/SystemDialog";
 import { DocumentViewer } from "@/components/DocumentViewer";
 
@@ -846,8 +846,40 @@ function AssistantMessage({ result, onCitation, onRetry, onQuickPrompt }: {
           </div>
         </div>
       )}
-      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
+      {result.ticket_proposal && <TicketProposalCard chatRequestId={result.chat_request_id} initial={result.ticket_proposal} />}
+      {result.state === "REFUSED" && !result.ticket_proposal && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
+    </div>
+  </div>;
+}
+
+function TicketProposalCard({ chatRequestId, initial }: { chatRequestId: string; initial: TicketProposal }) {
+  const [proposal, setProposal] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { target_department, priority } = proposal.draft;
+  if (proposal.status === "CONFIRMED") {
+    return <div className="escalation-note" role="status"><BookOpenCheck size={17} />Đã tạo yêu cầu {proposal.ticket_code} gửi bộ phận {target_department}. Theo dõi ở mục Ticket.</div>;
+  }
+  const confirm = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      setProposal(await api.confirmTicketProposal(chatRequestId));
+    } catch (e) {
+      setError(e instanceof ApiClientError ? e.message : "Không tạo được yêu cầu, thử lại sau.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return <div className="escalation-note">
+    <CircleAlert size={17} />
+    <div>
+      <p>Trợ lý đã soạn sẵn yêu cầu gửi bộ phận {target_department} (ưu tiên {priority}). Yêu cầu chỉ được gửi khi bạn xác nhận.</p>
+      <button className="secondary-command" disabled={busy} onClick={() => void confirm()}>
+        {busy ? <LoaderCircle size={16} className="spin" /> : <Send size={16} />} Gửi yêu cầu
+      </button>
+      {error && <p role="alert">{error}</p>}
     </div>
   </div>;
 }
