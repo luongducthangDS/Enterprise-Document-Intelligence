@@ -40,6 +40,9 @@ _ABSTAIN_REASON_CODE: dict[str, str] = {
     "out_of_scope": "missing_policy_evidence",
     "competitor_question": "missing_policy_evidence",
     "department_scope_denied": "missing_policy_evidence",
+    # Không có câu trả lời bám nguồn sau khi hết lượt sinh lại -> thiếu bằng chứng.
+    "hallucination_detected": "missing_policy_evidence",
+    "requires_live_accounting_erp_data": "requires_live_personal_data",
 }
 
 def _derive_runtime_state(state: AgentState) -> tuple[str, str | None]:
@@ -246,7 +249,11 @@ async def astream_answer(
             "type": "status",
             "value": "Đang xử lý ngữ cảnh hội thoại..." if has_history else "Đang phân tích yêu cầu...",
         }
-        async for step in agent.astream(state, stream_mode="updates"):
+        async for mode, step in agent.astream(state, stream_mode=["updates", "custom"]):
+            if mode == "custom":
+                # Tiến trình tool call của react_node (AGENT_MODE=react).
+                yield step
+                continue
             for node_name, delta in step.items():
                 node_completed_at = time.perf_counter()
                 elapsed_ms = round((node_completed_at - previous_node_at) * 1000)
@@ -274,6 +281,8 @@ async def astream_answer(
                 elif node_name == "rewrite":
                     yield {"type": "tool_start", "tool": _RETRIEVE_TOOL_NAME}
                     yield {"type": "status", "value": "Đang tìm lại với truy vấn chính xác hơn..."}
+                elif node_name == "react":
+                    yield {"type": "status", "value": "Đang soạn câu trả lời..."}
                 elif node_name == "generate":
                     yield {"type": "status", "value": "Đang kiểm tra độ chính xác câu trả lời..."}
                 elif node_name == "hallucination_check" and not state.get("hallucination_passed", True):

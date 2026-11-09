@@ -81,3 +81,28 @@ def test_graph_modes_compile():
 
     assert "react" in build_graph("react").get_graph().nodes
     assert "react" not in build_graph("pipeline").get_graph().nodes
+
+
+def test_missing_evidence_escalate_keeps_found_chunks(monkeypatch):
+    out, _, _ = _run(
+        monkeypatch,
+        [
+            {"tool_calls": [_call("search_policies", query="trợ cấp thôi việc")]},
+            {"tool_calls": [_call("escalate_to_human", kind="missing_evidence")]},
+        ],
+        {"trợ cấp thôi việc": {"retrieved_chunks": [_chunk("faq", 0.6)]}},
+    )
+    assert [c["chunk_id"] for c in out["retrieved_chunks"]] == ["faq"]
+    assert react.route_after_react(out) == "generate"
+
+
+def test_missing_evidence_escalate_without_chunks(monkeypatch):
+    out, _, _ = _run(
+        monkeypatch,
+        [
+            {"tool_calls": [_call("search_policies", query="x")]},
+            {"tool_calls": [_call("escalate_to_human", kind="missing_evidence")]},
+        ],
+    )
+    assert out["escalate_reason"] == "low_confidence"
+    assert react.route_after_react(out) == "escalate"

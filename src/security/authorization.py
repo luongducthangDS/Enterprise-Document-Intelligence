@@ -68,9 +68,39 @@ def runtime_upload_access_condition(user: UserContext) -> dict:
     return {"$or": grants}
 
 
+_REGISTRY_PATHS = (
+    "data/metadata/document_registry.csv",
+    "data/metadata/accounting_document_registry.csv",
+    "data/metadata/product_document_registry.csv",
+)
+
+
+@lru_cache(maxsize=4)
+def _load_registry_rows(stamp: tuple) -> tuple:
+    from src.ingestion.metadata import load_registry
+
+    return tuple(row for path, _ in stamp for row in load_registry(path))
+
+
+def registry_rows_snapshot() -> list:
+    """Hợp nhất các registry hiện có (HR/core, Accounting, Product); thiếu một file
+    không làm chết retrieval. Cache theo mtime nên sửa CSV lúc chạy vẫn có hiệu lực."""
+    stamp = tuple((p, os.path.getmtime(p)) for p in _REGISTRY_PATHS if os.path.exists(p))
+    return list(_load_registry_rows(stamp))
+
+
+def registered_source_files() -> set[str]:
+    return {r.source_file for r in registry_rows_snapshot()}
+
+
 def runtime_upload_metadata_allowed(user: UserContext, metadata: dict[str, Any]) -> bool:
     """Evaluate runtime-upload ACL for candidates fetched outside query filters."""
     if metadata.get("authorization_source") != "RUNTIME_UPLOAD":
+        return False
+    # File đã có trong registry thì registry là nguồn sự thật duy nhất: metadata
+    # trong Chroma có thể cũ/sai (09/11: 33 chunk 13-QD-ABC ghi COMPANY_WIDE trong
+    # khi registry ghi DEPARTMENT/ACCOUNTING, lộ cho mọi phòng ban).
+    if str(metadata.get("source_file") or "") in registered_source_files():
         return False
 
     role = user.role.value if isinstance(user.role, UserRole) else str(user.role).upper()
@@ -261,19 +291,7 @@ class AuthorizationEngine:
     ) -> list[str]:
         """Trả về danh sách source_file được phép truy xuất cho User hiện tại."""
         if registry_rows is None:
-            from src.ingestion.metadata import load_registry
-
-            # HR/core và Product được ingest song song. Product có registry
-            # riêng nên authorization phải hợp nhất các registry hiện có;
-            # thiếu một file không được làm chết toàn bộ retrieval.
-            registry_rows = []
-            for registry_path in (
-                "data/metadata/document_registry.csv",
-                "data/metadata/accounting_document_registry.csv",
-                "data/metadata/product_document_registry.csv",
-            ):
-                if os.path.exists(registry_path):
-                    registry_rows.extend(load_registry(registry_path))
+            registry_rows = registry_rows_snapshot()
 
         allowed_files: list[str] = []
         for r in registry_rows:

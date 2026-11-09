@@ -16,6 +16,8 @@ import asyncio
 import json
 import logging
 
+from langgraph.config import get_stream_writer
+
 from src.agents.llm import resolve_llm_endpoint, thinking_arg
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node
@@ -84,13 +86,30 @@ _SYSTEM = (
 )
 
 
+_STATUS = {
+    "search_policies": "Đang tìm trong tài liệu: {q}",
+    "lookup_structured_policy": "Đang tra bảng định mức: {q}",
+    "escalate_to_human": "Đang chuẩn bị chuyển yêu cầu cho người phụ trách...",
+}
+
+
+def _emit_status(name: str, query: str) -> None:
+    """Phát tiến trình từng tool call ra SSE (custom stream của LangGraph).
+    Chỉ là metadata, không chứa nội dung câu trả lời. Ngoài astream (ainvoke,
+    test gọi trực tiếp) writer là no-op hoặc không có context: bỏ qua."""
+    try:
+        get_stream_writer()({"type": "status", "value": _STATUS.get(name, name).format(q=query[:80])})
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _summarize(chunks: list[RetrievedChunk], limit: int = 5) -> str:
     if not chunks:
         return "Không tìm thấy đoạn trích liên quan."
     lines = []
     for c in chunks[:limit]:
         where = c.get("heading_path") or c.get("source_file", "")
-        lines.append(f"- [{c.get('title', '')} · {where}] {c.get('text', '')[:300]}")
+        lines.append(f"- [{c.get('title', '')} · {where}] {c.get('text', '')[:600]}")
     return "\n".join(lines)
 
 
@@ -111,7 +130,10 @@ async def react_node(state: AgentState) -> dict:
     steps: list[dict] = []
     denied: dict = {}
 
+    stop = False
     for _ in range(settings.react_max_steps):
+        if stop:
+            break
         try:
             msg = await asyncio.to_thread(
                 _post_chat_completion,
@@ -140,8 +162,16 @@ async def react_node(state: AgentState) -> dict:
             except json.JSONDecodeError:
                 args = {}
             query = str(args.get("query") or question)
+            _emit_status(name, query)
 
             if name == "escalate_to_human":
+                if args.get("kind") != "personal_data" and found:
+                    # Model chỉ thấy bản tóm tắt chunk nên không đủ căn cứ để vứt
+                    # bằng chứng đã gom (qa_029: chunk FAQ có đáp án nằm sau đoạn
+                    # bị cắt). Dừng gọi tool, để generate + confidence quyết định.
+                    steps.append({"tool": name, "args": args, "result": "deferred_to_generate"})
+                    stop = True
+                    break
                 steps.append({"tool": name, "args": args, "result": "escalated"})
                 print(f"[REACT] steps={steps}")
                 reason = "personal_data_required" if args.get("kind") == "personal_data" else "low_confidence"
