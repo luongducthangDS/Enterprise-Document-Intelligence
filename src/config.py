@@ -68,7 +68,20 @@ class Settings(BaseSettings):
     # LLM Providers (FPT.AI Marketplace / OpenAI)
     # Cờ bật tắt nhanh: USE_GLM=ON (dùng GLM-5.2 qua FPT Cloud) | USE_GLM=OFF (dùng OpenAI)
     use_glm: bool = Field(default=False)
-    llm_provider: Literal["auto", "fpt", "openai"] = "auto"
+    # "gemini" ghi đè USE_GLM: mọi chat/embedding/VLM/rerank đi qua endpoint
+    # OpenAI-compatible của Gemini. Đổi embedding thì index cũ (e5, 1024 chiều)
+    # không dùng được: phải index lại vào collection có CHROMA_COLLECTION_SUFFIX
+    # (scripts/reindex_collections.py), collection cũ giữ nguyên để quay lui.
+    llm_provider: Literal["auto", "fpt", "openai", "gemini"] = "auto"
+    gemini_api_key: str = ""
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_fast_model: str = "gemini-2.5-flash-lite"
+    # Judge khác model với agent (tránh circular evaluation), cùng họ vì chỉ có 1 key.
+    gemini_judge_model: str = "gemini-2.5-pro"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dimensions: int = 768
+    chroma_collection_suffix: str = ""
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
     openai_embedding_model: str = "text-embedding-3-small"

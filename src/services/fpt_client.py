@@ -90,7 +90,13 @@ def _post_chat_completion(
     if temperature is not None and not is_fixed_temp_model:
         payload["temperature"] = temperature
 
-    if enable_thinking is not None and "openai.com" not in base_url.lower():
+    is_gemini = "generativelanguage.googleapis.com" in base_url.lower()
+    if enable_thinking is False and is_gemini:
+        # Gemini không nhận chat_template_kwargs (400). Chỉ dòng flash tắt được
+        # thinking (reasoning_effort="none"); pro bắt buộc có thinking.
+        if "flash" in lower_model:
+            payload["reasoning_effort"] = "none"
+    elif enable_thinking is not None and "openai.com" not in base_url.lower() and not is_gemini:
         payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 
     captured_usage: dict = {}
@@ -259,6 +265,10 @@ def rerank(
     from src.config import get_settings
     settings = get_settings()
 
+    if settings.llm_provider == "gemini":
+        # Gemini không có endpoint /rerank: chấm liên quan bằng model nhanh.
+        return _llm_rerank_sync(query, documents, model=model, base_url=base_url, api_key=api_key, top_n=top_n, timeout=min(timeout, 20))
+
     if not settings.use_glm or "openai" in base_url.lower():
         return _llm_rerank_sync(
             query,
@@ -309,6 +319,10 @@ def embed_batch(
         payload: dict = {"model": model, "input": texts}
         if "openai.com" in base_url.lower() and model.startswith("text-embedding-3"):
             payload["dimensions"] = 1024
+        if "generativelanguage.googleapis.com" in base_url.lower():
+            from src.config import get_settings
+
+            payload["dimensions"] = get_settings().gemini_embedding_dimensions
 
         r = _session.post(
             f"{base_url}/embeddings",

@@ -15,15 +15,18 @@ services:
         value: production
       - key: AGENT_SERVICE_TOKEN
         generateValue: true
-      # Chroma Cloud đang index bằng multilingual-e5-large (1024 chiều) qua FPT.
-      # USE_GLM=OFF sẽ embed query bằng OpenAI (1536 chiều) -> lệch index, retrieval
-      # rơi về BM25 trong im lặng. Chỉ đổi OFF sau khi re-index bằng OpenAI.
-      - key: USE_GLM
-        value: "ON"
-      - key: FPT_BASE_URL
-        value: https://token-api.fpt.ai/v1
-      - key: FPT_API_KEY
+      # Model embedding của câu hỏi PHẢI khớp model đã index collection, nếu lệch
+      # thì retrieval rơi về BM25 trong im lặng. Gemini qua endpoint OpenAI-compatible. Index Chroma phải được dựng lại
+      # bằng scripts/reindex_collections.py vào collection có hậu tố _gemini
+      # TRƯỚC khi đặt CHROMA_COLLECTION_SUFFIX; collection e5 cũ giữ để quay lui.
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
         sync: false
+      - key: CHROMA_COLLECTION_SUFFIX
+        value: _gemini
+      - key: AGENT_MODE
+        value: react
       - key: DATABASE_URL
         sync: false
       - key: CHROMA_CLOUD_API_KEY

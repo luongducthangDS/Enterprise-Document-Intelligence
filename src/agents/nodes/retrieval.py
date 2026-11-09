@@ -571,7 +571,7 @@ async def _amerge_bm25(
                     chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
 
     valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
-    if not settings.use_glm:
+    if not settings.use_glm and settings.llm_provider != "gemini":
         # Khi USE_GLM=OFF (OpenAI query trên kho E5), BM25 là nguồn tìm kiếm từ khóa chính xác nhất.
         # Đưa toàn bộ ứng viên BM25 lên đầu danh sách trước khi bổ sung dense để LLM Reranker đánh giá.
         ordered_ids = list(dict.fromkeys(valid_bm25_ids + dense_ids))
