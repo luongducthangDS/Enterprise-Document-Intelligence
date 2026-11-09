@@ -59,6 +59,7 @@ def _post_chat_completion(
     timeout: int = 60,
     retries: int = 2,
     enable_thinking: bool | None = None,
+    tools: list[dict] | None = None,
 ) -> dict:
     """Gọi /chat/completions OpenAI-compatible trên FPT.AI Marketplace, trả về
     message dict {"content": ..., ...}. Dùng chung cho VLM (ảnh+text) và LLM
@@ -80,6 +81,8 @@ def _post_chat_completion(
     """
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload: dict = {"model": model, "messages": messages}
+    if tools:
+        payload["tools"] = tools
 
     # Các model thế hệ mới của OpenAI (gpt-5*, o1*, o3*) cố định temperature=1.0 và từ chối param temperature != 1
     lower_model = model.lower()

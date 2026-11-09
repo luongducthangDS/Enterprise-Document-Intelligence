@@ -69,7 +69,12 @@ async def _run_one(item: dict, semaphore: asyncio.Semaphore, qrels: dict) -> dic
     async with semaphore:
         t0 = time.perf_counter()
         try:
-            result = await agent.ainvoke({"query": item["question"]})
+            # Identity audit của evaluator, cùng quy ước eval_retrieval/eval_guardrail:
+            # đo chất lượng trả lời trên toàn corpus; ACL có bộ eval riêng.
+            result = await agent.ainvoke({
+                "query": item["question"], "tenant_id": "nexatech", "user_id": "eval_agent",
+                "department": "EXECUTIVE", "user_role": "ADMIN", "request_id": f"eval:{item['id']}",
+            })
             latency_ms = (time.perf_counter() - t0) * 1000
 
             extra: dict = {}

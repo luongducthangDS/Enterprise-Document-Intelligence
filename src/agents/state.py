@@ -170,6 +170,8 @@ class AgentState(TypedDict, total=False):
     ticket_department: str
     ticket_priority: str
     rewrite_count: int
+    # Trace tool call của react_node (AGENT_MODE=react): [{"tool", "args", "result"}].
+    agent_steps: list[dict]
     hallucination_passed: bool
     hallucination_retry_count: int
     # "deterministic_numeric_grounding" | "llm_judge" — audit: câu trả lời được

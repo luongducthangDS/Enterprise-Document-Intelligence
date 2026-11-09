@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "enterprise-docs": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["-m", "src.mcp_server"],
+      "env": { "PYTHONIOENCODING": "utf-8", "MCP_DEPARTMENT": "HR", "MCP_ROLE": "EMPLOYEE" }
+    }
+  }
+}

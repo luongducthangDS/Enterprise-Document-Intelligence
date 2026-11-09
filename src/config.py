@@ -384,6 +384,11 @@ class Settings(BaseSettings):
     profile_latency: bool = False
 
     max_rewrite_retries: int = 1
+    # "pipeline" = graph cố định (retrieve -> grade -> rewrite). "react" = LLM
+    # tự chọn tool (search_policies / lookup_structured_policy /
+    # escalate_to_human) trước khi vào generate + guardrail như cũ.
+    agent_mode: str = "pipeline"
+    react_max_steps: int = 4
     max_hallucination_retries: int = 2
     # Escalate khi confidence (= relevance_score của đoạn tốt nhất) dưới ngưỡng.
     # Hạ 0.5 -> 0.2 sau khi bóc tách 29 câu in_scope fail: 7 câu bị escalate oan
