@@ -586,3 +586,54 @@ async def test_only_requester_can_confirm(monkeypatch):
     async with TestingSessionLocal() as session:
         with pytest.raises(ForbiddenError):
             await ChatService.confirm_ticket_proposal(session, request_id, uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_reject_case_proposal_blocks_confirm_and_is_audited(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError
+    from app.domain.models.audit import AuditLogDB
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        before = await session.scalar(select(func.count(TicketDB.id)))
+    async with TestingSessionLocal() as session:
+        first = await ChatService.reject_ticket_proposal(session, request_id, USER_ID, "Tôi tự xử lý được")
+    async with TestingSessionLocal() as session:
+        again = await ChatService.reject_ticket_proposal(session, request_id, USER_ID, "lý do khác")
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ConflictError):
+            await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+        after = await session.scalar(select(func.count(TicketDB.id)))
+        audits = (await session.execute(
+            select(AuditLogDB).where(AuditLogDB.resource_id == str(request_id))
+        )).scalars().all()
+
+    assert first["status"] == "REJECTED" and first["rejection_reason"] == "Tôi tự xử lý được"
+    assert again["rejection_reason"] == "Tôi tự xử lý được"  # idempotent, không ghi đè
+    assert after == before
+    assert [a.action for a in audits] == ["AGENT_CASE_REJECTED"]
+    assert audits[0].before_state["status"] == "PENDING" and audits[0].actor_id == USER_ID
+
+
+@pytest.mark.asyncio
+async def test_confirm_writes_audit_and_blocks_later_reject(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError
+    from app.domain.models.audit import AuditLogDB
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        confirmed = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ConflictError):
+            await ChatService.reject_ticket_proposal(session, request_id, USER_ID)
+        audit = (await session.execute(
+            select(AuditLogDB).where(AuditLogDB.resource_id == str(request_id))
+        )).scalar_one()
+    assert audit.action == "AGENT_CASE_CONFIRMED"
+    assert audit.after_state == {"status": "CONFIRMED", "ticket_code": confirmed["ticket_code"], "rejection_reason": None}

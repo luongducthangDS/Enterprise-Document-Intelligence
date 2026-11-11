@@ -317,6 +317,8 @@ export const api = {
     request<TicketItem>(`/tickets/${ticketId}`).then((response) => response.data!),
   confirmTicketProposal: (chatRequestId: string) =>
     request<TicketProposal>(`/chat/requests/${chatRequestId}/ticket`, { method: "POST" }).then((response) => response.data!),
+  rejectTicketProposal: (chatRequestId: string, reason?: string) =>
+    request<TicketProposal>(`/chat/requests/${chatRequestId}/ticket/reject`, { method: "POST", body: JSON.stringify({ reason: reason || null }) }).then((response) => response.data!),
   createTicket: (payload: { user_query: string; target_department: string; priority: string; category?: string }) =>
     request<TicketItem>("/tickets", { method: "POST", body: JSON.stringify(payload) }).then((response) => response.data!),
   updateTicket: (

@@ -142,11 +142,12 @@ export type BoundaryDecision = {
 
 // Đề xuất CREATE_CASE của agent: chỉ thành ticket khi người hỏi bấm xác nhận.
 export type TicketProposal = {
-  status: "PENDING" | "CONFIRMED";
+  status: "PENDING" | "CONFIRMED" | "REJECTED";
   scenario_id: number;
   draft: { target_department: string; priority: string; category: string | null };
   ticket_id?: string;
   ticket_code?: string;
+  rejection_reason?: string | null;
 };
 
 export type ChatResult = {

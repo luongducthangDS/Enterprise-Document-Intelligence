@@ -861,23 +861,31 @@ function TicketProposalCard({ chatRequestId, initial }: { chatRequestId: string;
   if (proposal.status === "CONFIRMED") {
     return <div className="escalation-note" role="status"><BookOpenCheck size={17} />Đã tạo yêu cầu {proposal.ticket_code} gửi bộ phận {target_department}. Theo dõi ở mục Ticket.</div>;
   }
-  const confirm = async () => {
+  if (proposal.status === "REJECTED") {
+    return <div className="escalation-note" role="status"><CircleAlert size={17} />Bạn đã không gửi yêu cầu này. Nếu cần, hãy đặt câu hỏi mới hoặc tạo ticket ở mục Ticket.</div>;
+  }
+  const act = async (run: () => Promise<TicketProposal>, failMessage: string) => {
     setBusy(true);
     setError(null);
     try {
-      setProposal(await api.confirmTicketProposal(chatRequestId));
+      setProposal(await run());
     } catch (e) {
-      setError(e instanceof ApiClientError ? e.message : "Không tạo được yêu cầu, thử lại sau.");
+      setError(e instanceof ApiClientError ? e.message : failMessage);
     } finally {
       setBusy(false);
     }
   };
+  const confirm = () => act(() => api.confirmTicketProposal(chatRequestId), "Không tạo được yêu cầu, thử lại sau.");
+  const reject = () => act(() => api.rejectTicketProposal(chatRequestId), "Không huỷ được đề xuất, thử lại sau.");
   return <div className="escalation-note">
     <CircleAlert size={17} />
     <div>
       <p>Trợ lý đã soạn sẵn yêu cầu gửi bộ phận {target_department} (ưu tiên {priority}). Yêu cầu chỉ được gửi khi bạn xác nhận.</p>
       <button className="secondary-command" disabled={busy} onClick={() => void confirm()}>
         {busy ? <LoaderCircle size={16} className="spin" /> : <Send size={16} />} Gửi yêu cầu
+      </button>
+      <button className="secondary-command" disabled={busy} onClick={() => void reject()}>
+        Không gửi
       </button>
       {error && <p role="alert">{error}</p>}
     </div>

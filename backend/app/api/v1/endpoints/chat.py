@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import get_current_user
@@ -98,6 +99,28 @@ async def confirm_ticket_proposal(
         db=db,
         chat_request_id=chat_request_id,
         user_id=uuid.UUID(current_user["user_id"]),
+    )
+    return wrap_response(data, request)
+
+
+class RejectProposalBody(BaseModel):
+    reason: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/requests/{chat_request_id}/ticket/reject")
+async def reject_ticket_proposal(
+    chat_request_id: uuid.UUID,
+    request: Request,
+    body: RejectProposalBody | None = None,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Người hỏi từ chối đề xuất tạo ticket của agent; không ticket nào được tạo."""
+    data = await ChatService.reject_ticket_proposal(
+        db=db,
+        chat_request_id=chat_request_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+        reason=body.reason if body else None,
     )
     return wrap_response(data, request)
 
