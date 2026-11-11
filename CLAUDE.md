@@ -1,5 +1,3 @@
-﻿# CLAUDE.md
-Log chi tiết các phiên trước lưu ở logs/CLAUDE-archive-2026-08.md
+@AGENTS.md
 
-## Trạng thái hiện tại
-- Đã thêm *.zip vào .gitignore.
+Log chi tiết các phiên Claude cũ: logs/CLAUDE-archive-2026-08.md
