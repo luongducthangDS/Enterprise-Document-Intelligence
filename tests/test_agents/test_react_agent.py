@@ -137,3 +137,53 @@ def test_calculator_needs_policy_evidence(monkeypatch):
         [{"tool_calls": [_call("calculate_annual_leave", job_type="normal", years_of_service=7)]}, {"content": "DONE"}],
     )
     assert not any(c["chunk_id"].startswith("computed:") for c in out.get("retrieved_chunks", []))
+
+
+def test_repeated_query_hits_cache_and_tells_model(monkeypatch):
+    out, queries, msgs = _run(
+        monkeypatch,
+        [
+            {"tool_calls": [_call("search_policies", query="nghỉ phép")]},
+            {"tool_calls": [_call("search_policies", query="  Nghỉ  PHÉP ")]},
+            {"content": "DONE"},
+        ],
+        {"nghỉ phép": {"retrieved_chunks": [_chunk("a", 0.5)]}},
+    )
+    assert queries == ["nghỉ phép"]  # lần 2 trùng (khác hoa/thường, khoảng trắng) không gọi retrieval
+    assert "đã tìm ở bước trước" in msgs[2][-1]["content"]
+    assert [c["chunk_id"] for c in out["retrieved_chunks"]] == ["a"]
+
+
+def test_no_new_chunk_is_flagged(monkeypatch):
+    _, _, msgs = _run(
+        monkeypatch,
+        [
+            {"tool_calls": [_call("search_policies", query="x")]},
+            {"tool_calls": [_call("search_policies", query="y")]},
+            {"content": "DONE"},
+        ],
+        {"x": {"retrieved_chunks": [_chunk("a", 0.5)]}, "y": {"retrieved_chunks": [_chunk("a", 0.5)]}},
+    )
+    assert msgs[2][-1]["content"].startswith("Không có đoạn trích mới")
+
+
+def test_same_turn_searches_run_concurrently(monkeypatch):
+    running, peak = 0, 0
+
+    async def slow_search(state, query):
+        nonlocal running, peak
+        running += 1
+        peak = max(peak, running)
+        await asyncio.sleep(0.05)
+        running -= 1
+        return {"retrieved_chunks": [_chunk(query, 0.5)]}
+
+    replies = [
+        {"tool_calls": [_call("search_policies", query=q) for q in ("a", "b", "c")]},
+        {"content": "DONE"},
+    ]
+    monkeypatch.setattr(react, "_post_chat_completion", lambda m, **kw: replies.pop(0))
+    monkeypatch.setattr(react, "_search", slow_search)
+    out = asyncio.run(react.react_node({"query": "q", "condensed_query": "q", "user_id": "u1"}))
+    assert peak == 3
+    assert {c["chunk_id"] for c in out["retrieved_chunks"]} == {"a", "b", "c"}

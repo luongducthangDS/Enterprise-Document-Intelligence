@@ -157,6 +157,10 @@ def _summarize(chunks: list[RetrievedChunk], limit: int = 5) -> str:
     return "\n".join(lines)
 
 
+def _norm(query: str) -> str:
+    return " ".join(query.lower().split())
+
+
 async def _search(state: AgentState, query: str) -> dict:
     retrieved = await retrieval_node({**state, "rewritten_query": query})
     if retrieved.get("access_denied_reason"):
@@ -196,6 +200,9 @@ async def react_node(state: AgentState) -> dict:
     found: dict[str, RetrievedChunk] = {}
     steps: list[dict] = []
     denied: dict = {}
+    # ponytail: cache theo query đã chuẩn hoá (lower + gộp khoảng trắng), chỉ sống trong 1 câu hỏi.
+    # Query diễn đạt khác nhưng cùng ý vẫn chạy lại; muốn bắt cả loại đó thì so embedding.
+    search_cache: dict[str, dict] = {}
 
     stop = False
     for _ in range(settings.react_max_steps):
@@ -222,14 +229,23 @@ async def react_node(state: AgentState) -> dict:
             break
         messages.append({"role": "assistant", "content": msg.get("content") or "", "tool_calls": calls})
 
+        parsed = []
         for call in calls:
-            name = call["function"]["name"]
             try:
                 args = json.loads(call["function"].get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}
-            query = str(args.get("query") or question)
-            _emit_status(name, query)
+            parsed.append((call, call["function"]["name"], args, str(args.get("query") or question)))
+            _emit_status(parsed[-1][1], parsed[-1][3])
+
+        # Các search trong cùng lượt độc lập nhau: chạy song song thay vì lần lượt.
+        fresh = [k for k in dict.fromkeys(_norm(q) for _, n, _, q in parsed if n == "search_policies") if k not in search_cache]
+        fresh_q = {_norm(q): q for _, n, _, q in parsed if n == "search_policies"}
+        cached_before = set(search_cache)
+        for key, res in zip(fresh, await asyncio.gather(*(_search(state, fresh_q[k]) for k in fresh))):
+            search_cache[key] = res
+
+        for call, name, args, query in parsed:
             chunk_ids: list[str] = []
 
             if name == "escalate_to_human":
@@ -259,15 +275,20 @@ async def react_node(state: AgentState) -> dict:
                     for c in computed.pop("_evidence"):
                         found.setdefault(c["chunk_id"], c)
             elif name == "search_policies":
-                res = await _search(state, query)
+                res = search_cache[_norm(query)]
                 if res.get("access_denied_reason"):
                     denied = res
                     result = "Người dùng không có quyền xem tài liệu của phòng ban này."
+                elif _norm(query) in cached_before:
+                    result = "Câu truy vấn này đã tìm ở bước trước, kết quả không đổi. Đổi từ khóa, hoặc trả DONE nếu đã đủ."
                 else:
                     new = res.get("retrieved_chunks", [])
+                    unseen = [c for c in new if c["chunk_id"] not in found]
                     for c in new:
                         found.setdefault(c["chunk_id"], c)
                     result = _summarize(new)
+                    if new and not unseen:
+                        result = "Không có đoạn trích mới so với các lần tìm trước. Nếu đã đủ bằng chứng, trả DONE.\n" + result
                     chunk_ids = [c["chunk_id"] for c in new]
             else:
                 result = f"Tool không tồn tại: {name}"

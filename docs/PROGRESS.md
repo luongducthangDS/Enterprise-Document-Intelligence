@@ -22,7 +22,15 @@ https://enterprise-document-intelligence-unh1.onrender.com: không cần đăng 
 ### Gemini (code xong, chưa chạy thật)
 `LLM_PROVIDER=gemini`: agent `gemini-2.5-flash`, router/hallucination `-flash-lite`, judge `-pro`; rerank bằng LLM; embedding `gemini-embedding-001` 768 chiều; collection `<tên>_gemini`.
 
+### Tối ưu vòng react (11/11, chưa đo live)
+- Các `search_policies` model gọi trong cùng lượt chạy song song (`asyncio.gather`); query trùng (chuẩn hoá hoa/thường, khoảng trắng) lấy từ cache, không gọi retrieval lại; search không đem về chunk mới thì báo model để nó trả DONE sớm. Mục tiêu: giảm 20 search thừa và p50 4,1 s đo 09/11. 3 test offline mới.
+
+### Sự cố 11/11
+`src/`, `tests/`, `scripts/`, `supabase/`, `presentation/` (220 file tracked) biến mất khỏi đĩa khi thư mục 01-ai-engineering được sắp xếp lại; đã khôi phục từ HEAD bằng `git checkout`. Thay đổi chưa commit trong các thư mục đó (nếu có) không khôi phục được; transcript không cho thấy file nào bị thiếu.
+
 ## Hỏng / rủi ro
+- `GEMINI_API_KEY` trong `.env` rỗng (403 khi gọi `/models`), nên chưa chạy được Gemini.
+- 4 test live (Chroma Cloud) fail vì baseline số chunk hard-code cho collection cũ.
 - FPT key trả 401 "Invalid API Key" từ 09/11: demo agent và mọi eval live cần key mới.
 - Một FPT key thật từng nằm trong `.env.example` (đã xoá khỏi working tree), key cũng có trong env Render: phải đổi ở cả hai nơi.
 - Mật khẩu demo cũ còn trong lịch sử git của repo public (`LoginView.tsx`).
