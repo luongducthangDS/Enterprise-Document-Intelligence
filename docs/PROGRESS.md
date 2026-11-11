@@ -22,7 +22,7 @@ https://enterprise-document-intelligence-unh1.onrender.com: không cần đăng 
 ### Gemini (code xong, chưa chạy thật)
 `LLM_PROVIDER=gemini`: agent `gemini-2.5-flash`, router/hallucination `-flash-lite`, judge `-pro`; rerank bằng LLM; embedding `gemini-embedding-001` 768 chiều; collection `<tên>_gemini`.
 
-### Nâng cấp agentic (11/11, 15 commit local chưa push, chưa đo đủ live)
+### Nâng cấp agentic (11/11, đã push + deploy `1c00c95`, chưa đo đủ live)
 Kế hoạch và trạng thái từng mục ở `TASKS.md` (U0–U7). Đã có code + test (637 test agent, 166 test backend pass):
 - Tool registry có schema pydantic (lỗi tham số trả về cho model), timeout + lỗi tool có cấu trúc; MCP thêm `search_policies`.
 - Tool mới `get_document`, `compare_documents`, `extract_structured` (ACL như retrieval; giá trị trích phải có câu trích nguyên văn).
@@ -35,6 +35,9 @@ Kế hoạch và trạng thái từng mục ở `TASKS.md` (U0–U7). Đã có c
 
 ### Sự cố 11/11
 `src/`, `tests/`, `scripts/`, `supabase/`, `presentation/` (220 file tracked) biến mất khỏi đĩa khi thư mục 01-ai-engineering được sắp xếp lại; đã khôi phục từ HEAD bằng `git checkout`. Thay đổi chưa commit trong các thư mục đó (nếu có) không khôi phục được; transcript không cho thấy file nào bị thiếu.
+
+### Deploy 11/11
+Kiểm trước khi push: ACL e2e react 15/15 (chỉ 3/15 câu thật sự retrieve file, còn lại dừng ở router/escalate), e2e HTTP local qua agent service. Migration 0014 chạy bằng `app_backend` (owner bảng; MCP Supabase chạy `postgres` không đủ quyền). Smoke production: hạ tầng OK, chat FAILED do FPT 401 (có từ 09/11).
 
 ## Hỏng / rủi ro
 - `.env` dùng key Gemini số 2 của DocuMind (key 1 không còn dùng được dòng 2.5). Gói free chỉ vài chục request/ngày/model: hết quota thì eval lỗi 429 PerDay. Index Gemini chỉ có ở Chroma local trong scratchpad của session 11/11 (Cloud chưa index, collection `_gemini` rỗng).

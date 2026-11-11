@@ -26,7 +26,8 @@ Hiện có: ReAct 4 tool (≤4 vòng), MCP chỉ có `ask_documents`, ACL fail-c
 ## Tiếp theo (lần lượt từ trên xuống)
 - [ ] Có key LLM mới (FPT trả 401 từ 09/11) hoặc Gemini: `GEMINI_API_KEY` trong `.env` đang **rỗng** (11/11); kiểm tên model qua `/models`
 - [ ] Chạy `scripts/reindex_collections.py`, rồi chạy lại eval_agent / eval_acl_e2e / eval_agent_trajectory (so redundant_searches/latency với số 09/11: 20 search thừa, p50 4,1 s), hiệu chỉnh ngưỡng retrieval/rerank cho Gemini
-- [ ] Push 3 commit local (`b54771e`, `5257273`, `5d8b952`) khi user cho phép; trước đó chạy migration 0014 trên Supabase
+- [x] Push + deploy `1c00c95` (11/11): ACL e2e react 15/15 (Gemini 3.5-flash-lite, Chroma local), e2e HTTP local (trả lời, hỏi tiếp, replay 0 LLM, SSE, chữ ký sai 401), migration 0014, smoke production (demo/conversation/submit 2xx, reject 409 khi không có đề xuất)
+- [ ] Chuyển agent production sang Gemini: index Chroma Cloud `_gemini` (`scripts/reindex_collections.py`), env Render `LLM_PROVIDER=gemini`, `GEMINI_API_KEY`, `CHROMA_COLLECTION_SUFFIX=_gemini`, model router `gemini-2.5-flash`; cần key trả phí (free tier vài chục request/ngày)
 - [ ] Thu hồi/đổi FPT key từng nằm trong `.env.example` (cả `.env` local và env Render)
 - [ ] Sửa metadata Chroma của 33 chunk `13-QD-ABC` cho khớp registry
 - [ ] Cập nhật baseline số chunk trong `tests/test_migration_parity.py`, `test_production_cutover_smoke.py` cho collection `_gemini` (4 test live fail 11/11)
