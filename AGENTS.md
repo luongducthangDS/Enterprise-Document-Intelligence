@@ -5,9 +5,9 @@ P-153 Enterprise Document Intelligence Agent: hỏi đáp tài liệu nội bộ
 Đọc trước khi làm: [docs/RULES.md](docs/RULES.md) > [docs/PRD.md](docs/PRD.md) > [ARCHITECTURE](docs/ARCHITECTURE.md), [DESIGN](docs/DESIGN.md), [TASKS](docs/TASKS.md), [PROGRESS](docs/PROGRESS.md).
 
 ## Trạng thái (2026-11-11)
-- Demo public chạy `AGENT_MODE=react` (https://enterprise-document-intelligence-unh1.onrender.com). 3 commit local chưa push trên `feat/recruiter-demo-deploy`; push kích hoạt deploy, cần user cho phép và chạy migration 0014 trước.
+- Demo public chạy `AGENT_MODE=react` (https://enterprise-document-intelligence-unh1.onrender.com). 6 commit local chưa push (từ `b54771e`) trên `feat/recruiter-demo-deploy`; push kích hoạt deploy, cần user cho phép và chạy migration 0014 trước.
 - FPT key 401 từ 09/11: agent demo và eval live đang hỏng tới khi có key mới. Chi tiết và số đo ở `docs/PROGRESS.md`.
-- 11/11: src/tests/scripts/supabase từng mất khỏi đĩa khi di chuyển thư mục, đã khôi phục từ git. React có search song song + cache (chưa đo live). `GEMINI_API_KEY` trong `.env` rỗng.
+- 11/11: src/tests/scripts/supabase từng mất khỏi đĩa khi di chuyển thư mục, đã khôi phục từ git. Nâng cấp agentic U1–U7a đã có code (xem `docs/PROGRESS.md`), chưa có số benchmark đủ bộ vì quota Gemini free.
 - Việc tiếp theo: mục đầu tiên chưa tick trong `docs/TASKS.md`.
 
 ## Gotchas
@@ -17,3 +17,5 @@ P-153 Enterprise Document Intelligence Agent: hỏi đáp tài liệu nội bộ
 - Test giả lập `agent.astream` phải yield `("updates", step)` (SSE dùng `stream_mode=["updates","custom"]`).
 - Gemini không nhận `chat_template_kwargs`; tắt thinking bằng `reasoning_effort=none` (chỉ dòng flash). Gemini không có `/rerank`.
 - Đã thêm `*.zip` vào `.gitignore`.
+- Python `open()` ghi lại file sẽ đổi CRLF thành LF; git tự chuẩn hoá nên diff không nhiễu. Chuỗi tiếng Việt trong code có thể khác chuẩn Unicode (dựng sẵn/tổ hợp): sửa theo số dòng nếu so chuỗi không khớp.
+- Eval Gemini: đặt `LLM_429_MAX_WAIT_S=60`, `VECTOR_DB_BACKEND=local` + `CHROMA_PERSIST_DIR` nếu Cloud chưa index `_gemini`; ghi stdout ra file thì thêm `PYTHONUNBUFFERED=1`.

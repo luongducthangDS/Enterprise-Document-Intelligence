@@ -22,14 +22,23 @@ https://enterprise-document-intelligence-unh1.onrender.com: không cần đăng 
 ### Gemini (code xong, chưa chạy thật)
 `LLM_PROVIDER=gemini`: agent `gemini-2.5-flash`, router/hallucination `-flash-lite`, judge `-pro`; rerank bằng LLM; embedding `gemini-embedding-001` 768 chiều; collection `<tên>_gemini`.
 
-### Tối ưu vòng react (11/11, chưa đo live)
-- Các `search_policies` model gọi trong cùng lượt chạy song song (`asyncio.gather`); query trùng (chuẩn hoá hoa/thường, khoảng trắng) lấy từ cache, không gọi retrieval lại; search không đem về chunk mới thì báo model để nó trả DONE sớm. Mục tiêu: giảm 20 search thừa và p50 4,1 s đo 09/11. 3 test offline mới.
+### Nâng cấp agentic (11/11, 15 commit local chưa push, chưa đo đủ live)
+Kế hoạch và trạng thái từng mục ở `TASKS.md` (U0–U7). Đã có code + test (637 test agent, 166 test backend pass):
+- Tool registry có schema pydantic (lỗi tham số trả về cho model), timeout + lỗi tool có cấu trúc; MCP thêm `search_policies`.
+- Tool mới `get_document`, `compare_documents`, `extract_structured` (ACL như retrieval; giá trị trích phải có câu trích nguyên văn).
+- Planner `REACT_PLANNER` + kết quả dạng bảng so sánh / checklist (frontend render bảng và checkbox).
+- Run log mỗi lần chạy (trajectory, args, latency, lỗi, retry, token, chi phí); nội dung chỉ khi `RUN_LOG_CONTENT=true`, đã che PII.
+- HITL: từ chối đề xuất case + audit log cho duyệt/từ chối.
+- Checkpointer `AGENT_CHECKPOINT_URL`: retry cùng request_id thành resume/replay; task memory giữa các lượt qua `previous_request_id`.
+- Benchmark 24 task × 5 nhánh (`eval/scripts/eval_agent_benchmark.py`). Chưa có số đủ bộ: quota Gemini free.
+- Đo được tới giờ (smoke 2 task, không đủ để kết luận): router `flash-lite` xếp sai câu chính sách, đổi sang `flash` thì đúng.
 
 ### Sự cố 11/11
 `src/`, `tests/`, `scripts/`, `supabase/`, `presentation/` (220 file tracked) biến mất khỏi đĩa khi thư mục 01-ai-engineering được sắp xếp lại; đã khôi phục từ HEAD bằng `git checkout`. Thay đổi chưa commit trong các thư mục đó (nếu có) không khôi phục được; transcript không cho thấy file nào bị thiếu.
 
 ## Hỏng / rủi ro
-- `GEMINI_API_KEY` trong `.env` rỗng (403 khi gọi `/models`), nên chưa chạy được Gemini.
+- `.env` dùng key Gemini số 2 của DocuMind (key 1 không còn dùng được dòng 2.5). Gói free chỉ vài chục request/ngày/model: hết quota thì eval lỗi 429 PerDay. Index Gemini chỉ có ở Chroma local trong scratchpad của session 11/11 (Cloud chưa index, collection `_gemini` rỗng).
+- `backend/tests/test_conversations.py::test_get_conversation_messages_endpoint` flaky (2 message cùng `created_at`).
 - 4 test live (Chroma Cloud) fail vì baseline số chunk hard-code cho collection cũ.
 - FPT key trả 401 "Invalid API Key" từ 09/11: demo agent và mọi eval live cần key mới.
 - Một FPT key thật từng nằm trong `.env.example` (đã xoá khỏi working tree), key cũng có trong env Render: phải đổi ở cả hai nơi.
