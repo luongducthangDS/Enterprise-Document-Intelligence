@@ -86,7 +86,7 @@ def route_after_hallucination(state: AgentState) -> str:
     return "escalate"
 
 
-def build_graph(mode: str | None = None) -> StateGraph:
+def build_graph(mode: str | None = None, checkpointer=None) -> StateGraph:
     react = (mode or get_settings().agent_mode) == "react"
     graph = StateGraph(AgentState)
 
@@ -179,7 +179,7 @@ def build_graph(mode: str | None = None) -> StateGraph:
     graph.add_edge("escalate_ticket", END)
     graph.add_edge("finalize", END)
 
-    return graph.compile()
+    return graph.compile(checkpointer=checkpointer)
 
 
 agent = build_graph()

@@ -414,6 +414,9 @@ class Settings(BaseSettings):
     # Planner trước vòng react: 1 lời gọi LLM lập các bước + dạng kết quả cuối.
     # Tắt mặc định; benchmark U7 so ReAct với ReAct + planner.
     react_planner: bool = False
+    # Task state bền (src/agents/checkpoint.py): sqlite:///<file> (local) hoặc
+    # postgresql://... (production). Rỗng = tắt, agent chạy không lưu checkpoint.
+    agent_checkpoint_url: str = ""
     react_planner_max_steps: int = 8
     max_hallucination_retries: int = 2
     # Escalate khi confidence (= relevance_score của đoạn tốt nhất) dưới ngưỡng.

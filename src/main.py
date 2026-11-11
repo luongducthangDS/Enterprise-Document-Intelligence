@@ -1,6 +1,6 @@
 import asyncio
 import time
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,7 +62,13 @@ async def lifespan(app: FastAPI):
     if recovered:
         print(f"Recovered {len(recovered)} stale agent job(s) -> FAILED: {', '.join(recovered)}")
     await _warmup_retrieval()
-    yield
+    async with AsyncExitStack() as stack:
+        if settings.agent_checkpoint_url:
+            from src.agents import checkpoint
+
+            checkpoint.install(await stack.enter_async_context(checkpoint.open_checkpointer(settings.agent_checkpoint_url)))
+            print("[checkpoint] agent task state enabled")
+        yield
     print("Shutting down...")
 
 

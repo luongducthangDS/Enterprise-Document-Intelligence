@@ -14,6 +14,7 @@ import time
 from collections.abc import AsyncIterator
 from typing import Any
 
+from src.agents import checkpoint
 from src.agents.graph import agent
 from src.agents.guardrails import redact_pii
 from src.agents.state import AgentState
@@ -249,7 +250,8 @@ async def astream_answer(
             "type": "status",
             "value": "Đang xử lý ngữ cảnh hội thoại..." if has_history else "Đang phân tích yêu cầu...",
         }
-        async for mode, step in agent.astream(state, stream_mode=["updates", "custom"]):
+        runner, run_input, config, run_kind = await checkpoint.prepare(state, agent)
+        async for mode, step in runner.astream(run_input, stream_mode=["updates", "custom"], **({"config": config} if config else {})):
             if mode == "custom":
                 # Tiến trình tool call của react_node (AGENT_MODE=react).
                 yield step
@@ -298,13 +300,16 @@ async def astream_answer(
         if capture_cm is not None:
             capture_cm.__exit__(None, None, None)
 
+    if config is not None:
+        # Resume/replay chỉ stream phần còn lại (hoặc không gì): lấy state đầy đủ từ checkpoint.
+        state = dict((await runner.aget_state(config)).values)
     safe_response = _sanitize_response(state)
     total_ms = round((time.perf_counter() - started_at) * 1000)
     stage_timings_ms["total"] = total_ms
     runtime_state, reason_code = _derive_runtime_state(state)
     print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
     _log_audit(state, stage_timings_ms, network_calls if profiling else None)
-    run_log.write(run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code))
+    run_log.write({**run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code), "run_kind": run_kind})
 
     safe_citations = sanitize_citations(state.get("citations", []))
     ticket_draft = _build_ticket_draft(state)
@@ -377,8 +382,10 @@ async def answer(
     capture_cm = llm_trace.capture()  # luôn bật: run log cần token/latency; chi phí chỉ là append list
     network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
     initial = _initial_state(query, history, identity)
+    run_kind = "fresh"
     try:
-        state: AgentState = await agent.ainvoke(initial)
+        runner, run_input, config, run_kind = await checkpoint.prepare(initial, agent)
+        state: AgentState = await runner.ainvoke(run_input, **({"config": config} if config else {}))
     except Exception as e:
         record = run_log.build_record(initial, network_calls, round((time.perf_counter() - started_at) * 1000), "ERROR", type(e).__name__)
         run_log.write({**record, "error": f"{type(e).__name__}: {e}"[:500]})
@@ -391,7 +398,7 @@ async def answer(
     runtime_state, reason_code = _derive_runtime_state(state)
     print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
     _log_audit(state, {"total": total_ms} if profiling else None, network_calls if profiling else None)
-    run_log.write(run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code))
+    run_log.write({**run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code), "run_kind": run_kind})
     # Safety: quick_prompts chỉ được phép non-empty khi intent=capability_discovery
     _quick_prompts = state.get("quick_prompts", [])
     if _quick_prompts and state.get("intent") != "capability_discovery":
