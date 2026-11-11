@@ -1,5 +1,6 @@
 import base64
 import random
+import re
 import time
 from collections.abc import Callable
 from typing import TypeVar
@@ -20,6 +21,31 @@ _LAST_ATTEMPTS = [1]
 T = TypeVar("T")
 
 
+_MAX_RATE_WAITS = 6
+
+
+def _rate_limit_wait(response: requests.Response) -> float | None:
+    """Số giây cần chờ khi bị 429, hoặc None nếu không chờ (LLM_429_MAX_WAIT_S=0, mặc định).
+
+    Production để 0: người dùng không ngồi chờ quota hồi. Eval đặt 60 để gói free
+    (vài request/phút) chạy hết bộ thay vì mất nửa số câu vì 429.
+    """
+    from src.config import get_settings
+
+    cap = get_settings().llm_429_max_wait_s
+    if cap <= 0:
+        return None
+    raw = response.headers.get("Retry-After")
+    if not raw:
+        m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', response.text or "")
+        raw = m.group(1) if m else None
+    try:
+        wait = float(raw) if raw else 20.0
+    except ValueError:
+        wait = 20.0
+    return min(wait + random.uniform(0, 2), cap)
+
+
 def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
     """Retry với exponential backoff + jitter, chỉ cho lỗi mạng/HTTP.
 
@@ -29,24 +55,32 @@ def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
     Jitter tách các coroutine đang chạy song song ra để không retry đồng loạt.
     """
     last_exc: requests.exceptions.RequestException | None = None
-    for attempt in range(retries + 1):
+    attempt, rate_waits = 0, 0
+    while True:
         try:
             result = func()
-            _LAST_ATTEMPTS[0] = attempt + 1
+            _LAST_ATTEMPTS[0] = attempt + rate_waits + 1
             return result
         except requests.exceptions.RequestException as e:
             last_exc = e
+            status = e.response.status_code if isinstance(e, requests.exceptions.HTTPError) and e.response is not None else None
             # 524 nghĩa là upstream model đã xử lý quá lâu và gateway đóng
             # request. Retry ngay cùng payload thường lại tốn trọn timeout,
             # vượt ngân sách HTTP giữa Backend -> Agent mà không tăng cơ hội
             # thành công. Caller nên chuyển model/fallback thay vì gọi lại.
-            if isinstance(e, requests.exceptions.HTTPError) and e.response is not None:
-                if e.response.status_code == 524:
-                    break
-            if attempt < retries:
-                delay = min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0)
-                time.sleep(delay)
-    _LAST_ATTEMPTS[0] = retries + 1
+            if status == 524:
+                break
+            wait = _rate_limit_wait(e.response) if status == 429 else None
+            if wait is not None and rate_waits < _MAX_RATE_WAITS:
+                # 429 có hẹn giờ: chờ đúng khoảng server yêu cầu, không tính vào `retries`.
+                rate_waits += 1
+                time.sleep(wait)
+                continue
+            if attempt >= retries:
+                break
+            time.sleep(min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0))
+            attempt += 1
+    _LAST_ATTEMPTS[0] = attempt + rate_waits + 1
     raise last_exc
 
 

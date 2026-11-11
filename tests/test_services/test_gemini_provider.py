@@ -76,3 +76,45 @@ def test_collection_suffix_applies_to_every_access(monkeypatch):
     client = MagicMock()
     get_collection(client, "accounting_documents")
     assert client.get_or_create_collection.call_args.kwargs["name"] == "accounting_documents_gemini"
+
+
+def _http_error(status, text="", headers=None):
+    import requests
+
+    resp = requests.Response()
+    resp.status_code = status
+    resp._content = text.encode()
+    resp.headers.update(headers or {})
+    return requests.exceptions.HTTPError(response=resp)
+
+
+def test_429_waits_server_delay_only_when_enabled(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fpt_client.time, "sleep", sleeps.append)
+    monkeypatch.setattr(fpt_client.random, "uniform", lambda a, b: 0)
+    body = '{"error": {"details": [{"retryDelay": "17s"}]}}'
+
+    def flaky():
+        if len(sleeps) < 3:
+            raise _http_error(429, body)
+        return "ok"
+
+    monkeypatch.setattr(get_settings(), "llm_429_max_wait_s", 60.0)
+    assert fpt_client._retry_with_backoff(flaky, retries=0) == "ok"  # 429 không ăn vào retries
+    assert sleeps == [17.0, 17.0, 17.0]
+
+    sleeps.clear()
+    monkeypatch.setattr(get_settings(), "llm_429_max_wait_s", 0.0)  # production: không chờ quota
+    with pytest.raises(Exception):
+        fpt_client._retry_with_backoff(lambda: (_ for _ in ()).throw(_http_error(429, body)), retries=0)
+    assert sleeps == []
+
+
+def test_429_wait_is_capped_and_bounded(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fpt_client.time, "sleep", sleeps.append)
+    monkeypatch.setattr(fpt_client.random, "uniform", lambda a, b: 0)
+    monkeypatch.setattr(get_settings(), "llm_429_max_wait_s", 30.0)
+    with pytest.raises(Exception):
+        fpt_client._retry_with_backoff(lambda: (_ for _ in ()).throw(_http_error(429, headers={"Retry-After": "120"})), retries=0)
+    assert sleeps == [30.0] * fpt_client._MAX_RATE_WAITS

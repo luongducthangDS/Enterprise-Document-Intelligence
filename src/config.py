@@ -77,8 +77,10 @@ class Settings(BaseSettings):
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
     gemini_model: str = "gemini-2.5-flash"
     gemini_fast_model: str = "gemini-2.5-flash-lite"
-    # Judge khác model với agent (tránh circular evaluation), cùng họ vì chỉ có 1 key.
-    gemini_judge_model: str = "gemini-2.5-pro"
+    # Judge khác model với agent (tránh circular evaluation). 11/2026: gemini-2.5-pro
+    # không còn mở cho key mới (404) và model pro không có quota free (429), nên dùng
+    # flash đời mới hơn model agent.
+    gemini_judge_model: str = "gemini-3.5-flash"
     gemini_embedding_model: str = "gemini-embedding-001"
     gemini_embedding_dimensions: int = 768
     chroma_collection_suffix: str = ""
@@ -399,6 +401,8 @@ class Settings(BaseSettings):
     # đường dẫn thì ghi thêm JSONL. RUN_LOG_CONTENT=true mới ghi câu hỏi/câu trả
     # lời (đã che PII), mặc định tắt như `_log_audit`.
     run_log_path: str = ""
+    # Chờ tối đa bao nhiêu giây khi LLM trả 429 kèm hẹn giờ. 0 = không chờ (production).
+    llm_429_max_wait_s: float = 0.0
     run_log_content: bool = False
 
     max_rewrite_retries: int = 1
