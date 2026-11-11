@@ -19,7 +19,7 @@ from src.agents.guardrails import redact_pii
 from src.agents.state import AgentState
 from src.config import get_settings
 from src.models.schemas import AgentAnswer, BoundaryDecisionDTO, Citation, TicketDraft
-from src.observability import llm_trace
+from src.observability import llm_trace, run_log
 
 _RETRIEVE_TOOL_NAME = "hr_policy_search"
 # ~15 từ/chunk (tiếng Việt trung bình 4-6 ký tự/từ) -> chunk vừa đủ nhỏ để tạo
@@ -241,7 +241,7 @@ async def astream_answer(
     # Trace chỉ cần SỐNG trong lúc graph chạy; list thu được vẫn đọc bình thường
     # sau khi thoát context, nên đóng nó trước _log_audit là đúng ý.
     profiling = get_settings().profile_latency
-    capture_cm = llm_trace.capture() if profiling else None
+    capture_cm = llm_trace.capture()  # luôn bật: run log cần token/latency; chi phí chỉ là append list
     network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
     try:
         has_history = bool(state.get("history"))
@@ -290,6 +290,8 @@ async def astream_answer(
                 elif node_name == "escalate_ticket":
                     yield {"type": "status", "value": "Đang chuẩn bị chuyển yêu cầu hỗ trợ..."}
     except Exception as e:  # noqa: BLE001 — báo lỗi qua event thay vì làm rơi kết nối SSE trần trụi
+        record = run_log.build_record(state, network_calls, round((time.perf_counter() - started_at) * 1000), "ERROR", type(e).__name__)
+        run_log.write({**record, "error": f"{type(e).__name__}: {e}"[:500]})
         yield {"type": "error", "message": f"{type(e).__name__}: {e}"}
         return
     finally:
@@ -301,7 +303,8 @@ async def astream_answer(
     stage_timings_ms["total"] = total_ms
     runtime_state, reason_code = _derive_runtime_state(state)
     print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
-    _log_audit(state, stage_timings_ms, network_calls)
+    _log_audit(state, stage_timings_ms, network_calls if profiling else None)
+    run_log.write(run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code))
 
     safe_citations = sanitize_citations(state.get("citations", []))
     ticket_draft = _build_ticket_draft(state)
@@ -371,10 +374,15 @@ async def answer(
     # "mạng giữa hai service chậm". Chỉ bật khi `profile_latency`.
     profiling = get_settings().profile_latency
     started_at = time.perf_counter()
-    capture_cm = llm_trace.capture() if profiling else None
+    capture_cm = llm_trace.capture()  # luôn bật: run log cần token/latency; chi phí chỉ là append list
     network_calls: list[dict] = capture_cm.__enter__() if capture_cm is not None else []
+    initial = _initial_state(query, history, identity)
     try:
-        state: AgentState = await agent.ainvoke(_initial_state(query, history, identity))
+        state: AgentState = await agent.ainvoke(initial)
+    except Exception as e:
+        record = run_log.build_record(initial, network_calls, round((time.perf_counter() - started_at) * 1000), "ERROR", type(e).__name__)
+        run_log.write({**record, "error": f"{type(e).__name__}: {e}"[:500]})
+        raise
     finally:
         if capture_cm is not None:
             capture_cm.__exit__(None, None, None)
@@ -382,7 +390,8 @@ async def answer(
     total_ms = round((time.perf_counter() - started_at) * 1000)
     runtime_state, reason_code = _derive_runtime_state(state)
     print(f"[TIMING] [TOTAL PIPELINE] {total_ms}ms ({round(total_ms/1000, 2)}s) | status={runtime_state} | intent={state.get('intent')}")
-    _log_audit(state, {"total": total_ms} if profiling else None, network_calls)
+    _log_audit(state, {"total": total_ms} if profiling else None, network_calls if profiling else None)
+    run_log.write(run_log.build_record({**state, "response": safe_response}, network_calls, total_ms, runtime_state, reason_code))
     # Safety: quick_prompts chỉ được phép non-empty khi intent=capability_discovery
     _quick_prompts = state.get("quick_prompts", [])
     if _quick_prompts and state.get("intent") != "capability_discovery":

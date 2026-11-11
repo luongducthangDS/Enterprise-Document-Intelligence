@@ -395,6 +395,11 @@ class Settings(BaseSettings):
     # Chỉ ghi số đo (thời lượng, token đếm được, số lần thử) — không ghi prompt,
     # câu hỏi hay nội dung câu trả lời.
     profile_latency: bool = False
+    # Run log (src/observability/run_log.py): luôn in `[run]` ra stdout; đặt
+    # đường dẫn thì ghi thêm JSONL. RUN_LOG_CONTENT=true mới ghi câu hỏi/câu trả
+    # lời (đã che PII), mặc định tắt như `_log_audit`.
+    run_log_path: str = ""
+    run_log_content: bool = False
 
     max_rewrite_retries: int = 1
     # "pipeline" = graph cố định (retrieve -> grade -> rewrite). "react" = LLM
