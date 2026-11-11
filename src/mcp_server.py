@@ -15,6 +15,8 @@ from mcp.server import MCPServer
 
 os.environ.setdefault("AGENT_MODE", "react")
 
+from src.agents.tools import REGISTRY, QueryArgs  # noqa: E402
+
 server = MCPServer(
     "enterprise-docs",
     instructions="Hỏi đáp có trích dẫn trên kho tài liệu nội bộ (HR, Kế toán, Sản phẩm) của NexaTech.",
@@ -47,6 +49,24 @@ async def ask_documents(question: str) -> dict:
             {"title": c.title, "section": c.source_section, "excerpt": c.excerpt} for c in a.citations
         ],
         "ticket": a.ticket_draft.model_dump() if a.ticket_draft else None,
+    }
+
+
+@server.tool(description=REGISTRY["search_policies"].description)
+async def search_policies(query: str) -> dict:
+    """Cùng hợp đồng (schema, ACL) với tool agent dùng; client MCP tự lập luận trên đoạn trích."""
+    QueryArgs(query=query)  # cùng schema agent dùng: query rỗng/quá dài bị từ chối trước khi chạm retrieval
+    with contextlib.redirect_stdout(sys.stderr):
+        from src.agents.nodes.react import _search
+
+        res = await _search({**_identity(), "query": query}, query)
+    if res.get("access_denied_reason"):
+        return {"denied": res["access_denied_reason"], "chunks": []}
+    return {
+        "chunks": [
+            {"title": c.get("title"), "section": c.get("heading_path"), "source_file": c.get("source_file"), "text": c.get("text")}
+            for c in res.get("retrieved_chunks", [])
+        ]
     }
 
 

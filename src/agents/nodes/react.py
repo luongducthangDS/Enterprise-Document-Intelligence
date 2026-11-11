@@ -13,8 +13,8 @@ model chỉ chọn câu truy vấn, không chọn được mình là ai.
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
+import time
 
 from langgraph.config import get_stream_writer
 
@@ -22,6 +22,7 @@ from src.agents.llm import resolve_llm_endpoint, thinking_arg
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node
 from src.agents.state import AgentState, RetrievedChunk
+from src.agents.tools import LEAVE_JOB_TYPES, REGISTRY, ToolArgsError, openai_tools, parse_call
 from src.config import get_settings
 from src.services.fpt_client import _post_chat_completion
 
@@ -52,71 +53,9 @@ def annual_leave_days(job_type: str, years_of_service: float) -> tuple[int, str]
     )
 
 
-TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "search_policies",
-            "description": (
-                "Tìm đoạn trích trong kho tài liệu nội bộ (HR, Kế toán, Sản phẩm) mà người dùng được phép xem. "
-                "Gọi nhiều lần với query khác nhau nếu câu hỏi có nhiều ý hoặc lần đầu không thấy kết quả."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {"query": {"type": "string", "description": "Câu truy vấn tiếng Việt, cụ thể"}},
-                "required": ["query"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "lookup_structured_policy",
-            "description": (
-                "Tra bảng định mức có cấu trúc (hiện có: định mức khách sạn/công tác phí theo địa điểm và chức danh). "
-                "Trả về con số chính xác nếu tra được."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {"query": {"type": "string"}},
-                "required": ["query"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "calculate_annual_leave",
-            "description": (
-                "Tính số ngày phép năm cho một trường hợp cụ thể (loại công việc + số năm thâm niên). "
-                "Dùng khi người hỏi nêu thâm niên/loại công việc của họ; không tự cộng nhẩm."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "job_type": {"type": "string", "enum": list(_LEAVE_BASE)},
-                    "years_of_service": {"type": "number", "description": "Số năm làm việc"},
-                },
-                "required": ["job_type", "years_of_service"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "escalate_to_human",
-            "description": (
-                "Chuyển cho người phụ trách khi câu hỏi cần dữ liệu cá nhân, quyết định của con người, "
-                "hoặc đã tìm mà tài liệu không có."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {"kind": {"type": "string", "enum": ["personal_data", "missing_evidence"]}},
-                "required": ["kind"],
-            },
-        },
-    },
-]
+TOOLS = openai_tools()
+assert set(_LEAVE_BASE) == set(LEAVE_JOB_TYPES), "enum job_type trong registry lệch bảng chính sách"
+
 
 _SYSTEM = (
     "Bạn là agent tra cứu tài liệu nội bộ doanh nghiệp. Nhiệm vụ: thu thập ĐỦ bằng chứng để trả lời câu hỏi, "
@@ -155,6 +94,16 @@ def _summarize(chunks: list[RetrievedChunk], limit: int = 5) -> str:
         where = c.get("heading_path") or c.get("source_file", "")
         lines.append(f"- [{c.get('title', '')} · {where}] {c.get('text', '')[:600]}")
     return "\n".join(lines)
+
+
+async def _guard(name: str, coro):
+    return await asyncio.wait_for(coro, REGISTRY[name].timeout_s)
+
+
+def _tool_error(name: str, e: BaseException) -> str:
+    logger.warning("tool %s failed: %r", name, e)
+    kind = "quá thời gian" if isinstance(e, asyncio.TimeoutError) else f"lỗi {type(e).__name__}"
+    return f"Tool {name} {kind}; thử lại hoặc dùng tool khác."
 
 
 def _norm(query: str) -> str:
@@ -231,24 +180,38 @@ async def react_node(state: AgentState) -> dict:
 
         parsed = []
         for call in calls:
+            name = call["function"]["name"]
             try:
-                args = json.loads(call["function"].get("arguments") or "{}")
-            except json.JSONDecodeError:
-                args = {}
-            parsed.append((call, call["function"]["name"], args, str(args.get("query") or question)))
-            _emit_status(parsed[-1][1], parsed[-1][3])
+                _, model_args = parse_call(name, call["function"].get("arguments"))
+                args, err = model_args.model_dump(), None
+            except ToolArgsError as e:
+                args, err = {"raw": call["function"].get("arguments")}, str(e)
+            query = str(args.get("query") or question)
+            parsed.append((call, name, args, query, err))
+            if not err:
+                _emit_status(name, query)
 
         # Các search trong cùng lượt độc lập nhau: chạy song song thay vì lần lượt.
-        fresh = [k for k in dict.fromkeys(_norm(q) for _, n, _, q in parsed if n == "search_policies") if k not in search_cache]
-        fresh_q = {_norm(q): q for _, n, _, q in parsed if n == "search_policies"}
+        # Search lỗi/timeout không vào cache, để lượt sau model thử lại được.
+        fresh = [k for k in dict.fromkeys(_norm(q) for _, n, _, q, e in parsed if n == "search_policies" and not e) if k not in search_cache]
+        fresh_q = {_norm(q): q for _, n, _, q, e in parsed if n == "search_policies" and not e}
         cached_before = set(search_cache)
-        for key, res in zip(fresh, await asyncio.gather(*(_search(state, fresh_q[k]) for k in fresh))):
-            search_cache[key] = res
+        failed: dict[str, str] = {}
+        results = await asyncio.gather(*(_guard("search_policies", _search(state, fresh_q[k])) for k in fresh), return_exceptions=True)
+        for key, res in zip(fresh, results):
+            if isinstance(res, BaseException):
+                failed[key] = _tool_error("search_policies", res)
+            else:
+                search_cache[key] = res
 
-        for call, name, args, query in parsed:
+        for call, name, args, query, err in parsed:
             chunk_ids: list[str] = []
+            t0 = time.perf_counter()
+            error = err
 
-            if name == "escalate_to_human":
+            if err:
+                result = f"{err}. Gọi lại với tham số đúng schema."
+            elif name == "escalate_to_human":
                 if args.get("kind") != "personal_data" and found:
                     # Model chỉ thấy bản tóm tắt chunk nên không đủ căn cứ để vứt
                     # bằng chứng đã gom (qa_029: chunk FAQ có đáp án nằm sau đoạn
@@ -257,29 +220,38 @@ async def react_node(state: AgentState) -> dict:
                     stop = True
                     break
                 steps.append({"tool": name, "args": args, "result": "escalated"})
-                print(f"[REACT] steps={steps}")
+                logger.info("react steps=%s", steps)
                 reason = "personal_data_required" if args.get("kind") == "personal_data" else "low_confidence"
                 return {"agent_steps": steps, "escalate": True, "escalate_reason": reason}
-
-            if name == "lookup_structured_policy":
-                res = await knowledge_lookup_node({**state, "condensed_query": query})
+            elif name == "lookup_structured_policy":
+                try:
+                    res = await _guard(name, knowledge_lookup_node({**state, "condensed_query": query}))
+                except Exception as e:  # noqa: BLE001
+                    res, error = {}, _tool_error(name, e)
                 if res.get("skip_retrieval"):
                     steps.append({"tool": name, "args": args, "result": "resolved"})
-                    print(f"[REACT] steps={steps}")
+                    logger.info("react steps=%s", steps)
                     return {**res, "agent_steps": steps}
-                result = "Không tra được trong bảng định mức; hãy dùng search_policies."
+                result = error or "Không tra được trong bảng định mức; hãy dùng search_policies."
             elif name == "calculate_annual_leave":
-                result, computed = await _calculate_leave(state, args)
+                try:
+                    result, computed = await _guard(name, _calculate_leave(state, args))
+                except Exception as e:  # noqa: BLE001
+                    result, computed = _tool_error(name, e), None
+                    error = result
                 if computed:
                     found.setdefault(computed["chunk_id"], computed)
                     for c in computed.pop("_evidence"):
                         found.setdefault(c["chunk_id"], c)
-            elif name == "search_policies":
-                res = search_cache[_norm(query)]
-                if res.get("access_denied_reason"):
+            else:  # search_policies
+                key = _norm(query)
+                res = search_cache.get(key)
+                if res is None:
+                    result = error = failed.get(key, "search không chạy")
+                elif res.get("access_denied_reason"):
                     denied = res
                     result = "Người dùng không có quyền xem tài liệu của phòng ban này."
-                elif _norm(query) in cached_before:
+                elif key in cached_before:
                     result = "Câu truy vấn này đã tìm ở bước trước, kết quả không đổi. Đổi từ khóa, hoặc trả DONE nếu đã đủ."
                 else:
                     new = res.get("retrieved_chunks", [])
@@ -290,10 +262,11 @@ async def react_node(state: AgentState) -> dict:
                     if new and not unseen:
                         result = "Không có đoạn trích mới so với các lần tìm trước. Nếu đã đủ bằng chứng, trả DONE.\n" + result
                     chunk_ids = [c["chunk_id"] for c in new]
-            else:
-                result = f"Tool không tồn tại: {name}"
 
-            steps.append({"tool": name, "args": args, "result": result[:200], "chunk_ids": chunk_ids})
+            step = {"tool": name, "args": args, "result": result[:200], "chunk_ids": chunk_ids, "latency_ms": int((time.perf_counter() - t0) * 1000)}
+            if error:
+                step["error"] = error
+            steps.append(step)
             messages.append({"role": "tool", "tool_call_id": call.get("id", ""), "content": result})
 
     if not steps:
@@ -305,7 +278,7 @@ async def react_node(state: AgentState) -> dict:
             found.setdefault(c["chunk_id"], c)
         steps.append({"tool": "search_policies", "args": {"query": question}, "result": "fallback"})
 
-    print(f"[REACT] steps={[(s['tool'], s['args']) for s in steps]} chunks={len(found)}")
+    logger.info("react steps=%s chunks=%d", [(s["tool"], s["args"]) for s in steps], len(found))
     chunks = sorted(found.values(), key=lambda c: -c["score"] if c.get("score") is not None else c.get("distance", 0.0))[: max(settings.rerank_top_k, 8)]
     if not chunks and denied:
         return {**denied, "agent_steps": steps}

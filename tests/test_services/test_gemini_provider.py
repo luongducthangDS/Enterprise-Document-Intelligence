@@ -62,6 +62,13 @@ def test_embedding_sends_dimensions(gemini, monkeypatch):
     assert sent["json"]["dimensions"] == gemini.gemini_embedding_dimensions
 
 
+def test_embedding_without_index_field_keeps_order(gemini, monkeypatch):
+    # Gemini OpenAI-compatible trả data không có "index" (lỗi KeyError khi reindex 11/11).
+    _capture_post(monkeypatch, {"data": [{"embedding": [1.0]}, {"embedding": [2.0]}]})
+    vecs = fpt_client.embed_batch(["a", "b"], model="gemini-embedding-001", base_url=gemini.gemini_base_url, api_key="k")
+    assert vecs == [[1.0], [2.0]]
+
+
 def test_collection_suffix_applies_to_every_access(monkeypatch):
     from src.ingestion.indexer import get_collection
 

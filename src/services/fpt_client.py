@@ -334,7 +334,11 @@ def embed_batch(
         payload_json = r.json()
         captured_usage.update(payload_json.get("usage") or {})
         data = payload_json["data"]
-        data.sort(key=lambda d: d["index"])
+        # Gemini (OpenAI-compatible) không trả "index" nhưng giữ đúng thứ tự input.
+        if all("index" in d for d in data):
+            data.sort(key=lambda d: d["index"])
+        if len(data) != len(texts):
+            raise ValueError(f"embeddings: gửi {len(texts)} text, nhận {len(data)} vector")
         return [d["embedding"] for d in data]
 
     if not llm_trace.is_active():
