@@ -909,15 +909,36 @@ function AnswerMarkdown({ content }: { content: string }) {
   const lines = content.split(/\r?\n/);
   const blocks: ReactNode[] = [];
   let list: string[] = [];
+  let table: string[][] = [];
 
   function flushList() {
     if (!list.length) return;
-    blocks.push(<ul key={`list-${blocks.length}`}>{list.map((item, index) => <li key={index}>{inlineMarkdown(item)}</li>)}</ul>);
+    blocks.push(<ul key={`list-${blocks.length}`}>{list.map((item, index) => {
+      const todo = item.match(/^\[( |x)\]\s+(.+)$/i);
+      return <li key={index}>{todo ? <><input type="checkbox" checked={todo[1] !== " "} readOnly aria-label="Việc cần làm" /> {inlineMarkdown(todo[2])}</> : inlineMarkdown(item)}</li>;
+    })}</ul>);
     list = [];
+  }
+
+  function flushTable() {
+    if (!table.length) return;
+    const [head, ...body] = table;
+    blocks.push(<div className="answer-table" key={`table-${blocks.length}`}><table>
+      <thead><tr>{head.map((cell, index) => <th key={index} scope="col">{inlineMarkdown(cell)}</th>)}</tr></thead>
+      <tbody>{body.map((row, r) => <tr key={r}>{row.map((cell, index) => <td key={index}>{inlineMarkdown(cell)}</td>)}</tr>)}</tbody>
+    </table></div>);
+    table = [];
   }
 
   lines.forEach((rawLine) => {
     const line = rawLine.trim();
+    if (line.startsWith("|") && line.endsWith("|")) {
+      flushList();
+      // Dòng ngăn cách |---|---| của Markdown không phải dữ liệu.
+      if (!/^\|[\s:|-]+\|$/.test(line)) table.push(line.slice(1, -1).split("|").map((cell) => cell.trim()));
+      return;
+    }
+    flushTable();
     const item = line.match(/^[-*]\s+(.+)$/);
     if (item) {
       list.push(item[1]);
@@ -931,5 +952,6 @@ function AnswerMarkdown({ content }: { content: string }) {
       : <p key={`paragraph-${blocks.length}`}>{inlineMarkdown(line)}</p>);
   });
   flushList();
+  flushTable();
   return <div className="answer-copy">{blocks}</div>;
 }

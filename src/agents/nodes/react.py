@@ -15,9 +15,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import time
+from typing import Literal
 
 from langgraph.config import get_stream_writer
+from pydantic import BaseModel, Field
 
 from src.agents import doc_tools
 from src.agents.llm import resolve_llm_endpoint, thinking_arg
@@ -73,7 +76,55 @@ _SYSTEM = (
 )
 
 
+class PlanStep(BaseModel):
+    goal: str = Field(min_length=2, max_length=300)
+    tool: str
+
+
+class Plan(BaseModel):
+    steps: list[PlanStep] = Field(min_length=1, max_length=6)
+    deliverable: Literal["answer", "comparison_table", "action_checklist"] = "answer"
+
+    def as_prompt(self) -> str:
+        lines = [f"{i}. {s.goal} (dự kiến: {s.tool})" for i, s in enumerate(self.steps, 1)]
+        return (
+            "KẾ HOẠCH (đã lập trước, làm lần lượt; bước độc lập thì gọi tool cùng lượt; "
+            "kết quả một bước làm thay đổi bước sau thì điều chỉnh):\n" + "\n".join(lines)
+        )
+
+
+_PLAN_SYSTEM = (
+    "Bạn lập kế hoạch cho agent tra cứu tài liệu nội bộ. Tool có: "
+    + ", ".join(f"{n} ({t.description[:90]})" for n, t in REGISTRY.items())
+    + ". Trả về DUY NHẤT JSON: "
+    '{"steps": [{"goal": "<việc cần làm>", "tool": "<tên tool>"}], '
+    '"deliverable": "answer" | "comparison_table" | "action_checklist"}. '
+    "Câu hỏi một ý: 1 bước. Yêu cầu nhiều việc (tìm, đọc, so sánh, trích, rồi tổng hợp): tách bước theo thứ tự, tối đa 6. "
+    "deliverable: comparison_table khi được yêu cầu so sánh; action_checklist khi được yêu cầu danh sách việc cần làm/checklist; "
+    "còn lại answer."
+)
+
+
+async def make_plan(question: str, model: str, base_url: str, api_key: str) -> Plan | None:
+    """1 lời gọi LLM. Lỗi hoặc JSON sai thì None: agent chạy như không có planner."""
+    try:
+        msg = await asyncio.to_thread(
+            _post_chat_completion,
+            [{"role": "system", "content": _PLAN_SYSTEM}, {"role": "user", "content": question}],
+            model=model, base_url=base_url, api_key=api_key, temperature=0.0, timeout=30, retries=1,
+        )
+        m = re.search(r"\{.*\}", msg.get("content") or "", re.S)
+        plan = Plan.model_validate_json(m.group(0)) if m else None
+    except Exception as e:  # noqa: BLE001
+        logger.warning("planner failed, run without plan: %r", e)
+        return None
+    if plan:
+        plan.steps = [s for s in plan.steps if s.tool in REGISTRY] or plan.steps[:1]
+    return plan
+
+
 _STATUS = {
+    "plan": "Đã lập kế hoạch: {q}",
     "search_policies": "Đang tìm trong tài liệu: {q}",
     "lookup_structured_policy": "Đang tra bảng định mức: {q}",
     "calculate_annual_leave": "Đang tính số ngày phép năm...",
@@ -199,6 +250,13 @@ async def react_node(state: AgentState) -> dict:
     question = state.get("condensed_query") or state.get("query", "")
     model, base_url, api_key = resolve_llm_endpoint(model=settings.router_model or None)
     messages: list[dict] = [{"role": "system", "content": _SYSTEM}, {"role": "user", "content": question}]
+    plan = await make_plan(question, model, base_url, api_key) if settings.react_planner else None
+    max_steps = settings.react_max_steps
+    if plan:
+        messages[0]["content"] += "\n\n" + plan.as_prompt()
+        # Mỗi bước kế hoạch cần ít nhất 1 lượt tool, +1 lượt để dừng; có trần để không chạy vô hạn.
+        max_steps = min(max(max_steps, len(plan.steps) + 1), settings.react_planner_max_steps)
+        _emit_status("plan", f"{len(plan.steps)} bước")
 
     found: dict[str, RetrievedChunk] = {}
     steps: list[dict] = []
@@ -208,7 +266,7 @@ async def react_node(state: AgentState) -> dict:
     search_cache: dict[str, dict] = {}
 
     stop = False
-    for _ in range(settings.react_max_steps):
+    for _ in range(max_steps):
         if stop:
             break
         try:
@@ -346,7 +404,10 @@ async def react_node(state: AgentState) -> dict:
     if not chunks and denied:
         return {**denied, "agent_steps": steps}
     # rewrite_count = max để hallucination retry không quay về vòng rewrite của pipeline.
-    return {"retrieved_chunks": chunks, "agent_steps": steps, "rewrite_count": settings.max_rewrite_retries}
+    out = {"retrieved_chunks": chunks, "agent_steps": steps, "rewrite_count": settings.max_rewrite_retries}
+    if plan:
+        out |= {"plan": plan.model_dump(), "deliverable": plan.deliverable}
+    return out
 
 
 def route_after_react(state: AgentState) -> str:

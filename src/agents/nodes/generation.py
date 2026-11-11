@@ -549,6 +549,15 @@ def _resolve_answer_type(answer: str) -> tuple[str, AnswerType]:
     return answer, "general_policy"
 
 
+# Planner (react) chọn dạng kết quả; câu trả lời thường giữ nguyên prompt cũ.
+_DELIVERABLE_FORMAT = {
+    "comparison_table": "Trình bày phần so sánh thành bảng Markdown: mỗi hàng một tiêu chí, mỗi cột một tài liệu, "
+    "ô nào cũng có [Nguồn N]; tài liệu không nói tới tiêu chí đó thì ghi 'Không quy định'.",
+    "action_checklist": "Kết thúc bằng mục 'Việc cần làm' dạng danh sách '- [ ] <việc> (<ai / hạn chót nếu tài liệu nêu>) [Nguồn N]', "
+    "theo đúng thứ tự thực hiện; chỉ đưa việc có căn cứ trong đoạn trích.",
+}
+
+
 async def generate_node(state: AgentState) -> dict:
     from src.config import get_settings
 
@@ -567,6 +576,8 @@ async def generate_node(state: AgentState) -> dict:
         print(f"[guardrail] injection_detected count={len(injection_hits)}")
 
     user_prompt = f"Câu hỏi: {query}\n\nCác đoạn trích:\n{context}"
+    if fmt := _DELIVERABLE_FORMAT.get(state.get("deliverable") or ""):
+        user_prompt += f"\n\nĐỊNH DẠNG KẾT QUẢ: {fmt}"
 
     # --- Domain-Specific Generation Rules (G4: Numeric Grounding Lock) ---
     domain = get_conversation_domain(query, state.get("category"), state.get("history"))

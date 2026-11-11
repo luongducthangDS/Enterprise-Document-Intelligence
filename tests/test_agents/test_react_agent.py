@@ -243,3 +243,63 @@ def test_registry_schema_is_what_model_sees():
     leave = next(t for t in react.TOOLS if t["function"]["name"] == "calculate_annual_leave")["function"]["parameters"]
     assert leave["properties"]["job_type"]["enum"] == list(tools.LEAVE_JOB_TYPES)
     assert "title" not in json.dumps(react.TOOLS)
+
+
+def _planner_run(monkeypatch, plan_content, n_search_turns):
+    from src.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "react_planner", True)
+    monkeypatch.setattr(get_settings(), "react_max_steps", 2)
+    seen = []
+
+    def fake_llm(messages, **kw):
+        seen.append((messages[0]["content"], kw.get("tools")))
+        if kw.get("tools") is None:  # lời gọi planner
+            return {"content": plan_content}
+        turns = sum(1 for m in messages if m["role"] == "assistant")
+        if turns < n_search_turns:
+            return {"tool_calls": [_call("search_policies", query=f"bước số {turns}")]}
+        return {"content": "DONE"}
+
+    async def fake_search(state, query):
+        return {"retrieved_chunks": [_chunk(query, 0.5)]}
+
+    monkeypatch.setattr(react, "_post_chat_completion", fake_llm)
+    monkeypatch.setattr(react, "_search", fake_search)
+    out = asyncio.run(react.react_node({"query": "q", "condensed_query": "q", "user_id": "u1"}))
+    return out, seen
+
+
+def test_planner_plan_goes_into_prompt_and_extends_step_budget(monkeypatch):
+    plan = json.dumps({"steps": [{"goal": f"việc {i}", "tool": "search_policies"} for i in range(4)] + [
+        {"goal": "không có tool này", "tool": "send_email"}], "deliverable": "action_checklist"}, ensure_ascii=False)
+    out, seen = _planner_run(monkeypatch, plan, n_search_turns=10)
+    assert "KẾ HOẠCH" in seen[1][0] and "việc 3" in seen[1][0]
+    assert len(out["plan"]["steps"]) == 4  # bước dùng tool lạ bị bỏ
+    assert out["deliverable"] == "action_checklist"
+    assert len(out["agent_steps"]) == 5  # react_max_steps=2 nhưng kế hoạch 4 bước -> 4+1 lượt
+
+
+def test_planner_budget_is_capped(monkeypatch):
+    from src.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "react_planner_max_steps", 3)
+    plan = json.dumps({"steps": [{"goal": f"việc {i}", "tool": "search_policies"} for i in range(6)]}, ensure_ascii=False)
+    out, _ = _planner_run(monkeypatch, plan, n_search_turns=10)
+    assert len(out["agent_steps"]) == 3
+
+
+def test_bad_plan_falls_back_to_plain_react(monkeypatch):
+    out, seen = _planner_run(monkeypatch, "không phải JSON", n_search_turns=1)
+    assert "plan" not in out and "deliverable" not in out
+    assert "KẾ HOẠCH" not in seen[1][0]
+    assert [s["tool"] for s in out["agent_steps"]] == ["search_policies"]
+
+
+def test_every_plan_deliverable_has_a_generate_format():
+    import typing
+
+    from src.agents.nodes.generation import _DELIVERABLE_FORMAT
+
+    kinds = set(typing.get_args(react.Plan.model_fields["deliverable"].annotation)) - {"answer"}
+    assert kinds == set(_DELIVERABLE_FORMAT)

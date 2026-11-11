@@ -172,6 +172,10 @@ class AgentState(TypedDict, total=False):
     rewrite_count: int
     # Trace tool call của react_node (AGENT_MODE=react): [{"tool", "args", "result"}].
     agent_steps: list[dict]
+    # Kế hoạch của planner (REACT_PLANNER=true): {"steps": [{"goal", "tool"}], "deliverable"}.
+    plan: dict
+    # Dạng kết quả cuối cho generate: "answer" | "comparison_table" | "action_checklist".
+    deliverable: str
     hallucination_passed: bool
     hallucination_retry_count: int
     # "deterministic_numeric_grounding" | "llm_judge" — audit: câu trả lời được

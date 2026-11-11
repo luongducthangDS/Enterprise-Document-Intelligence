@@ -411,6 +411,10 @@ class Settings(BaseSettings):
     # escalate_to_human) trước khi vào generate + guardrail như cũ.
     agent_mode: str = "pipeline"
     react_max_steps: int = 4
+    # Planner trước vòng react: 1 lời gọi LLM lập các bước + dạng kết quả cuối.
+    # Tắt mặc định; benchmark U7 so ReAct với ReAct + planner.
+    react_planner: bool = False
+    react_planner_max_steps: int = 8
     max_hallucination_retries: int = 2
     # Escalate khi confidence (= relevance_score của đoạn tốt nhất) dưới ngưỡng.
     # Hạ 0.5 -> 0.2 sau khi bóc tách 29 câu in_scope fail: 7 câu bị escalate oan
