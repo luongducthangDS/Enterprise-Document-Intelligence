@@ -121,3 +121,36 @@ def test_service_answer_resumes_through_checkpoint(tmp_path, monkeypatch):
     assert answer.response == "ok"
     kinds = [json.loads(line).get("run_kind") for line in log.read_text(encoding="utf-8").splitlines()]
     assert kinds[-1] == "resumed"
+
+
+def test_load_memory_reads_previous_request_of_same_user_only(tmp_path):
+    class M(TypedDict, total=False):
+        query: str
+        request_id: str
+        tenant_id: str
+        user_id: str
+        retrieved_chunks: list
+
+    async def retrieve(state):
+        return {"retrieved_chunks": [{"chunk_id": "c1", "text": "x"}]}
+
+    async def scenario():
+        async with AsyncSqliteSaver.from_conn_string(str(tmp_path / "m.db")) as saver:
+            g = StateGraph(M)
+            g.add_node("retrieve", retrieve)
+            g.set_entry_point("retrieve")
+            g.add_edge("retrieve", END)
+            checkpoint._runner = g.compile(checkpointer=saver)
+            try:
+                first = {"query": "q1", "request_id": "r1", "tenant_id": "t", "user_id": "u1"}
+                await checkpoint._runner.ainvoke(first, checkpoint.thread_config(first))
+                mine = await checkpoint.load_memory({"request_id": "r2", "previous_request_id": "r1", "tenant_id": "t", "user_id": "u1"})
+                other = await checkpoint.load_memory({"request_id": "r9", "previous_request_id": "r1", "tenant_id": "t", "user_id": "u2"})
+                none = await checkpoint.load_memory({"request_id": "r2", "tenant_id": "t", "user_id": "u1"})
+                return mine, other, none
+            finally:
+                checkpoint._runner = None
+
+    mine, other, none = asyncio.run(scenario())
+    assert [c["chunk_id"] for c in mine] == ["c1"]
+    assert other == [] and none == []

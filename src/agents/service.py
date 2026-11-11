@@ -185,7 +185,7 @@ def _chunk_answer_text(text: str, words_per_chunk: int = _ANSWER_CHUNK_WORDS) ->
     return chunks
 
 
-_IDENTITY_FIELDS = ("tenant_id", "user_id", "department", "user_role", "request_id")
+_IDENTITY_FIELDS = ("tenant_id", "user_id", "department", "user_role", "request_id", "previous_request_id")
 
 
 def _initial_state(
@@ -250,6 +250,8 @@ async def astream_answer(
             "type": "status",
             "value": "Đang xử lý ngữ cảnh hội thoại..." if has_history else "Đang phân tích yêu cầu...",
         }
+        if memory := await checkpoint.load_memory(state):
+            state["memory_chunks"] = memory
         runner, run_input, config, run_kind = await checkpoint.prepare(state, agent)
         async for mode, step in runner.astream(run_input, stream_mode=["updates", "custom"], **({"config": config} if config else {})):
             if mode == "custom":
@@ -384,6 +386,8 @@ async def answer(
     initial = _initial_state(query, history, identity)
     run_kind = "fresh"
     try:
+        if memory := await checkpoint.load_memory(initial):
+            initial["memory_chunks"] = memory
         runner, run_input, config, run_kind = await checkpoint.prepare(initial, agent)
         state: AgentState = await runner.ainvoke(run_input, **({"config": config} if config else {}))
     except Exception as e:

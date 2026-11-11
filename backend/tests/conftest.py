@@ -53,6 +53,7 @@ class FakeAgentClient:
         user_role: str = "EMPLOYEE",
         tenant_id: str = "nexatech",
         history: list[dict[str, str]] | None = None,
+        previous_request_id: str | None = None,
     ) -> AgentAnswerDTO:
         normalized_query = query.lower()
         if "khong co trong tai lieu" in normalized_query or "không có trong tài liệu" in normalized_query:

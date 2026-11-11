@@ -259,6 +259,13 @@ async def react_node(state: AgentState) -> dict:
         _emit_status("plan", f"{len(plan.steps)} bước")
 
     found: dict[str, RetrievedChunk] = {}
+    # Task memory: bằng chứng lượt trước của cùng hội thoại (service nạp từ checkpoint
+    # của request trước). Đã qua ACL ở lượt trước, cùng danh tính nên dùng lại được.
+    memory = [c for c in state.get("memory_chunks") or [] if c.get("category") != "computed"][:8]
+    if memory:
+        for c in memory:
+            found.setdefault(c["chunk_id"], c)
+        messages[0]["content"] += "\n\nBẰNG CHỨNG ĐÃ CÓ TỪ LƯỢT TRƯỚC (đủ thì trả DONE, không cần tìm lại):\n" + _summarize(memory, limit=8)
     steps: list[dict] = []
     denied: dict = {}
     # ponytail: cache theo query đã chuẩn hoá (lower + gộp khoảng trắng), chỉ sống trong 1 câu hỏi.
@@ -390,8 +397,9 @@ async def react_node(state: AgentState) -> dict:
             steps.append(step)
             messages.append({"role": "tool", "tool_call_id": call.get("id", ""), "content": result})
 
-    if not steps:
+    if not steps and not memory:
         # ponytail: model không gọi tool nào (hoặc lỗi) -> hành xử như pipeline: 1 lần search câu gốc.
+        # Có bằng chứng lượt trước mà model trả DONE ngay thì dùng luôn bằng chứng đó.
         res = await _search(state, question)
         if res.get("access_denied_reason"):
             denied = res

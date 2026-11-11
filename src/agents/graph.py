@@ -86,7 +86,31 @@ def route_after_hallucination(state: AgentState) -> str:
     return "escalate"
 
 
+def _build_plain_rag(checkpointer=None):
+    """Nhánh đối chứng "RAG truyền thống" cho benchmark: retrieve -> grade -> generate -> finalize.
+    Không router, không rewrite, không kiểm hallucination/escalate; ACL vẫn ở retrieval."""
+    graph = StateGraph(AgentState)
+    graph.add_node("retrieve", retrieval_node)
+    graph.add_node("grade", grade_node)
+    graph.add_node("generate", generate_node)
+    graph.add_node("access_denied", department_access_denied_node)
+    graph.add_node("finalize", finalize_node)
+    graph.set_entry_point("retrieve")
+    graph.add_edge("retrieve", "grade")
+    graph.add_conditional_edges(
+        "grade",
+        lambda s: "access_denied" if s.get("access_denied_reason") and not s.get("retrieved_chunks") else "generate",
+        {"access_denied": "access_denied", "generate": "generate"},
+    )
+    graph.add_edge("access_denied", END)
+    graph.add_edge("generate", "finalize")
+    graph.add_edge("finalize", END)
+    return graph.compile(checkpointer=checkpointer)
+
+
 def build_graph(mode: str | None = None, checkpointer=None) -> StateGraph:
+    if mode == "rag":
+        return _build_plain_rag(checkpointer)
     react = (mode or get_settings().agent_mode) == "react"
     graph = StateGraph(AgentState)
 

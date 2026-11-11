@@ -19,7 +19,7 @@ Hiện có: ReAct 4 tool (≤4 vòng), MCP chỉ có `ask_documents`, ACL fail-c
 - [x] U5a HITL cho CREATE_CASE: thêm từ chối (`POST /chat/requests/{id}/ticket/reject`, có lý do, idempotent), đề xuất đã từ chối không xác nhận được nữa, duyệt/từ chối đều ghi `audit_logs`; nút "Không gửi" ở frontend
 - [x] U5 Task state: LangGraph checkpointer (`src/agents/checkpoint.py`, `AGENT_CHECKPOINT_URL` = sqlite:/// local, postgresql:// production), thread = tenant:user:request_id. Retry cùng request_id: dừng giữa chừng thì chạy tiếp từ node cuối đã xong, đã xong thì trả lại kết quả (0 lời gọi LLM). Run log có `run_kind` fresh/resumed/replayed
 - [ ] U5b Bật checkpoint trên Render (Postgres Supabase, cần user cho phép) + TTL dọn thread cũ; resume ở mức tool call trong react (hiện ở mức node: react lỗi giữa chừng thì chạy lại cả vòng react)
-- [ ] U6 Memory: hội thoại (đã có history + condense) + task memory qua checkpointer; memory dài hạn theo user chỉ làm nếu benchmark U7 cho thấy có lợi
+- [x] U6 Memory: hội thoại (history + condense, có sẵn) + task memory: backend gửi `previous_request_id` (lượt gần nhất đã trả lời trong cùng hội thoại), agent nạp chunk của lượt đó từ checkpoint cùng tenant+user, react dùng làm bằng chứng sẵn có. Memory dài hạn theo user: chưa làm, chờ số U7
 - [ ] U7 Benchmark: bộ task gồm hỏi 1 bước, multi-hop, nhiều bước, hỏi tiếp nhiều lượt, hành động ghi; gold = kết quả + tool + tham số. Metric: task success, tool selection accuracy, argument accuracy, số bước, chất lượng trajectory, hallucination, p95 latency, chi phí/task. 4 nhánh: RAG thuần (retrieve → generate), fixed workflow (pipeline), ReAct, ReAct + memory. Tách dev/held-out
 
 ## Tiếp theo (lần lượt từ trên xuống)

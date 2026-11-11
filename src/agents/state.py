@@ -176,6 +176,8 @@ class AgentState(TypedDict, total=False):
     plan: dict
     # Dạng kết quả cuối cho generate: "answer" | "comparison_table" | "action_checklist".
     deliverable: str
+    # Bằng chứng (chunk) của lượt trước trong cùng hội thoại, nạp từ checkpoint (task memory).
+    memory_chunks: list[RetrievedChunk]
     hallucination_passed: bool
     hallucination_retry_count: int
     # "deterministic_numeric_grounding" | "llm_judge" — audit: câu trả lời được

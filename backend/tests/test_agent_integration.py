@@ -637,3 +637,14 @@ async def test_confirm_writes_audit_and_blocks_later_reject(monkeypatch):
         )).scalar_one()
     assert audit.action == "AGENT_CASE_CONFIRMED"
     assert audit.after_state == {"status": "CONFIRMED", "ticket_code": confirmed["ticket_code"], "rejection_reason": None}
+
+
+@pytest.mark.asyncio
+async def test_follow_up_sends_previous_request_id_for_task_memory(monkeypatch):
+    first_id = await _run_with_answer(monkeypatch, "Đi công tác về nộp quyết toán trong bao lâu?", _create_case_answer("q1"))
+    second_id = await create_queued_request("Nếu nộp trễ thì sao?")
+    mock = AsyncMock(return_value=_create_case_answer("q2"))
+    monkeypatch.setattr(ChatService, "agent_client", type("Client", (), {"query_agent": mock})())
+    await ChatService._process_chat_rag_request(second_id, USER_ID, "Engineering", "Nếu nộp trễ thì sao?", CONVERSATION_ID)
+    assert mock.await_args.kwargs["previous_request_id"] == str(first_id)
+    assert mock.await_args.kwargs["request_id"] == str(second_id)

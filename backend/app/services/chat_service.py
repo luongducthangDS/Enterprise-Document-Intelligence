@@ -277,6 +277,19 @@ class ChatService:
                 # mới phải chờ tới pool timeout dù database vẫn hoạt động.
                 await db.commit()
 
+                # Lượt gần nhất đã có câu trả lời trong cùng hội thoại: agent nạp lại bằng chứng của lượt đó.
+                previous_request_id = await db.scalar(
+                    select(ChatRequestDB.id)
+                    .where(
+                        ChatRequestDB.conversation_id == conversation_id,
+                        ChatRequestDB.id != chat_request_id,
+                        ChatRequestDB.answer.is_not(None),
+                    )
+                    .order_by(desc(ChatRequestDB.created_at))
+                    .limit(1)
+                )
+                await db.commit()
+                prev_id = str(previous_request_id) if previous_request_id else None
                 if on_event is None:
                     agent_answer = await cls.agent_client.query_agent(
                         user_id=str(user_id),
@@ -286,6 +299,7 @@ class ChatService:
                         user_role=effective_role,
                         tenant_id=effective_tenant,
                         history=history,
+                        previous_request_id=prev_id,
                     )
                 else:
                     agent_answer = None
@@ -297,6 +311,7 @@ class ChatService:
                         user_role=effective_role,
                         tenant_id=effective_tenant,
                         history=history,
+                        previous_request_id=prev_id,
                     ):
                         if event["type"] == "error":
                             raise AIAgentClientError(

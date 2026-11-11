@@ -27,6 +27,9 @@ class AgentQueryRequest(BaseModel):
     department: str = Field(..., min_length=1, max_length=128)
     user_role: str = Field(..., min_length=1, max_length=64)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
+    # request_id của lượt trước trong cùng hội thoại: agent nạp lại bằng chứng lượt đó
+    # từ checkpoint (chỉ khi bật AGENT_CHECKPOINT_URL, cùng tenant + user).
+    previous_request_id: str | None = Field(default=None, max_length=128)
 
 
 class IngestionJobRequest(BaseModel):

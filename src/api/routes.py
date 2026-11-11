@@ -64,7 +64,8 @@ async def query_agent(
     logger.info("Processing agent request %s for user %s", request.request_id, request.user_id)
     history = [turn.model_dump() for turn in request.history]
     identity = request.model_dump(
-        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+        include={"tenant_id", "user_id", "department", "user_role", "request_id", "previous_request_id"},
+        exclude_none=True,
     )
     verify_identity_signature(identity, x_identity_signature, get_settings())
     return await agent_answer(request.query, history=history, identity=identity)
@@ -80,7 +81,8 @@ async def stream_agent_query(
     _verify_service_token(x_service_token)
     history = [turn.model_dump() for turn in request.history]
     identity = request.model_dump(
-        include={"tenant_id", "user_id", "department", "user_role", "request_id"}
+        include={"tenant_id", "user_id", "department", "user_role", "request_id", "previous_request_id"},
+        exclude_none=True,
     )
     verify_identity_signature(identity, x_identity_signature, get_settings())
 

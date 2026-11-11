@@ -73,3 +73,13 @@ async def prepare(initial: dict, default_runner: Any) -> tuple[Any, Any, dict | 
     if snapshot.next:
         return _runner, None, config, "resumed"
     return _runner, None, config, "replayed"
+
+
+async def load_memory(state: dict) -> list:
+    """Chunk của lượt trước (previous_request_id) cùng tenant + user; rỗng nếu không có."""
+    prev = state.get("previous_request_id")
+    if _runner is None or not prev:
+        return []
+    config = thread_config({**state, "request_id": prev})
+    snapshot = await _runner.aget_state(config)
+    return list((snapshot.values or {}).get("retrieved_chunks") or [])

@@ -58,6 +58,7 @@ class AIAgentClient:
         user_role: str,
         tenant_id: str,
         history: list[dict[str, str]] | None = None,
+        previous_request_id: str | None = None,
     ) -> AgentAnswerDTO:
         from app.services.warmup_service import WarmupService
 
@@ -70,6 +71,9 @@ class AIAgentClient:
             "request_id": request_id,
             "history": history or [],
         }
+        if previous_request_id:
+            # Agent nạp lại bằng chứng lượt trước từ checkpoint (task memory); không thuộc phần ký.
+            payload["previous_request_id"] = previous_request_id
         headers = {"X-Request-ID": request_id}
         if self.service_token:
             headers["X-Service-Token"] = self.service_token
@@ -116,6 +120,7 @@ class AIAgentClient:
         user_role: str,
         tenant_id: str,
         history: list[dict[str, str]] | None = None,
+        previous_request_id: str | None = None,
     ) -> AsyncIterator[dict]:
         """Đọc SSE từ Agent Core và trả từng event đã parse cho ChatService."""
         payload = {
@@ -127,6 +132,9 @@ class AIAgentClient:
             "request_id": request_id,
             "history": history or [],
         }
+        if previous_request_id:
+            # Agent nạp lại bằng chứng lượt trước từ checkpoint (task memory); không thuộc phần ký.
+            payload["previous_request_id"] = previous_request_id
         headers = {"X-Request-ID": request_id, "Accept": "text/event-stream"}
         if self.service_token:
             headers["X-Service-Token"] = self.service_token

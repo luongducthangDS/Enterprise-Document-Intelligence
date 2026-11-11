@@ -303,3 +303,23 @@ def test_every_plan_deliverable_has_a_generate_format():
 
     kinds = set(typing.get_args(react.Plan.model_fields["deliverable"].annotation)) - {"answer"}
     assert kinds == set(_DELIVERABLE_FORMAT)
+
+
+def test_memory_chunks_seed_evidence_and_skip_fallback_search(monkeypatch):
+    seen = []
+
+    def fake_llm(messages, **kw):
+        seen.append(messages[0]["content"])
+        return {"content": "DONE"}
+
+    async def no_search(state, query):
+        raise AssertionError("đã có bằng chứng lượt trước và model trả DONE: không search lại")
+
+    monkeypatch.setattr(react, "_post_chat_completion", fake_llm)
+    monkeypatch.setattr(react, "_search", no_search)
+    mem = [_chunk("prev1", 0.7), {**_chunk("calc", 1.0), "category": "computed"}]
+    state = {"query": "Nếu nộp trễ thì sao?", "condensed_query": "nộp trễ", "user_id": "u1", "memory_chunks": mem}
+    out = asyncio.run(react.react_node(state))
+    assert "BẰNG CHỨNG ĐÃ CÓ TỪ LƯỢT TRƯỚC" in seen[0] and "prev1" in seen[0]
+    assert [c["chunk_id"] for c in out["retrieved_chunks"]] == ["prev1"]  # chunk computed lượt trước không mang sang
+    assert out["agent_steps"] == []
