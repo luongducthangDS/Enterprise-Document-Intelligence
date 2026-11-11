@@ -13,11 +13,13 @@ model chỉ chọn câu truy vấn, không chọn được mình là ai.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import time
 
 from langgraph.config import get_stream_writer
 
+from src.agents import doc_tools
 from src.agents.llm import resolve_llm_endpoint, thinking_arg
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
 from src.agents.nodes.retrieval import grade_node, retrieval_node
@@ -63,6 +65,9 @@ _SYSTEM = (
     "- Câu hỏi nhiều ý: gọi search_policies riêng cho từng ý.\n"
     "- Kết quả rỗng/lạc đề: thử lại với từ khóa khác (tối đa 2 lần cho một ý).\n"
     "- Định mức khách sạn/công tác phí: thử lookup_structured_policy trước.\n"
+    "- Đoạn trích chưa đủ (cần cả quy trình/bảng): get_document với tên file từ kết quả search.\n"
+    "- Hỏi so sánh hai chính sách/quy định: tìm tên file của từng cái rồi compare_documents.\n"
+    "- Cần nhiều con số/mốc cụ thể từ một tài liệu (hạn, mức, người duyệt): extract_structured.\n"
     "- Cần dữ liệu cá nhân hoặc tài liệu không có: escalate_to_human.\n"
     "Khi đã đủ bằng chứng, trả lời đúng một chữ: DONE."
 )
@@ -92,7 +97,7 @@ def _summarize(chunks: list[RetrievedChunk], limit: int = 5) -> str:
     lines = []
     for c in chunks[:limit]:
         where = c.get("heading_path") or c.get("source_file", "")
-        lines.append(f"- [{c.get('title', '')} · {where}] {c.get('text', '')[:600]}")
+        lines.append(f"- [{c.get('title', '')} · {where}] (file: {c.get('source_file', '')}) {c.get('text', '')[:600]}")
     return "\n".join(lines)
 
 
@@ -138,6 +143,55 @@ async def _calculate_leave(state: AgentState, args: dict) -> tuple[str, dict | N
         "_evidence": evidence,
     }
     return explanation, computed
+
+
+async def _tool_get_document(state: AgentState, args: dict, question: str) -> tuple[str, list[RetrievedChunk]]:
+    chunks = await doc_tools.get_document(state, args["source_file"])
+    if not chunks:
+        return doc_tools.NOT_AVAILABLE, []
+    # Đưa cả tài liệu cho model đọc, nhưng chỉ mấy mục sát câu hỏi đi tiếp vào generate.
+    return doc_tools.doc_text(chunks, 6000), doc_tools.top_sections(chunks, question, k=4)
+
+
+async def _tool_compare(state: AgentState, args: dict, question: str) -> tuple[str, list[RetrievedChunk]]:
+    docs = await asyncio.gather(*(doc_tools.get_document(state, f) for f in args["source_files"]))
+    parts, evidence = [], []
+    for name, chunks in zip(args["source_files"], docs):
+        if not chunks:
+            parts.append(f"## {name}\n{doc_tools.NOT_AVAILABLE}")
+            continue
+        top = doc_tools.top_sections(chunks, args["aspect"], k=2)
+        evidence += top
+        parts.append(f"## {chunks[0].get('title') or name} (file: {name})\n" + doc_tools.doc_text(top, 2500))
+    if not evidence:
+        return "Không đọc được tài liệu nào để so sánh.", []
+    return f"Các mục liên quan đến '{args['aspect']}':\n\n" + "\n\n".join(parts), evidence
+
+
+async def _tool_extract(state: AgentState, args: dict, question: str) -> tuple[str, list[RetrievedChunk]]:
+    chunks = await doc_tools.get_document(state, args["source_file"])
+    if not chunks:
+        return doc_tools.NOT_AVAILABLE, []
+    data = await doc_tools.extract_structured(chunks, args["fields"])
+    grounded = {k: v["value"] for k, v in data.items() if v["grounded"]}
+    if not grounded:
+        return "Không trích được trường nào có căn cứ trong tài liệu.", []
+    quotes = [doc_tools.norm_ws(v["quote"]) for v in data.values() if v["grounded"]]
+    evidence = [c for c in chunks if any(q in doc_tools.norm_ws(c.get("text", "")) for q in quotes)] or chunks[:2]
+    computed = {
+        **evidence[0],
+        "chunk_id": f"computed:extract:{args['source_file']}:{','.join(sorted(grounded))}",
+        "text": "Dữ liệu trích từ tài liệu (mỗi giá trị có câu trích làm căn cứ): " + json.dumps(data, ensure_ascii=False),
+        "category": "computed",
+        "score": 1.0,
+        "distance": 0.0,
+    }
+    missing = [k for k, v in data.items() if not v["grounded"]]
+    note = f" Không có căn cứ cho: {', '.join(missing)}." if missing else ""
+    return json.dumps(grounded, ensure_ascii=False) + note, [computed, *evidence]
+
+
+_DOC_TOOLS = {"get_document": _tool_get_document, "compare_documents": _tool_compare, "extract_structured": _tool_extract}
 
 
 async def react_node(state: AgentState) -> dict:
@@ -243,6 +297,15 @@ async def react_node(state: AgentState) -> dict:
                     found.setdefault(computed["chunk_id"], computed)
                     for c in computed.pop("_evidence"):
                         found.setdefault(c["chunk_id"], c)
+            elif name in _DOC_TOOLS:
+                try:
+                    result, extra = await _guard(name, _DOC_TOOLS[name](state, args, question))
+                except Exception as e:  # noqa: BLE001
+                    result, extra = _tool_error(name, e), []
+                    error = result
+                for c in extra:
+                    found.setdefault(c["chunk_id"], c)
+                chunk_ids = [c["chunk_id"] for c in extra]
             else:  # search_policies
                 key = _norm(query)
                 res = search_cache.get(key)

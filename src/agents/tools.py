@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import AfterValidator, BaseModel, Field, ValidationError
 
 LEAVE_JOB_TYPES = ("normal", "heavy_or_hazardous", "minor_or_disabled", "very_heavy_or_hazardous")
 
@@ -26,6 +26,31 @@ class QueryArgs(BaseModel):
 class LeaveArgs(BaseModel):
     job_type: Literal[LEAVE_JOB_TYPES]  # type: ignore[valid-type]
     years_of_service: float = Field(ge=0, le=60, description="Số năm làm việc")
+
+
+# Tên file, không phải đường dẫn: chặn "../" và "/" ngay ở schema.
+def _plain_file_name(v: str) -> str:
+    if "/" in v or "\\" in v or ".." in v:
+        raise ValueError("chỉ nhận tên file, không nhận đường dẫn")
+    return v
+
+
+SourceFile = Annotated[str, Field(min_length=3, max_length=200), AfterValidator(_plain_file_name)]
+_FILE = Field(description="Tên file nguồn, lấy từ kết quả search_policies (phần 'file:')")
+
+
+class DocArgs(BaseModel):
+    source_file: SourceFile = _FILE
+
+
+class CompareArgs(BaseModel):
+    source_files: list[SourceFile] = Field(min_length=2, max_length=3, description="2-3 tên file nguồn cần so")
+    aspect: str = Field(min_length=2, max_length=200, description="Khía cạnh cần so, vd 'mức phụ cấp', 'thời hạn nộp chứng từ'")
+
+
+class ExtractArgs(BaseModel):
+    source_file: SourceFile = _FILE
+    fields: list[str] = Field(min_length=1, max_length=8, description="Tên các trường cần trích, vd ['hạn nộp', 'người duyệt']")
 
 
 class EscalateArgs(BaseModel):
@@ -76,6 +101,23 @@ REGISTRY: dict[str, ToolSpec] = {
             "Tính số ngày phép năm cho một trường hợp cụ thể (loại công việc + số năm thâm niên). "
             "Dùng khi người hỏi nêu thâm niên/loại công việc của họ; không tự cộng nhẩm.",
             LeaveArgs,
+        ),
+        ToolSpec(
+            "get_document",
+            "Đọc toàn bộ một tài liệu (khi đoạn trích của search_policies chưa đủ, hoặc cần cả quy trình/bảng).",
+            DocArgs,
+        ),
+        ToolSpec(
+            "compare_documents",
+            "So sánh 2-3 tài liệu theo một khía cạnh; trả về các mục liên quan của từng tài liệu đặt cạnh nhau.",
+            CompareArgs,
+        ),
+        ToolSpec(
+            "extract_structured",
+            "Trích các trường cụ thể từ một tài liệu thành dữ liệu có cấu trúc; mỗi giá trị kèm câu trích làm căn cứ, "
+            "giá trị không có căn cứ trong tài liệu bị bỏ.",
+            ExtractArgs,
+            timeout_s=60.0,
         ),
         ToolSpec(
             "escalate_to_human",
