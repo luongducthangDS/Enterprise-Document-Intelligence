@@ -118,3 +118,13 @@ def test_429_wait_is_capped_and_bounded(monkeypatch):
     with pytest.raises(Exception):
         fpt_client._retry_with_backoff(lambda: (_ for _ in ()).throw(_http_error(429, headers={"Retry-After": "120"})), retries=0)
     assert sleeps == [30.0] * fpt_client._MAX_RATE_WAITS
+
+
+def test_429_daily_quota_fails_fast(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fpt_client.time, "sleep", sleeps.append)
+    monkeypatch.setattr(get_settings(), "llm_429_max_wait_s", 60.0)
+    body = '{"error": {"details": [{"violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}]}, {"retryDelay": "30s"}]}}'
+    with pytest.raises(Exception):
+        fpt_client._retry_with_backoff(lambda: (_ for _ in ()).throw(_http_error(429, body)), retries=0)
+    assert sleeps == []

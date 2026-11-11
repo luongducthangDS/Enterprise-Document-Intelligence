@@ -35,6 +35,9 @@ def _rate_limit_wait(response: requests.Response) -> float | None:
     cap = get_settings().llm_429_max_wait_s
     if cap <= 0:
         return None
+    if "PerDay" in (response.text or ""):
+        # Hết quota NGÀY (vd GenerateRequestsPerDayPerProjectPerModel): chờ vài chục giây không hồi, báo lỗi ngay.
+        return None
     raw = response.headers.get("Retry-After")
     if not raw:
         m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', response.text or "")
