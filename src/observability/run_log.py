@@ -12,6 +12,7 @@ che PII bằng `redact_pii`. Khi tắt, tham số tool chỉ giữ tên khóa.
 from __future__ import annotations
 
 import json
+import logging
 import threading
 import time
 import uuid
@@ -31,6 +32,7 @@ PRICES_PER_1M: dict[str, tuple[float, float]] = {
 }
 
 _lock = threading.Lock()
+logger = logging.getLogger(__name__)
 
 
 def _redact(value: Any) -> Any:
@@ -45,6 +47,8 @@ def _redact(value: Any) -> Any:
 
 def llm_usage(calls: list[dict]) -> dict:
     by_model: dict[str, dict] = {}
+    # Chỉ lời gọi model thật; bỏ timer giai đoạn (retrieval_prep, vector_search, chroma_init).
+    calls = [c for c in calls if c.get("kind") in ("chat", "embedding", "rerank")]
     for c in calls:
         m = by_model.setdefault(c["model"], {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "ms": 0, "retries": 0})
         m["calls"] += 1
@@ -112,9 +116,14 @@ def build_record(state: dict, calls: list[dict], latency_ms: int, status: str | 
 
 
 def write(record: dict) -> None:
-    line = json.dumps(record, ensure_ascii=False, default=str)
-    print(f"[run] {line}")
-    path = get_settings().run_log_path
-    if path:
-        with _lock, open(path, "a", encoding="utf-8") as f:
-            f.write(line + "\n")
+    """Ghi log không bao giờ được làm hỏng request (e2e 11/11: console cp1252 trên
+    Windows ném UnicodeEncodeError với tiếng Việt và trả 500)."""
+    try:
+        # stdout: ASCII để chạy được trên mọi console; file JSONL: UTF-8 đọc được.
+        print(f"[run] {json.dumps(record, ensure_ascii=True, default=str)}")
+        path = get_settings().run_log_path
+        if path:
+            with _lock, open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("run log write failed: %r", e)

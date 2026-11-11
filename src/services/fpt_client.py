@@ -131,8 +131,9 @@ def _post_chat_completion(
     if enable_thinking is False and is_gemini:
         # Gemini không nhận chat_template_kwargs (400). Chỉ dòng flash tắt được
         # thinking (reasoning_effort="none"); pro bắt buộc có thinking.
+        # Dòng 2.5 tắt hẳn bằng "none"; dòng 3.x flash-lite trả 400 với "none", mức thấp nhất là "minimal".
         if "flash" in lower_model:
-            payload["reasoning_effort"] = "none"
+            payload["reasoning_effort"] = "none" if "gemini-2" in lower_model else "minimal"
     elif enable_thinking is not None and "openai.com" not in base_url.lower() and not is_gemini:
         payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 

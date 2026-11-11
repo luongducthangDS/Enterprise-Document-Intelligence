@@ -64,3 +64,24 @@ def test_answer_error_is_logged_then_raised(monkeypatch, tmp_path):
         pass
     rec = json.loads(path.read_text(encoding="utf-8").splitlines()[-1])
     assert rec["run_id"] == "r9" and rec["status"] == "ERROR" and "tool timeout" in rec["error"]
+
+
+def test_write_never_raises_on_cp1252_console(monkeypatch, tmp_path):
+    import io
+    import sys
+
+    cp1252 = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
+    monkeypatch.setattr(sys, "stdout", cp1252)
+    path = tmp_path / "r.jsonl"
+    monkeypatch.setattr(get_settings(), "run_log_path", str(path))
+    run_log.write({"run_id": "x", "input": "thời hạn nộp hồ sơ"})  # không được ném lỗi
+    assert json.loads(path.read_text(encoding="utf-8"))["input"] == "thời hạn nộp hồ sơ"
+
+
+def test_stage_timers_are_not_counted_as_model_calls():
+    calls = [
+        {"kind": "retrieval_prep", "model": "embed+acl+bm25", "duration_ms": 900},
+        {"kind": "embedding", "model": "gemini-embedding-001", "duration_ms": 800, "prompt_tokens": 10},
+        {"kind": "vector_search", "model": "chroma_cloud", "duration_ms": 20},
+    ]
+    assert list(run_log.llm_usage(calls)["by_model"]) == ["gemini-embedding-001"]

@@ -316,7 +316,16 @@ async def react_node(state: AgentState) -> dict:
         fresh_q = {_norm(q): q for _, n, _, q, e in parsed if n == "search_policies" and not e}
         cached_before = set(search_cache)
         failed: dict[str, str] = {}
-        results = await asyncio.gather(*(_guard("search_policies", _search(state, fresh_q[k])) for k in fresh), return_exceptions=True)
+        search_ms: dict[str, int] = {}
+
+        async def _timed(key: str):
+            t = time.perf_counter()
+            try:
+                return await _guard("search_policies", _search(state, fresh_q[key]))
+            finally:
+                search_ms[key] = int((time.perf_counter() - t) * 1000)
+
+        results = await asyncio.gather(*(_timed(k) for k in fresh), return_exceptions=True)
         for key, res in zip(fresh, results):
             if isinstance(res, BaseException):
                 failed[key] = _tool_error("search_policies", res)
@@ -391,7 +400,10 @@ async def react_node(state: AgentState) -> dict:
                         result = "Không có đoạn trích mới so với các lần tìm trước. Nếu đã đủ bằng chứng, trả DONE.\n" + result
                     chunk_ids = [c["chunk_id"] for c in new]
 
-            step = {"tool": name, "args": args, "result": result[:200], "chunk_ids": chunk_ids, "latency_ms": int((time.perf_counter() - t0) * 1000)}
+            # search chạy trước (song song) nên lấy thời gian thật của nó, không phải lúc xử lý kết quả.
+            ms = search_ms.pop(_norm(query), None) if name == "search_policies" else None
+            step = {"tool": name, "args": args, "result": result[:200], "chunk_ids": chunk_ids,
+                    "latency_ms": ms if ms is not None else int((time.perf_counter() - t0) * 1000)}
             if error:
                 step["error"] = error
             steps.append(step)

@@ -324,7 +324,7 @@ async def accounting_retrieval_node(state: dict) -> dict:
             get_authorization_engine().get_authorized_source_files, user_context
         ))
 
-    with llm_trace.Timer("embedding", "fpt_cloud" if settings.use_glm else "openai"):
+    with llm_trace.Timer("retrieval_prep", "embed+acl+bm25"):  # giai đoạn, không phải lời gọi model
         embedding, allowed_files = await asyncio.gather(
             _embed_accounting(),
             _get_accounting_allowed_files(),

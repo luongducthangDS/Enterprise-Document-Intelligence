@@ -128,3 +128,12 @@ def test_429_daily_quota_fails_fast(monkeypatch):
     with pytest.raises(Exception):
         fpt_client._retry_with_backoff(lambda: (_ for _ in ()).throw(_http_error(429, body)), retries=0)
     assert sleeps == []
+
+
+def test_gemini3_flash_lite_uses_minimal_not_none(gemini, monkeypatch):
+    sent = _capture_post(monkeypatch, {"choices": [{"message": {"content": "ok"}}]})
+    fpt_client._post_chat_completion(
+        [{"role": "user", "content": "x"}], model="gemini-3.5-flash-lite", base_url=gemini.gemini_base_url,
+        api_key="k", enable_thinking=False,
+    )
+    assert sent["json"]["reasoning_effort"] == "minimal"  # "none" -> 400 INVALID_ARGUMENT (đo 11/11)

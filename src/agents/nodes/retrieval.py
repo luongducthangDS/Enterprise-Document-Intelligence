@@ -386,7 +386,7 @@ async def retrieval_node(state: AgentState) -> dict:
         await asyncio.to_thread(_bm25_index, collection_name)
 
     search_query = _expand_retrieval_query(query)
-    with llm_trace.Timer("embedding", "fpt_cloud" if settings.use_glm else "openai"):
+    with llm_trace.Timer("retrieval_prep", "embed+acl+bm25"):  # giai đoạn, không phải lời gọi model
         embedding, allowed_files, _ = await asyncio.gather(
             _aembed_query(search_query),
             _get_allowed_files_async(),

@@ -323,3 +323,15 @@ def test_memory_chunks_seed_evidence_and_skip_fallback_search(monkeypatch):
     assert "BẰNG CHỨNG ĐÃ CÓ TỪ LƯỢT TRƯỚC" in seen[0] and "prev1" in seen[0]
     assert [c["chunk_id"] for c in out["retrieved_chunks"]] == ["prev1"]  # chunk computed lượt trước không mang sang
     assert out["agent_steps"] == []
+
+
+def test_parallel_search_latency_is_recorded(monkeypatch):
+    async def slow(state, query):
+        await asyncio.sleep(0.05)
+        return {"retrieved_chunks": [_chunk(query, 0.5)]}
+
+    replies = [{"tool_calls": [_call("search_policies", query=q) for q in ("qa", "qb")]}, {"content": "DONE"}]
+    monkeypatch.setattr(react, "_post_chat_completion", lambda m, **kw: replies.pop(0))
+    monkeypatch.setattr(react, "_search", slow)
+    out = asyncio.run(react.react_node({"query": "q", "condensed_query": "q", "user_id": "u1"}))
+    assert all(s["latency_ms"] >= 40 for s in out["agent_steps"])  # e2e 11/11 ghi 0 ms
