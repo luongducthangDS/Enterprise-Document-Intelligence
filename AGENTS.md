@@ -5,7 +5,7 @@ P-153 Enterprise Document Intelligence Agent: hỏi đáp tài liệu nội bộ
 Đọc trước khi làm: [docs/RULES.md](docs/RULES.md) > [docs/PRD.md](docs/PRD.md) > [ARCHITECTURE](docs/ARCHITECTURE.md), [DESIGN](docs/DESIGN.md), [TASKS](docs/TASKS.md), [PROGRESS](docs/PROGRESS.md).
 
 ## Trạng thái (2026-11-11)
-- Demo public chạy `AGENT_MODE=react` (https://enterprise-document-intelligence-unh1.onrender.com). 6 commit local chưa push (từ `b54771e`) trên `feat/recruiter-demo-deploy`; push kích hoạt deploy, cần user cho phép và chạy migration 0014 trước.
+- Demo public chạy `AGENT_MODE=react` (https://enterprise-document-intelligence-unh1.onrender.com). 16 commit local chưa push (từ `b54771e`) trên `feat/recruiter-demo-deploy`; push kích hoạt deploy, cần user cho phép và chạy migration 0014 trước.
 - FPT key 401 từ 09/11: agent demo và eval live đang hỏng tới khi có key mới. Chi tiết và số đo ở `docs/PROGRESS.md`.
 - 11/11: src/tests/scripts/supabase từng mất khỏi đĩa khi di chuyển thư mục, đã khôi phục từ git. Nâng cấp agentic U1–U7a đã có code (xem `docs/PROGRESS.md`), chưa có số benchmark đủ bộ vì quota Gemini free.
 - Việc tiếp theo: mục đầu tiên chưa tick trong `docs/TASKS.md`.
