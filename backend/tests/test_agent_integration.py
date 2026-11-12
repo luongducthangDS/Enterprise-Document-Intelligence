@@ -484,3 +484,167 @@ async def test_worker_creates_no_ticket_for_routine_boundary_escalation(monkeypa
         # phải "đã tạo ticket". Cặp (escalated=True, ticket_id=None) là trạng
         # thái hợp lệ của boundary flow và không được coi là bug.
         assert message.escalated is True
+
+
+def _create_case_answer(question: str, **boundary_overrides) -> AgentAnswerDTO:
+    return AgentAnswerDTO(
+        response="Mình đã chuẩn bị nội dung yêu cầu để bạn gửi tới bộ phận phụ trách.",
+        intent="out_of_scope_or_personal",
+        escalate=True,
+        escalate_reason="personal_data_required",
+        ticket_draft={
+            "employee_question": question,
+            "escalate_reason": "personal_data_required",
+            "confidence_score": None,
+            "category": "PAYROLL",
+            "target_department": "CB",
+            "priority": "High",
+        },
+        boundary={
+            **HUMAN_FIRST_BOUNDARY,
+            "scenario_id": 21,
+            "scenario_name": "Payroll discrepancy",
+            "assistant_role": "PREPARE_AND_HANDOFF",
+            "sensitivity": "High",
+            "max_runtime_action": "CREATE_CASE",
+            "runtime_action": "PREFILL_DRAFT",
+            "mvp_phase": "MVP_2",
+            **boundary_overrides,
+        },
+    )
+
+
+async def _run_with_answer(monkeypatch, question: str, answer: AgentAnswerDTO) -> uuid.UUID:
+    request_id = await create_queued_request(question)
+    monkeypatch.setattr(
+        ChatService, "agent_client", type("Client", (), {"query_agent": AsyncMock(return_value=answer)})()
+    )
+    await ChatService._process_chat_rag_request(request_id, USER_ID, "Engineering", question, CONVERSATION_ID)
+    return request_id
+
+
+@pytest.mark.asyncio
+async def test_create_case_needs_user_confirmation_and_is_idempotent(monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+
+    async with TestingSessionLocal() as session:
+        before = await session.scalar(select(func.count(TicketDB.id)))
+        chat_request = await session.get(ChatRequestDB, request_id)
+        # Agent chỉ đề xuất: chưa có ticket nào cho tới khi người hỏi xác nhận.
+        assert chat_request.ticket_proposal["status"] == "PENDING"
+        assert ChatService._status_payload(chat_request)["ticket_proposal"]["status"] == "PENDING"
+
+    async with TestingSessionLocal() as session:
+        first = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+    async with TestingSessionLocal() as session:
+        second = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+        after = await session.scalar(select(func.count(TicketDB.id)))
+        chat_request = await session.get(ChatRequestDB, request_id)
+        message = await session.get(MessageDB, chat_request.assistant_message_id)
+
+    assert first["status"] == "CONFIRMED" and first["ticket_id"] == second["ticket_id"]
+    assert after == before + 1
+    assert str(message.ticket_id) == first["ticket_id"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "enabled,overrides",
+    [
+        (False, {}),  # cờ tắt = MVP-1
+        (True, {"max_runtime_action": "PREFILL_DRAFT"}),  # registry không cho CREATE_CASE
+        (True, {"sensitivity": "Critical"}),
+        (True, {"assistant_role": "HUMAN_FIRST"}),
+    ],
+)
+async def test_no_case_proposal_outside_create_case_gate(monkeypatch, enabled, overrides):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError, ForbiddenError
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", enabled)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q, **overrides))
+    async with TestingSessionLocal() as session:
+        chat_request = await session.get(ChatRequestDB, request_id)
+        assert chat_request.ticket_proposal is None
+        with pytest.raises((ConflictError, ForbiddenError)):
+            await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+
+
+@pytest.mark.asyncio
+async def test_only_requester_can_confirm(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ForbiddenError
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ForbiddenError):
+            await ChatService.confirm_ticket_proposal(session, request_id, uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_reject_case_proposal_blocks_confirm_and_is_audited(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError
+    from app.domain.models.audit import AuditLogDB
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        before = await session.scalar(select(func.count(TicketDB.id)))
+    async with TestingSessionLocal() as session:
+        first = await ChatService.reject_ticket_proposal(session, request_id, USER_ID, "Tôi tự xử lý được")
+    async with TestingSessionLocal() as session:
+        again = await ChatService.reject_ticket_proposal(session, request_id, USER_ID, "lý do khác")
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ConflictError):
+            await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+        after = await session.scalar(select(func.count(TicketDB.id)))
+        audits = (await session.execute(
+            select(AuditLogDB).where(AuditLogDB.resource_id == str(request_id))
+        )).scalars().all()
+
+    assert first["status"] == "REJECTED" and first["rejection_reason"] == "Tôi tự xử lý được"
+    assert again["rejection_reason"] == "Tôi tự xử lý được"  # idempotent, không ghi đè
+    assert after == before
+    assert [a.action for a in audits] == ["AGENT_CASE_REJECTED"]
+    assert audits[0].before_state["status"] == "PENDING" and audits[0].actor_id == USER_ID
+
+
+@pytest.mark.asyncio
+async def test_confirm_writes_audit_and_blocks_later_reject(monkeypatch):
+    from app.core.config import get_settings
+    from app.core.exceptions import ConflictError
+    from app.domain.models.audit import AuditLogDB
+
+    monkeypatch.setattr(get_settings(), "enable_create_case", True)
+    q = "Lương tháng này bị trừ sai"
+    request_id = await _run_with_answer(monkeypatch, q, _create_case_answer(q))
+    async with TestingSessionLocal() as session:
+        confirmed = await ChatService.confirm_ticket_proposal(session, request_id, USER_ID)
+    async with TestingSessionLocal() as session:
+        with pytest.raises(ConflictError):
+            await ChatService.reject_ticket_proposal(session, request_id, USER_ID)
+        audit = (await session.execute(
+            select(AuditLogDB).where(AuditLogDB.resource_id == str(request_id))
+        )).scalar_one()
+    assert audit.action == "AGENT_CASE_CONFIRMED"
+    assert audit.after_state == {"status": "CONFIRMED", "ticket_code": confirmed["ticket_code"], "rejection_reason": None}
+
+
+@pytest.mark.asyncio
+async def test_follow_up_sends_previous_request_id_for_task_memory(monkeypatch):
+    first_id = await _run_with_answer(monkeypatch, "Đi công tác về nộp quyết toán trong bao lâu?", _create_case_answer("q1"))
+    second_id = await create_queued_request("Nếu nộp trễ thì sao?")
+    mock = AsyncMock(return_value=_create_case_answer("q2"))
+    monkeypatch.setattr(ChatService, "agent_client", type("Client", (), {"query_agent": mock})())
+    await ChatService._process_chat_rag_request(second_id, USER_ID, "Engineering", "Nếu nộp trễ thì sao?", CONVERSATION_ID)
+    assert mock.await_args.kwargs["previous_request_id"] == str(first_id)
+    assert mock.await_args.kwargs["request_id"] == str(second_id)

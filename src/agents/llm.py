@@ -14,6 +14,19 @@ def thinking_arg(enabled: bool) -> bool | None:
     return None if enabled else False
 
 
+def _gemini_chat_model(model: str | None) -> str:
+    """Đổi tên model cấu hình cho FPT/OpenAI sang model Gemini cùng vai trò."""
+    settings = get_settings()
+    if model and model.lower().startswith("gemini"):
+        return model
+    if model and model == settings.judge_model:
+        return settings.gemini_judge_model
+    fast = {settings.router_model, settings.hallucination_model, settings.clarify_model, "gpt-4o-mini"}
+    if model and model in fast:
+        return settings.gemini_fast_model
+    return settings.gemini_model
+
+
 def resolve_llm_endpoint(
     model: str | None = None,
     base_url: str | None = None,
@@ -25,6 +38,9 @@ def resolve_llm_endpoint(
     # Nếu caller đã chỉ định rõ cả base_url và api_key và model thì dùng nguyên
     if base_url and api_key and model:
         return model, base_url, api_key
+
+    if settings.llm_provider == "gemini":
+        return _gemini_chat_model(model), base_url or settings.gemini_base_url, api_key or settings.gemini_api_key
 
     # 1. Nhánh USE_GLM = ON (True) -> Dùng GLM-5.2 qua FPT Cloud
     if settings.use_glm:
@@ -73,6 +89,9 @@ def resolve_embedding_endpoint(
     if base_url and api_key and model:
         return model, base_url, api_key
 
+    if settings.llm_provider == "gemini":
+        return model or settings.gemini_embedding_model, base_url or settings.gemini_base_url, api_key or settings.gemini_api_key
+
     if settings.use_glm:
         target_model = model or settings.embedding_model
         resolved_base_url = base_url or settings.fpt_base_url
@@ -95,6 +114,9 @@ def resolve_vlm_endpoint(
     if base_url and api_key and model:
         return model, base_url, api_key
 
+    if settings.llm_provider == "gemini":
+        return model or settings.gemini_model, base_url or settings.gemini_base_url, api_key or settings.gemini_api_key
+
     if settings.use_glm:
         target_model = model or "Qwen2.5-VL-7B-Instruct"
         resolved_base_url = base_url or settings.fpt_base_url
@@ -116,6 +138,9 @@ def resolve_reranker_endpoint(
     settings = get_settings()
     if base_url and api_key and model:
         return model, base_url, api_key
+
+    if settings.llm_provider == "gemini":
+        return settings.gemini_fast_model, base_url or settings.gemini_base_url, api_key or settings.gemini_api_key
 
     if settings.use_glm:
         target_model = model or settings.reranker_model

@@ -65,8 +65,9 @@ async def judge_answer(question: str, response: str, expected_answer: str, setti
         user,
         temperature=0.0,
         model=settings.judge_model,
-        base_url=settings.judge_base_url or settings.fpt_base_url,
-        api_key=settings.judge_api_key or settings.fpt_api_key,
+        # Gemini: để resolve_llm_endpoint đổi judge_model sang gemini_judge_model.
+        base_url=settings.judge_base_url or (None if settings.llm_provider == "gemini" else settings.fpt_base_url),
+        api_key=settings.judge_api_key or (None if settings.llm_provider == "gemini" else settings.fpt_api_key),
     )
     return parse_verdict(verdict)
 

@@ -75,6 +75,12 @@ class ChatRequestDB(Base):
         nullable=True,
     )
 
+    # Đề xuất CREATE_CASE chờ người hỏi xác nhận (migration 0014).
+    ticket_proposal: Mapped[dict | None] = mapped_column(
+        JSON,
+        nullable=True,
+    )
+
     user_message_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),
         ForeignKey(

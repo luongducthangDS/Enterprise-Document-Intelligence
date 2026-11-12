@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import hmac
 import json
@@ -43,11 +44,21 @@ class AIAgentClient:
         timeout: float = settings.ai_agent_timeout_seconds,
         service_token: str = settings.ai_agent_service_token,
         transport: httpx.AsyncBaseTransport | None = None,
+        max_cold_retries: int | None = None,
+        cold_retry_delay: float | None = None,
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.service_token = service_token
         self.transport = transport
+        self.max_cold_retries = (
+            max_cold_retries
+            if max_cold_retries is not None
+            else (1 if transport is not None else settings.ai_agent_max_cold_retries)
+        )
+        self.cold_retry_delay = (
+            cold_retry_delay if cold_retry_delay is not None else settings.ai_agent_cold_retry_delay_seconds
+        )
 
     async def query_agent(
         self,
@@ -58,6 +69,7 @@ class AIAgentClient:
         user_role: str,
         tenant_id: str,
         history: list[dict[str, str]] | None = None,
+        previous_request_id: str | None = None,
     ) -> AgentAnswerDTO:
         from app.services.warmup_service import WarmupService
 
@@ -70,6 +82,9 @@ class AIAgentClient:
             "request_id": request_id,
             "history": history or [],
         }
+        if previous_request_id:
+            # Agent nạp lại bằng chứng lượt trước từ checkpoint (task memory); không thuộc phần ký.
+            payload["previous_request_id"] = previous_request_id
         headers = {"X-Request-ID": request_id}
         if self.service_token:
             headers["X-Service-Token"] = self.service_token
@@ -116,6 +131,7 @@ class AIAgentClient:
         user_role: str,
         tenant_id: str,
         history: list[dict[str, str]] | None = None,
+        previous_request_id: str | None = None,
     ) -> AsyncIterator[dict]:
         """Đọc SSE từ Agent Core và trả từng event đã parse cho ChatService."""
         payload = {
@@ -127,61 +143,93 @@ class AIAgentClient:
             "request_id": request_id,
             "history": history or [],
         }
+        if previous_request_id:
+            # Agent nạp lại bằng chứng lượt trước từ checkpoint (task memory); không thuộc phần ký.
+            payload["previous_request_id"] = previous_request_id
         headers = {"X-Request-ID": request_id, "Accept": "text/event-stream"}
         if self.service_token:
             headers["X-Service-Token"] = self.service_token
             headers["X-Identity-Signature"] = _identity_signature(payload, self.service_token)
 
+        max_cold_retries = self.max_cold_retries
+        retry_delay = self.cold_retry_delay
+
         async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
-            try:
-                async with client.stream(
-                    "POST",
-                    f"{self.base_url}/query/stream",
-                    json=payload,
-                    headers=headers,
-                ) as response:
-                    response.raise_for_status()
-                    seen_done = False
-                    async for line in response.aiter_lines():
-                        if not line.startswith("data:"):
-                            continue
-                        try:
-                            event = json.loads(line[5:].strip())
-                        except (json.JSONDecodeError, TypeError) as exc:
+            for attempt in range(max_cold_retries):
+                try:
+                    async with client.stream(
+                        "POST",
+                        f"{self.base_url}/query/stream",
+                        json=payload,
+                        headers=headers,
+                    ) as response:
+                        if response.status_code in (502, 503):
+                            WarmupService.trigger_background_warmup()
+                            if attempt < max_cold_retries - 1:
+                                logger.warning(
+                                    f"[AIAgentClient] AI Agent cold start (HTTP {response.status_code}). "
+                                    f"Attempt {attempt + 1}/{max_cold_retries}, retrying in {retry_delay}s..."
+                                )
+                                yield {
+                                    "type": "status",
+                                    "value": f"Đang khởi động AI Agent (cold start)... Thử lại lần {attempt + 1}/{max_cold_retries}",
+                                }
+                                await asyncio.sleep(retry_delay)
+                                continue
+                        response.raise_for_status()
+                        seen_done = False
+                        async for line in response.aiter_lines():
+                            if not line.startswith("data:"):
+                                continue
+                            try:
+                                event = json.loads(line[5:].strip())
+                            except (json.JSONDecodeError, TypeError) as exc:
+                                raise AIAgentClientError(
+                                    "AGENT_INVALID_RESPONSE",
+                                    "AI Agent stream contains invalid JSON",
+                                    False,
+                                ) from exc
+                            if not isinstance(event, dict) or not event.get("type"):
+                                raise AIAgentClientError(
+                                    "AGENT_INVALID_RESPONSE",
+                                    "AI Agent stream contains an invalid event",
+                                    False,
+                                )
+                            seen_done = seen_done or event["type"] == "done"
+                            yield event
+                        if not seen_done:
                             raise AIAgentClientError(
                                 "AGENT_INVALID_RESPONSE",
-                                "AI Agent stream contains invalid JSON",
-                                False,
-                            ) from exc
-                        if not isinstance(event, dict) or not event.get("type"):
-                            raise AIAgentClientError(
-                                "AGENT_INVALID_RESPONSE",
-                                "AI Agent stream contains an invalid event",
-                                False,
+                                "AI Agent stream ended before the final result",
+                                True,
                             )
-                        seen_done = seen_done or event["type"] == "done"
-                        yield event
-                    if not seen_done:
-                        raise AIAgentClientError(
-                            "AGENT_INVALID_RESPONSE",
-                            "AI Agent stream ended before the final result",
-                            True,
-                        )
-            except AIAgentClientError:
-                raise
-            except httpx.TimeoutException as exc:
-                logger.error(f"AI Agent stream timed out: {exc}")
-                WarmupService.trigger_background_warmup()
-                raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out", True) from exc
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code in (502, 503):
+                        return
+                except AIAgentClientError:
+                    raise
+                except httpx.TimeoutException as exc:
+                    logger.error(f"AI Agent stream timed out: {exc}")
                     WarmupService.trigger_background_warmup()
-                retryable = exc.response.status_code >= 500
-                logger.error(f"AI Agent stream returned HTTP {exc.response.status_code}: {exc}")
-                raise AIAgentClientError(
-                    "AGENT_SERVICE_ERROR", "AI Agent service returned an error", retryable
-                ) from exc
-            except httpx.RequestError as exc:
-                logger.error(f"Failed to stream from AI Agent Service: {exc}")
-                WarmupService.trigger_background_warmup()
-                raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable", True) from exc
+                    raise AIAgentClientError("AGENT_TIMEOUT", "AI Agent request timed out", True) from exc
+                except httpx.HTTPStatusError as exc:
+                    if exc.response.status_code in (502, 503):
+                        WarmupService.trigger_background_warmup()
+                    retryable = exc.response.status_code >= 500
+                    logger.error(f"AI Agent stream returned HTTP {exc.response.status_code}: {exc}")
+                    raise AIAgentClientError(
+                        "AGENT_SERVICE_ERROR", "AI Agent service returned an error", retryable
+                    ) from exc
+                except httpx.RequestError as exc:
+                    logger.error(f"Failed to stream from AI Agent Service: {exc}")
+                    WarmupService.trigger_background_warmup()
+                    if attempt < max_cold_retries - 1:
+                        logger.warning(
+                            f"[AIAgentClient] AI Agent connection failed ({exc}). "
+                            f"Attempt {attempt + 1}/{max_cold_retries}, retrying in {retry_delay}s..."
+                        )
+                        yield {
+                            "type": "status",
+                            "value": f"Đang kết nối tới AI Agent... Thử lại lần {attempt + 1}/{max_cold_retries}",
+                        }
+                        await asyncio.sleep(retry_delay)
+                        continue
+                    raise AIAgentClientError("AGENT_UNAVAILABLE", "AI Agent service is unavailable", True) from exc

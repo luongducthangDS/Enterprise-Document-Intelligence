@@ -56,6 +56,11 @@ def get_collection(client: chromadb.ClientAPI, name: str) -> Collection:
     # Không truyền embedding_function — embedding luôn tính thủ công qua
     # src/ingestion/embeddings.py rồi truyền trực tiếp vào add/upsert/query, để
     # Chroma không phụ thuộc phải hiểu đúng response shape của FPT.AI Marketplace.
+    # Mỗi model embedding một bộ collection riêng (vd "_gemini"): vector của hai
+    # model khác nhau không so được với nhau. Mọi đọc/ghi lúc chạy đi qua đây.
+    from src.config import get_settings
+
+    name = name + get_settings().chroma_collection_suffix
     return client.get_or_create_collection(name=name, metadata={"hnsw:space": "cosine"})
 
 

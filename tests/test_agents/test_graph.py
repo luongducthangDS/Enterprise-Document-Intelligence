@@ -331,3 +331,12 @@ async def test_guarded_path_escalates_and_hides_hallucinated_text_when_check_fai
     assert "50 ngày" not in result["response"]
     assert "45 ngày" not in result["response"]
     assert "chưa có trong tài liệu nội bộ" in result["response"]
+
+
+def test_department_scope_denied_is_a_valid_answer_reason():
+    """Agent từng crash 500 vì reason này thiếu trong Literal của AgentAnswer."""
+    from typing import get_args
+
+    from src.models.schemas import EscalateReason
+
+    assert "department_scope_denied" in get_args(EscalateReason)

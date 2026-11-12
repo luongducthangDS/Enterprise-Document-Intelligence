@@ -59,6 +59,11 @@ Giới hạn của bản demo:
 - Kiểm thử live phụ thuộc Supabase, Chroma Cloud và model gateway; cần credential/môi trường hợp lệ để chạy lại.
 - Kết quả kiểm thử và giới hạn môi trường được ghi tại [`docs/TESTING.md`](docs/TESTING.md).
 
+### Chế độ agent (tool-calling) và MCP
+
+- `AGENT_MODE=react`: thay đoạn cố định retrieve → grade → rewrite bằng vòng lặp tool-calling. LLM tự gọi `search_policies` (nhiều lần, tách ý, đổi từ khoá), `lookup_structured_policy` hoặc `escalate_to_human`. Generate, chống ảo giác, che PII và ticket giữ nguyên. Mặc định `pipeline`. Code: [`src/agents/nodes/react.py`](src/agents/nodes/react.py).
+- MCP server: `python -m src.mcp_server` (stdio), tool `ask_documents`. Claude Code đọc sẵn [`.mcp.json`](.mcp.json). Danh tính lấy từ env `MCP_TENANT_ID`, `MCP_USER_ID`, `MCP_DEPARTMENT`, `MCP_ROLE`, không lấy từ tham số tool.
+
 ## 3. Kiến trúc tóm tắt
 
 ```mermaid

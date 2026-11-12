@@ -5,10 +5,12 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth_deps import get_current_user
 from app.api.dependencies.db_deps import get_db
+from app.core.rate_limit import demo_chat_limit
 from app.schemas.chat import CreateChatRequestSchema, RetryChatRequestSchema
 from app.schemas.common import wrap_response
 from app.services.chat_service import ChatService
@@ -21,7 +23,7 @@ def _encode_sse(event: dict[str, Any]) -> str:
     return f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n"
 
 
-@router.post("/requests", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/requests", status_code=status.HTTP_202_ACCEPTED, dependencies=[Depends(demo_chat_limit)])
 async def submit_chat_request(
     request_data: CreateChatRequestSchema,
     request: Request,
@@ -43,7 +45,7 @@ async def submit_chat_request(
     return wrap_response(data, request)
 
 
-@router.post("/requests/stream")
+@router.post("/requests/stream", dependencies=[Depends(demo_chat_limit)])
 async def stream_chat_request(
     request_data: CreateChatRequestSchema,
     current_user: dict = Depends(get_current_user),
@@ -85,6 +87,44 @@ async def stream_chat_request(
     )
 
 
+@router.post("/requests/{chat_request_id}/ticket")
+async def confirm_ticket_proposal(
+    chat_request_id: uuid.UUID,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Người hỏi xác nhận đề xuất tạo ticket của agent (CREATE_CASE có người duyệt)."""
+    data = await ChatService.confirm_ticket_proposal(
+        db=db,
+        chat_request_id=chat_request_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+    )
+    return wrap_response(data, request)
+
+
+class RejectProposalBody(BaseModel):
+    reason: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/requests/{chat_request_id}/ticket/reject")
+async def reject_ticket_proposal(
+    chat_request_id: uuid.UUID,
+    request: Request,
+    body: RejectProposalBody | None = None,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Người hỏi từ chối đề xuất tạo ticket của agent; không ticket nào được tạo."""
+    data = await ChatService.reject_ticket_proposal(
+        db=db,
+        chat_request_id=chat_request_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+        reason=body.reason if body else None,
+    )
+    return wrap_response(data, request)
+
+
 @router.get("/requests/{chat_request_id}")
 async def get_chat_request_status(
     chat_request_id: uuid.UUID,
@@ -102,7 +142,11 @@ async def get_chat_request_status(
     return wrap_response(data, request)
 
 
-@router.post("/requests/{chat_request_id}/retry", status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/requests/{chat_request_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(demo_chat_limit)],
+)
 async def retry_chat_request(
     chat_request_id: uuid.UUID,
     request: Request,

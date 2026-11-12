@@ -9,6 +9,10 @@ settings = get_settings()
 class WarmupService:
     """Service kiểm tra sức khỏe và đánh thức (Warmup) Agent Service từ Backend."""
 
+    # Event loop chỉ giữ weak reference tới task: không lưu lại thì task có thể bị
+    # GC trước khi kịp chạy, và tín hiệu đánh thức biến mất im lặng.
+    _background_tasks: set[asyncio.Task] = set()
+
     @classmethod
     async def check_and_warmup_on_startup(cls, max_wait_seconds: float = 30.0) -> bool:
         """Chạy đúng 1 lần duy nhất trong Startup Lifespan của Backend.
@@ -52,7 +56,9 @@ class WarmupService:
                 logger.debug(f"[WarmupService] Gửi tín hiệu đánh thức Agent thất bại: {e}")
 
         try:
-            asyncio.create_task(_ping())
+            task = asyncio.create_task(_ping())
+            cls._background_tasks.add(task)
+            task.add_done_callback(cls._background_tasks.discard)
         except Exception as e:
             logger.debug(f"[WarmupService] Không thể tạo background task warmup: {e}")
 

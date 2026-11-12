@@ -178,19 +178,19 @@ class TestComprehensiveG6AndMultiTurnFlows:
     async def test_streaming_step_by_step_events_and_reassembly(self):
         """Kiểm tra astream_answer phát đủ event và văn bản ghép lại nguyên vẹn."""
         async def _fake_steps(*args, **kwargs):
-            yield {"condense": {"condensed_query": "Quy định làm thêm giờ"}}
-            yield {"router": {"intent": "hr_question"}}
-            yield {"retrieve": {"retrieved_chunks": [_make_chunk("c1", "OT tối đa 40h/tháng.")]}}
-            yield {"grade": {"retrieved_chunks": [_make_chunk("c1", "OT tối đa 40h/tháng.")]}}
-            yield {"generate": {
+            yield "updates", {"condense": {"condensed_query": "Quy định làm thêm giờ"}}
+            yield "updates", {"router": {"intent": "hr_question"}}
+            yield "updates", {"retrieve": {"retrieved_chunks": [_make_chunk("c1", "OT tối đa 40h/tháng.")]}}
+            yield "updates", {"grade": {"retrieved_chunks": [_make_chunk("c1", "OT tối đa 40h/tháng.")]}}
+            yield "updates", {"generate": {
                 "generated_answer": "Thời gian làm thêm giờ tối đa là 40h/tháng [Nguồn 1].",
                 "citations": [_make_chunk("c1", "OT tối đa 40h/tháng.")],
                 "answerable": True,
                 "answer_type": "general_policy",
             }}
-            yield {"hallucination_check": {"hallucination_passed": True}}
-            yield {"confidence": {"confidence_score": 0.9, "escalate": False}}
-            yield {"finalize": {
+            yield "updates", {"hallucination_check": {"hallucination_passed": True}}
+            yield "updates", {"confidence": {"confidence_score": 0.9, "escalate": False}}
+            yield "updates", {"finalize": {
                 "response": "Thời gian làm thêm giờ tối đa là 40h/tháng [Nguồn 1].",
                 "citations": [_make_chunk("c1", "OT tối đa 40h/tháng.")],
             }}

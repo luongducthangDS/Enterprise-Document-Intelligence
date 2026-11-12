@@ -68,7 +68,22 @@ class Settings(BaseSettings):
     # LLM Providers (FPT.AI Marketplace / OpenAI)
     # Cờ bật tắt nhanh: USE_GLM=ON (dùng GLM-5.2 qua FPT Cloud) | USE_GLM=OFF (dùng OpenAI)
     use_glm: bool = Field(default=False)
-    llm_provider: Literal["auto", "fpt", "openai"] = "auto"
+    # "gemini" ghi đè USE_GLM: mọi chat/embedding/VLM/rerank đi qua endpoint
+    # OpenAI-compatible của Gemini. Đổi embedding thì index cũ (e5, 1024 chiều)
+    # không dùng được: phải index lại vào collection có CHROMA_COLLECTION_SUFFIX
+    # (scripts/reindex_collections.py), collection cũ giữ nguyên để quay lui.
+    llm_provider: Literal["auto", "fpt", "openai", "gemini"] = "auto"
+    gemini_api_key: str = ""
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_fast_model: str = "gemini-2.5-flash-lite"
+    # Judge khác model với agent (tránh circular evaluation). 11/2026: gemini-2.5-pro
+    # không còn mở cho key mới (404) và model pro không có quota free (429), nên dùng
+    # flash đời mới hơn model agent.
+    gemini_judge_model: str = "gemini-3.5-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dimensions: int = 768
+    chroma_collection_suffix: str = ""
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
     openai_embedding_model: str = "text-embedding-3-small"
@@ -88,7 +103,7 @@ class Settings(BaseSettings):
 
     # FPT.AI Marketplace (embedding/VLM/rerank/chat gateway)
     fpt_api_key: str = ""
-    fpt_base_url: str = "https://mkp-api.fptcloud.com"
+    fpt_base_url: str = "https://token-api.fpt.ai/v1"
     embedding_model: str = "multilingual-e5-large"
     embedding_batch_size: int = 32
     llm_model: str = "GLM-5.2"
@@ -382,8 +397,27 @@ class Settings(BaseSettings):
     # Chỉ ghi số đo (thời lượng, token đếm được, số lần thử) — không ghi prompt,
     # câu hỏi hay nội dung câu trả lời.
     profile_latency: bool = False
+    # Run log (src/observability/run_log.py): luôn in `[run]` ra stdout; đặt
+    # đường dẫn thì ghi thêm JSONL. RUN_LOG_CONTENT=true mới ghi câu hỏi/câu trả
+    # lời (đã che PII), mặc định tắt như `_log_audit`.
+    run_log_path: str = ""
+    # Chờ tối đa bao nhiêu giây khi LLM trả 429 kèm hẹn giờ. 0 = không chờ (production).
+    llm_429_max_wait_s: float = 0.0
+    run_log_content: bool = False
 
     max_rewrite_retries: int = 1
+    # "pipeline" = graph cố định (retrieve -> grade -> rewrite). "react" = LLM
+    # tự chọn tool (search_policies / lookup_structured_policy /
+    # escalate_to_human) trước khi vào generate + guardrail như cũ.
+    agent_mode: str = "pipeline"
+    react_max_steps: int = 4
+    # Planner trước vòng react: 1 lời gọi LLM lập các bước + dạng kết quả cuối.
+    # Tắt mặc định; benchmark U7 so ReAct với ReAct + planner.
+    react_planner: bool = False
+    # Task state bền (src/agents/checkpoint.py): sqlite:///<file> (local) hoặc
+    # postgresql://... (production). Rỗng = tắt, agent chạy không lưu checkpoint.
+    agent_checkpoint_url: str = ""
+    react_planner_max_steps: int = 8
     max_hallucination_retries: int = 2
     # Escalate khi confidence (= relevance_score của đoạn tốt nhất) dưới ngưỡng.
     # Hạ 0.5 -> 0.2 sau khi bóc tách 29 câu in_scope fail: 7 câu bị escalate oan

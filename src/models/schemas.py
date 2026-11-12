@@ -27,6 +27,9 @@ class AgentQueryRequest(BaseModel):
     department: str = Field(..., min_length=1, max_length=128)
     user_role: str = Field(..., min_length=1, max_length=64)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=16)
+    # request_id của lượt trước trong cùng hội thoại: agent nạp lại bằng chứng lượt đó
+    # từ checkpoint (chỉ khi bật AGENT_CHECKPOINT_URL, cùng tenant + user).
+    previous_request_id: str | None = Field(default=None, max_length=128)
 
 
 class IngestionJobRequest(BaseModel):
@@ -140,6 +143,11 @@ EscalateReason = Literal[
     "user_requested_human",
     "competitor_question",
     "human_first_required",
+    "department_scope_denied",
+    # Hai giá trị dưới đây agent đã trả từ lâu nhưng thiếu trong Literal, làm
+    # AgentAnswer ném ValidationError đúng lúc agent đang từ chối an toàn (09/11).
+    "hallucination_detected",
+    "requires_live_accounting_erp_data",
 ]
 TargetDepartment = Literal["CB", "ER", "TA", "LD", "HRBP"]
 TicketPriority = Literal["Low", "Medium", "High"]

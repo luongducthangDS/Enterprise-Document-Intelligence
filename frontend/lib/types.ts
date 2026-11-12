@@ -140,6 +140,16 @@ export type BoundaryDecision = {
   resolution: "registry" | "fallback";
 };
 
+// Đề xuất CREATE_CASE của agent: chỉ thành ticket khi người hỏi bấm xác nhận.
+export type TicketProposal = {
+  status: "PENDING" | "CONFIRMED" | "REJECTED";
+  scenario_id: number;
+  draft: { target_department: string; priority: string; category: string | null };
+  ticket_id?: string;
+  ticket_code?: string;
+  rejection_reason?: string | null;
+};
+
 export type ChatResult = {
   chat_request_id: string;
   conversation_id: string;
@@ -153,6 +163,7 @@ export type ChatResult = {
   clarification: { question: string; options: string[] } | null;
   failure: { code: string; message: string; retryable: boolean } | null;
   latency_ms: number | null;
+  ticket_proposal?: TicketProposal | null;
   // null khi tải lại lịch sử hoặc poll: decision hiện chỉ đi kèm event `result`
   // của lượt chat đang chạy (chat_requests chưa có cột lưu boundary).
   boundary?: BoundaryDecision | null;

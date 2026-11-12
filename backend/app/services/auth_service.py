@@ -1,3 +1,5 @@
+import uuid
+
 import jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +19,9 @@ from app.domain.models.user import UserDB
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserDTO
 
 settings = get_settings()
+
+# Không phải hash bcrypt hợp lệ: verify_password sẽ luôn thất bại, dùng cho user demo.
+_DEMO_UNUSABLE_PASSWORD = "!demo-session-has-no-password!"
 
 
 
@@ -71,8 +76,7 @@ class AuthService:
         )
 
     @classmethod
-    async def login(cls, db: AsyncSession, login_data: LoginRequest) -> TokenResponse:
-        user = await cls.authenticate_user(db, login_data.email, login_data.password)
+    def _issue_tokens(cls, user: UserDB) -> TokenResponse:
         role = (user.profile.role if user.profile else "employee").upper()
         department = user.profile.department if user.profile else ""
         access_token = create_access_token(
@@ -91,6 +95,33 @@ class AuthService:
             token_type="bearer",
             expires_in=settings.access_token_expire_minutes * 60,
         )
+
+    @classmethod
+    async def login(cls, db: AsyncSession, login_data: LoginRequest) -> TokenResponse:
+        user = await cls.authenticate_user(db, login_data.email, login_data.password)
+        return cls._issue_tokens(user)
+
+    @classmethod
+    async def create_demo_session(cls, db: AsyncSession, department: str) -> TokenResponse:
+        """Mỗi khách một user EMPLOYEE riêng: không lộ hội thoại giữa các khách, không có mật khẩu dùng chung."""
+        # Demo không có đăng nhập mật khẩu, nên bcrypt (~1,5s cho hash + 1,5s cho
+        # verify) chỉ làm chậm nút "vào demo". Lưu hash không thể khớp thay vì băm.
+        new_user = UserDB(
+            email=f"demo-{uuid.uuid4().hex}@demo.example.com",
+            hashed_password=_DEMO_UNUSABLE_PASSWORD,
+        )
+        new_user.profile = ProfileDB(
+            display_name="Khách demo",
+            role="EMPLOYEE",
+            employment_status="full_time",
+            department=department,
+            contract_type="khong_xac_dinh_thoi_han",
+            access_level="self_only",
+        )
+        db.add(new_user)
+        await db.commit()
+        assert new_user.profile is not None
+        return cls._issue_tokens(new_user)
 
     @classmethod
     async def refresh_access_token(cls, db: AsyncSession, refresh_token_str: str) -> TokenResponse:

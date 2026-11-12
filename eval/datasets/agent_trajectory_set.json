@@ -1,0 +1,12 @@
+[
+  {"id": "traj_calc_01", "question": "Tôi làm công việc nặng nhọc độc hại được 7 năm rồi thì mỗi năm được nghỉ phép bao nhiêu ngày?", "must_call": ["calculate_annual_leave"], "expected_number": "15", "note": "14 + 1 thâm niên"},
+  {"id": "traj_calc_02", "question": "Tôi làm việc văn phòng ở công ty được 12 năm, theo chính sách nghỉ phép của công ty thì tôi được bao nhiêu ngày phép năm?", "must_call": ["calculate_annual_leave"], "expected_number": "14", "note": "12 + 2"},
+  {"id": "traj_calc_03", "question": "Nhân viên làm công việc đặc biệt nặng nhọc, thâm niên 21 năm thì được bao nhiêu ngày phép năm theo chính sách công ty?", "must_call": ["calculate_annual_leave"], "expected_number": "20", "note": "16 + 4"},
+  {"id": "traj_hotel_01", "question": "Định mức tiền khách sạn khi đi công tác Hà Nội của nhân viên là bao nhiêu?", "must_call": ["lookup_structured_policy"], "note": "knowledge_lookup hỗ trợ HANOI"},
+  {"id": "traj_hotel_02", "question": "Trưởng phòng đi công tác TP.HCM thì được thanh toán khách sạn tối đa bao nhiêu một đêm?", "must_call": ["lookup_structured_policy"], "note": "HO_CHI_MINH_CITY, MANAGER"},
+  {"id": "traj_multi_01", "question": "Nhân viên được nghỉ phép năm bao nhiêu ngày và nghỉ ốm thì hưởng chế độ thế nào?", "min_searches": 2, "note": "2 ý"},
+  {"id": "traj_multi_02", "question": "Quy trình onboarding nhân viên mới gồm những bước nào, và khi nghỉ việc thì phải bàn giao những gì?", "min_searches": 2, "note": "onboarding + offboarding"},
+  {"id": "traj_multi_03", "question": "Chính sách làm việc từ xa quy định thế nào và khi làm thêm giờ thì được trả lương bao nhiêu phần trăm?", "min_searches": 2, "note": "remote + OT"},
+  {"id": "traj_single_01", "question": "Thời gian thử việc tối đa là bao lâu?", "max_searches": 2, "note": "câu đơn, không được tìm thừa"},
+  {"id": "traj_single_02", "question": "Công ty có hỗ trợ chi phí đào tạo cho nhân viên không?", "max_searches": 2, "note": "câu đơn"}
+]

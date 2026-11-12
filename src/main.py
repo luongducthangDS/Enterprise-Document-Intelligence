@@ -1,6 +1,6 @@
 import asyncio
 import time
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +10,7 @@ from src.config import get_settings
 from src.workers.jobs import get_job_store
 
 
-async def _warmup_retrieval() -> None:
+async def _warmup_retrieval(departments: list[str]) -> None:
     """Dựng sẵn client Chroma + chạy một truy vấn mồi ngay khi service khởi động.
 
     Đo được (scripts/profile_agent_latency.py, 2026-08-14): request ĐẦU TIÊN của
@@ -32,8 +32,7 @@ async def _warmup_retrieval() -> None:
     try:
         embedding = await _aembed_query("chính sách nội bộ")
         settings = get_settings()
-        # Làm nóng cả 3 domain HR, Accounting, Product vào RAM ngay lúc khởi động
-        for dept in ["HR", "Accounting", "Product"]:
+        for dept in departments:
             name = collection_name_for_department(dept, settings, "nexatech")
             col = await asyncio.to_thread(_collection, name)
             if embedding and col:
@@ -48,7 +47,7 @@ async def _warmup_retrieval() -> None:
     except Exception as e:  # noqa: BLE001 — warm-up hỏng không được chặn startup
         print(f"[warmup] skipped: {type(e).__name__}: {e}")
         return
-    print(f"[warmup] retrieval for HR, Accounting, Product ready in {round((time.perf_counter() - started) * 1000)}ms")
+    print(f"[warmup] retrieval for {', '.join(departments)} ready in {round((time.perf_counter() - started) * 1000)}ms")
 
 
 @asynccontextmanager
@@ -61,8 +60,18 @@ async def lifespan(app: FastAPI):
     recovered = get_job_store(settings).recover_stale()
     if recovered:
         print(f"Recovered {len(recovered)} stale agent job(s) -> FAILED: {', '.join(recovered)}")
-    await _warmup_retrieval()
-    yield
+    # HR là phòng ban mặc định của demo: warm đồng bộ để câu hỏi đầu tiên không
+    # trả giá 13s khởi tạo. Hai phòng còn lại chạy nền — trước đây cả 3 nằm trên
+    # đường startup nên health check phải chờ 12-13s mỗi lần cold start.
+    await _warmup_retrieval(["HR"])
+    app.state.warmup_task = asyncio.create_task(_warmup_retrieval(["Accounting", "Product"]))
+    async with AsyncExitStack() as stack:
+        if settings.agent_checkpoint_url:
+            from src.agents import checkpoint
+
+            checkpoint.install(await stack.enter_async_context(checkpoint.open_checkpointer(settings.agent_checkpoint_url)))
+            print("[checkpoint] agent task state enabled")
+        yield
     print("Shutting down...")
 
 

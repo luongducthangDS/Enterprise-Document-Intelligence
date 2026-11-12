@@ -1,6 +1,14 @@
 services:
+  # Độ trễ demo: cả 2 web service dùng plan free nên ngủ sau 15 phút không truy cập,
+  # cold start ~30-50s. Giữ ấm bằng cron ping GET /health của cả hai mỗi 5-10 phút
+  # trong khung giờ demo. Quota free là 750 instance-giờ/tháng cho cả workspace:
+  # 2 service chạy 24/7 là ~1488h -> vượt quota, nên chỉ bật trong khung demo
+  # (<=10h/ngày) hoặc nâng lên plan Starter.
+  # Tốc độ trả lời (đo 12/11): react ~15s/câu, pipeline ~10s/câu. Đặt
+  # AGENT_MODE=pipeline nếu demo chỉ cần hỏi đáp chính sách — khi đó mất
+  # compare_documents/extract_structured của react.
   # ============================================================================
-  # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + FPT.AI LLM)
+  # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + OpenAI/FPT LLM)
   # ============================================================================
   - type: web
     name: p-153-agent
@@ -8,16 +16,25 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
+    region: singapore
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
       - key: AGENT_SERVICE_TOKEN
         generateValue: true
-      - key: FPT_BASE_URL
-        value: https://mkp-api.fptcloud.com
-      - key: FPT_API_KEY
+      # Model embedding của câu hỏi PHẢI khớp model đã index collection, nếu lệch
+      # thì retrieval rơi về BM25 trong im lặng. Gemini qua endpoint OpenAI-compatible. Index Chroma phải được dựng lại
+      # bằng scripts/reindex_collections.py vào collection có hậu tố _gemini
+      # TRƯỚC khi đặt CHROMA_COLLECTION_SUFFIX; collection e5 cũ giữ để quay lui.
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
         sync: false
+      - key: CHROMA_COLLECTION_SUFFIX
+        value: _gemini
+      - key: AGENT_MODE
+        value: react
       - key: DATABASE_URL
         sync: false
       - key: CHROMA_CLOUD_API_KEY
@@ -48,12 +65,17 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: free
+    region: singapore
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
+      # Bản demo public: bật POST /auth/demo + giới hạn lượt chat.
+      - key: DEMO_MODE
+        value: "true"
       - key: DATABASE_URL
         sync: false
+      # https://p-153-agent-xxxx.onrender.com/api/v1/agent (free plan không có private network)
       - key: AI_AGENT_SERVICE_URL
         sync: false
       - key: AI_AGENT_SERVICE_TOKEN
@@ -63,22 +85,17 @@ services:
           envVarKey: AGENT_SERVICE_TOKEN
       - key: JWT_SECRET_KEY
         generateValue: true
+      # Domain frontend trên Vercel, VD: https://p-153.vercel.app
       - key: CORS_ORIGINS
-        value: "*"
+        sync: false
       - key: ACTIVE_TENANT
         value: nexatech
-
-  # ============================================================================
-  # 3. Frontend Client (Next.js 15 + React 19 + TypeScript)
-  # ============================================================================
-  - type: web
-    name: p-153-frontend
-    runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    plan: free
-    envVars:
-      - key: NEXT_PUBLIC_API_BASE_URL
+      - key: CLOUDINARY_CLOUD_NAME
         sync: false
-      - key: NEXT_TELEMETRY_DISABLED
-        value: "1"
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+# Frontend (Next.js static export) deploy trên Vercel, Root Directory = frontend.
+# Env: NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_AGENT_BASE_URL, NEXT_PUBLIC_CLOUDINARY_*.

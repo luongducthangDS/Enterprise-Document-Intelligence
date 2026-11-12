@@ -1,5 +1,6 @@
 import base64
 import random
+import re
 import time
 from collections.abc import Callable
 from typing import TypeVar
@@ -20,6 +21,34 @@ _LAST_ATTEMPTS = [1]
 T = TypeVar("T")
 
 
+_MAX_RATE_WAITS = 6
+
+
+def _rate_limit_wait(response: requests.Response) -> float | None:
+    """Số giây cần chờ khi bị 429, hoặc None nếu không chờ (LLM_429_MAX_WAIT_S=0, mặc định).
+
+    Production để 0: người dùng không ngồi chờ quota hồi. Eval đặt 60 để gói free
+    (vài request/phút) chạy hết bộ thay vì mất nửa số câu vì 429.
+    """
+    from src.config import get_settings
+
+    cap = get_settings().llm_429_max_wait_s
+    if cap <= 0:
+        return None
+    if "PerDay" in (response.text or ""):
+        # Hết quota NGÀY (vd GenerateRequestsPerDayPerProjectPerModel): chờ vài chục giây không hồi, báo lỗi ngay.
+        return None
+    raw = response.headers.get("Retry-After")
+    if not raw:
+        m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', response.text or "")
+        raw = m.group(1) if m else None
+    try:
+        wait = float(raw) if raw else 20.0
+    except ValueError:
+        wait = 20.0
+    return min(wait + random.uniform(0, 2), cap)
+
+
 def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
     """Retry với exponential backoff + jitter, chỉ cho lỗi mạng/HTTP.
 
@@ -29,24 +58,32 @@ def _retry_with_backoff(func: Callable[[], T], retries: int) -> T:
     Jitter tách các coroutine đang chạy song song ra để không retry đồng loạt.
     """
     last_exc: requests.exceptions.RequestException | None = None
-    for attempt in range(retries + 1):
+    attempt, rate_waits = 0, 0
+    while True:
         try:
             result = func()
-            _LAST_ATTEMPTS[0] = attempt + 1
+            _LAST_ATTEMPTS[0] = attempt + rate_waits + 1
             return result
         except requests.exceptions.RequestException as e:
             last_exc = e
+            status = e.response.status_code if isinstance(e, requests.exceptions.HTTPError) and e.response is not None else None
             # 524 nghĩa là upstream model đã xử lý quá lâu và gateway đóng
             # request. Retry ngay cùng payload thường lại tốn trọn timeout,
             # vượt ngân sách HTTP giữa Backend -> Agent mà không tăng cơ hội
             # thành công. Caller nên chuyển model/fallback thay vì gọi lại.
-            if isinstance(e, requests.exceptions.HTTPError) and e.response is not None:
-                if e.response.status_code == 524:
-                    break
-            if attempt < retries:
-                delay = min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0)
-                time.sleep(delay)
-    _LAST_ATTEMPTS[0] = retries + 1
+            if status == 524:
+                break
+            wait = _rate_limit_wait(e.response) if status == 429 else None
+            if wait is not None and rate_waits < _MAX_RATE_WAITS:
+                # 429 có hẹn giờ: chờ đúng khoảng server yêu cầu, không tính vào `retries`.
+                rate_waits += 1
+                time.sleep(wait)
+                continue
+            if attempt >= retries:
+                break
+            time.sleep(min(1.0 * (2**attempt) + random.uniform(0, 1), 8.0))
+            attempt += 1
+    _LAST_ATTEMPTS[0] = attempt + rate_waits + 1
     raise last_exc
 
 
@@ -59,6 +96,7 @@ def _post_chat_completion(
     timeout: int = 60,
     retries: int = 2,
     enable_thinking: bool | None = None,
+    tools: list[dict] | None = None,
 ) -> dict:
     """Gọi /chat/completions OpenAI-compatible trên FPT.AI Marketplace, trả về
     message dict {"content": ..., ...}. Dùng chung cho VLM (ảnh+text) và LLM
@@ -80,6 +118,8 @@ def _post_chat_completion(
     """
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload: dict = {"model": model, "messages": messages}
+    if tools:
+        payload["tools"] = tools
 
     # Các model thế hệ mới của OpenAI (gpt-5*, o1*, o3*) cố định temperature=1.0 và từ chối param temperature != 1
     lower_model = model.lower()
@@ -87,7 +127,14 @@ def _post_chat_completion(
     if temperature is not None and not is_fixed_temp_model:
         payload["temperature"] = temperature
 
-    if enable_thinking is not None and "openai.com" not in base_url.lower():
+    is_gemini = "generativelanguage.googleapis.com" in base_url.lower()
+    if enable_thinking is False and is_gemini:
+        # Gemini không nhận chat_template_kwargs (400). Chỉ dòng flash tắt được
+        # thinking (reasoning_effort="none"); pro bắt buộc có thinking.
+        # Dòng 2.5 tắt hẳn bằng "none"; dòng 3.x flash-lite trả 400 với "none", mức thấp nhất là "minimal".
+        if "flash" in lower_model:
+            payload["reasoning_effort"] = "none" if "gemini-2" in lower_model else "minimal"
+    elif enable_thinking is not None and "openai.com" not in base_url.lower() and not is_gemini:
         payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 
     captured_usage: dict = {}
@@ -256,6 +303,10 @@ def rerank(
     from src.config import get_settings
     settings = get_settings()
 
+    if settings.llm_provider == "gemini":
+        # Gemini không có endpoint /rerank: chấm liên quan bằng model nhanh.
+        return _llm_rerank_sync(query, documents, model=model, base_url=base_url, api_key=api_key, top_n=top_n, timeout=min(timeout, 20))
+
     if not settings.use_glm or "openai" in base_url.lower():
         return _llm_rerank_sync(
             query,
@@ -306,6 +357,10 @@ def embed_batch(
         payload: dict = {"model": model, "input": texts}
         if "openai.com" in base_url.lower() and model.startswith("text-embedding-3"):
             payload["dimensions"] = 1024
+        if "generativelanguage.googleapis.com" in base_url.lower():
+            from src.config import get_settings
+
+            payload["dimensions"] = get_settings().gemini_embedding_dimensions
 
         r = _session.post(
             f"{base_url}/embeddings",
@@ -317,7 +372,11 @@ def embed_batch(
         payload_json = r.json()
         captured_usage.update(payload_json.get("usage") or {})
         data = payload_json["data"]
-        data.sort(key=lambda d: d["index"])
+        # Gemini (OpenAI-compatible) không trả "index" nhưng giữ đúng thứ tự input.
+        if all("index" in d for d in data):
+            data.sort(key=lambda d: d["index"])
+        if len(data) != len(texts):
+            raise ValueError(f"embeddings: gửi {len(texts)} text, nhận {len(data)} vector")
         return [d["embedding"] for d in data]
 
     if not llm_trace.is_active():

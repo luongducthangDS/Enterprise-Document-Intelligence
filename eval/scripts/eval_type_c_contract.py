@@ -24,7 +24,11 @@ DATASET_PATH = "eval/datasets/type_c_contract_set.json"
 async def _run_one(item: dict, semaphore: asyncio.Semaphore) -> dict:
     async with semaphore:
         try:
-            result = await agent.ainvoke({"query": item["query"]})
+            # Identity audit của evaluator (cùng quy ước eval_agent/eval_guardrail).
+            result = await agent.ainvoke({
+                "query": item["query"], "tenant_id": "nexatech", "user_id": "eval_type_c",
+                "department": "EXECUTIVE", "user_role": "ADMIN",
+            })
         except Exception as e:  # noqa: BLE001
             return {
                 **item,

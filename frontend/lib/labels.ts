@@ -66,6 +66,7 @@ export const ESCALATE_REASON_LABELS: Record<string, string> = {
   personal_data_required: "Cần dữ liệu cá nhân",
   user_requested_human: "Người dùng yêu cầu hỗ trợ",
   competitor_question: "Câu hỏi về công ty khác",
+  department_scope_denied: "Ngoài phạm vi phòng ban",
 };
 
 export const PRIORITY_LABELS: Record<string, string> = {

@@ -5,7 +5,7 @@ import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent a
 import { BookOpenCheck, CircleAlert, FileSearch, LoaderCircle, LogOut, MessageCircleQuestion, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import { api, ApiClientError } from "@/lib/api";
 import { chatStateLabel, conversationStateLabel, roleLabel, sourceTypeLabel } from "@/lib/labels";
-import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, User } from "@/lib/types";
+import type { ChatResult, CitationDetail, CitationSummary, ConversationListItem, ConversationMessage, TicketProposal, User } from "@/lib/types";
 import { useSystemDialog } from "@/components/SystemDialog";
 import { DocumentViewer } from "@/components/DocumentViewer";
 
@@ -22,6 +22,11 @@ type StarterPrompt = {
 
 const DEFAULT_STARTER_PROMPTS: StarterPrompt[] = [
   { label: "Chính sách hybrid", question: "Quy định làm việc hybrid như thế nào?" },
+  { label: "Phép năm", question: "Nhân viên có bao nhiêu ngày phép năm?" },
+];
+
+const ACCOUNTING_DEMO_PROMPTS: StarterPrompt[] = [
+  { label: "Hạn mức duyệt chi", question: "Hạn mức duyệt chi của Giám đốc tài chính là bao nhiêu?" },
   { label: "Phép năm", question: "Nhân viên có bao nhiêu ngày phép năm?" },
 ];
 
@@ -115,9 +120,12 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
   const citationPanelResize = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
   const pollController = useRef<AbortController | null>(null);
   const storageKey = `hr_knowledge_active_conversation:${user.id}`;
-  const starterPrompts = user.department.trim().toUpperCase() === "PRODUCT"
+  const userDepartment = user.department.trim().toUpperCase();
+  const starterPrompts = userDepartment === "PRODUCT"
     ? PRODUCT_DEMO_PROMPTS
-    : DEFAULT_STARTER_PROMPTS;
+    : userDepartment === "ACCOUNTING"
+      ? ACCOUNTING_DEMO_PROMPTS
+      : DEFAULT_STARTER_PROMPTS;
 
   useEffect(() => {
     const savedWidth = Number(window.localStorage.getItem("hr_knowledge_conversation_panel_width"));
@@ -715,7 +723,7 @@ export function ChatView({ user, onLogout, hidden = false }: { user: User; onLog
             </div>;
           })}
         </div>
-        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đăng xuất" title="Đăng xuất" onClick={onLogout}><LogOut size={17} /></button></div>
+        <div className="conversation-account"><span className="profile-avatar">{user.full_name.split(" ").map((part) => part[0]).slice(-2).join("")}</span><span className="conversation-account-copy"><strong>{user.full_name}</strong><small>{roleLabel(user.role)}</small></span><button className="icon-command top-logout" aria-label="Đổi vai trò" title="Đổi vai trò" onClick={onLogout}><LogOut size={17} /></button></div>
         <div className="bar-resizer conversation-resizer" role="separator" aria-label="Điều chỉnh chiều rộng lịch sử hội thoại" aria-orientation="vertical" aria-valuemin={240} aria-valuemax={420} aria-valuenow={conversationPanelWidth} tabIndex={0} onPointerDown={beginConversationPanelResize} onPointerMove={moveConversationPanelResize} onPointerUp={endConversationPanelResize} onPointerCancel={endConversationPanelResize} onKeyDown={resizeConversationPanelWithKeyboard} />
       </aside>
       <section className="chat-main" data-ui="dashboard">
@@ -825,7 +833,7 @@ function AssistantMessage({ result, onCitation, onRetry, onQuickPrompt }: {
         : <AnswerMarkdown content={result.answer ?? result.failure?.message ?? ""} />}
       {isGenerating && <span className="typing-cursor" style={{ opacity: 0.8, animation: "pulse 1s infinite" }}> ▌</span>}
       {(result.warnings ?? []).map((warning) => <div className="inline-warning" key={`${warning.type}-${warning.message}`}>{warning.message}</div>)}
-      {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"} · {item.sheet ? `Sheet ${item.sheet}` : `Trang ${item.page ?? "—"}`}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
+      {!!result.citations?.length && <div className="citation-list">{result.citations.map((item) => <button key={item.citation_id} onClick={() => onCitation(item)}><BookOpenCheck size={16} /><span><strong>{item.title}</strong><small>{item.section ?? "Không rõ mục"}{item.sheet ? ` · Sheet ${item.sheet}` : item.page ? ` · Trang ${item.page}` : ""}</small><em className={isOfficialCitation(item) ? "official" : "reference"}>{isOfficialCitation(item) ? "Chính thức" : formatSourceType(item.source_type)}</em></span></button>)}</div>}
       {!!result.quick_prompts?.length && (
         <div className="quick-prompt-row">
           <small className="quick-prompt-label">Gợi ý câu hỏi:</small>
@@ -838,8 +846,48 @@ function AssistantMessage({ result, onCitation, onRetry, onQuickPrompt }: {
           </div>
         </div>
       )}
-      {result.state === "REFUSED" && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
+      {result.ticket_proposal && <TicketProposalCard chatRequestId={result.chat_request_id} initial={result.ticket_proposal} />}
+      {result.state === "REFUSED" && !result.ticket_proposal && <div className="escalation-note"><CircleAlert size={17} />Kho tài liệu hiện chưa đủ căn cứ để trả lời câu hỏi này. Hệ thống không tự tạo yêu cầu hỗ trợ — nếu bạn vẫn cần câu trả lời chính thức, hãy tạo ticket ở mục Ticket để người phụ trách xử lý.</div>}
       {result.state === "FAILED" && result.failure?.retryable && <button className="secondary-command" onClick={() => onRetry(result.chat_request_id)}><RefreshCw size={16} /> Thử lại</button>}
+    </div>
+  </div>;
+}
+
+function TicketProposalCard({ chatRequestId, initial }: { chatRequestId: string; initial: TicketProposal }) {
+  const [proposal, setProposal] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { target_department, priority } = proposal.draft;
+  if (proposal.status === "CONFIRMED") {
+    return <div className="escalation-note" role="status"><BookOpenCheck size={17} />Đã tạo yêu cầu {proposal.ticket_code} gửi bộ phận {target_department}. Theo dõi ở mục Ticket.</div>;
+  }
+  if (proposal.status === "REJECTED") {
+    return <div className="escalation-note" role="status"><CircleAlert size={17} />Bạn đã không gửi yêu cầu này. Nếu cần, hãy đặt câu hỏi mới hoặc tạo ticket ở mục Ticket.</div>;
+  }
+  const act = async (run: () => Promise<TicketProposal>, failMessage: string) => {
+    setBusy(true);
+    setError(null);
+    try {
+      setProposal(await run());
+    } catch (e) {
+      setError(e instanceof ApiClientError ? e.message : failMessage);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const confirm = () => act(() => api.confirmTicketProposal(chatRequestId), "Không tạo được yêu cầu, thử lại sau.");
+  const reject = () => act(() => api.rejectTicketProposal(chatRequestId), "Không huỷ được đề xuất, thử lại sau.");
+  return <div className="escalation-note">
+    <CircleAlert size={17} />
+    <div>
+      <p>Trợ lý đã soạn sẵn yêu cầu gửi bộ phận {target_department} (ưu tiên {priority}). Yêu cầu chỉ được gửi khi bạn xác nhận.</p>
+      <button className="secondary-command" disabled={busy} onClick={() => void confirm()}>
+        {busy ? <LoaderCircle size={16} className="spin" /> : <Send size={16} />} Gửi yêu cầu
+      </button>
+      <button className="secondary-command" disabled={busy} onClick={() => void reject()}>
+        Không gửi
+      </button>
+      {error && <p role="alert">{error}</p>}
     </div>
   </div>;
 }
@@ -861,15 +909,36 @@ function AnswerMarkdown({ content }: { content: string }) {
   const lines = content.split(/\r?\n/);
   const blocks: ReactNode[] = [];
   let list: string[] = [];
+  let table: string[][] = [];
 
   function flushList() {
     if (!list.length) return;
-    blocks.push(<ul key={`list-${blocks.length}`}>{list.map((item, index) => <li key={index}>{inlineMarkdown(item)}</li>)}</ul>);
+    blocks.push(<ul key={`list-${blocks.length}`}>{list.map((item, index) => {
+      const todo = item.match(/^\[( |x)\]\s+(.+)$/i);
+      return <li key={index}>{todo ? <><input type="checkbox" checked={todo[1] !== " "} readOnly aria-label="Việc cần làm" /> {inlineMarkdown(todo[2])}</> : inlineMarkdown(item)}</li>;
+    })}</ul>);
     list = [];
+  }
+
+  function flushTable() {
+    if (!table.length) return;
+    const [head, ...body] = table;
+    blocks.push(<div className="answer-table" key={`table-${blocks.length}`}><table>
+      <thead><tr>{head.map((cell, index) => <th key={index} scope="col">{inlineMarkdown(cell)}</th>)}</tr></thead>
+      <tbody>{body.map((row, r) => <tr key={r}>{row.map((cell, index) => <td key={index}>{inlineMarkdown(cell)}</td>)}</tr>)}</tbody>
+    </table></div>);
+    table = [];
   }
 
   lines.forEach((rawLine) => {
     const line = rawLine.trim();
+    if (line.startsWith("|") && line.endsWith("|")) {
+      flushList();
+      // Dòng ngăn cách |---|---| của Markdown không phải dữ liệu.
+      if (!/^\|[\s:|-]+\|$/.test(line)) table.push(line.slice(1, -1).split("|").map((cell) => cell.trim()));
+      return;
+    }
+    flushTable();
     const item = line.match(/^[-*]\s+(.+)$/);
     if (item) {
       list.push(item[1]);
@@ -883,5 +952,6 @@ function AnswerMarkdown({ content }: { content: string }) {
       : <p key={`paragraph-${blocks.length}`}>{inlineMarkdown(line)}</p>);
   });
   flushList();
+  flushTable();
   return <div className="answer-copy">{blocks}</div>;
 }

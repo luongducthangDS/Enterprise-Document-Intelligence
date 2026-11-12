@@ -15,12 +15,13 @@ from app.core.config import get_settings
 from app.core.database import AsyncSessionLocal
 from app.core.exceptions import AppException, ConflictError, ForbiddenError, NotFoundError
 from app.core.logging import logger
+from app.domain.models.audit import AuditLogDB
 from app.domain.models.chat_requests import ChatRequestDB
 from app.domain.models.conversations import ConversationDB
 from app.domain.models.documents import DocumentDB
 from app.domain.models.messages import MessageDB
 from app.domain.models.profile import ProfileDB
-from app.schemas.agent import AgentAnswerDTO
+from app.schemas.agent import AgentAnswerDTO, AgentTicketDraftDTO
 from app.services.agent_answer_adapter import AgentAnswerAdapter
 from app.services.ai_agent_client import AIAgentClient, AIAgentClientError
 from app.services.content_safety import sanitize_citations_for_client
@@ -276,6 +277,19 @@ class ChatService:
                 # mới phải chờ tới pool timeout dù database vẫn hoạt động.
                 await db.commit()
 
+                # Lượt gần nhất đã có câu trả lời trong cùng hội thoại: agent nạp lại bằng chứng của lượt đó.
+                previous_request_id = await db.scalar(
+                    select(ChatRequestDB.id)
+                    .where(
+                        ChatRequestDB.conversation_id == conversation_id,
+                        ChatRequestDB.id != chat_request_id,
+                        ChatRequestDB.answer.is_not(None),
+                    )
+                    .order_by(desc(ChatRequestDB.created_at))
+                    .limit(1)
+                )
+                await db.commit()
+                prev_id = str(previous_request_id) if previous_request_id else None
                 if on_event is None:
                     agent_answer = await cls.agent_client.query_agent(
                         user_id=str(user_id),
@@ -285,6 +299,7 @@ class ChatService:
                         user_role=effective_role,
                         tenant_id=effective_tenant,
                         history=history,
+                        previous_request_id=prev_id,
                     )
                 else:
                     agent_answer = None
@@ -296,6 +311,7 @@ class ChatService:
                         user_role=effective_role,
                         tenant_id=effective_tenant,
                         history=history,
+                        previous_request_id=prev_id,
                     ):
                         if event["type"] == "error":
                             raise AIAgentClientError(
@@ -413,6 +429,9 @@ class ChatService:
                 chat_req.citations = mapped.citations
                 chat_req.warnings = mapped.warnings
                 chat_req.clarification = mapped.clarification
+                chat_req.ticket_proposal = AgentAnswerAdapter.case_proposal(
+                    agent_answer, get_settings().enable_create_case
+                )
                 chat_req.failure = None
                 chat_req.retryable = mapped.retryable
                 chat_req.assistant_message_id = assistant_msg_id
@@ -466,6 +485,108 @@ class ChatService:
 
         return cls._status_payload(chat_req)
 
+    @classmethod
+    async def confirm_ticket_proposal(
+        cls,
+        db: AsyncSession,
+        chat_request_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> dict[str, Any]:
+        """Người hỏi xác nhận đề xuất CREATE_CASE -> tạo ticket, idempotent.
+
+        Khoá hàng chat_request (FOR UPDATE) để hai lần bấm đồng thời không tạo
+        hai ticket; lần bấm sau trả lại ticket đã tạo.
+        """
+        chat_req, proposal = await cls._locked_proposal(db, chat_request_id, user_id)
+        if proposal.get("ticket_id"):
+            return proposal
+        if proposal.get("status") == "REJECTED":
+            raise ConflictError(code="PROPOSAL_REJECTED", message="Đề xuất này đã bị từ chối; hãy gửi yêu cầu mới.")
+        if not get_settings().enable_create_case:
+            raise ForbiddenError("Tạo ticket từ hội thoại đang tắt.")
+
+        ticket = await TicketService.create_from_agent_draft(
+            db=db,
+            draft=AgentTicketDraftDTO.model_validate(proposal["draft"]),
+            conversation_id=chat_req.conversation_id,
+            message_id=chat_req.assistant_message_id,
+            requester_id=user_id,
+        )
+        if chat_req.assistant_message_id:
+            msg = await db.get(MessageDB, chat_req.assistant_message_id)
+            if msg:
+                msg.ticket_id = ticket.id
+        confirmed = {
+            **proposal,
+            "status": "CONFIRMED",
+            "ticket_id": str(ticket.id),
+            "ticket_code": ticket.ticket_code,
+            "confirmed_at": datetime.now(UTC).isoformat(),
+        }
+        chat_req.ticket_proposal = confirmed  # gán dict mới để SQLAlchemy thấy thay đổi JSON
+        db.add(cls._proposal_audit(user_id, "AGENT_CASE_CONFIRMED", chat_request_id, proposal, confirmed))
+        await db.commit()
+        logger.info(f"Ticket {ticket.ticket_code} created by user confirmation for chat_request {chat_request_id}")
+        return confirmed
+
+    @classmethod
+    async def reject_ticket_proposal(
+        cls,
+        db: AsyncSession,
+        chat_request_id: uuid.UUID,
+        user_id: uuid.UUID,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        """Người hỏi từ chối đề xuất CREATE_CASE: không tạo ticket, ghi lý do + audit. Idempotent."""
+        chat_req, proposal = await cls._locked_proposal(db, chat_request_id, user_id)
+        if proposal.get("ticket_id"):
+            raise ConflictError(code="PROPOSAL_ALREADY_CONFIRMED", message="Ticket đã được tạo, không thể từ chối.")
+        if proposal.get("status") == "REJECTED":
+            return proposal
+        rejected = {
+            **proposal,
+            "status": "REJECTED",
+            "rejection_reason": (reason or "").strip()[:500] or None,
+            "rejected_at": datetime.now(UTC).isoformat(),
+        }
+        chat_req.ticket_proposal = rejected
+        db.add(cls._proposal_audit(user_id, "AGENT_CASE_REJECTED", chat_request_id, proposal, rejected))
+        await db.commit()
+        logger.info(f"Ticket proposal rejected by user for chat_request {chat_request_id}")
+        return rejected
+
+    @staticmethod
+    async def _locked_proposal(
+        db: AsyncSession, chat_request_id: uuid.UUID, user_id: uuid.UUID
+    ) -> tuple[ChatRequestDB, dict[str, Any]]:
+        """Khoá hàng chat_request (FOR UPDATE) để duyệt/từ chối đồng thời không giẫm nhau."""
+        res = await db.execute(
+            select(ChatRequestDB).where(ChatRequestDB.id == chat_request_id).with_for_update()
+        )
+        chat_req = res.scalar_one_or_none()
+        if not chat_req:
+            raise NotFoundError(code="CHAT_REQUEST_NOT_FOUND", message="Không tìm thấy yêu cầu chat.")
+        if chat_req.user_id != user_id:
+            raise ForbiddenError("Bạn không có quyền xử lý yêu cầu này.")
+        if not chat_req.ticket_proposal:
+            raise ConflictError(code="NO_TICKET_PROPOSAL", message="Yêu cầu này không có đề xuất tạo ticket.")
+        return chat_req, chat_req.ticket_proposal
+
+    @staticmethod
+    def _proposal_audit(
+        actor_id: uuid.UUID, action: str, chat_request_id: uuid.UUID, before: dict, after: dict
+    ) -> AuditLogDB:
+        keep = ("status", "ticket_code", "rejection_reason")
+        return AuditLogDB(
+            tenant=get_settings().active_tenant,
+            actor_id=actor_id,
+            action=action,
+            resource_type="chat_request.ticket_proposal",
+            resource_id=str(chat_request_id),
+            before_state={k: before.get(k) for k in keep},
+            after_state={k: after.get(k) for k in keep},
+        )
+
     @staticmethod
     def _status_payload(
         chat_req: ChatRequestDB,
@@ -488,6 +609,7 @@ class ChatService:
             "clarification": chat_req.clarification,
             "failure": chat_req.failure,
             "latency_ms": chat_req.latency_ms,
+            "ticket_proposal": chat_req.ticket_proposal,
         }
 
     @classmethod
@@ -731,6 +853,9 @@ class ChatService:
                     chat_req.citations = mapped.citations
                     chat_req.warnings = mapped.warnings
                     chat_req.clarification = mapped.clarification
+                    chat_req.ticket_proposal = AgentAnswerAdapter.case_proposal(
+                        agent_answer, get_settings().enable_create_case
+                    )
                     chat_req.failure = None
                     chat_req.retryable = mapped.retryable
                     chat_req.assistant_message_id = assistant_msg_id

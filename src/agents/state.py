@@ -170,6 +170,14 @@ class AgentState(TypedDict, total=False):
     ticket_department: str
     ticket_priority: str
     rewrite_count: int
+    # Trace tool call của react_node (AGENT_MODE=react): [{"tool", "args", "result"}].
+    agent_steps: list[dict]
+    # Kế hoạch của planner (REACT_PLANNER=true): {"steps": [{"goal", "tool"}], "deliverable"}.
+    plan: dict
+    # Dạng kết quả cuối cho generate: "answer" | "comparison_table" | "action_checklist".
+    deliverable: str
+    # Bằng chứng (chunk) của lượt trước trong cùng hội thoại, nạp từ checkpoint (task memory).
+    memory_chunks: list[RetrievedChunk]
     hallucination_passed: bool
     hallucination_retry_count: int
     # "deterministic_numeric_grounding" | "llm_judge" — audit: câu trả lời được

@@ -386,7 +386,7 @@ async def retrieval_node(state: AgentState) -> dict:
         await asyncio.to_thread(_bm25_index, collection_name)
 
     search_query = _expand_retrieval_query(query)
-    with llm_trace.Timer("embedding", "fpt_cloud" if settings.use_glm else "openai"):
+    with llm_trace.Timer("retrieval_prep", "embed+acl+bm25"):  # giai đoạn, không phải lời gọi model
         embedding, allowed_files, _ = await asyncio.gather(
             _aembed_query(search_query),
             _get_allowed_files_async(),
@@ -571,7 +571,7 @@ async def _amerge_bm25(
                     chunk_map[chunk_id] = _to_chunk(chunk_id, text, meta, fallback_distance)
 
     valid_bm25_ids = [cid for cid in bm25_candidates if cid in chunk_map][: settings.bm25_top_k]
-    if not settings.use_glm:
+    if not settings.use_glm and settings.llm_provider != "gemini":
         # Khi USE_GLM=OFF (OpenAI query trên kho E5), BM25 là nguồn tìm kiếm từ khóa chính xác nhất.
         # Đưa toàn bộ ứng viên BM25 lên đầu danh sách trước khi bổ sung dense để LLM Reranker đánh giá.
         ordered_ids = list(dict.fromkeys(valid_bm25_ids + dense_ids))

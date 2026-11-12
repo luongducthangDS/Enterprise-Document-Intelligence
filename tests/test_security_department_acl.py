@@ -70,3 +70,21 @@ def test_lifecycle_postcheck_rejects_future_and_expired_chunks() -> None:
         _metadata_lifecycle_allowed({**base, "effective_date_ymd": 20990101, "expiry_date_ymd": 99991231}, 20260823)
         is False
     )
+
+
+def test_runtime_upload_metadata_cannot_override_registry_scope():
+    """09/11: chunk Chroma của 13-QD-ABC ghi RUNTIME_UPLOAD + COMPANY_WIDE trong khi
+    registry ghi DEPARTMENT/ACCOUNTING -> từng lộ cho nhân viên HR."""
+    from src.security.authorization import runtime_upload_metadata_allowed
+    from src.security.models import UserContext
+
+    hr = UserContext.from_state({"tenant_id": "nexatech", "user_id": "u", "department": "HR", "user_role": "EMPLOYEE"})
+    stale = {
+        "source_file": "13-QD-ABC_Quy-Che-Chi-Tieu-Noi-Bo-Han-Muc-Duyet-Chi.docx",
+        "authorization_source": "RUNTIME_UPLOAD",
+        "access_scope": "COMPANY_WIDE",
+        "department": "ACCOUNTING",
+    }
+    assert runtime_upload_metadata_allowed(hr, stale) is False
+    # Upload thật (chưa vào registry) vẫn theo metadata runtime như cũ.
+    assert runtime_upload_metadata_allowed(hr, {**stale, "source_file": "new_upload_not_in_registry.pdf"}) is True

@@ -132,8 +132,9 @@ class TestAnswer:
 
 
 def _fake_astream(steps: list[dict]):
-    """Giả lập `agent.astream(state, stream_mode="updates")` — mỗi item trong
-    `steps` là 1 dict `{node_name: delta}`, đúng shape LangGraph thật trả về
+    """Giả lập `agent.astream(state, stream_mode=["updates", "custom"])` — mỗi item
+    trong `steps` là 1 dict `{node_name: delta}`, phát ra dạng `("updates", step)`
+    như LangGraph thật khi truyền nhiều stream_mode
     (đã verify thủ công bằng smoke test trên graph thật trước khi viết
     astream_answer, xem lịch sử trao đổi 2026-08-10)."""
 
@@ -141,7 +142,7 @@ def _fake_astream(steps: list[dict]):
         for step in steps:
             for node_name, delta in step.items():
                 state.update(delta)
-            yield step
+            yield "updates", step
 
     return _gen
 
@@ -293,7 +294,7 @@ class TestAstreamAnswer:
     @pytest.mark.asyncio
     async def test_error_during_graph_run_emits_error_event_and_stops(self):
         async def _broken_gen(state, **kwargs):
-            yield {"router": {"intent": "hr_question"}}
+            yield "updates", {"router": {"intent": "hr_question"}}
             raise RuntimeError("gateway timeout")
 
         with patch("src.agents.service.agent.astream", new=_broken_gen):
@@ -351,3 +352,30 @@ class TestAstreamAnswer:
         assert res_turn2.citations[0].source_file == "07_chinh-sach-nghi-phep.md"
         assert res_turn2.confidence_score == 0.92
 
+
+
+@pytest.mark.asyncio
+async def test_custom_stream_events_pass_through():
+    """Event tiến trình tool call của react_node (stream_mode custom) đi thẳng ra SSE."""
+
+    async def _gen(state, **kwargs):
+        yield "custom", {"type": "status", "value": "Đang tìm trong tài liệu: phép năm"}
+        yield "updates", {"react": {"retrieved_chunks": []}}
+
+    with patch("src.agents.service.agent.astream", new=_gen):
+        events = [e async for e in astream_answer("q")]
+    statuses = [e["value"] for e in events if e["type"] == "status"]
+    assert "Đang tìm trong tài liệu: phép năm" in statuses
+    assert "Đang soạn câu trả lời..." in statuses
+
+
+@pytest.mark.parametrize(
+    "reason,code",
+    [("hallucination_detected", "missing_policy_evidence"), ("requires_live_accounting_erp_data", "requires_live_personal_data")],
+)
+def test_refusal_reasons_are_abstain_and_valid(reason, code):
+    from src.agents.service import _derive_runtime_state
+    from src.models.schemas import AgentAnswer
+
+    assert _derive_runtime_state({"escalate_reason": reason}) == ("ABSTAIN", code)
+    AgentAnswer(response="x", intent="hr_question", escalate=True, escalate_reason=reason, state="ABSTAIN")

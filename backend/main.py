@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 import time
@@ -43,10 +44,11 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"[DB Schema Migration] Notice: {e}")
 
-    # 1. Warmup / Health Check tới AI Agent Service (chạy 1 lần duy nhất khi Backend khởi động)
+    # 1. Đánh thức AI Agent ở background, KHÔNG chờ: Agent free tier ngủ sau 15 phút,
+    #    chờ tối đa 25s ở đây từng làm health check của Backend chậm gấp đôi mỗi cold start.
     try:
         from app.services.warmup_service import WarmupService
-        await WarmupService.check_and_warmup_on_startup(max_wait_seconds=25.0)
+        app.state.agent_warmup_task = asyncio.create_task(WarmupService.check_and_warmup_on_startup(max_wait_seconds=60.0))
     except Exception as e:
         logger.warning(f"[Startup Lifespan] Warmup AI Agent gặp lỗi: {e}")
 
@@ -79,10 +81,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+DEMO_FRONTEND_ORIGIN = "https://enterprise-document-intelligence-unh1.onrender.com"
+
 # Middleware 1: CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins.split(","),
+    # ponytail: Render CLI không sửa được env của service có sẵn; chuyển origin này vào CORS_ORIGINS khi tiện.
+    allow_origins=settings.cors_origins.split(",") + ([DEMO_FRONTEND_ORIGIN] if settings.demo_mode else []),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -118,14 +123,21 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Endpoint kiểm tra sức khoẻ Backend. Đồng thời kích hoạt ngầm đánh thức Agent qua mạng nội bộ."""
-    from app.services.warmup_service import WarmupService
-    # WarmupService.trigger_background_warmup()
+    """Endpoint kiểm tra sức khoẻ Backend (không đánh thức Agent — dùng /warmup cho việc đó)."""
     return {
         "status": "healthy",
         "service": settings.app_name,
         "env": settings.app_env,
     }
+
+
+@app.get("/warmup", tags=["Health"])
+async def warmup_agent():
+    """Đánh thức Agent từ trình duyệt: Agent không mở CORS nên frontend phải đi qua Backend."""
+    from app.services.warmup_service import WarmupService
+
+    WarmupService.trigger_background_warmup()
+    return {"status": "warming"}
 
 
 if __name__ == "__main__":

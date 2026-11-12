@@ -5,6 +5,7 @@ from src.agents.nodes.condense import condense_node
 from src.agents.nodes.escalation import confidence_node, department_access_denied_node, escalate_node, out_of_scope_node
 from src.agents.nodes.generation import finalize_node, generate_node, hallucination_check_node
 from src.agents.nodes.knowledge_lookup import knowledge_lookup_node
+from src.agents.nodes.react import react_node, route_after_react
 from src.agents.nodes.retrieval import grade_node, retrieval_node, rewrite_node
 from src.agents.nodes.router import clarify_node, condense_and_route_node, direct_node, capability_node, router_node
 from src.agents.state import AgentState
@@ -85,7 +86,32 @@ def route_after_hallucination(state: AgentState) -> str:
     return "escalate"
 
 
-def build_graph() -> StateGraph:
+def _build_plain_rag(checkpointer=None):
+    """Nhánh đối chứng "RAG truyền thống" cho benchmark: retrieve -> grade -> generate -> finalize.
+    Không router, không rewrite, không kiểm hallucination/escalate; ACL vẫn ở retrieval."""
+    graph = StateGraph(AgentState)
+    graph.add_node("retrieve", retrieval_node)
+    graph.add_node("grade", grade_node)
+    graph.add_node("generate", generate_node)
+    graph.add_node("access_denied", department_access_denied_node)
+    graph.add_node("finalize", finalize_node)
+    graph.set_entry_point("retrieve")
+    graph.add_edge("retrieve", "grade")
+    graph.add_conditional_edges(
+        "grade",
+        lambda s: "access_denied" if s.get("access_denied_reason") and not s.get("retrieved_chunks") else "generate",
+        {"access_denied": "access_denied", "generate": "generate"},
+    )
+    graph.add_edge("access_denied", END)
+    graph.add_edge("generate", "finalize")
+    graph.add_edge("finalize", END)
+    return graph.compile(checkpointer=checkpointer)
+
+
+def build_graph(mode: str | None = None, checkpointer=None) -> StateGraph:
+    if mode == "rag":
+        return _build_plain_rag(checkpointer)
+    react = (mode or get_settings().agent_mode) == "react"
     graph = StateGraph(AgentState)
 
     # Core Nodes
@@ -121,7 +147,7 @@ def build_graph() -> StateGraph:
             "clarify": "clarify",
             "escalate": "escalate_ticket",
             "out_of_scope": "out_of_scope",
-            "retrieve": "knowledge_lookup",
+            "retrieve": "react" if react else "knowledge_lookup",
         },
     )
     graph.add_edge("capability", END)
@@ -141,6 +167,16 @@ def build_graph() -> StateGraph:
     )
     graph.add_edge("access_denied", END)
     graph.add_edge("rewrite", "retrieve")
+
+    if react:
+        # LLM tự chọn tool thay cho knowledge_lookup/retrieve/grade/rewrite; từ
+        # generate trở đi dùng chung guardrail với pipeline.
+        graph.add_node("react", react_node)
+        graph.add_conditional_edges(
+            "react",
+            route_after_react,
+            {"finalize": "finalize", "escalate": "escalate_ticket", "access_denied": "access_denied", "generate": "generate"},
+        )
 
     # Pipeline sau Generate: Generate -> Confidence -> (Fast: Finalize | Guarded: Hallucination)
     graph.add_edge("generate", "confidence")
@@ -167,7 +203,7 @@ def build_graph() -> StateGraph:
     graph.add_edge("escalate_ticket", END)
     graph.add_edge("finalize", END)
 
-    return graph.compile()
+    return graph.compile(checkpointer=checkpointer)
 
 
 agent = build_graph()
