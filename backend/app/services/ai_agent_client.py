@@ -45,14 +45,20 @@ class AIAgentClient:
         service_token: str = settings.ai_agent_service_token,
         transport: httpx.AsyncBaseTransport | None = None,
         max_cold_retries: int | None = None,
-        cold_retry_delay: float = 5.0,
+        cold_retry_delay: float | None = None,
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.service_token = service_token
         self.transport = transport
-        self.max_cold_retries = max_cold_retries if max_cold_retries is not None else (1 if transport is not None else 6)
-        self.cold_retry_delay = cold_retry_delay
+        self.max_cold_retries = (
+            max_cold_retries
+            if max_cold_retries is not None
+            else (1 if transport is not None else settings.ai_agent_max_cold_retries)
+        )
+        self.cold_retry_delay = (
+            cold_retry_delay if cold_retry_delay is not None else settings.ai_agent_cold_retry_delay_seconds
+        )
 
     async def query_agent(
         self,

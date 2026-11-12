@@ -65,6 +65,10 @@ class Settings(BaseSettings):
     ai_agent_timeout_seconds: float = 120.0
     ai_agent_service_token: str = ""
     ai_agent_max_history_turns: int = Field(default=8, ge=0, le=16)
+    # Render free ngủ sau 15 phút; boot agent (import + warmup + provisioning) mất 30-50s,
+    # nên ladder 6x5s=30s cũ không phủ hết một lần đánh thức.
+    ai_agent_max_cold_retries: int = Field(default=10, ge=1, le=30)
+    ai_agent_cold_retry_delay_seconds: float = Field(default=5.0, gt=0, le=30)
 
     # ---- Cloudinary CDN Storage ----
     cloudinary_cloud_name: str = Field(default="", description="Cloudinary Cloud Name")

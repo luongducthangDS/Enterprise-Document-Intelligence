@@ -12,7 +12,8 @@ const ROLES = [
 ] as const;
 
 // Render free ngủ khi không có truy cập: một lần thức có thể vượt timeout 45s của request.
-const MAX_ATTEMPTS = 3;
+// Giữ 2 lần thử: lần đầu đánh thức + lần sau lấy token thật; 3 lần chỉ kéo dài thời gian chờ.
+const MAX_ATTEMPTS = 2;
 
 export function DemoEntry({ onAuthenticated }: { onAuthenticated: (user: User) => void }) {
   const [pending, setPending] = useState("");

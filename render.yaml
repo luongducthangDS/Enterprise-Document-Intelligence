@@ -1,4 +1,12 @@
 services:
+  # Độ trễ demo: cả 2 web service dùng plan free nên ngủ sau 15 phút không truy cập,
+  # cold start ~30-50s. Giữ ấm bằng cron ping GET /health của cả hai mỗi 5-10 phút
+  # trong khung giờ demo. Quota free là 750 instance-giờ/tháng cho cả workspace:
+  # 2 service chạy 24/7 là ~1488h -> vượt quota, nên chỉ bật trong khung demo
+  # (<=10h/ngày) hoặc nâng lên plan Starter.
+  # Tốc độ trả lời (đo 12/11): react ~15s/câu, pipeline ~10s/câu. Đặt
+  # AGENT_MODE=pipeline nếu demo chỉ cần hỏi đáp chính sách — khi đó mất
+  # compare_documents/extract_structured của react.
   # ============================================================================
   # 1. AI Agent Core Service (FastAPI + LangGraph + Chroma Cloud + OpenAI/FPT LLM)
   # ============================================================================
