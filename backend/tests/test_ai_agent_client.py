@@ -115,3 +115,46 @@ async def test_client_parses_agent_sse_stream():
 
     assert [event["type"] for event in events] == ["status", "done"]
     assert events[-1]["answer"]["response"] == "Policy answer"
+
+
+@pytest.mark.asyncio
+async def test_client_retries_on_502_cold_start():
+    attempts = 0
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(502, text="Bad Gateway (cold start)")
+        body = "".join(
+            [
+                'event: status\ndata: {"type":"status","value":"Đang soạn..."}\n\n',
+                f"event: done\ndata: {json.dumps({'type': 'done', 'answer': agent_response()})}\n\n",
+            ]
+        )
+        return httpx.Response(200, text=body, headers={"Content-Type": "text/event-stream"})
+
+    client = AIAgentClient(
+        base_url="http://agent",
+        transport=httpx.MockTransport(handler),
+        max_cold_retries=3,
+        cold_retry_delay=0.01,
+    )
+    events = [
+        event
+        async for event in client.stream_query_agent(
+            "user-1",
+            "Leave policy",
+            "Engineering",
+            "request-cold",
+            "EMPLOYEE",
+            "nexatech",
+        )
+    ]
+
+    assert attempts == 2
+    # First yielded event should be the cold start status
+    assert events[0]["type"] == "status"
+    assert "cold start" in events[0]["value"]
+    assert events[-1]["type"] == "done"
+
